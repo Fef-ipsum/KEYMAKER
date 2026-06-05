@@ -1538,7 +1538,7 @@ export const m3chapitre1 = {
       concept:
         'Une guitare standard a 6 cordes, accordées de la plus grave à la plus aiguë : ' +
         'Mi La Ré Sol Si Mi — en lettres E A D G B E. « À vide » = jouée sans poser de doigt.',
-      code: 'note("e2 a2 d3 g3 b3 e4").s("gm_acoustic_guitar_steel").room(.3)',
+      code: 'note("e2 a2 d3 g3 b3 e4").s("gm_acoustic_guitar_nylon").room(.3)',
       decode: [
         ['e2 … e4', 'de la 6ᵉ corde (grave) à la 1ʳᵉ (aiguë).'],
         ['les chiffres', "l'octave (M2) : e2 grave, e4 deux octaves plus haut."],
@@ -1564,7 +1564,7 @@ export const m3chapitre1 = {
       concept:
         "Poser un doigt une case plus haut monte la note d'un demi-ton (M2). " +
         "En montant la corde de Mi grave case par case, on parcourt la gamme chromatique.",
-      code: 'note("e2 f2 f#2 g2 g#2 a2").s("gm_acoustic_guitar_steel").clip(1.2)',
+      code: 'note("e2 f2 f#2 g2 g#2 a2").s("gm_acoustic_guitar_nylon").clip(1.2)',
       decode: [
         ['e2 → a2', 'cases 0 à 5 de la corde de Mi grave : E F F# G G# A.'],
         ['1 case', '= 1 demi-ton = la plus petite marche (M2).'],
@@ -1667,7 +1667,7 @@ export const m3chapitre2 = {
       concept:
         "Sur la corde de Mi grave, en montant case par case, on retrouve l'alphabet musical (M2). " +
         'Connaître les notes de cette corde suffit déjà pour te repérer partout.',
-      code: 'note("e2 f2 g2 a2 b2 c3 d3 e3").s("gm_acoustic_guitar_steel").clip(1.2)',
+      code: 'note("e2 f2 g2 a2 b2 c3 d3 e3").s("gm_acoustic_guitar_nylon").clip(1.2)',
       decode: [
         ['e2 f2 g2 …', 'les notes naturelles (sans dièse) de la corde de Mi grave.'],
         ['cases 0 1 3 5 7 8 10 12', "attention : E→F et B→C n'ont qu'1 case d'écart (M2)."],
@@ -1719,7 +1719,7 @@ export const m3chapitre2 = {
       concept:
         "Un capo serre toutes les cordes à une case : il monte tout le morceau de N demi-tons " +
         "sans changer tes doigtés. Dans Strudel, c'est .add(N) appliqué à l'ensemble (M2 : transposer).",
-      code: 'note("e2 a2 d3 g3 b3 e4").add("<0 2 5>").s("gm_acoustic_guitar_steel").clip(1.5)',
+      code: 'note("e2 a2 d3 g3 b3 e4").add("<0 2 5>").s("gm_acoustic_guitar_nylon").clip(1.5)',
       decode: [
         ['.add("<0 2 5>")', 'capo 0 (rien), puis capo 2, puis capo 5 — un par cycle (M1 : < >).'],
         ['capo 2', '+2 demi-tons : tes accords sonnent un ton plus haut.'],
@@ -1822,7 +1822,7 @@ export const m3chapitre3 = {
       concept:
         'Un accord ouvert utilise des cordes à vide + quelques doigts près du sillet. Le Mi majeur (E) ' +
         'est le plus simple : 3 doigts, 6 cordes qui sonnent. Voici ses vraies notes.',
-      code: 'note("[e2,b2,e3,g#3,b3,e4]").s("gm_acoustic_guitar_steel").room(.4)',
+      code: 'note("[e2,b2,e3,g#3,b3,e4]").s("gm_acoustic_guitar_nylon").room(.4)',
       decode: [
         ['[e2,b2,e3,g#3,b3,e4]', 'les 6 cordes du Mi majeur ouvert, de la grave à l\'aiguë.'],
         ['crochets + virgules', 'toutes les notes en même temps = un accord (M2).'],
@@ -1849,7 +1849,7 @@ export const m3chapitre3 = {
       concept:
         'Pour passer de Mi majeur à Mi mineur, on enlève un seul doigt : la tierce majeure (G#) ' +
         "descend d'un demi-ton vers la tierce mineure (G). Un demi-ton change toute l'humeur (M2).",
-      code: 'note("[e2,b2,e3,g#3,b3,e4] [e2,b2,e3,g3,b3,e4]").s("gm_acoustic_guitar_steel").room(.4)',
+      code: 'note("[e2,b2,e3,g#3,b3,e4] [e2,b2,e3,g3,b3,e4]").s("gm_acoustic_guitar_nylon").room(.4)',
       decode: [
         ['1er accord : g#3', 'Mi MAJEUR : joyeux.'],
         ['2ᵉ accord : g3', 'Mi MINEUR : triste. Seul g#→g a changé.'],
