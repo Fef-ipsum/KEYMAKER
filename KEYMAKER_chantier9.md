@@ -147,4 +147,9 @@ fichiers à jour pendant ET à la fin de session » (roadmap). Ce brief et la li
 - **Valider le Module 3 à l'oreille** avec Felix (et ajuster les codes qui sonneraient faux).
 - **Modules 4 à 6** (audio & effets · informatique musicale · composition) — même méthode.
 - **Thème Matrix** (3ᵉ thème, vert) — suite naturelle du Chantier 8.
-- (option
+- (optionnel) câblage app → `session_id` pour relier le journal de Sati et les sessions.
+
+---
+
+*Brief complété le 5 juin 2026 (vérification Strudel + décisions de contenu + tests). Contenu initial du
+Module 3 : autre session, réconcilié et re-livré proprement.*

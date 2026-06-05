@@ -293,4 +293,9 @@ n(irand(8)).scale("C:minor")
 ## §10 — Pages officielles (pour aller plus loin)
 
 Base : `https://strudel.cc/learn/`
-`notes/` · `sounds/` · `samples/` · `synths/` · `effects/` · `m
+`notes/` · `sounds/` · `samples/` · `synths/` · `effects/` · `mini-notation/` · `tonal/` · `time-modifiers/` · `factories/` · `signals/` · `conditional-modifiers/` · `random-modifiers/` · `accumulation/` · `input-output/`
+REPL : `https://strudel.cc/` (onglet **sounds** = liste réelle des sons, dont tous les `gm_*`).
+
+---
+
+*Distillé depuis strudel.cc le 5 juin 2026 (Astro v5, doc à jour). À relire/compléter quand on attaque les Modules 4-6 (audio & effets · informatique musicale · composition).*
