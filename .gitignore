@@ -1,0 +1,15 @@
+# Keymaker — .gitignore (racine du projet)
+
+# 🔒 Secrets — NE JAMAIS committer (clé SSH dédiée au Pi)
+.ssh-keymaker/
+
+# Dépendances (réinstallables : npm install)
+node_modules/
+
+# Logs, caches, fichiers système
+*.log
+.vite/
+.DS_Store
+Thumbs.db
+
+# Remarque : dist/ EST suivi volontairement (c'est l'app que start.bat sert).

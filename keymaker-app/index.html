@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0d1120" />
+    <meta name="description" content="Keymaker — apprendre Strudel CC & le solfège" />
+    <title>Keymaker</title>
+    <style>
+      html, body, #root { height: 100%; margin: 0; }
+      body { background: #0d1120; }
+    </style>
+    <!-- Moteur Strudel vendorisé (100% local). defer = non bloquant + inséré
+         par le parseur, donc document.currentScript pointe bien sur ce script,
+         ce qui lui permet de résoudre ses chunks dans /vendor/strudel-repl/. -->
+    <script src="/vendor/strudel-repl/index.js" defer></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
