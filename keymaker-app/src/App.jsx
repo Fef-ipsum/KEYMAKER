@@ -13,6 +13,7 @@ import FlashNote from './FlashNote.jsx';
 import SnippetLibrary from './SnippetLibrary.jsx';
 import { addSnippet } from './notebook.js';
 import PatternViz from './PatternViz.jsx';
+import PoSync from './PoSync.jsx';
 
 /* ---------------------------------------------------------------------------
    Navigation multi-chapitres (Chantier 3).
@@ -48,7 +49,7 @@ const DEFAULT_PI_URL = 'https://personal-os.tailac998e.ts.net';
 // Réglages (Chantier 6) — persistés sur l'appareil.
 const SETTINGS_KEY = 'keymaker:settings';
 const TEXT_SCALE = { m: 1, l: 1.12, xl: 1.26 }; // facteur appliqué à --fs-scale + police éditeur
-const DEFAULT_SETTINGS = { textScale: 'm', reduceMotion: false, editorTheme: 'strudelTheme', lineNumbers: true, theme: 'void', autocomplete: true, viz: false };
+const DEFAULT_SETTINGS = { textScale: 'm', reduceMotion: false, editorTheme: 'strudelTheme', lineNumbers: true, theme: 'void', autocomplete: true, viz: false, posync: false };
 
 function readSettings() {
   let base = { ...DEFAULT_SETTINGS };
@@ -523,6 +524,8 @@ export default function App() {
         snipMsg={snipMsg}
         vizOpen={settings.viz}
         onToggleViz={() => updateSettings({ viz: !settings.viz })}
+        posyncOpen={settings.posync}
+        onTogglePosync={() => updateSettings({ posync: !settings.posync })}
         editorRef={editorRef}
         reduceMotion={settings.reduceMotion}
         theme={settings.theme}
@@ -639,6 +642,8 @@ function Flash({
   snipMsg,
   vizOpen,
   onToggleViz,
+  posyncOpen,
+  onTogglePosync,
   editorRef,
   reduceMotion,
   theme,
@@ -680,6 +685,14 @@ function Flash({
           >
             ◫ Visualiseur
           </button>
+          <button
+            className={'btn posync-toggle' + (posyncOpen ? ' on' : '')}
+            onClick={onTogglePosync}
+            aria-pressed={posyncOpen}
+            title="Activer/masquer le générateur de sync PO-33"
+          >
+            ◧ Sync PO-33
+          </button>
         </div>
 
         {/* Visualiseur de pattern (Chantier 26) : grille rythmique animée, lit le REPL. */}
@@ -690,6 +703,17 @@ function Flash({
             theme={theme}
             reduceMotion={reduceMotion}
             onClose={onToggleViz}
+          />
+        )}
+
+        {/* Générateur de sync PO-33 (Chantier 31) : clics 2 PPQN sur le canal gauche. */}
+        {posyncOpen && (
+          <PoSync
+            editorRef={editorRef}
+            playing={playing}
+            theme={theme}
+            reduceMotion={reduceMotion}
+            onClose={onTogglePosync}
           />
         )}
 

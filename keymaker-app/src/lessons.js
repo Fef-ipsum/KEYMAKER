@@ -18,6 +18,7 @@
 
 // Module 7 « Genres & Styles » (Chantier Electro) — défini à part dans module7.js.
 import { module7 } from './module7.js';
+import { module8 } from './module8.js';
 
 export const chapitre1 = {
   module: 1,
@@ -4547,7 +4548,7 @@ export const module6 = {
 };
 
 /* Tous les modules de Keymaker, dans l'ordre du parcours. */
-export const modules = [module1, module2, module3, module4, module5, module6, module7];
+export const modules = [module1, module2, module3, module4, module5, module6, module7, module8];
 
 // Rétro-compatibilité : certains imports historiques pointaient sur flash11.
 export const flash11 = chapitre1.flashs[0];
