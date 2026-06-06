@@ -16,10 +16,19 @@ function whenStrudelReady(timeoutMs = 20000) {
   ]);
 }
 
+// Réduit une erreur Strudel (evalError / schedulerError) à un message court et lisible :
+// 1ʳᵉ ligne seulement (pas de stack brut), préfixes techniques retirés, longueur bornée.
+function cleanError(err) {
+  if (!err) return '';
+  let m = typeof err === 'string' ? err : (err.message || String(err));
+  m = String(m).split('\n')[0].replace(/^\[?eval\]?:?\s*/i, '').replace(/^Error:\s*/i, '').trim();
+  return m.length > 240 ? m.slice(0, 240) + '…' : m;
+}
+
 // Wrapper React impératif autour du web component <strudel-editor>.
 // On crée l'élément à la main (hors JSX) car le composant insère son éditeur
 // CodeMirror comme nœud frère — mieux vaut le garder loin de la réconciliation React.
-export default function StrudelEditor({ initialCode, fontSize = 19, onReady, onError, onPlayingChange }) {
+export default function StrudelEditor({ initialCode, fontSize = 19, onReady, onError, onPlayingChange, onEvalError }) {
   const hostRef = useRef(null);
 
   useEffect(() => {
@@ -27,15 +36,24 @@ export default function StrudelEditor({ initialCode, fontSize = 19, onReady, onE
     let poll;
     let el;
     let lastStarted;
+    let lastErr;
 
-    // L'état lecture/arrêt est porté par l'événement 'update' (detail.started).
+    // L'état lecture/arrêt ET l'erreur d'évaluation sont portés par l'événement
+    // 'update' (detail = l'état complet de StrudelMirror : { started, error, … }).
     // Il se déclenche aussi bien via les raccourcis clavier (Ctrl+Enter / Ctrl+.)
-    // que via nos boutons → une seule source de vérité pour la LED.
+    // que via nos boutons → une seule source de vérité.
     const onUpdate = (e) => {
-      const started = !!(e.detail && e.detail.started);
+      const d = e.detail || {};
+      const started = !!d.started;
       if (started !== lastStarted) {
         lastStarted = started;
         onPlayingChange && onPlayingChange(started);
+      }
+      // d.error = evalError || schedulerError (vérifié dans le bundle vendor).
+      const msg = cleanError(d.error);
+      if (msg !== lastErr) {
+        lastErr = msg;
+        onEvalError && onEvalError(msg);
       }
     };
 

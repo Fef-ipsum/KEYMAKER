@@ -14,6 +14,8 @@ Une fenêtre noire s'ouvre (le serveur local) et ton navigateur ouvre l'app tout
 - Garde la fenêtre noire **ouverte** tant que tu utilises l'app. Pour arrêter : **ferme-la**.
 - Tu arrives sur ton **dernier flash** (l'app retient le module **et** la position).
 - **▶ Run** (ou `Ctrl+Enter`) joue le son · **Stop** (ou `Ctrl+.`) l'arrête.
+- **⤢ Focus** (barre du haut) ouvre le **Mode Focus** : tout disparaît sauf l'éditeur et Run/Stop, pour une session de pratique pure. On en sort par **Échap** ou le bouton **✕** en coin (le son ne s'interrompt pas).
+- L'éditeur **complète les fonctions Strudel** pendant la frappe (Ctrl+Espace pour forcer) et **affiche les erreurs de code en clair** juste en dessous.
 
 > 💡 Le tout premier son d'un échantillon met une seconde à charger. Internet utile **au premier usage** ; ensuite c'est en cache.
 
@@ -70,14 +72,14 @@ Tiroir de chat (bouton **Sati** dans la barre du haut). Elle **voit ton flash et
 
 ## ⚙ Réglages
 
-Bouton **⚙ Réglages** : **thème (Void sombre / Clair / Matrix)**, taille de texte, réduire les animations, couleurs du code, numéros de ligne, URL du Pi + test, mémoire de Sati (voir / effacer), reprendre la progression à zéro.
+Bouton **⚙ Réglages** : **thème (Void sombre / Clair / Matrix)**, taille de texte, réduire les animations, couleurs du code, numéros de ligne, **auto-complétion** (ON par défaut), URL du Pi + test, mémoire de Sati (voir / effacer), reprendre la progression à zéro.
 
 ---
 
 ## 🧩 Sous le capot
 
 - **React + Vite + PWA** (`display: standalone`), thèmes **Void** (sombre, défaut, accent cyan), **Light** (clair, accent indigo) et **Matrix** (vert phosphore) — bascule dans les Réglages, posée sur `<html>`.
-- **Une seule** instance d'éditeur **Strudel** (CodeMirror 6 + moteur), vendorisée dans `public/vendor/strudel-repl/` → **aucune dépendance CDN au runtime**. Jamais recréée en changeant de flash (on pousse juste le nouveau code).
+- **Une seule** instance d'éditeur **Strudel** (CodeMirror 6 + moteur), vendorisée dans `public/vendor/strudel-repl/` → **aucune dépendance CDN au runtime**. Jamais recréée en changeant de flash (on pousse juste le nouveau code). L'**auto-complétion** et les **erreurs inline** passent par l'API du moteur (`setAutocompletionEnabled`, événement `update.detail.error`) ; le **Mode Focus** est une simple classe CSS sur `.app` (l'éditeur n'est jamais recréé en entrant/sortant).
 - Reprise du dernier flash en `localStorage` ; mémoire de Sati en `IndexedDB`.
 - Backend de Sati = module Docker `keymaker` sur le Pi (Fastify + Postgres, Tailscale-only).
 
@@ -118,4 +120,4 @@ keymaker-app/
 
 ---
 
-*Keymaker — Modules 1 à 6 complets (151 flashs) + Sati + Réglages (thèmes Void / Light / Matrix). Strudel v1.3.0. Mis à jour le 6 juin 2026 (Module 6 « Composition & Projets » — le curriculum est complet).*
+*Keymaker — Modules 1 à 6 complets (151 flashs) + Sati + Réglages (thèmes Void / Light / Matrix) + **Mode Focus** + **auto-complétion & erreurs inline**. Strudel v1.3.0. Mis à jour le 6 juin 2026 (Chantiers 21 & 22 : Mode Focus + éditeur amélioré).*

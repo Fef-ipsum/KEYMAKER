@@ -28,9 +28,27 @@
 - ✅ **Chantier 11 — Thème Matrix (vert) FAIT (6 juin 2026, en autonomie)** : 3ᵉ thème CSS `[data-theme="matrix"]` (vert phosphore `#00ff66` sur quasi-noir) + 3ᵉ option **Matrix** dans ⚙ Réglages → Apparence (sélecteur Void / Clair / Matrix). Même patron que le thème clair (Chantier 8) : n'override que les 13 variables de couleur, posé sur `<html>`, persisté `keymaker:settings.theme`. Build propre (34 modules, `index-BmpEACbd.js` + `index-Dh5zhh25.css`). → `KEYMAKER_chantier11.md`
 - ✅ **Chantier 12 — Module 5 « Informatique Musicale » FAIT (6 juin 2026, en autonomie)** : 5 chapitres, **25 flashs (5.1→5.25)** — le pattern est une fonction (fabriques `stack`/`seq`/`cat`/`run`) · manipuler le temps (`slow`/`fast`/`rev`/`iter`/`ply`) · le hasard maîtrisé (`irand`/signaux/`degrade`/`sometimes` + graine `ribbon`) · accumulation & calques (`superimpose`/`off`/`echo`/`jux`) · l'héritage & le grand tableau (TidalCycles↔Strudel, `firstOf`/`chunk`, **MIDI**, morceau génératif final des 5 modules). Fil rouge **« un pattern est une fonction du temps »**. Intégré via `modules = [module1..module5]` (aucune modif `App.jsx`). Strudel vérifié **en direct** sur strudel.cc (factories/time/signals/random/conditional/accumulation/input-output). Build propre (**34 modules**, bundle `index-bdjVqxxa.js` 310 kB) + tests **34/34** (données + navigation, total **126 flashs**) + sentinelles. → `KEYMAKER_chantier12.md`
 - ✅ **Chantier 13 — Module 6 « Composition & Projets » FAIT (6 juin 2026, en autonomie)** : 5 chapitres, **25 flashs (6.1→6.25)** — le studio dans le navigateur (stack `$:`, pistes nommées, mute `_`, `all()`) · réutiliser (`const`, `register`, `.color()`) · arranger dans le temps (`arrange`, `mask`, `pick`) · la matière d'un track (`samples`, `chop`, `slice`/`splice`, `layer`) · finir, jouer, partager (mix `gain`/`pan`/`orbit`, live set, **export**, PWA, + **projet final réunissant les 6 modules**). Fil rouge **« d'une boucle à un morceau »**. Intégré via `modules = [module1..module6]` (aucune modif `App.jsx`). Strudel vérifié **en direct** sur strudel.cc (factories/code/recipes/faq/repl/stepwise) → référence **§13**. Build propre (**34 modules**, bundle `index-0lEGc-u1.js` 338 kB, CSS inchangée) + tests **19/19** (données + navigation, total **151 flashs**) + **294/295** structure + sentinelles dans le bundle livré. **Le curriculum de contenu est COMPLET (6 modules).** → `KEYMAKER_chantier13.md`
+- ✅ **Chantier 21 — Mode Focus FAIT (6 juin 2026, en autonomie)** : interrupteur **`⤢ Focus`** qui masque tout sauf l'éditeur + Run/Stop + titre du flash (classe `.focus-mode` sur `.app`, `display:none` du superflu, éditeur **jamais recréé** → le son ne s'arrête pas). Sortie par **Échap** ou bouton **`✕ Quitter le focus`** en coin. État éphémère. Build propre (34 modules) + **13/13** montage jsdom + sentinelles. → `KEYMAKER_chantier21.md`
+- ✅ **Chantier 22 — Éditeur amélioré FAIT (6 juin 2026, en autonomie)** : **(1) auto-complétion** native de Strudel activée via `setAutocompletionEnabled` (découvert dans le bundle vendor — la vraie source `strudelAutocomplete`, pas un dico maison), réglable dans ⚙ Réglages → Éditeur, **ON par défaut**, persistée. **(2) erreurs de code inline** sous l'éditeur (lues sur `update.detail.error = evalError||schedulerError`, message simplifié, auto-effacement, visible en focus). Build propre (34 modules, bundle `index-BrHeOIB7.js`) + **15/15** logique (`cleanError`, `applyEditorSettings`) + **13/13** jsdom + sentinelles. → `KEYMAKER_chantier22.md`
 - 📖 **Référence Strudel à jour (5 juin 2026)** → `KEYMAKER_strudel_reference.md` : source de vérité distillée de strudel.cc (notes/hauteurs, sons GM + limites, mini-notation, effets, théorie, gotchas). **À consulter avant d'écrire du code Strudel** (cutoff Claude = mai 2025). Née de la validation M3 : `note("e2")` = 82 Hz (code guitare juste). **Cause du Mi grave muet trouvée & corrigée (5 juin)** : `gm_acoustic_guitar_steel` ne descend pas au Mi grave → 6 flashs (3.2, 3.3, 3.6, 3.8, 3.11, 3.12) passés en **nylon**, app rebuildée (bundle `index-CekULCjI.js`, 34 modules) + intégrité 94/94.
+- ⏳ **Chantier 14 — Validation audio M3→M6** : parcours à l'oreille des 100 flashs non encore validés. À faire avec Felix.
+- ⏳ **Chantier 15 — Review technique** : audit bundle, CSS, dépendances, accessibilité, tests manquants, sécurité Pi.
+- ⏳ **Chantier 30 — Onboarding interactif** : tour guidé pour un nouvel utilisateur — premier son en 30 secondes, explication de Sati, orientation dans les modules.
+- ⭐ **Chantier 31 — Intégration PO-33 KO** *(super intéressant)* : samples PO-33 dans Strudel + sync audio live. Strudel devient le cerveau d'un vrai setup hardware.
+- ⭐ **Chantier 26 — Visualiseur de pattern** : grille rythmique animée pendant la lecture. Voir la structure temporelle en plus de l'entendre.
+- ⏳ **Chantier 17 — Mode Quiz** : active recall — code à trous, reconnaissance de motifs, évaluation par Sati.
+- ⏳ **Chantier 16 — Tableau de bord & progression** : home screen avec % par module, streak, reprise rapide. TDA-friendly.
+- ⏳ **Chantier 18 — Sati next level** : proactivité, évaluation de code, défis musicaux générés, historique persistant cross-sessions.
+- ⏳ **Chantier 28 — Notifications PWA de rappel** : notification desktop après X jours sans pratique. Opt-in. Rappel externe TDA-friendly.
+- ⏳ **Chantier 29 — Stats de pratique** : temps par module, heures/semaine sur 4 semaines, courbe de progression. Intégré au Tableau de bord (C16).
+- ⏳ **Chantier 23 — Répétition espacée (SRS)** : les flashs difficiles reviennent plus souvent, les maîtrisés s'espacent. L'infra (kind: 'difficulte') est presque prête.
+- ⏳ **Chantier 27 — Bibliothèque de snippets** : sauvegarder ses meilleurs patterns, les rappeler d'un clic dans l'éditeur.
+- ⏳ **Chantier 24 — Carnet de notes par flash** : zone de texte libre par flash, persistée IndexedDB. Externaliser ce qu'on retient.
+- ⏳ **Chantier 19 — Offline complet** : bundler un kit de sons de base dans le cache PWA (zéro réseau garanti).
+- ⏳ **Chantier 20 — Partage & export** : URL strudel.cc depuis un flash, export .tidal/.js, progression partageable.
+- ⏳ **Chantier 25 — Cheat sheet imprimable** : PDF A4 par module généré depuis les récaps. Ref offline physique à coller au mur.
 
-> Pour lancer l'app : double-clic sur `keymaker-app/start.bat`. Tu arrives sur ton **dernier flash** ; **Run** (ou `Ctrl+Enter`) joue le son, **Précédent / Suivant** parcourent les flashs du module en traversant les chapitres, le bouton **Parcours** ouvre la carte — désormais avec un **sélecteur Module 1 à 6** — et le bouton **⚙ Réglages** ouvre la configuration (taille de texte, thème éditeur, numéros de ligne, URL Pi, reprendre à zéro). **Six modules** maintenant : Module 1 (live coding, 26 flashs), Module 2 (solfège, 25), Module 3 (Connexion Guitare, 25), Module 4 (Son & Effets, 25), Module 5 (Informatique Musicale, 25) et Module 6 (Composition & Projets, 25) — **151 flashs** au total. **Le curriculum de contenu est complet.**
+> Pour lancer l'app : double-clic sur `keymaker-app/start.bat`. Tu arrives sur ton **dernier flash** ; **Run** (ou `Ctrl+Enter`) joue le son, **Précédent / Suivant** parcourent les flashs du module en traversant les chapitres, le bouton **Parcours** ouvre la carte — désormais avec un **sélecteur Module 1 à 6** — et le bouton **⚙ Réglages** ouvre la configuration (taille de texte, thème éditeur, numéros de ligne, URL Pi, reprendre à zéro). **Six modules** maintenant : Module 1 (live coding, 26 flashs), Module 2 (solfège, 25), Module 3 (Connexion Guitare, 25), Module 4 (Son & Effets, 25), Module 5 (Informatique Musicale, 25) et Module 6 (Composition & Projets, 25) — **151 flashs** au total. **Le curriculum de contenu est complet.** Nouveau (6 juin) : bouton **`⤢ Focus`** (éditeur seul, zéro distraction — Échap pour sortir), **auto-complétion** des fonctions Strudel (réglable dans ⚙ Réglages → Éditeur, ON par défaut) et **erreurs de code affichées en clair sous l'éditeur**.
 
 ---
 
@@ -158,7 +176,341 @@ Les 5 flashs de « Premier contact », navigables, livrés dans `keymaker-app/`.
 - Intégré via `modules = [module1..module6]` — la navigation multi-modules (Chantier 7) prend en charge le 6ᵉ module **sans aucune modif** d'`App.jsx`. Thèmes Void/Clair/Matrix appliqués.
 - **Vérifs** : `vite build` propre (**34 modules**, `index-0lEGc-u1.js` 338 kB, CSS `index-Dh5zhh25.css` inchangée) + PWA régénérée (11 entrées) + **19/19** données+navigation (modules=[m1..m6], M1-M5 intacts, M6=5 ch/25 flashs, ids 6.1→6.25, 5 récaps/5 free, `buildFlat` 6 modules [26,25,25,25,25,25]=**151**, reprise `{m:5,c:4,f:4}`→6.25, pas de « module suivant » sur M6) + **294/295** structure (1 faux négatif d'échappement JSON) + sentinelles M6 dans le bundle livré. → détails : `KEYMAKER_chantier13.md`.
 
-> **Curriculum de contenu : COMPLET.** Les 6 modules prévus à l'architecture sont livrés (151 flashs). Pistes futures (hors curriculum) : valider M3/M4/M5/M6 **à l'oreille** avec Felix ; samples bundlés pour un offline complet ; câblage app → `session_id` (relier le journal de Sati aux sessions).
+> **Curriculum de contenu : COMPLET.** Les 6 modules prévus à l'architecture sont livrés (151 flashs). La suite = **qualité, expérience et puissance** → Chantiers 14-20 ci-dessous.
+
+---
+
+### ⏳ Chantier 14 — Validation audio M3→M6 — À FAIRE (avec Felix)
+
+**Dette pédagogique critique.** Les codes des modules 3-6 ont été vérifiés contre la doc strudel.cc, mais pas encore tous *écoutés*. Il peut rester des sons muets, des registres inadaptés ou des patterns musicalement douteux.
+
+**Périmètre :** 100 flashs (M3 ch.1-5 / M4 ch.1-5 / M5 ch.1-5 / M6 ch.1-5).
+
+**Points chauds identifiés :**
+- M3 : 6 flashs déjà corrigés (Mi grave → nylon). Vérifier le reste, surtout les accords ouverts (ch.3) et les barrés (ch.4).
+- M4 : effets/enveloppes — les ADSR longs peuvent sonner silencieux si `release` trop court.
+- M5 : `degrade`/`sometimes` → aléatoire, peut donner silence inattendu.
+- M6 : `chop`/`slice` (6.17-6.18) + `layer` (6.19) + projet final (6.25) — les plus complexes.
+
+**Méthode :** ouvrir chaque flash dans l'app, `Ctrl+Enter`, noter ce qui sonne mal → session de correction dédiée.
+
+---
+
+### ⏳ Chantier 15 — Review technique — À PLANIFIER
+
+**Audit complet de la santé du code.** Le projet a été construit vite et bien ; c'est le moment de regarder sous le capot avant d'ajouter de nouvelles fonctionnalités.
+
+**Axes d'audit :**
+
+1. **Bundle & performance** : 338 kB (JS non gzippé) — analyser avec `vite-bundle-visualizer`, identifier les dépendances lourdes, vérifier le code-splitting. Objectif : < 200 kB gzip.
+2. **CSS** : `styles.css` est probablement très grand (~1000+ lignes). Chercher les règles mortes, les doublons, les valeurs en dur qui contredisent les variables CSS.
+3. **Dépendances** : `package.json` — versions de React, Vite, vite-plugin-pwa. Mettre à jour ce qui est sans risque ; identifier les CVE potentielles.
+4. **Tests** : cartographier la couverture réelle (quels composants ne sont pas testés ?). En particulier : `App.jsx`, `SatiChat.jsx`, la navigation multi-modules.
+5. **Accessibilité** : contraste des 3 thèmes (WCAG AA), navigation clavier hors éditeur, aria-labels.
+6. **Sécurité Pi** : re-vérifier le rate-limit sur `/keymaker/ai/chat`, CORS (wildcard `*` en prod ?), taille max du body.
+7. **PWA** : stratégie de cache Workbox — est-ce que les assets sont bien mis à jour après chaque build ?
+8. **Mobile** : l'app est "lecture seule" sur mobile mais est-elle réellement utilisable pour lire les concepts ?
+
+**Livrable :** rapport de findings + liste de correctifs priorisés → décider ensemble lesquels intégrer.
+
+---
+
+### ✅ Chantier 21 — Mode Focus — FAIT (6 juin 2026, en autonomie)
+
+> **Livré** comme décrit ci-dessous : bouton `⤢ Focus` (topbar) → masque tout sauf l'éditeur + Run/Stop + titre du flash ; sortie par **Échap** ou bouton **`✕ Quitter le focus`** en coin ; éditeur jamais recréé. Détails & vérifs → `KEYMAKER_chantier21.md`.
+
+**Le problème :** l'interface de Keymaker est riche (nav, fil d'Ariane, boutons Parcours/Sati/Réglages, indicateur de module…). C'est bien pour explorer et apprendre. Mais quand on veut juste *jouer*, tout ça devient du bruit visuel.
+
+**La solution :** un toggle « Mode Focus » qui cache tout sauf l'éditeur, les boutons Run/Stop et le titre du flash. Overlay sombre sur le reste. Sortie avec `Échap` ou un bouton discret en coin.
+
+**Ce que ça change concrètement :**
+- Session de pratique pure : 0 distraction, 100 % musique.
+- Utile pour les flashs libres (`free`) et les exercices du Mode Quiz (C17).
+- Peut être déclenché automatiquement par Sati quand elle lance un défi (C18).
+
+**Implémentation :** état `focusMode` booléen dans `App`, classe CSS `.focus-mode` qui masque les éléments non essentiels via `opacity: 0 / pointer-events: none`. Aucun remontage de composant — même éditeur, même son.
+
+---
+
+### ✅ Chantier 22 — Éditeur amélioré — FAIT (6 juin 2026, en autonomie)
+
+> **Livré** : (1) **auto-complétion** native de Strudel activée via `setAutocompletionEnabled` (réglable dans ⚙ Réglages → Éditeur, ON par défaut, persistée) ; (2) **erreurs de code inline** sous l'éditeur (message simplifié, auto-effacement, visible en focus). Détails & vérifs → `KEYMAKER_chantier22.md`.
+
+**Le plus grand générateur de friction aujourd'hui pour un débutant :** taper `sound("casio")` et ne pas savoir que `.lpf(` existe, ou écrire `note("C4")` et avoir une erreur cryptique sans savoir où elle est.
+
+**Deux améliorations ciblées :**
+
+1. **Auto-complétion Strudel** : liste de suggestions contextuelle dans CodeMirror 6 — fonctions (`.lpf`, `.sound`, `.note`, `.gain`…), sons GM communs, noms de gammes. Basé sur le module CodeMirror `@codemirror/autocomplete` + un dictionnaire statique extrait de `KEYMAKER_strudel_reference.md`. Pas d'inférence dynamique — juste une liste bien choisie.
+
+2. **Erreurs inline** : le web component `<strudel-editor>` émet déjà des événements d'erreur (`update` avec `e.detail.error`). Les afficher sous l'éditeur dans un bandeau rouge clair, avec le message simplifié (pas le stack trace brut). Option : Sati peut intercepter l'erreur et proposer un correctif automatiquement (pont avec C18).
+
+**Bonus :** coloration des nombres/noms de sons dans un style distinct (déjà partiellement supporté par le thème CodeMirror, à finaliser pour les 3 thèmes).
+
+---
+
+### ⏳ Chantier 30 — Onboarding interactif — PROPOSÉ
+
+**Aujourd'hui l'app s'ouvre sur un flash sans contexte.** Un nouvel utilisateur ne sait pas ce qu'est Sati, comment naviguer, ni que Run joue du son.
+
+**Tour guidé en 5 étapes (overlay dismissable, jamais ré-affiché) :**
+1. « Bienvenue dans Keymaker — tu vas apprendre Strudel CC. »
+2. Flèche sur le bouton Run — « Clique ici pour jouer ce code. » → son déclenché.
+3. Flèche sur Précédent/Suivant — « Navigate entre les flashs. »
+4. Flèche sur Parcours — « Vois ta progression ici. »
+5. Flèche sur le bouton Sati — « Sati est ton guide IA — pose-lui n'importe quelle question. »
+
+**Implémentation :** composant `Onboarding.jsx` (overlay step-by-step), flag `keymaker:onboarded` en localStorage. Ré-accessible depuis Réglages → À propos → « Revoir le tutoriel ».
+
+---
+
+### ⭐ Chantier 31 — Intégration PO-33 KO — PROPOSÉ
+
+**Le Pocket Operator 33 KO de Teenage Engineering est un sampler 16-steps avec micro intégré et sync audio.** Il se branche à Strudel de façon naturelle via deux angles complémentaires — l'un sans code côté app (tranche 1), l'autre avec un vrai morceau de code nouveau (tranche 2).
+
+**Tranche 1 — Tes sons dans Strudel**
+
+Le PO-33 est une machine à créer des sons originaux à partir de n'importe quelle source : micro intégré, jack audio, rééchantillonnage. Ces sons peuvent devenir le matériau de tes patterns Strudel.
+
+Workflow concret :
+1. Enregistre un son sur le PO-33 (coup de cuillère, voix, sample d'un vinyle).
+2. Exporte-le en audio (via le jack + un enregistreur, ou ta carte son).
+3. Dépose le fichier dans `keymaker-app/public/sounds/po33/`.
+4. Dans Strudel : `samples({kick: '/sounds/po33/kick.wav'})` puis `sound("kick")`.
+
+Ton PO-33 devient la source sonore de tes patterns live. C'est exactement ce qu'enseigne le Module 6 (Ch.4 — `samples`, `chop`, `slice`) — mais avec du son fait main, personnel, unique.
+
+**Contenu Keymaker :** 3-5 flashs bonus dans le Module 6 (ou début d'un Module 7 court) : pipeline de sampling, nommage et organisation des samples, chop d'un break PO-33, construction d'un groove full-custom.
+
+**Tranche 2 — Sync audio PO-33 ↔ Strudel**
+
+Le PO-33 se synchronise via un signal audio : une impulsion par temps sur un canal de son jack 3,5 mm (le standard des Pocket Operators). Strudel peut générer ce signal via Web Audio API — une onde carrée à `BPM/60` Hz, routée vers la sortie audio.
+
+Câblage avec un splitter Y (< 5€) :
+- Canal L → casque/enceinte (la musique de Strudel)
+- Canal R → entrée SYNC IN du PO-33
+
+Résultat : le PO-33 suit le BPM de Strudel, tempo verrouillé, zéro dérive. Les deux machines jouent ensemble. Tu peux faire jouer une nappe Strudel pendant que le PO-33 séquence ses propres samples — live coding + hardware en duo.
+
+**Contenu Keymaker :** nouveau générateur de signal de sync dans l'app (Web Audio, quelques lignes), réglage BPM dédié, schéma de câblage dans l'interface, + flashs dédiés « jouer avec le PO-33 en direct ».
+
+**Ce que ce chantier apporte à Keymaker :** le pont entre le code et le geste physique. Strudel cesse d'être une app dans un navigateur pour devenir le cerveau d'un setup musical réel.
+
+---
+
+### ⭐ Chantier 26 — Visualiseur de pattern — PROPOSÉ
+
+**Le gap cognitif le plus fréquent chez les débutants en live coding :** entendre le rythme sans comprendre *pourquoi* il sonne comme ça. Un pattern comme `"bd sd [hh hh] sd"` est plus clair à voir qu'à imaginer.
+
+**Ce qu'on affiche :**
+- Une grille rythmique simple (type piano roll minimaliste) : temps en abscisse, sons en ordonnée, cases colorées selon l'accent.
+- Animée en temps réel pendant la lecture (curseur qui avance avec le BPM).
+- S'adapte au pattern courant via l'événement `update` du `<strudel-editor>`.
+
+**Intégration :** panneau escamotable sous l'éditeur (même patron que les erreurs inline de C22). Optionnel — réglage dans ⚙.
+
+**Technologie :** l'API interne de Strudel expose les événements de rendu par cycle — on peut les intercepter pour dessiner la grille. À confirmer lors du chantier.
+
+---
+
+### ⏳ Chantier 17 — Mode Quiz — PROPOSÉ
+
+**Le plus grand levier pédagogique encore inexploité.** Keymaker enseigne très bien par l'exemple (voir → écouter → modifier) ; il n'y a pas encore de *recall actif* — la technique d'apprentissage la plus efficace selon la science cognitive.
+
+**Deux niveaux de difficulté :**
+
+1. **Quiz à trous** (niveau 1) : le code du flash est affiché avec une ou plusieurs parties masquées (`???`). L'apprenant complète. Sati valide (syntax check + évaluation sonore).
+   - Ex. : `sound("___").lpf(800)` → remplir le son.
+   - Implémentation légère : nouveau champ `quiz` dans les flashs (optionnel, ajouté progressivement).
+
+2. **Quiz libre** (niveau 2) : Sati décrit le résultat attendu en mots (« crée un rythme de kick sur les temps 1 et 3, à 120 BPM »). L'apprenant code de zéro. Sati évalue.
+   - Aucun contenu supplémentaire à écrire — Sati génère les descriptions à la volée.
+
+**Intégration dans l'app :** bouton « Mode Quiz » dans le Parcours ou sur chaque flash (optionnel, n'altère pas le flux normal). Score mémorisé dans IndexedDB.
+
+---
+
+### ⏳ Chantier 16 — Tableau de bord & progression — PROPOSÉ
+
+**L'app démarre directement sur le dernier flash.** C'est efficace pour reprendre, mais Felix n'a aucune vue sur sa progression globale — combien de flashs vus, combien de modules terminés, depuis quand il n'a pas ouvert l'app.
+
+**Ce que ça apporte :** orientation immédiate (TDA-friendly), motivation visible, vue d'ensemble avant de plonger dans un flash.
+
+**Contenu du tableau de bord :**
+- % de completion par module (barre de progression, calculée depuis `keymaker:pos`)
+- **Streak** : nb de jours consécutifs où l'app a été ouverte (localStorage, très simple à implémenter)
+- Dernier flash visité + bouton « Reprendre »
+- Accès rapide à chaque module (1 carte par module, avec son %)
+- Stat légère : « X flashs vus · Y jours de pratique »
+
+**UX :** le tableau de bord = **nouvel écran Home** (overlay ou route simple). L'app s'y ouvre si c'est la première visite du jour ; sinon, option dans le menu. Fermeture → dernier flash.
+
+**Compatibilité TDA :** pas de gamification lourde (points, badges, notifications). Juste des chiffres honnêtes et un gros bouton « Reprendre ».
+
+---
+
+### ⏳ Chantier 18 — Sati next level — PROPOSÉ
+
+**Sati répond très bien quand on lui parle.** L'étape suivante : qu'elle *agisse* sans qu'on lui demande, et qu'elle devienne un vrai tuteur adaptatif.
+
+**Améliorations proposées :**
+
+1. **Sati évalue le code en live** : quand l'utilisateur modifie le code d'exercice et appuie sur Run, Sati peut commenter automatiquement (« Bien ! Tu as utilisé `.lpf()` comme suggéré. Note que… »). Opt-in (réglage « Sati commente mes runs »).
+
+2. **Sati génère des défis musicaux** : nouvelle action rapide « Donne-moi un défi ». Sati génère un objectif musical adapté au flash courant (contexte = module + niveau). L'utilisateur code sa réponse, Sati évalue.
+
+3. **Mémoire cross-sessions persistante** : aujourd'hui la mémoire distante (Voyage) stocke les difficultés, mais Sati ne se souvient pas des *succès* ni de la progression. Ajouter un `kind: 'succes'` dans le journal → Sati peut féliciter de façon pertinente.
+
+4. **Sati proactive sur blocage** : si l'utilisateur passe > 3 minutes sur un même flash sans lancer Run, une notification douce apparaît (« Besoin d'un coup de pouce ? »). Cooldown 10 min pour ne pas spammer.
+
+5. **Historique de conversation visible** : panneau « Mes échanges avec Sati » (derniers N messages, triés par date) dans Réglages. Actuellement inaccessible après fermeture du tiroir.
+
+---
+
+### ⏳ Chantier 28 — Notifications PWA de rappel — PROPOSÉ
+
+**Le rappel externe est souvent le seul moyen de maintenir une habitude avec un profil TDA.** La PWA peut envoyer des notifications desktop via l'API `Notification` + Service Worker — sans app mobile, sans backend.
+
+**Fonctionnement :**
+- Opt-in dans Réglages → « Me rappeler de pratiquer » + choix du délai (après 1 / 2 / 3 jours sans ouvrir l'app).
+- La date du dernier lancement est déjà facilement accessible (localStorage). Le Service Worker vérifie à l'activation.
+- Message simple : « Ça fait N jours — 5 minutes de Strudel ? » avec bouton « Ouvrir Keymaker ».
+- Désactivable à tout moment. Aucune donnée envoyée nulle part.
+
+---
+
+### ⏳ Chantier 29 — Stats de pratique — PROPOSÉ
+
+**Voir son investissement réel donne envie de continuer.** Pas de gamification — juste des chiffres honnêtes sur le temps passé.
+
+**Données collectées (IndexedDB, rien en dehors) :**
+- Durée de chaque session (ouverture → fermeture).
+- Flashs joués (Run déclenché) par session.
+- Module actif au moment du run.
+
+**Affichage dans le Tableau de bord (C16) :**
+- Temps total par module (barres horizontales).
+- Heures de pratique par semaine — graphe 4 dernières semaines (mini sparkline).
+- « Ta session la plus longue : X min · Ta moyenne : Y min ».
+- Streak (jours consécutifs) — déjà prévu dans C16, les stats le renforcent.
+
+---
+
+### ⏳ Chantier 23 — Répétition espacée (SRS) — PROPOSÉ
+
+**La technique d'apprentissage la mieux validée scientifiquement** (Ebbinghaus, Anki, SuperMemo). L'idée : revoir un concept *juste avant* de l'oublier. Moins de révisions, meilleure rétention.
+
+**Infrastructure déjà en place dans Keymaker :**
+- `kind: 'difficulte'` dans `keymaker.journal` (Pi) — les flashs difficiles sont déjà tagués.
+- IndexedDB côté client — peut stocker les scores SRS sans backend.
+
+**Implémentation proposée :**
+- Chaque flash reçoit un score SRS (0 = jamais vu, 1-5 = niveau de maîtrise).
+- Algorithme SM-2 simplifié : intervalle de révision calculé depuis le dernier score.
+- Nouveau mode dans le Parcours : **« Révision du jour »** — liste des flashs à revoir aujourd'hui (5-10 max), dans n'importe quel module. Combiné avec le Mode Quiz (C17) pour l'évaluation.
+- Score mis à jour après chaque quiz ou après notation manuelle (boutons « Facile / Difficile » discrets sous le flash).
+
+---
+
+### ⏳ Chantier 27 — Bibliothèque de snippets — PROPOSÉ
+
+**Le début d'un vrai workflow créatif.** Aujourd'hui, si Felix trouve un pattern génial pendant un exercice, il doit le copier ailleurs pour ne pas le perdre.
+
+**Fonctionnement :**
+- Bouton « Sauvegarder ce pattern » dans l'éditeur (icône bookmark).
+- Snippet = { nom, code, module, date } → IndexedDB store `snippets`.
+- Panel « Ma bibliothèque » dans le Parcours ou Réglages : liste des snippets, recherche par nom, `clic → charger dans l'éditeur`, suppression.
+- Import/export JSON (backup local).
+
+**Évolution naturelle :** les snippets sauvegardés deviennent les blocs de base pour les projets du Module 6 (C6 `const`, `register`). La bibliothèque = le carnet de laboratoire du musicien.
+
+---
+
+### ⏳ Chantier 24 — Carnet de notes par flash — PROPOSÉ
+
+**Externaliser ce qu'on retient = moins de charge cognitive = plus de place pour la musique.** Particulièrement pertinent avec un profil TDA.
+
+**Fonctionnement :**
+- Icône crayon discrète sur chaque flash → ouvre une zone de texte libre (textarea simple, style éditeur de code).
+- Persisté dans IndexedDB (`keymaker`, store `notes`, clé = id du flash).
+- Affiché en lecture seule sous le concept du flash quand une note existe (repliable).
+- Exportable avec le cheat sheet (C25) : les notes personnelles s'intègrent dans le PDF.
+
+**Cas d'usage concrets :** « Ce `voicing()` marche seulement si la note est déjà dans l'accord », « Mon truc pour retenir `iter` : c'est comme un tapis roulant », « Test ce son avec la guitare MIDI ».
+
+---
+
+### ⏳ Chantier 19 — Offline complet — PROPOSÉ
+
+**Aujourd'hui :** les sons se téléchargent depuis le CDN strudel.cc au premier usage, puis sont en cache navigateur. Ça marche bien *si* on a joué une fois les flashs en ligne. En avion ou sans réseau depuis zéro : silence.
+
+**Solution :** bundler un **kit de sons de base** (~50 échantillons) directement dans le cache PWA Workbox — les sons les plus utilisés dans les 151 flashs (casio, bd, sd, hh, bass, piano, etc.).
+
+**Effort estimé :** identifier les sons des 151 codes → télécharger les fichiers sources → les servir depuis `/public/sounds/` → ajouter leur précache dans `vite.config.js`. Probablement 50-80 Mo, gérable en PWA.
+
+**Impact :** live coding garanti 100 % offline, transport inclus.
+
+---
+
+### ⏳ Chantier 20 — Partage & export — PROPOSÉ
+
+**Créer quelque chose de bien, ça donne envie de le garder et de le montrer.** Keymaker n'a pas encore de pont vers le monde extérieur.
+
+**Trois fonctions :**
+
+1. **« Ouvrir dans Strudel »** : bouton sur chaque flash qui ouvre strudel.cc/repl avec le code courant pré-rempli (URL avec paramètre `code=`). Un clic → le REPL officiel avec le patch de l'exercice. Zéro backend.
+
+2. **Export du code** : bouton « Copier » déjà implicite via l'éditeur ; ajouter « Télécharger en .js » pour récupérer un fichier propre.
+
+3. **Ma progression** : page (ou export PDF via le skill pdf) montrant les 6 modules, le % par module, la date de début, le streak. Souvenir tangible du parcours accompli.
+
+---
+
+### ⏳ Chantier 25 — Cheat sheet imprimable — PROPOSÉ
+
+**Une page A4 par module, générée depuis les récaps déjà dans les données.** Rien à rédiger — le contenu existe, il faut juste le mettre en forme.
+
+**Contenu par page :**
+- Titre du module + les 5 récaps (tables Concept / Syntaxe / Exemple) mises côte à côte.
+- Notes personnelles du carnet (C24) si présentes.
+- QR code optionnel → lance le flash correspondant dans Keymaker.
+
+**Implémentation :** skill `pdf` de Cowork (déjà disponible) + extraction des données `recap` de `lessons.js`. Généré à la demande depuis Réglages → « Exporter mes cheat sheets ».
+
+**Usage :** coller au mur du bureau, emporter en déplacement, annoter à la main. La ref offline la plus basse friction qui soit.
+
+---
+
+### ⭐ Chantier 31 — Intégration PO-33 KO — PROPOSÉ
+
+**Le Pocket Operator 33 KO de Teenage Engineering est un sampler 16-steps avec micro intégré et sync audio.** Il se branche à Strudel de façon naturelle via deux angles complémentaires — l'un sans code côté app (tranche 1), l'autre avec un vrai morceau de code nouveau (tranche 2).
+
+**Tranche 1 — Tes sons dans Strudel**
+
+Le PO-33 est une machine à créer des sons originaux à partir de n'importe quelle source : micro intégré, jack audio, rééchantillonnage. Ces sons peuvent devenir le matériau de tes patterns Strudel.
+
+Workflow concret :
+1. Enregistre un son sur le PO-33 (coup de cuillère, voix, sample d'un vinyle).
+2. Exporte-le en audio (via le jack + un enregistreur, ou ta carte son).
+3. Dépose le fichier dans `keymaker-app/public/sounds/po33/`.
+4. Dans Strudel : `samples({kick: '/sounds/po33/kick.wav'})` puis `sound("kick")`.
+
+Ton PO-33 devient la source sonore de tes patterns live. C'est exactement ce qu'enseigne le Module 6 (Ch.4 — `samples`, `chop`, `slice`) — mais avec du son fait main, personnel, unique.
+
+**Contenu Keymaker :** 3-5 flashs bonus dans le Module 6 (ou début d'un Module 7 court) : pipeline de sampling, nommage et organisation des samples, chop d'un break PO-33, construction d'un groove full-custom.
+
+**Tranche 2 — Sync audio PO-33 ↔ Strudel**
+
+Le PO-33 se synchronise via un signal audio : une impulsion par temps sur un canal de son jack 3,5 mm (le standard des Pocket Operators). Strudel peut générer ce signal via Web Audio API — une onde carrée à `BPM/60` Hz, routée vers la sortie audio.
+
+Câblage avec un splitter Y (< 5€) :
+- Canal L → casque/enceinte (la musique de Strudel)
+- Canal R → entrée SYNC IN du PO-33
+
+Résultat : le PO-33 suit le BPM de Strudel, tempo verrouillé, zéro dérive. Les deux machines jouent ensemble. Tu peux faire jouer une nappe Strudel pendant que le PO-33 séquence ses propres samples — live coding + hardware en duo.
+
+**Contenu Keymaker :** nouveau générateur de signal de sync dans l'app (Web Audio, quelques lignes), réglage BPM dédié, schéma de câblage dans l'interface, + flashs dédiés « jouer avec le PO-33 en direct ».
+
+**Ce que ce chantier apporte à Keymaker :** le pont entre le code et le geste physique. Strudel cesse d'être une app dans un navigateur pour devenir le cerveau d'un setup musical réel.
 
 ---
 
@@ -320,4 +672,14 @@ Contrat Voyage **vérifié en direct** contre la clé du Pi avant de coder (1024
 
 ---
 
-*Dernière mise à jour : 6 juin 2026 — **Chantier 11 « Thème Matrix (vert) » FAIT (en autonomie)** : 3ᵉ thème CSS vert (`#00ff66`) + option Matrix dans ⚙ Réglages (Void/Clair/Matrix), même patron que le thème clair, build propre (34 modules). Détails : `KEYMAKER_chantier11.md`. Avant ça, même session : **Chantier 10 « Module 4 — Son & Effets » FAIT (en autonomie)** : 5 ch / 25 flashs (4.1→4.25), audio & effets vérifiés en direct sur strudel.cc, build propre (34 modules, bundle `index-oQUh9Mac.js`) + tests 86/86 + 14/14, `dist/` livré. Détails : `KEYMAKER_chantier10.md`. Avant ça : **Module 3 « Connexion Guitare » réconcilié** : une autre session avait ajouté le Module 3 (5 ch / 25 flashs) au **code seul** (sans rebuild ni doc) ; l'app a été **rebuildée en 3 modules / 76 flashs + thème clair** (bundle `index-NqFEHDkR.js`), README/roadmap resync, brief `KEYMAKER_chantier9.md` créé. Avant ça : **Chantier 8 « Thème clair » COMPLET** : 2ᵉ thème Light (indigo) + bascule Void/Clair dans ⚙ Réglages, posée sur `<html>`, persistée ; refactor `--accent-rgb`. Build propre (34 modules) + **15/15** montage runtime jsdom. Détails : `KEYMAKER_chantier8.md`. Précédé d'un **contrôle de cohérence docs↔app** (README réécrit, `architecture.md` daté, statut SSH/commit corrigés, règle « tous les fichiers à jour pendant/à la fin de session » posée). Avant ça : **Chantier 5 tranche 3 « mémoire distante » COMPLET** (en autonomie, **premier dev déployé en direct par SSH**) : journal + embeddings Voyage (`voyage-3.5-lite` 1024d) + rappel cosinus (seuil 0,55, repli FTS FR) injecté dans un 2ᵉ bloc système non-caché. Trois fichiers `modules/keymaker/src/` (`voyage.ts`, `sati.ts`, `anthropic.ts`), build `tsc` propre, déploiement `--no-deps` (**postgres intact**), test bout-en-bout vert (Sati cite le « voicing » sur une question reformulée **sans history**, dist 0,44). Commit `2f0debe` sur `origin/main`. Détails : `KEYMAKER_chantier5.md`. **Chantier 5 entièrement bouclé (tranches 1-2-3).** Prochains : valider les 25 codes Strudel du Module 2 à l'oreille · thème clair/sombre · Modules 3-6 · (optionnel) câblage app→`session_id` pour relier journal et sessions.*
+## Décisions techniques (Chantiers 21 & 22 — Mode Focus + Éditeur)
+
+- **Mode Focus = une classe, pas un remontage.** Booléen `focusMode` dans `App` → classe `.focus-mode` sur `.app` (même patron que `reduce-motion`). Le CSS masque le superflu en `display:none` (reflux propre + zéro capture clavier/clic) ; l'**éditeur n'est jamais recréé** → le son n'est pas interrompu. Sortie : **Échap** (gestionnaire hiérarchisé : overlay d'abord, sinon focus) **ou** bouton `✕` en `position:fixed` (toujours visible, la topbar étant masquée). État **éphémère** (pas de persistance — on ne piège jamais l'utilisateur dans un écran sans nav).
+- **Auto-complétion = API native du moteur, pas une extension maison.** `StrudelMirror.setAutocompletionEnabled(bool)` (trouvé dans le bundle : `reconfigureExtension("isAutoCompletionEnabled", e)` → `autocompletion({override:[strudelAutocomplete]})` = la vraie source documentée de Strudel). Appelée dans `applyEditorSettings` en `try/catch`, pilotée par `settings.autocomplete` (**défaut tolérant** : `!== false` → ON même pour d'anciens réglages). Zéro dépendance ajoutée.
+- **Erreurs inline = même événement que la LED.** `update.detail.error` (= `evalError || schedulerError`, vérifié dans le bundle) lu dans le **même** `onUpdate` que `detail.started`. `cleanError()` (fonction pure) garde la 1ʳᵉ ligne, retire `Error:`/`[eval]`, borne à 240 car. État `evalError` dans `App`, remis à zéro au changement de flash, rendu dans le bloc éditeur (donc **visible en Mode Focus**).
+- ⚠️ **Pont fichiers — pire visage cette session.** Après édition par l'outil, le mont a servi `App.jsx`/`StrudelEditor.jsx`/`Settings.jsx`/`styles.css` **tronqués** (App.jsx coupé en plein milieu, l.747) → `vite build` cassé. Piège sournois : un grep de sentinelle peut **passer** (le début du fichier est intact). **Parade fiable :** reconstruire dans `/tmp` depuis `git archive HEAD` (committé, byte-perfect, **hors pont**) + **réappliquer les éditions de façon déterministe** (Python, `assert count==1` par édition ; `StrudelEditor.jsx` réécrit en entier ; bloc CSS ajouté à la base git). Build dans `/tmp` (binaires natifs Linux présents), `dist/` recopié **sans suppression** (ancien bundle orphelin), sources reconstruites **réécrites sur le mont** par `cp` (write-through). **Leçon : ne jamais `cp` un fichier fraîchement édité du mont sans le reconstruire depuis git ou le valider par build.**
+- **Vérif :** `vite build` (compile = 1ʳᵉ validation) + **node 15/15** (intégrité données 151 flashs + `cleanError` + `applyEditorSettings`) + **jsdom 13/13** (jsdom installé à la volée dans `/tmp`, App réel monté via esbuild : toggle focus + Échap + sortie, toggle auto-complétion + persistance) + **sentinelles** dans le bundle livré. **Index git illisible côté sandbox** (extension écrite par git Windows) → commit/push laissés à `close_session.bat`.
+
+---
+
+*Dernière mise à jour : 6 juin 2026 — **Chantiers 21 (Mode Focus) & 22 (Éditeur amélioré : auto-complétion native + erreurs inline) FAITS en autonomie** (build propre 34 modules, bundle `index-BrHeOIB7.js` 339,7 kB + CSS `index-dnzb9Du8.css`, tests **15/15** node + **13/13** jsdom + sentinelles dans le bundle livré ; reste : **commit via `close_session.bat`**, l'index git étant illisible côté sandbox). Détails : `KEYMAKER_chantier21.md` & `KEYMAKER_chantier22.md`. Avant ça : **Chantier 11 « Thème Matrix (vert) » FAIT (en autonomie)** : 3ᵉ thème CSS vert (`#00ff66`) + option Matrix dans ⚙ Réglages (Void/Clair/Matrix), même patron que le thème clair, build propre (34 modules). Détails : `KEYMAKER_chantier11.md`. Avant ça, même session : **Chantier 10 « Module 4 — Son & Effets » FAIT (en autonomie)** : 5 ch / 25 flashs (4.1→4.25), audio & effets vérifiés en direct sur strudel.cc, build propre (34 modules, bundle `index-oQUh9Mac.js`) + tests 86/86 + 14/14, `dist/` livré. Détails : `KEYMAKER_chantier10.md`. Avant ça : **Module 3 « Connexion Guitare » réconcilié** : une autre session avait ajouté le Module 3 (5 ch / 25 flashs) au **code seul** (sans rebuild ni doc) ; l'app a été **rebuildée en 3 modules / 76 flashs + thème clair** (bundle `index-NqFEHDkR.js`), README/roadmap resync, brief `KEYMAKER_chantier9.md` créé. Avant ça : **Chantier 8 « Thème clair » COMPLET** : 2ᵉ thème Light (indigo) + bascule Void/Clair dans ⚙ Réglages, posée sur `<html>`, persistée ; refactor `--accent-rgb`. Build propre (34 modules) + **15/15** montage runtime jsdom. Détails : `KEYMAKER_chantier8.md`. Précédé d'un **contrôle de cohérence docs↔app** (README réécrit, `architecture.md` daté, statut SSH/commit corrigés, règle « tous les fichiers à jour pendant/à la fin de session » posée). Avant ça : **Chantier 5 tranche 3 « mémoire distante » COMPLET** (en autonomie, **premier dev déployé en direct par SSH**) : journal + embeddings Voyage (`voyage-3.5-lite` 1024d) + rappel cosinus (seuil 0,55, repli FTS FR) injecté dans un 2ᵉ bloc système non-caché. Trois fichiers `modules/keymaker/src/` (`voyage.ts`, `sati.ts`, `anthropic.ts`), build `tsc` propre, déploiement `--no-deps` (**postgres intact**), test bout-en-bout vert (Sati cite le « voicing » sur une question reformulée **sans history**, dist 0,44). Commit `2f0debe` sur `origin/main`. Détails : `KEYMAKER_chantier5.md`. **Chantier 5 entièrement bouclé (tranches 1-2-3).** Prochains : valider les 25 codes Strudel du Module 2 à l'oreille · thème clair/sombre · Modules 3-6 · (optionnel) câblage app→`session_id` pour relier journal et sessions.*

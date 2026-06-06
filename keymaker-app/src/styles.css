@@ -1299,3 +1299,118 @@ strudel-editor { display: none; } /* l'élément hôte n'affiche rien lui-même 
   .set-row { flex-wrap: wrap; }
   .set-select { max-width: 100%; }
 }
+
+/* ============================================================
+   Mode Focus (Chantier 21) — pratique pure : éditeur + Run/Stop,
+   tout le reste masqué. Aucune recréation d'éditeur (classe sur .app).
+   ============================================================ */
+.focus-btn {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-radius: 11px;
+  padding: 9px 13px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.focus-btn:hover { background: var(--surface); border-color: var(--border); }
+
+/* En mode focus : tout le superflu disparaît. L'éditeur (.editor-block) reste,
+   et reste monté → le son ne s'interrompt pas en entrant/sortant du focus. */
+.app.focus-mode .topbar,
+.app.focus-mode .kicker,
+.app.focus-mode .card,
+.app.focus-mode .flash-nav,
+.app.focus-mode .foot { display: none; }
+
+.app.focus-mode .stage {
+  width: min(1040px, 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: clamp(56px, 9vh, 110px);
+}
+.app.focus-mode .title {
+  font-size: calc(var(--fs-title) * 0.6 * var(--fs-scale, 1));
+  text-align: center;
+  color: var(--muted);
+  font-weight: 700;
+  margin: 0 0 20px;
+}
+.app.focus-mode .editor-block { margin: 0; }
+.app.focus-mode .controls { justify-content: center; }
+
+/* Sortie discrète, en coin (en plus de la touche Échap). */
+.focus-exit {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+.focus-exit:hover { opacity: 1; color: var(--text); background: var(--surface); }
+.focus-exit-kbd {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 1px 6px;
+}
+
+/* ============================================================
+   Erreur d'évaluation inline (Chantier 22) — sous l'éditeur.
+   Message Strudel simplifié (evalError / schedulerError), jamais le stack brut.
+   ============================================================ */
+.eval-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 12px 2px 0;
+  padding: 11px 14px;
+  border-radius: 12px;
+  background: rgba(251, 113, 133, 0.08);
+  border: 1px solid rgba(251, 113, 133, 0.32);
+}
+.eval-error-tag {
+  flex: none;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--danger);
+  background: rgba(251, 113, 133, 0.14);
+  border: none;
+  border-radius: 6px;
+  padding: 3px 8px;
+  margin-top: 1px;
+}
+.eval-error-msg {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text);
+  background: none;
+  border: none;
+  padding: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

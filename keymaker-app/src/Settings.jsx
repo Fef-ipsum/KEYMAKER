@@ -205,6 +205,18 @@ export default function Settings({
               label="Numéros de ligne"
             />
           </div>
+
+          <div className="set-row">
+            <div className="set-row-label">
+              <span className="set-name">Auto-complétion</span>
+              <span className="set-desc">Suggère les fonctions Strudel pendant la frappe (Ctrl+Espace pour forcer).</span>
+            </div>
+            <Toggle
+              on={settings.autocomplete !== false}
+              onToggle={(v) => onChange({ autocomplete: v })}
+              label="Auto-complétion"
+            />
+          </div>
         </section>
 
         {/* ---- Connexion à Sati (partagé avec le tiroir Sati) ---- */}

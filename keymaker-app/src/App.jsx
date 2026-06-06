@@ -1,5 +1,6 @@
 // Keymaker — app d'apprentissage Strudel/solfège.
 // Chantier 6 : écran Réglages (⚙ + overlay). [build:c6-settings]
+// Chantier 21 : Mode Focus (éditeur seul). Chantier 22 : erreurs inline + auto-complétion. [build:c21-focus c22-editor]
 import { useRef, useState, useCallback, useEffect } from 'react';
 import StrudelEditor from './StrudelEditor.jsx';
 import SatiChat from './SatiChat.jsx';
@@ -41,7 +42,7 @@ const DEFAULT_PI_URL = 'https://personal-os.tailac998e.ts.net';
 // Réglages (Chantier 6) — persistés sur l'appareil.
 const SETTINGS_KEY = 'keymaker:settings';
 const TEXT_SCALE = { m: 1, l: 1.12, xl: 1.26 }; // facteur appliqué à --fs-scale + police éditeur
-const DEFAULT_SETTINGS = { textScale: 'm', reduceMotion: false, editorTheme: 'strudelTheme', lineNumbers: true, theme: 'void' };
+const DEFAULT_SETTINGS = { textScale: 'm', reduceMotion: false, editorTheme: 'strudelTheme', lineNumbers: true, theme: 'void', autocomplete: true };
 
 function readSettings() {
   let base = { ...DEFAULT_SETTINGS };
@@ -62,6 +63,7 @@ function applyEditorSettings(editor, s) {
   try { editor.setTheme(s.editorTheme); } catch { /* cosmétique */ }
   try { editor.setLineNumbersDisplayed(!!s.lineNumbers); } catch { /* cosmétique */ }
   try { editor.setFontSize(Math.round(19 * (TEXT_SCALE[s.textScale] || 1))); } catch { /* cosmétique */ }
+  try { editor.setAutocompletionEnabled(s.autocomplete !== false); } catch { /* cosmétique */ }
 }
 
 function findPosIn(flat, chapterIndex, flashInChapter) {
@@ -111,8 +113,10 @@ export default function App() {
   const [ready, setReady] = useState(false);
   const [playing, setPlaying] = useState(false); // piloté par l'événement 'update' de l'éditeur
   const [error, setError] = useState(null);
+  const [evalError, setEvalError] = useState(null); // Chantier 22 : erreur de code Strudel (événement 'update')
   const [learnOpen, setLearnOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [focusMode, setFocusMode] = useState(false); // Chantier 21 : Mode Focus (éphémère, non persisté)
 
   // Réglages persistés (Chantier 6) : taille de texte, animations, thème d'éditeur, numéros de ligne.
   const [settings, setSettings] = useState(readSettings);
@@ -178,7 +182,7 @@ export default function App() {
   useEffect(() => {
     if (ready) applyEditorSettings(editorRef.current, settings);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, settings.editorTheme, settings.lineNumbers, settings.textScale]);
+  }, [ready, settings.editorTheme, settings.lineNumbers, settings.textScale, settings.autocomplete]);
 
   // Reprendre la progression à zéro : efface les clés de reprise et revient au 1er flash.
   const resetProgress = useCallback(() => {
@@ -306,6 +310,7 @@ export default function App() {
     if (!ed) return;
     lastAppliedRef.current = key;
     setError(null);
+    setEvalError(null);
     setPlaying(false);
     (async () => {
       try {
@@ -321,18 +326,21 @@ export default function App() {
     })();
   }, [mod, pos, ready]);
 
-  // Échap ferme les overlays ouverts (Parcours / Sati / Réglages).
+  // Échap ferme d'abord les overlays ouverts (Parcours / Sati / Réglages),
+  // sinon sort du Mode Focus (Chantier 21).
   useEffect(() => {
-    if (!learnOpen && !satiOpen && !settingsOpen) return;
+    if (!learnOpen && !satiOpen && !settingsOpen && !focusMode) return;
     const onKey = (e) => {
-      if (e.key === 'Escape') { setLearnOpen(false); setSatiOpen(false); setSettingsOpen(false); }
+      if (e.key !== 'Escape') return;
+      if (learnOpen || satiOpen || settingsOpen) { setLearnOpen(false); setSatiOpen(false); setSettingsOpen(false); }
+      else if (focusMode) setFocusMode(false);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [learnOpen, satiOpen, settingsOpen]);
+  }, [learnOpen, satiOpen, settingsOpen, focusMode]);
 
   return (
-    <div className={'app' + (settings.reduceMotion ? ' reduce-motion' : '')} data-theme={settings.theme || 'void'}>
+    <div className={'app' + (settings.reduceMotion ? ' reduce-motion' : '') + (focusMode ? ' focus-mode' : '')} data-theme={settings.theme || 'void'}>
       <header className="topbar">
         <div className="wordmark">
           <span className="glyph" aria-hidden="true">꩜</span> Keymaker
@@ -343,6 +351,13 @@ export default function App() {
         </nav>
 
         <div className="topbar-actions">
+          <button
+            className="focus-btn"
+            onClick={() => setFocusMode(true)}
+            title="Mode Focus : éditeur seul, zéro distraction (Échap pour sortir)"
+          >
+            ⤢ Focus
+          </button>
           <button
             className={'sati-btn status-' + piStatus.state}
             onClick={() => setSatiOpen(true)}
@@ -381,6 +396,7 @@ export default function App() {
         ready={ready}
         playing={playing}
         error={error}
+        evalError={evalError}
         onRun={run}
         onStop={stop}
         onPrev={goPrev}
@@ -392,6 +408,7 @@ export default function App() {
           onReady={handleReady}
           onPlayingChange={setPlaying}
           onError={handleError}
+          onEvalError={setEvalError}
         />
       </Flash>
 
@@ -434,6 +451,14 @@ export default function App() {
           onClose={() => setSettingsOpen(false)}
         />
       )}
+
+      {/* Mode Focus (Chantier 21) : sortie discrète en coin (en plus de la touche Échap). */}
+      {focusMode && (
+        <button className="focus-exit" onClick={() => setFocusMode(false)} title="Quitter le Mode Focus">
+          ✕ Quitter le focus
+          <span className="focus-exit-kbd" aria-hidden="true">Échap</span>
+        </button>
+      )}
     </div>
   );
 }
@@ -457,6 +482,7 @@ function Flash({
   ready,
   playing,
   error,
+  evalError,
   onRun,
   onStop,
   onPrev,
@@ -492,6 +518,14 @@ function Flash({
 
         {!ready && !error && <p className="hint loading">Chargement du moteur Strudel…</p>}
         {error && <p className="hint err">{error}</p>}
+
+        {/* Erreur de code Strudel (Chantier 22) : message simplifié, sous l'éditeur. */}
+        {evalError && (
+          <div className="eval-error" role="alert">
+            <span className="eval-error-tag" aria-hidden="true">erreur</span>
+            <code className="eval-error-msg">{evalError}</code>
+          </div>
+        )}
       </section>
 
       {flash.decode && (
