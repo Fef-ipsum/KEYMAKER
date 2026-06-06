@@ -11,9 +11,11 @@
 // les try/catch autour de localStorage ailleurs dans l'app.
 
 const DB_NAME = 'keymaker';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // v2 (Chantiers 24+27) : ajoute les stores 'notes' et 'snippets'
 const STORE_MSG = 'messages'; //  fil GLOBAL : { id++, role:'user'|'sati', text, model?, ts }
 const STORE_DIFF = 'difficultes'; //  repères auto : { id++, flashKey, flashId, label, ts }  (index: flashKey)
+export const STORE_NOTES = 'notes'; // Chantier 24 : carnet par flash — { flashKey (keyPath), text, ts }
+export const STORE_SNIPPETS = 'snippets'; // Chantier 27 : bibliothèque — { id++, name, code, module, ts }
 
 // L'historique RENVOYÉ AU PI est borné : le fil affiché/stocké garde tout, mais on
 // n'envoie que les derniers tours → sinon on alourdirait chaque requête (coût +
@@ -27,7 +29,7 @@ export const MAX_HISTORY_PAIRS = 8;
    =========================================================================== */
 let dbPromise = null;
 
-function getDB() {
+export function getDB() {
   if (dbPromise) return dbPromise;
   dbPromise = new Promise((resolve) => {
     let idb;
@@ -55,6 +57,14 @@ function getDB() {
       if (!db.objectStoreNames.contains(STORE_DIFF)) {
         const s = db.createObjectStore(STORE_DIFF, { keyPath: 'id', autoIncrement: true });
         s.createIndex('flashKey', 'flashKey', { unique: false });
+      }
+      // Chantiers 24 & 27 (passage v1 -> v2) : on AJOUTE deux stores sans toucher
+      // à 'messages'/'difficultes' → la mémoire de Sati déjà stockée est préservée.
+      if (!db.objectStoreNames.contains(STORE_NOTES)) {
+        db.createObjectStore(STORE_NOTES, { keyPath: 'flashKey' });
+      }
+      if (!db.objectStoreNames.contains(STORE_SNIPPETS)) {
+        db.createObjectStore(STORE_SNIPPETS, { keyPath: 'id', autoIncrement: true });
       }
     };
     req.onsuccess = () => resolve(req.result);

@@ -7,6 +7,11 @@ import SatiChat from './SatiChat.jsx';
 import Settings from './Settings.jsx';
 import { modules } from './lessons.js';
 import { countMemory, loadDifficulties, clearAllMemory } from './memory.js';
+import Dashboard from './Dashboard.jsx';
+import { markSeen, recordToday, isFirstVisitToday, summary as progressSummary, firstUnseenIndex } from './progress.js';
+import FlashNote from './FlashNote.jsx';
+import SnippetLibrary from './SnippetLibrary.jsx';
+import { addSnippet } from './notebook.js';
 
 /* ---------------------------------------------------------------------------
    Navigation multi-chapitres (Chantier 3).
@@ -66,6 +71,38 @@ function applyEditorSettings(editor, s) {
   try { editor.setAutocompletionEnabled(s.autocomplete !== false); } catch { /* cosmétique */ }
 }
 
+/* ---------------------------------------------------------------------------
+   Chantier 20 — Partage & export. Encodeur AUTHENTIQUE du REPL Strudel (extrait
+   du bundle vendorisé, identique a strudel.cc) : code -> hash d'URL. Ouvrir
+   strudel.cc/#<hash> restaure le code. Zéro backend.
+   --------------------------------------------------------------------------- */
+function code2hash(code) {
+  try {
+    return encodeURIComponent(btoa(String.fromCharCode(...new TextEncoder().encode(code || ''))));
+  } catch {
+    return '';
+  }
+}
+function strudelUrl(code) {
+  return 'https://strudel.cc/#' + code2hash(code);
+}
+// Télécharge `text` comme fichier (Blob + lien éphémère). Best-effort.
+function downloadText(filename, text) {
+  try {
+    const blob = new Blob([text], { type: 'text/javascript;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch {
+    /* non bloquant */
+  }
+}
+
 function findPosIn(flat, chapterIndex, flashInChapter) {
   return flat.findIndex((x) => x.chapterIndex === chapterIndex && x.flashInChapter === flashInChapter);
 }
@@ -117,6 +154,9 @@ export default function App() {
   const [learnOpen, setLearnOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [focusMode, setFocusMode] = useState(false); // Chantier 21 : Mode Focus (éphémère, non persisté)
+  const [dashOpen, setDashOpen] = useState(false); // Chantier 16 : tableau de bord (accueil)
+  const [libraryOpen, setLibraryOpen] = useState(false); // Chantier 27 : bibliothèque de snippets
+  const [snipMsg, setSnipMsg] = useState(''); // Chantier 27 : confirmation éphémère de sauvegarde
 
   // Réglages persistés (Chantier 6) : taille de texte, animations, thème d'éditeur, numéros de ligne.
   const [settings, setSettings] = useState(readSettings);
@@ -162,6 +202,15 @@ export default function App() {
 
   // Ping auto au démarrage.
   useEffect(() => { checkPi(piUrl); }, [checkPi]);
+
+  // Tableau de bord (Chantier 16) : on enregistre l'ouverture du jour et, à la
+  // PREMIÈRE visite du jour, on ouvre l'accueil (dismissable, éditeur monté dessous).
+  useEffect(() => {
+    try {
+      if (isFirstVisitToday()) setDashOpen(true);
+      recordToday();
+    } catch { /* best-effort */ }
+  }, []);
 
   // Échelle de texte : pilote --fs-scale sur <html> (lue par body, titres et éditeur via la CSS).
   useEffect(() => {
@@ -274,6 +323,52 @@ export default function App() {
     };
   }, [mod, pos, error]);
 
+  // Code live de l'éditeur (ce que Felix a tapé), repli sur l'état CodeMirror puis
+  // sur le code de la leçon. Partagé par « Ouvrir dans Strudel » et « Télécharger ».
+  const readLiveCode = useCallback(() => {
+    const ed = editorRef.current;
+    let liveCode = '';
+    try { if (ed && typeof ed.code === 'string') liveCode = ed.code; } catch { /* ignore */ }
+    if (!liveCode) {
+      try { liveCode = (ed && ed.editor && ed.editor.state.doc.toString()) || ''; } catch { /* ignore */ }
+    }
+    return liveCode || (FLATS[mod][pos] && FLATS[mod][pos].flash.code) || '';
+  }, [mod, pos]);
+
+  // Chantier 20 — ouvrir le code courant dans le REPL officiel strudel.cc (nouvel onglet).
+  const openInStrudel = useCallback(() => {
+    try { window.open(strudelUrl(readLiveCode()), '_blank', 'noopener'); } catch { /* ignore */ }
+  }, [readLiveCode]);
+
+  // Chantier 20 — télécharger le code courant en fichier .js propre (en-tête commenté).
+  const downloadJs = useCallback(() => {
+    const cur = FLATS[mod][pos];
+    const id = (cur && cur.flash && cur.flash.id) || 'flash';
+    const header = '// Keymaker — Flash ' + id + ' · ' + curModule.title + '\n// ' + (curModule.titre || '') + '\n\n';
+    downloadText('keymaker-flash-' + String(id).replace(/[^\w.-]/g, '_') + '.js', header + readLiveCode() + '\n');
+  }, [mod, pos, curModule, readLiveCode]);
+
+  // Chantier 27 — sauvegarder le code courant dans la bibliothèque (nom = le flash).
+  const saveSnippet = useCallback(async () => {
+    const cur = FLATS[mod][pos];
+    const id = (cur && cur.flash && cur.flash.id) || '?';
+    const title = (cur && cur.flash && cur.flash.title) || '';
+    const name = ('Flash ' + id + (title ? ' — ' + title : '')).slice(0, 120);
+    try {
+      const saved = await addSnippet({ name, code: readLiveCode(), module: curModule.id });
+      setSnipMsg(saved ? '✓ Gardé dans ta bibliothèque' : 'Sauvegarde indisponible ici');
+    } catch {
+      setSnipMsg('Sauvegarde indisponible ici');
+    }
+    setTimeout(() => setSnipMsg(''), 2600);
+  }, [mod, pos, curModule, readLiveCode]);
+
+  // Chantier 27 — charger un snippet dans l'éditeur (depuis la bibliothèque).
+  const loadSnippetCode = useCallback((code) => {
+    try { if (editorRef.current) editorRef.current.setCode(code); } catch { /* ignore */ }
+    setLibraryOpen(false);
+  }, []);
+
   // Navigation : un seul curseur `pos` sur la liste plate du module courant. Circulation libre.
   const goTo = useCallback((i) => setPos(Math.max(0, Math.min(TOTAL - 1, i))), [TOTAL]);
   const goPrev = useCallback(() => setPos((p) => Math.max(0, p - 1)), []);
@@ -288,6 +383,16 @@ export default function App() {
     setPos(i >= 0 ? i : 0);
   }, []);
 
+  // Chantier 16 — depuis une carte du tableau de bord : aller au 1er flash NON vu
+  // du module choisi (ou son 1er flash si tout est déjà vu).
+  const goToModule = useCallback((mIndex) => {
+    const flat = FLATS[mIndex] || FLATS[0];
+    let i = 0;
+    try { const u = firstUnseenIndex(mIndex, flat); if (u >= 0) i = u; } catch { /* ignore */ }
+    const e = flat[i] || flat[0];
+    goToFlash(mIndex, e.chapterIndex, e.flashInChapter);
+  }, [goToFlash]);
+
   // Persiste la position courante en coordonnées chapitre + flash (reprise au prochain lancement).
   useEffect(() => {
     try {
@@ -298,6 +403,8 @@ export default function App() {
     } catch {
       /* mode privé / quota : non bloquant */
     }
+    // Chantier 16 : marque ce flash comme vu (progression). Best-effort.
+    try { markSeen(mod, current.chapterIndex, current.flashInChapter); } catch { /* ignore */ }
   }, [mod, current.chapterIndex, current.flashInChapter]);
 
   // Au changement de flash : une SEULE instance d'éditeur, on pousse le nouveau code.
@@ -329,15 +436,15 @@ export default function App() {
   // Échap ferme d'abord les overlays ouverts (Parcours / Sati / Réglages),
   // sinon sort du Mode Focus (Chantier 21).
   useEffect(() => {
-    if (!learnOpen && !satiOpen && !settingsOpen && !focusMode) return;
+    if (!learnOpen && !satiOpen && !settingsOpen && !dashOpen && !libraryOpen && !focusMode) return;
     const onKey = (e) => {
       if (e.key !== 'Escape') return;
-      if (learnOpen || satiOpen || settingsOpen) { setLearnOpen(false); setSatiOpen(false); setSettingsOpen(false); }
+      if (learnOpen || satiOpen || settingsOpen || dashOpen || libraryOpen) { setLearnOpen(false); setSatiOpen(false); setSettingsOpen(false); setDashOpen(false); setLibraryOpen(false); }
       else if (focusMode) setFocusMode(false);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [learnOpen, satiOpen, settingsOpen, focusMode]);
+  }, [learnOpen, satiOpen, settingsOpen, dashOpen, libraryOpen, focusMode]);
 
   return (
     <div className={'app' + (settings.reduceMotion ? ' reduce-motion' : '') + (focusMode ? ' focus-mode' : '')} data-theme={settings.theme || 'void'}>
@@ -351,6 +458,13 @@ export default function App() {
         </nav>
 
         <div className="topbar-actions">
+          <button
+            className="home-btn"
+            onClick={() => setDashOpen(true)}
+            title="Accueil — ta progression"
+          >
+            🏠 Accueil
+          </button>
           <button
             className="focus-btn"
             onClick={() => setFocusMode(true)}
@@ -401,6 +515,11 @@ export default function App() {
         onStop={stop}
         onPrev={goPrev}
         onNext={goNext}
+        onOpenInStrudel={openInStrudel}
+        onDownloadJs={downloadJs}
+        flashKey={mod + ':' + current.chapterIndex + ':' + current.flashInChapter}
+        onSaveSnippet={saveSnippet}
+        snipMsg={snipMsg}
       >
         {/* Éditeur UNIQUE : monté une fois ici, jamais remonté au changement de flash. */}
         <StrudelEditor
@@ -452,6 +571,26 @@ export default function App() {
         />
       )}
 
+      {dashOpen && (
+        <Dashboard
+          summary={progressSummary(FLATS.map((f) => f.length))}
+          modules={modules}
+          currentModuleIndex={mod}
+          resumeLabel={'Module ' + curModule.id + ' · Flash ' + flash.id}
+          onResume={() => setDashOpen(false)}
+          onPickModule={(mi) => { goToModule(mi); setDashOpen(false); }}
+          onOpenLibrary={() => { setDashOpen(false); setLibraryOpen(true); }}
+          onClose={() => setDashOpen(false)}
+        />
+      )}
+
+      {libraryOpen && (
+        <SnippetLibrary
+          onLoadSnippet={loadSnippetCode}
+          onClose={() => setLibraryOpen(false)}
+        />
+      )}
+
       {/* Mode Focus (Chantier 21) : sortie discrète en coin (en plus de la touche Échap). */}
       {focusMode && (
         <button className="focus-exit" onClick={() => setFocusMode(false)} title="Quitter le Mode Focus">
@@ -487,6 +626,11 @@ function Flash({
   onStop,
   onPrev,
   onNext,
+  onOpenInStrudel,
+  onDownloadJs,
+  flashKey,
+  onSaveSnippet,
+  snipMsg,
   children,
 }) {
   return (
@@ -497,6 +641,9 @@ function Flash({
       <section className="card concept">
         <p>{flash.concept}</p>
       </section>
+
+      {/* Carnet de notes (Chantier 24) — sous le concept, replié si vide. */}
+      <FlashNote key={flashKey} flashKey={flashKey} />
 
       <section className="editor-block">
         <div className="editor-frame">{children}</div>
@@ -526,6 +673,20 @@ function Flash({
             <code className="eval-error-msg">{evalError}</code>
           </div>
         )}
+
+        {/* Partage & export (Chantier 20) — masqué en Mode Focus via .focus-mode. */}
+        <div className="share-row">
+          <button className="share-btn" onClick={onSaveSnippet} title="Sauvegarder ce pattern dans ta bibliothèque">
+            ☆ Sauvegarder
+          </button>
+          <button className="share-btn" onClick={onOpenInStrudel} title="Ouvrir ce code dans le REPL officiel strudel.cc (nouvel onglet)">
+            ↗ Ouvrir dans Strudel
+          </button>
+          <button className="share-btn" onClick={onDownloadJs} title="Télécharger ce code en fichier .js">
+            ⤓ Télécharger .js
+          </button>
+          {snipMsg && <span className="share-msg" role="status">{snipMsg}</span>}
+        </div>
       </section>
 
       {flash.decode && (

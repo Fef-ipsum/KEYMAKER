@@ -1414,3 +1414,285 @@ strudel-editor { display: none; } /* l'élément hôte n'affiche rien lui-même 
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+/* ============================================================
+   Chantier 16 — Tableau de bord & progression (accueil)
+   + Chantier 20 — Partage & export.
+   Entièrement themable : couleurs via var() uniquement (Void/Light/Matrix).
+   ============================================================ */
+
+/* Bouton 🏠 Accueil (topbar) — calqué sur .parcours-btn */
+.home-btn {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-radius: 11px;
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.home-btn:hover { background: var(--surface); border-color: var(--border); }
+
+/* ---- Bandeau héro : streak + reprise ---- */
+.dash-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 14px;
+  margin: 4px 0 20px;
+}
+.dash-streak {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 150px;
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: linear-gradient(var(--surface-2), var(--surface));
+}
+.dash-streak-flame { font-size: 26px; line-height: 1; }
+.dash-streak-num { font-size: 40px; font-weight: 800; color: var(--accent); line-height: 1.1; }
+.dash-streak-word { font-size: 13px; color: var(--muted); }
+.dash-resume {
+  flex: 1 1 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
+  padding: 16px 22px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--accent);
+  color: var(--accent-ink);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.1s ease;
+}
+.dash-resume:hover { box-shadow: 0 14px 38px -10px rgba(var(--accent-rgb), 0.9); }
+.dash-resume:active { transform: translateY(1px); }
+.dash-resume-main { font-size: 22px; font-weight: 800; }
+.dash-resume-sub { font-size: 13px; opacity: 0.85; font-family: var(--font-mono); }
+
+/* ---- Progression globale ---- */
+.dash-global { margin-bottom: 22px; }
+.dash-global-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.dash-global-label { font-weight: 700; }
+.dash-global-val { color: var(--muted); font-family: var(--font-mono); font-size: 14px; }
+.dash-global-sub { margin: 8px 0 0; color: var(--muted); font-size: 14px; }
+
+/* Barre de progression réutilisable */
+.dash-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+  border: 1px solid var(--border-soft);
+}
+.dash-bar-sm { height: 7px; }
+.dash-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 12px -2px rgba(var(--accent-rgb), 0.8);
+  transition: width 0.35s ease;
+}
+
+/* ---- Cartes par module ---- */
+.dash-modules { margin-top: 6px; }
+.dash-mod-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.dash-mod {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  text-align: left;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-soft);
+  background: var(--surface);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+}
+.dash-mod:hover { background: var(--surface-2); border-color: var(--border); }
+.dash-mod:active { transform: translateY(1px); }
+.dash-mod.here { border-color: var(--accent); }
+.dash-mod-top { display: flex; align-items: center; gap: 10px; }
+.dash-mod-badge {
+  flex: 0 0 auto;
+  width: 30px; height: 30px;
+  display: grid; place-items: center;
+  border-radius: 9px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  color: var(--accent);
+  font-weight: 800;
+}
+.dash-mod-meta { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1 1 auto; }
+.dash-mod-title { font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dash-mod-sub { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dash-mod-here {
+  flex: 0 0 auto;
+  font-size: 11px; font-weight: 700;
+  color: var(--accent-ink); background: var(--accent);
+  border-radius: 6px; padding: 2px 7px;
+}
+.dash-mod-check { flex: 0 0 auto; color: var(--accent); font-weight: 800; font-size: 16px; }
+.dash-mod-count { font-size: 13px; color: var(--muted); font-family: var(--font-mono); }
+
+/* ---- Partage & export (Chantier 20) sous l'éditeur ---- */
+.share-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+.share-btn {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-radius: 11px;
+  padding: 9px 15px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.share-btn:hover { background: var(--surface); border-color: var(--border); }
+.app.focus-mode .share-row { display: none; }
+
+/* ============================================================
+   Chantier 24 — Carnet de notes par flash
+   + Chantier 27 — Bibliothèque de snippets.
+   Entièrement themable : couleurs via var() uniquement.
+   ============================================================ */
+
+/* ---- Carnet de notes (sous le concept) ---- */
+.flash-note {
+  margin: 0 0 18px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+}
+.flash-note.has-note { border-color: var(--border); }
+.flash-note-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  text-align: left;
+  font-family: var(--font-ui);
+}
+.flash-note-head:hover { background: var(--surface-2); }
+.flash-note-ico { color: var(--accent); font-size: 15px; }
+.flash-note-label { font-weight: 700; font-size: 14px; flex: 0 0 auto; }
+.flash-note-preview {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.flash-note-chevron { margin-left: auto; color: var(--muted); transition: transform 0.2s ease; }
+.flash-note-chevron.open { transform: rotate(180deg); }
+.flash-note-area {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  border: none;
+  border-top: 1px solid var(--border-soft);
+  background: var(--bg-2);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.5;
+  padding: 12px 16px;
+  resize: vertical;
+  outline: none;
+}
+.flash-note-area::placeholder { color: var(--muted); opacity: 0.85; }
+.flash-note-area:focus { box-shadow: inset 0 0 0 2px rgba(var(--accent-rgb), 0.35); }
+.app.focus-mode .flash-note { display: none; }
+
+/* ---- Confirmation de sauvegarde (dans la share-row) ---- */
+.share-msg {
+  align-self: center;
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ---- Bouton « Mes snippets » (dans le tableau de bord) ---- */
+.dash-actions { margin-top: 18px; }
+.dash-lib-btn {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-radius: 11px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.dash-lib-btn:hover { background: var(--surface); border-color: var(--border); }
+
+/* ---- Bibliothèque de snippets (overlay) ---- */
+.lib-empty { color: var(--muted); padding: 18px 4px; font-size: 15px; }
+.lib-list { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.lib-item { display: flex; align-items: stretch; gap: 8px; }
+.lib-load {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+  padding: 12px 15px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-soft);
+  background: var(--surface);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.lib-load:hover { background: var(--surface-2); border-color: var(--border); }
+.lib-name { font-weight: 700; font-size: 15px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lib-code { font-family: var(--font-mono); font-size: 13px; color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lib-meta { font-size: 12px; color: var(--muted); }
+.lib-del {
+  flex: 0 0 auto;
+  width: 46px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-soft);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.lib-del:hover { background: var(--surface-2); color: var(--danger); border-color: var(--danger); }

@@ -1,7 +1,7 @@
 # ꩜ Keymaker — l'app d'apprentissage Strudel CC + solfège
 
 PWA en français pour apprendre **le live coding (Strudel CC)** et **le solfège** en même temps.
-État actuel : **6 modules complets et jouables**, **151 flashs**, un guide IA (**Sati**) et un écran **Réglages**. Tout tourne 100 % en local ; Sati se branche sur ton Pi.
+État actuel : **6 modules complets et jouables**, **151 flashs**, un écran **🏠 Accueil** (progression + streak), un **carnet de notes** et une **bibliothèque de snippets** par flash, le **partage vers strudel.cc**, un guide IA (**Sati**) et un écran **Réglages**. Tout tourne 100 % en local ; Sati se branche sur ton Pi.
 
 ---
 
@@ -27,6 +27,17 @@ Une fenêtre noire s'ouvre (le serveur local) et ton navigateur ouvre l'app tout
 - Indicateur **Ch.N · n/m** + points du chapitre courant.
 - **☰ Parcours** ouvre la carte : sélecteur **Module 1 / 2 / 3 / 4 / 5 / 6**, chapitres repliables, clic pour aller à n'importe quel flash. Circulation **libre**.
 - À la fin d'un module : bouton **« Module suivant ▶ »**.
+
+---
+
+## 🏠 Accueil, carnet & partage
+
+- **🏠 Accueil** (barre du haut, et à la 1ʳᵉ ouverture du jour) : ta **progression** d'un coup d'œil — **streak** (jours d'affilée), % par module, gros bouton **Reprendre**, accès rapide à chaque module, et **📌 Mes snippets**.
+- **✎ Ma note** sous le concept de chaque flash : une note libre, **enregistrée toute seule**, hors-ligne — pour externaliser un truc à retenir.
+- **📌 Bibliothèque de snippets** : sous l'éditeur, **☆ Sauvegarder** garde le pattern courant ; rouvre-le d'un clic depuis l'Accueil → il se charge dans l'éditeur.
+- **↗ Ouvrir dans Strudel** ouvre ton code dans le REPL officiel strudel.cc · **⤓ Télécharger .js** l'enregistre en fichier propre.
+
+Tout est **100 % local** (rien n'est envoyé) et **masqué en Mode Focus**.
 
 ---
 
@@ -80,7 +91,7 @@ Bouton **⚙ Réglages** : **thème (Void sombre / Clair / Matrix)**, taille de 
 
 - **React + Vite + PWA** (`display: standalone`), thèmes **Void** (sombre, défaut, accent cyan), **Light** (clair, accent indigo) et **Matrix** (vert phosphore) — bascule dans les Réglages, posée sur `<html>`.
 - **Une seule** instance d'éditeur **Strudel** (CodeMirror 6 + moteur), vendorisée dans `public/vendor/strudel-repl/` → **aucune dépendance CDN au runtime**. Jamais recréée en changeant de flash (on pousse juste le nouveau code). L'**auto-complétion** et les **erreurs inline** passent par l'API du moteur (`setAutocompletionEnabled`, événement `update.detail.error`) ; le **Mode Focus** est une simple classe CSS sur `.app` (l'éditeur n'est jamais recréé en entrant/sortant).
-- Reprise du dernier flash en `localStorage` ; mémoire de Sati en `IndexedDB`.
+- Reprise du dernier flash + **suivi de progression** (flashs vus, streak) en `localStorage` ; mémoire de Sati, **carnet de notes** et **bibliothèque de snippets** en `IndexedDB` (base `keymaker`, **v2** — la migration préserve les données existantes).
 - Backend de Sati = module Docker `keymaker` sur le Pi (Fastify + Postgres, Tailscale-only).
 
 ---
@@ -105,11 +116,16 @@ keymaker-app/
 ├─ server.mjs           ← petit serveur local (zéro dépendance)
 ├─ index.html · vite.config.js
 ├─ src/
-│  ├─ App.jsx           ← navigation multi-modules + overlays (Parcours / Sati / Réglages)
+│  ├─ App.jsx           ← navigation multi-modules + overlays (Accueil / Parcours / Sati / Réglages / Bibliothèque)
+│  ├─ Dashboard.jsx     ← écran Accueil : progression, streak, % par module (Chantier 16)
+│  ├─ progress.js       ← suivi local : flashs vus + jours/streak (localStorage)
+│  ├─ FlashNote.jsx     ← carnet de notes par flash (Chantier 24)
+│  ├─ SnippetLibrary.jsx← bibliothèque de snippets (Chantier 27)
+│  ├─ notebook.js       ← opérations notes + snippets (IndexedDB v2)
 │  ├─ StrudelEditor.jsx ← wrapper React du moteur Strudel
 │  ├─ SatiChat.jsx · sati.js   ← guide IA : tiroir de chat + client SSE du Pi
 │  ├─ Settings.jsx      ← écran Réglages
-│  ├─ memory.js         ← mémoire locale de Sati (IndexedDB)
+│  ├─ memory.js         ← mémoire locale de Sati + schéma IndexedDB v2 (stores notes/snippets)
 │  ├─ lessons.js        ← contenu : modules = [module1...module6], 151 flashs
 │  └─ styles.css        ← thème Void + cartes + nav + table récap + overlays
 ├─ public/
@@ -120,4 +136,4 @@ keymaker-app/
 
 ---
 
-*Keymaker — Modules 1 à 6 complets (151 flashs) + Sati + Réglages (thèmes Void / Light / Matrix) + **Mode Focus** + **auto-complétion & erreurs inline**. Strudel v1.3.0. Mis à jour le 6 juin 2026 (Chantiers 21 & 22 : Mode Focus + éditeur amélioré).*
+*Keymaker — Modules 1 à 6 complets (151 flashs) + Sati + Réglages (thèmes Void / Light / Matrix) + **Mode Focus** + **auto-complétion & erreurs inline** + **Accueil/progression**, **carnet de notes**, **bibliothèque de snippets** et **partage/export**. Strudel v1.3.0. Mis à jour le 6 juin 2026 (Chantiers 16, 20, 24 & 27, en autonomie).*
