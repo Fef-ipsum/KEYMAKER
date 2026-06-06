@@ -16,6 +16,7 @@ const TEXT_SIZES = [
 const APP_THEMES = [
   { key: 'void', label: 'Void (sombre)' },
   { key: 'light', label: 'Clair' },
+  { key: 'matrix', label: 'Matrix' },
 ];
 
 // Thèmes de coloration de l'éditeur : clés RÉELLES du registre StrudelMirror
@@ -122,7 +123,7 @@ export default function Settings({
           <div className="set-row">
             <div className="set-row-label">
               <span className="set-name">Thème</span>
-              <span className="set-desc">Void (sombre) ou Clair — change toute l'app.</span>
+              <span className="set-desc">Void (sombre), Clair ou Matrix (vert) — change toute l'app.</span>
             </div>
             <div className="set-seg" role="group" aria-label="Thème">
               {APP_THEMES.map((t) => (

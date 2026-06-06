@@ -49,6 +49,26 @@
   --bg-fade:   rgba(246, 247, 251, 0.85);
 }
 
+/* ---------- Thème Matrix (vert) — Chantier 11 ----------
+   Même principe que Light : n'override que les COULEURS ; --glow, --radius, les polices
+   et les tailles viennent de :root. Vert phosphore sur quasi-noir ; l'accent passe en vert
+   via --accent-rgb → toutes les lueurs rgba(var(--accent-rgb), a) deviennent vertes. Posé sur <html>. */
+[data-theme="matrix"] {
+  --bg:        #050a05;
+  --bg-2:      #0a140a;
+  --surface:   rgba(0, 255, 102, 0.045);
+  --surface-2: rgba(0, 255, 102, 0.09);
+  --border:    rgba(0, 255, 102, 0.30);
+  --border-soft: rgba(120, 255, 150, 0.12);
+  --accent:    #00ff66;
+  --accent-rgb: 0, 255, 102;
+  --accent-ink:#02140a;
+  --text:      #c8ffd4;
+  --muted:     #6fae82;
+  --danger:    #ff5d6c;
+  --bg-fade:   rgba(5, 10, 5, 0.86);
+}
+
 * { box-sizing: border-box; }
 
 body {

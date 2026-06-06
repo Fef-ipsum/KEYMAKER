@@ -62,13 +62,13 @@ Tiroir de chat (bouton **Sati** dans la barre du haut). Elle **voit ton flash et
 
 ## ⚙ Réglages
 
-Bouton **⚙ Réglages** : **thème (Void sombre / Clair)**, taille de texte, réduire les animations, couleurs du code, numéros de ligne, URL du Pi + test, mémoire de Sati (voir / effacer), reprendre la progression à zéro.
+Bouton **⚙ Réglages** : **thème (Void sombre / Clair / Matrix)**, taille de texte, réduire les animations, couleurs du code, numéros de ligne, URL du Pi + test, mémoire de Sati (voir / effacer), reprendre la progression à zéro.
 
 ---
 
 ## 🧩 Sous le capot
 
-- **React + Vite + PWA** (`display: standalone`), thèmes **Void** (sombre, défaut, accent cyan) et **Light** (clair, accent indigo) — bascule dans les Réglages, posée sur `<html>`.
+- **React + Vite + PWA** (`display: standalone`), thèmes **Void** (sombre, défaut, accent cyan), **Light** (clair, accent indigo) et **Matrix** (vert phosphore) — bascule dans les Réglages, posée sur `<html>`.
 - **Une seule** instance d'éditeur **Strudel** (CodeMirror 6 + moteur), vendorisée dans `public/vendor/strudel-repl/` → **aucune dépendance CDN au runtime**. Jamais recréée en changeant de flash (on pousse juste le nouveau code).
 - Reprise du dernier flash en `localStorage` ; mémoire de Sati en `IndexedDB`.
 - Backend de Sati = module Docker `keymaker` sur le Pi (Fastify + Postgres, Tailscale-only).
@@ -110,4 +110,4 @@ keymaker-app/
 
 ---
 
-*Keymaker — Modules 1 à 4 complets (101 flashs) + Sati + Réglages (thèmes Void / Light). Strudel v1.3.0. Mis à jour le 6 juin 2026 (Module 4 « Son & Effets »).*
+*Keymaker — Modules 1 à 4 complets (101 flashs) + Sati + Réglages (thèmes Void / Light). Strudel v1.3.0. Mis à jour le 6 juin 2026 (Module 4 « Son & Effets » + thème Matrix).*
