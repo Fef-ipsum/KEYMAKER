@@ -1,7 +1,7 @@
 # ꩜ Keymaker — l'app d'apprentissage Strudel CC + solfège
 
 PWA en français pour apprendre **le live coding (Strudel CC)** et **le solfège** en même temps.
-État actuel : **4 modules complets et jouables**, **101 flashs**, un guide IA (**Sati**) et un écran **Réglages**. Tout tourne 100 % en local ; Sati se branche sur ton Pi.
+État actuel : **5 modules complets et jouables**, **126 flashs**, un guide IA (**Sati**) et un écran **Réglages**. Tout tourne 100 % en local ; Sati se branche sur ton Pi.
 
 ---
 
@@ -23,7 +23,7 @@ Une fenêtre noire s'ouvre (le serveur local) et ton navigateur ouvre l'app tout
 
 - **Précédent / Suivant** parcourent les flashs et **traversent les chapitres**.
 - Indicateur **Ch.N · n/m** + points du chapitre courant.
-- **☰ Parcours** ouvre la carte : sélecteur **Module 1 / 2 / 3 / 4**, chapitres repliables, clic pour aller à n'importe quel flash. Circulation **libre**.
+- **☰ Parcours** ouvre la carte : sélecteur **Module 1 / 2 / 3 / 4 / 5**, chapitres repliables, clic pour aller à n'importe quel flash. Circulation **libre**.
 - À la fin d'un module : bouton **« Module suivant ▶ »**.
 
 ---
@@ -45,6 +45,10 @@ Relie la théorie (Modules 1-2) à ta guitare : le manche, les positions, les ac
 **Module 4 — Son & Effets** (25 flashs, 5 chapitres)
 1. La source (ondes & bruit) · 2. Le filtre · 3. L'enveloppe (ADSR) · 4. L'espace (réverb & délai) · 5. La couleur & le mix.
 Le son lui-même : fabriquer un timbre depuis l'onde brute, le filtrer, lui donner une forme (ADSR), un espace et de la couleur — chaque effet **audible**, ponts permanents vers M1/M2/M3.
+
+**Module 5 — Informatique Musicale** (25 flashs, 5 chapitres)
+1. Le pattern est une fonction · 2. Manipuler le temps · 3. Le hasard maîtrisé · 4. Accumulation & calques · 5. L'héritage & le grand tableau.
+Le code comme instrument — fil rouge **« un pattern est une fonction du temps »** : fabriques (`stack`/`seq`/`cat`/`run`), transformations du temps (`slow`/`fast`/`rev`/`iter`/`ply`), hasard reproductible (`irand`/`degrade`/`sometimes`/`ribbon`), accumulation (`superimpose`/`off`/`echo`/`jux`), arrangement (`firstOf`/`chunk`), sortie **MIDI** — et un **morceau génératif final qui réunit les 5 modules**.
 
 Chaque flash suit le même moule : **Concept → éditeur Strudel → Décodage → Théorie (solfège) → Exercice**, avec une **table récap** en fin de chapitre et un **exercice libre** en clôture.
 
@@ -100,7 +104,7 @@ keymaker-app/
 │  ├─ SatiChat.jsx · sati.js   ← guide IA : tiroir de chat + client SSE du Pi
 │  ├─ Settings.jsx      ← écran Réglages
 │  ├─ memory.js         ← mémoire locale de Sati (IndexedDB)
-│  ├─ lessons.js        ← contenu : modules = [module1, module2, module3, module4], 101 flashs
+│  ├─ lessons.js        ← contenu : modules = [module1...module5], 126 flashs
 │  └─ styles.css        ← thème Void + cartes + nav + table récap + overlays
 ├─ public/
 │  ├─ icons/            ← icônes PWA
@@ -110,4 +114,4 @@ keymaker-app/
 
 ---
 
-*Keymaker — Modules 1 à 4 complets (101 flashs) + Sati + Réglages (thèmes Void / Light). Strudel v1.3.0. Mis à jour le 6 juin 2026 (Module 4 « Son & Effets » + thème Matrix).*
+*Keymaker — Modules 1 à 5 complets (126 flashs) + Sati + Réglages (thèmes Void / Light / Matrix). Strudel v1.3.0. Mis à jour le 6 juin 2026 (Module 5 « Informatique Musicale »).*

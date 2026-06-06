@@ -292,6 +292,33 @@ n(irand(8)).scale("C:minor")
 
 > **Module 4 « Son & Effets » (Chantier 10) ajoute**, tous re-vérifiés §6/§7 en direct : filtres `lpf`/`lpq`/`hpf`/`bpf` · enveloppe d'ampli `attack`/`decay`/`sustain`/`release`/`adsr` · enveloppe de filtre `lpenv`/`lpa`/`lpd`/`lps` · saturation `distort`/`crush`/`coarse` · modulation `phaser`/`vib` · espace `room`/`roomsize`/`rlp`/`delay`/`delaytime`/`delayfeedback`/`orbit` · stéréo `pan`/`jux` · LFO `sine.range().segment()` · ondes `sine`/`triangle`/`square`/`sawtooth` & bruit `white`/`pink`/`brown`.
 
+---
+
+## §12 — Module 5 « Informatique Musicale » (Chantier 12)
+
+> Toutes vérifiées **en direct** sur strudel.cc/learn le 6 juin 2026 (factories · time-modifiers · signals · random-modifiers · conditional-modifiers · accumulation · input-output) + manuel technique `patterns`. Fil rouge pédagogique : **un pattern est une fonction du temps** (le moteur « interroge » le pattern à chaque cycle — *querying*).
+
+**Fabriques (factories)** — équivalents fonctionnels de la mini-notation :
+`seq`/`fastcat` (= `"a b"`) · `stack`/`pr` (= `"a,b"`) · `cat`/`slowcat` (= `"<a b>"`) · `stepcat` (= `"a@3 b"`) · `arrange([n,pat],…)` (sur plusieurs cycles) · `polymeter`/`pm` (= `"{a b, c}"`) · `run(n)` (= `"0 1 … n-1"`) · `binary`/`binaryN` (struct depuis un nombre) · `silence`.
+
+**Temps (time-modifiers)** : `slow`/`fast` (= `/` `*`) · `rev` · `palindrome` · `iter(n)`/`iterBack` · `ply(n)` · `early`/`late` · `swingBy`/`swing` · `zoom` · `linger` · `compress` · `ribbon(offset, cycles)`/`rib` (loope une fenêtre de cycles — **fige une graine aléatoire**) · `inside`/`outside`.
+
+**Signaux (signals)** : `sine`/`cosine`/`saw`/`tri`/`square` (0→1) + variantes `…2` (−1→1) · `rand` · `perlin` · `irand(n)` (entiers 0→n-1) · `brand`/`brandBy(p)` · `mouseX`/`mouseY`. S'échantillonnent avec `.segment(n)` et se recadrent avec `.range(min,max)`.
+
+**Hasard (random-modifiers)** — ⚠️ **déterministe** (graine reproductible) : `choose(a,b…)` · `wchoose([a,p]…)` · `chooseCycles`/`randcat` (= `"a | b"`) · `wchooseCycles` · `degrade`/`degradeBy(p)` (= `?`) · `undegrade`/`undegradeBy` · `sometimes`(50 %)/`sometimesBy(p,f)` · `often`(75 %)/`rarely`(25 %)/`almostAlways`(90 %)/`almostNever`(10 %)/`always`/`never` · `someCycles`/`someCyclesBy`.
+
+**Conditionnel (conditional-modifiers)** : `firstOf(n,f)`/`lastOf(n,f)` · `when(pat,f)` · `chunk(n,f)`/`chunkBack` · `arp("…")`/`arpWith` · `struct` · `mask` · `reset`/`restart` · `hush` · `invert`/`inv` · `pick`/`pickF`/`pickmod`/`inhabit`/`squeeze`.
+
+**Accumulation** : `superimpose(f)` (original + copie transformée) · `layer(f,…)` (copies seules) · `off(t,f)` (copie décalée de `t` cycles + transformée) · `echo(times,time,fb)` · `echoWith`/`stutWith(times,time,f)` · `stut` (déprécié, params inversés).
+
+**Entrées/Sorties (input-output)** : `.midi("nom")` (sortie MIDI via **Web MIDI**, aucun logiciel) · `midin`/`midikeys` (entrée) · `midichan`/`midiport`/`progNum`/`control`/`ccn`/`ccv`/`midimaps` · `.osc()` (vers SuperCollider/SuperDirt, comme TidalCycles) · MQTT (envoi seulement).
+
+**Pièges & conventions retenus pour le contenu M5 :**
+- `superimpose`/`off` : pour une **harmonie de gamme**, appliquer `.add(n)` aux **degrés AVANT** `.scale()` (`n("0 2 4".superimpose(x=>x.add(2))).scale(...)`) → `add` numérique sûr ; après `.note()`, `.add(7)` agit en **demi-tons** (quinte) — forme doc `"c3 e3".off(1/8,x=>x.add(7)).note()`.
+- `ply(n)` ≠ `fast(n)` : `ply` répète **chaque** événement sur place (roulement), `fast` accélère **tout** le motif.
+- Hasard reproductible : même code = même suite. `ribbon(seed, len)` sert à **pêcher** puis figer un fragment aléatoire qui plaît.
+- `.midi(...)` route vers l'appareil → **pas de son interne** ; pour rester audible en leçon, garder `.s(...)` et présenter `.midi(...)` en variante.
+
 ## §10 — Pages officielles (pour aller plus loin)
 
 Base : `https://strudel.cc/learn/`
@@ -300,4 +327,4 @@ REPL : `https://strudel.cc/` (onglet **sounds** = liste réelle des sons, dont t
 
 ---
 
-*Distillé depuis strudel.cc le 5 juin 2026 (Astro v5). **Complété au Chantier 10 (6 juin 2026)** : Module 4 « Son & Effets » livré — §6/§7 (effets, ADSR, filtres, LFO, bruit) re-vérifiés en direct sur strudel.cc/learn/effects + /synths. À compléter pour les Modules 5-6 (informatique musicale · composition).*
+*Distillé depuis strudel.cc le 5 juin 2026 (Astro v5). **Complété au Chantier 10 (6 juin 2026)** : Module 4 « Son & Effets » — §6/§7 re-vérifiés sur /effects + /synths. **Complété au Chantier 12 (6 juin 2026)** : §12 Module 5 « Informatique Musicale » — fabriques, temps, signaux, hasard, conditionnel, accumulation, MIDI/OSC re-vérifiés en direct sur strudel.cc/learn. À compléter pour le Module 6 (composition & projets).*

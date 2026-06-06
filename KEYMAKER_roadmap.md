@@ -5,7 +5,7 @@
 
 ---
 
-## Où on en est (5 juin 2026)
+## Où on en est (6 juin 2026)
 
 > 🔑 **Accès Pi (4 juin 2026)** — le Claude du projet Keymaker a un accès SSH dédié au Pi (clé `.ssh-keymaker/id_ed25519`, user `felix`, via Tailscale). Câblage infra **vérifié à la source** ce jour. Contrat de frontière : `KEYMAKER_CONTRAT.md` · message pour Personal OS : `POUR_PERSONAL_OS_collaboration.md`.
 
@@ -26,6 +26,7 @@
 - ✅ **Module 3 « Connexion Guitare » (5 juin 2026, autre session)** : 5 chapitres, 25 flashs (3.1→3.25) — le manche & l'accordage · lire le manche · accords ouverts · power chords & barrés · le jeu. Intégré via `modules = [module1, module2, module3]`. **Réconcilié le 5 juin** : app rebuildée (3 modules + thème clair), docs resync. → `KEYMAKER_chantier9.md`
 - ✅ **Chantier 10 — Module 4 « Son & Effets » FAIT (6 juin 2026, en autonomie)** : 5 chapitres, **25 flashs (4.1→4.25)** — la source (ondes sine/triangle/square/sawtooth + bruit) · le filtre (lpf/lpq, hpf/bpf, balayage LFO) · l'enveloppe (ADSR + enveloppe de filtre lpenv) · l'espace (réverb, délai, délai calé au tempo, orbits) · la couleur & le mix (distort/crush, phaser/vib, pan, chaîne du signal). Intégré via `modules = [module1, module2, module3, module4]` (aucune modif `App.jsx`). Strudel vérifié **en direct** sur strudel.cc (effects + synths). Build propre (**34 modules**, bundle `index-oQUh9Mac.js`) + tests **86/86** données + **14/14** navigation + sentinelles. → `KEYMAKER_chantier10.md`
 - ✅ **Chantier 11 — Thème Matrix (vert) FAIT (6 juin 2026, en autonomie)** : 3ᵉ thème CSS `[data-theme="matrix"]` (vert phosphore `#00ff66` sur quasi-noir) + 3ᵉ option **Matrix** dans ⚙ Réglages → Apparence (sélecteur Void / Clair / Matrix). Même patron que le thème clair (Chantier 8) : n'override que les 13 variables de couleur, posé sur `<html>`, persisté `keymaker:settings.theme`. Build propre (34 modules, `index-BmpEACbd.js` + `index-Dh5zhh25.css`). → `KEYMAKER_chantier11.md`
+- ✅ **Chantier 12 — Module 5 « Informatique Musicale » FAIT (6 juin 2026, en autonomie)** : 5 chapitres, **25 flashs (5.1→5.25)** — le pattern est une fonction (fabriques `stack`/`seq`/`cat`/`run`) · manipuler le temps (`slow`/`fast`/`rev`/`iter`/`ply`) · le hasard maîtrisé (`irand`/signaux/`degrade`/`sometimes` + graine `ribbon`) · accumulation & calques (`superimpose`/`off`/`echo`/`jux`) · l'héritage & le grand tableau (TidalCycles↔Strudel, `firstOf`/`chunk`, **MIDI**, morceau génératif final des 5 modules). Fil rouge **« un pattern est une fonction du temps »**. Intégré via `modules = [module1..module5]` (aucune modif `App.jsx`). Strudel vérifié **en direct** sur strudel.cc (factories/time/signals/random/conditional/accumulation/input-output). Build propre (**34 modules**, bundle `index-bdjVqxxa.js` 310 kB) + tests **34/34** (données + navigation, total **126 flashs**) + sentinelles. → `KEYMAKER_chantier12.md`
 - 📖 **Référence Strudel à jour (5 juin 2026)** → `KEYMAKER_strudel_reference.md` : source de vérité distillée de strudel.cc (notes/hauteurs, sons GM + limites, mini-notation, effets, théorie, gotchas). **À consulter avant d'écrire du code Strudel** (cutoff Claude = mai 2025). Née de la validation M3 : `note("e2")` = 82 Hz (code guitare juste). **Cause du Mi grave muet trouvée & corrigée (5 juin)** : `gm_acoustic_guitar_steel` ne descend pas au Mi grave → 6 flashs (3.2, 3.3, 3.6, 3.8, 3.11, 3.12) passés en **nylon**, app rebuildée (bundle `index-CekULCjI.js`, 34 modules) + intégrité 94/94.
 
 > Pour lancer l'app : double-clic sur `keymaker-app/start.bat`. Tu arrives sur ton **dernier flash** ; **Run** (ou `Ctrl+Enter`) joue le son, **Précédent / Suivant** parcourent les flashs du module en traversant les chapitres, le bouton **Parcours** ouvre la carte — désormais avec un **sélecteur Module 1 / 2 / 3 / 4** — et le bouton **⚙ Réglages** ouvre la configuration (taille de texte, thème éditeur, numéros de ligne, URL Pi, reprendre à zéro). **Quatre modules** maintenant : Module 1 (live coding, 26 flashs), Module 2 (solfège, 25 flashs), Module 3 (Connexion Guitare, 25 flashs) et Module 4 (Son & Effets, 25 flashs) — **101 flashs** au total.
@@ -142,9 +143,16 @@ Les 5 flashs de « Premier contact », navigables, livrés dans `keymaker-app/`.
 - Sélecteur de thème de `Settings.jsx` **générique** (`APP_THEMES.map`) → ajouter `{ key: 'matrix', label: 'Matrix' }` a suffi ; **aucun changement d'`App.jsx`** (le thème est posé sur `<html>` pour n'importe quelle valeur, persisté).
 - **Vérifs** : `vite build` propre (**34 modules**, `index-BmpEACbd.js` + `index-Dh5zhh25.css`) + PWA régénérée + bloc Matrix **13/13 variables** + 3 options de thème dans la source + les 3 accents (cyan/indigo/vert) présents dans le CSS livré. → `KEYMAKER_chantier11.md`.
 
-### ⬜ Chantiers contenu — Modules 5 à 6
-À définir au fur et à mesure, comme les Modules 1-4. **Pas un prérequis pour coder.**
-Pistes (cf. `KEYMAKER_architecture.md`) : 5 Informatique Musicale · 6 Composition & Projets.
+### ✅ Chantier 12 — Module 5 « Informatique Musicale » — FAIT (6 juin 2026, en autonomie)
+5ᵉ module de contenu : **5 chapitres, 25 flashs (5.1→5.25)**, fil rouge **« un pattern est une fonction du temps »** — le code comme instrument. On passe d'écrire des notes à écrire des **règles qui génèrent des notes**.
+- Chapitres : 1. Le pattern est une fonction (fabriques `stack`/`seq`/`cat`/`run`) · 2. Manipuler le temps (`slow`/`fast`/`rev`/`palindrome`/`iter`/`ply`) · 3. Le hasard maîtrisé (`irand`/signaux/`choose`/`degrade`/`sometimes` + graine `ribbon`, **le hasard est déterministe**) · 4. Accumulation & calques (`superimpose`/`layer`/`off`/`echo`/`jux`) · 5. L'héritage & le grand tableau (TidalCycles↔Strudel & fonctionnel, `firstOf`/`lastOf`/`chunk`, **sortie MIDI**, + **morceau génératif final réunissant les 5 modules**).
+- **Strudel vérifié en direct AVANT de coder** (cutoff Claude = mai 2025) sur `strudel.cc/learn` : factories · time-modifiers · signals · random-modifiers · conditional-modifiers · accumulation · input-output, + le manuel technique `patterns` (« flows of time as functions »).
+- Intégré via `modules = [module1..module5]` — la navigation multi-modules (Chantier 7) prend en charge le 5ᵉ module **sans aucune modif** d'`App.jsx` (vérifié : `modules.map`, `modules.length - 1`, onglets dynamiques). Thèmes Void/Clair/Matrix appliqués.
+- **Vérifs** : `vite build` propre (**34 modules**, `index-bdjVqxxa.js` 310 kB, CSS inchangée) + PWA régénérée (11 entrées) + **34/34** données+navigation (modules=[m1..m5], M1-M4 intacts, M5=5 ch/25 flashs, ids 5.1→5.25, 5 récaps/5 free, `buildFlat` 5 modules [26,25,25,25,25]=**126**, reprise `{m:4,c:4,f:4}`→5.25, pas de module suivant sur M5) + sentinelles M5 dans le bundle livré. → détails : `KEYMAKER_chantier12.md`.
+
+### ⬜ Chantier contenu — Module 6
+À définir au fur et à mesure, comme les Modules 1-5. **Pas un prérequis pour coder.**
+Piste (cf. `KEYMAKER_architecture.md`) : 6 Composition & Projets (tracks complètes, layering, arrangement, export, live sets).
 
 ---
 

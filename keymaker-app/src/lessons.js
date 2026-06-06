@@ -3051,8 +3051,717 @@ export const module4 = {
   chapitres: [m4chapitre1, m4chapitre2, m4chapitre3, m4chapitre4, m4chapitre5],
 };
 
+/* ===========================================================================
+   MODULE 5 — Informatique Musicale (Chantier 12).
+   L'informatique musicale enseignée À TRAVERS Strudel : chaque concept est
+   immédiatement audible. Fil rouge : « un pattern est une fonction du temps ».
+   On passe d'écrire des NOTES à écrire des RÈGLES qui génèrent des notes.
+   Toutes les fonctions sont vérifiées en direct contre strudel.cc/learn
+   (factories, time-modifiers, signals, random-modifiers, conditional-modifiers,
+   accumulation, input-output) le 6 juin 2026 — cutoff Claude = mai 2025.
+   5 chapitres, 25 flashs (5.1 -> 5.25). Même format de flash que M1/M2/M3/M4.
+   =========================================================================== */
+
+export const m5chapitre1 = {
+  module: 5,
+  chapter: 'Le pattern est une fonction',
+  title: 'Le pattern est une fonction',
+  subtitle: 'Du « quoi » au « comment »',
+  flashs: [
+    {
+      id: '5.1',
+      kicker: 'Le grand renversement',
+      title: 'Un pattern est une fonction du temps',
+      concept:
+        "Jusqu'ici tu écrivais des notes. En vrai, Strudel ne range pas une liste : " +
+        "à chaque cycle, il DEMANDE au pattern « qu'est-ce qui se passe maintenant ? ». " +
+        "Un pattern est une fonction : tu lui donnes un instant, il rend des événements. " +
+        "C'est ça, le live coding — on écrit la règle, pas le résultat figé.",
+      code: 'note("<c4 e4 g4>")',
+      decode: [
+        ['<c4 e4 g4>', "un élément par cycle : le moteur « interroge » le pattern à chaque tour."],
+        ['cycle 1 -> c4', "premier tour : la fonction répond c4."],
+        ['cycle 2 -> e4', "tour suivant : elle répond e4. Tu entends la fonction se dérouler."],
+      ],
+      theory: {
+        title: 'Le mot juste',
+        items: [
+          ['querying', "interroger le pattern pour un instant donné (le coeur du moteur)."],
+          ['cycle', "l'unité de temps de Strudel ; tout est mesuré en cycles."],
+          ['déterministe', "même question -> même réponse. Rien n'est stocké, tout est calculé."],
+        ],
+      },
+      exercise:
+        'Remplace les chevrons par des crochets : note("[c4 e4 g4]"). ' +
+        "Les trois notes tombent dans UN seul cycle. Mêmes données, autre fonction du temps.",
+    },
+
+    {
+      id: '5.2',
+      kicker: 'Transformer, pas réécrire',
+      title: 'Une transformation prend un pattern',
+      concept:
+        "Si un pattern est une fonction, alors .rev(), .fast(2)... sont des fonctions qui " +
+        "prennent un pattern et en rendent un AUTRE. Elles ne touchent pas tes notes : elles " +
+        "fabriquent un nouveau pattern qui appelle l'ancien. D'où la chaîne .a().b().c() : " +
+        "on emboîte des fonctions, comme des poupées russes.",
+      code: 'n("0 1 2 3 4 5 6 7").scale("C:major").rev()',
+      decode: [
+        ['n("0 1 ... 7").scale("C:major")', 'la gamme du M2 : huit degrés montants.'],
+        ['.rev()', 'prend ce pattern entier et le retourne -> la gamme descend.'],
+        ['les degrés', "intacts : 0..7. C'est l'EMBALLAGE qui change, pas les données."],
+      ],
+      exercise:
+        'Enchaîne deux transformations : ajoute .fast(2) après .rev(). ' +
+        "Puis inverse l'ordre. L'ordre compte — c'est une composition de fonctions.",
+    },
+
+    {
+      id: '5.3',
+      kicker: 'Construire par le code',
+      title: 'seq, stack, cat : les fabriques',
+      concept:
+        "La mini-notation a des jumelles en vraies fonctions. seq(a,b) joue l'un après l'autre " +
+        "(= \"a b\"), stack(a,b) joue tout en même temps (= \"a,b\"), cat(a,b) joue un par cycle " +
+        "(= \"<a b>\"). Pratique quand on assemble des morceaux par le code plutôt qu'à la main.",
+      code:
+        'stack(\n' +
+        '  s("bd*4"),\n' +
+        '  s("hh*8"),\n' +
+        '  note("c2 g2").s("sawtooth")\n' +
+        ')',
+      decode: [
+        ['stack(a, b, c)', '= "a,b,c" : les trois couches en même temps.'],
+        ['seq(a, b)', '= "a b" : a puis b dans un cycle.'],
+        ['cat(a, b)', '= "<a b>" : a un cycle, b le suivant.'],
+      ],
+      theory: {
+        title: 'Fabriques de patterns (factories)',
+        items: [
+          ['seq / fastcat', 'tout tient dans un cycle (la séquence).'],
+          ['stack / pr', 'superposition (la polyrythmie).'],
+          ['cat / slowcat', 'un élément par cycle (l’alternance).'],
+        ],
+      },
+      exercise:
+        'Remplace stack par cat : tu passes de « tout en même temps » à « un par cycle ». ' +
+        'Le même code, une musique très différente.',
+    },
+
+    {
+      id: '5.4',
+      kicker: 'Le code génère les données',
+      title: 'run : fabriquer des nombres',
+      concept:
+        "run(n) fabrique tout seul la suite 0 1 2 ... n-1. Couplé à .scale(), c'est une gamme " +
+        "entière sans rien taper à la main. Première vraie idée d'informatique musicale : " +
+        "le code ne joue pas que des notes, il les GÉNÈRE.",
+      code: 'n(run(8)).scale("C:major")',
+      decode: [
+        ['run(8)', '= "0 1 2 3 4 5 6 7" : huit nombres générés.'],
+        ['n(...).scale("C:major")', 'transforme ces degrés en notes (M2).'],
+        ['change le 8', 'run(12) = la gamme sur plus de degrés, sans retaper.'],
+      ],
+      exercise:
+        'Joue la gamme générée, puis transforme-la : ' +
+        'n(run(8)).scale("C:major").s("sawtooth").rev(). Générer + jouer + retourner, tout en fonctions.',
+    },
+
+    {
+      id: '5.5',
+      kicker: 'On assemble',
+      title: 'Penser en fonctions',
+      concept:
+        "Récapitulons le renversement : il y a les DONNÉES (les notes, les degrés) et les " +
+        "FONCTIONS (ce qui les fabrique et les transforme). Voici un mini-morceau 100 % généré : " +
+        "une batterie empilée, une gamme produite par run, puis retournée.",
+      code:
+        'setcpm(120/4)\n' +
+        '$: stack(s("bd*4"), s("hh*8"))\n' +
+        '$: n(run(8)).scale("C:major").s("sawtooth").lpf(800).rev()',
+      decode: [
+        ['stack(s("bd*4"), s("hh*8"))', 'la fabrique stack monte la batterie.'],
+        ['n(run(8)).scale(...)', 'run génère les degrés, scale les rend musicaux.'],
+        ['.rev()', 'une fonction de plus, branchée au bout de la chaîne.'],
+      ],
+      recap: {
+        title: 'Récap chapitre 1 — Penser en fonctions',
+        columns: ['Idée', 'Mini-notation', 'Fonction'],
+        rows: [
+          ['un pattern', 'fonction du temps', 'interrogé à chaque cycle'],
+          ['séquence', '"a b"', 'seq(a, b)'],
+          ['superposition', '"a,b"', 'stack(a, b)'],
+          ['alternance', '"<a b>"', 'cat(a, b)'],
+          ['générer', '"0 1 2 3"', 'run(4)'],
+        ],
+      },
+      exercise:
+        'Fais ton mini-morceau : change run(8) en run(5), ajoute une transformation ' +
+        '(.fast, .rev...) au bout. Tu écris des règles, pas des notes.',
+      free:
+        "Tu tiens le renversement clé du module : un pattern est une fonction, et les " +
+        "transformations sont des fonctions de fonctions. Au chapitre suivant, on s'attaque à " +
+        "la matière la plus puissante du live coding : le TEMPS lui-même.",
+    },
+  ],
+};
+
+export const m5chapitre2 = {
+  module: 5,
+  chapter: 'Manipuler le temps',
+  title: 'Manipuler le temps',
+  subtitle: 'Le temps est une donnée',
+  flashs: [
+    {
+      id: '5.6',
+      kicker: 'Étirer, comprimer',
+      title: 'slow & fast',
+      concept:
+        "slow(n) étire un pattern sur n cycles ; fast(n) le comprime. Ce sont les opérateurs " +
+        "/ et * de la mini-notation, mais en FONCTION — donc applicables à un pattern entier, " +
+        "déjà transformé. Ralentir n'enlève aucune note : ça les espace.",
+      code: 'n("0 2 4 6").scale("C:major").s("sawtooth").slow(2)',
+      decode: [
+        ['.slow(2)', '= "[...]/2" : le motif prend deux cycles.'],
+        ['.fast(2)', '= "[...]*2" : le motif tient dans un demi-cycle.'],
+        ['les notes', 'identiques : seule leur durée change.'],
+      ],
+      theory: {
+        title: 'Équivalences (vérifié strudel.cc)',
+        items: [
+          ['slow(2)', 'pareil que "x/2" en mini-notation.'],
+          ['fast(2)', 'pareil que "x*2".'],
+          ['avantage', "la fonction s'applique APRÈS d'autres transformations."],
+        ],
+      },
+      exercise:
+        'Empile une version lente et une rapide : ajoute .superimpose(x=>x.fast(2)) ' +
+        '(on verra superimpose au ch.4). Deux vitesses, une seule ligne écrite.',
+    },
+
+    {
+      id: '5.7',
+      kicker: 'À l’endroit, à l’envers',
+      title: 'rev & palindrome',
+      concept:
+        "rev() retourne chaque cycle (la fin devient le début). palindrome() va plus loin : " +
+        "il alterne endroit / envers un cycle sur deux, donc la boucle « respire » sans que tu " +
+        "réécrives une seule note.",
+      code: 'n("0 1 2 3 4 5 6 7").scale("C:minor:pentatonic").palindrome().s("triangle")',
+      decode: [
+        ['palindrome()', 'cycle 1 monte, cycle 2 descend, cycle 3 monte...'],
+        ['C:minor:pentatonic', 'la penta mineure (M2/M3), sûre à l’oreille.'],
+        ['aucune note réécrite', "c'est la fonction qui crée l'aller-retour."],
+      ],
+      exercise:
+        'Compare : mets .rev() seul (toujours à l’envers) puis .palindrome() (alterne). ' +
+        'Lequel « boucle » le plus naturellement ?',
+    },
+
+    {
+      id: '5.8',
+      kicker: 'La rotation',
+      title: 'iter : décaler le départ',
+      concept:
+        "iter(n) découpe le pattern en n morceaux et démarre un cran plus loin à chaque cycle. " +
+        "Le riff « tourne » sur lui-même : même matériel, point de départ qui glisse. " +
+        "Un geste de live coding très courant pour faire vivre une boucle.",
+      code: 'n("0 1 2 3").scale("C:major").iter(4).s("sawtooth")',
+      decode: [
+        ['iter(4)', 'cycle 1 : 0 1 2 3 ; cycle 2 : 1 2 3 0 ; cycle 3 : 2 3 0 1...'],
+        ['la boucle tourne', 'elle revient au départ après 4 cycles.'],
+        ['iterBack(4)', "même chose, mais elle tourne dans l'autre sens."],
+      ],
+      exercise:
+        'Passe à iter(8) sur huit notes : la rotation met deux fois plus de temps à boucler. ' +
+        'Plus c’est long, plus ça « évolue ».',
+    },
+
+    {
+      id: '5.9',
+      kicker: 'Épaissir chaque coup',
+      title: 'ply : répéter chaque événement',
+      concept:
+        "ply(n) répète CHAQUE événement n fois sur place : un roulement, un bégaiement. " +
+        "À ne pas confondre avec fast (qui accélère tout le motif) : ply épaissit chaque coup " +
+        "en gardant la place de chacun.",
+      code: 's("bd sd cp").ply("<1 2 3>")',
+      decode: [
+        ['ply("<1 2 3>")', 'cycle 1 : x1 ; cycle 2 : chaque son doublé ; cycle 3 : triplé.'],
+        ['<...>', 'le facteur change par cycle (M1) -> ça monte en intensité.'],
+        ['pont M1', 'un roulement de caisse claire = ply sur un sd.'],
+      ],
+      exercise:
+        'Pars de s("hh*4").ply(2), puis essaie un pattern de ply : .ply("2 1 2 3"). ' +
+        'Chaque temps a son propre nombre de répétitions.',
+    },
+
+    {
+      id: '5.10',
+      kicker: 'On assemble',
+      title: 'Le temps comme matière',
+      concept:
+        "Le temps n'est plus un décor : c'est une donnée que tu sculptes. Voici un groove " +
+        "où le rythme est épaissi (ply), la mélodie tourne (iter) et s'étire (slow). " +
+        "Tu n'as écrit que quelques notes — les fonctions font le reste.",
+      code:
+        'setcpm(120/4)\n' +
+        '$: s("bd ~ sd ~").ply("<1 1 2 1>")\n' +
+        '$: s("hh*8")\n' +
+        '$: n("0 1 2 3 4 5 6 7").scale("C:minor").s("sawtooth").iter(4).slow(2).lpf(1200)',
+      decode: [
+        ['.ply("<1 1 2 1>")', 'la caisse double un cycle sur quatre : un petit relief.'],
+        ['.iter(4)', 'la ligne de basse-mélodie tourne sur elle-même.'],
+        ['.slow(2)', 'le tout étiré pour respirer.'],
+      ],
+      recap: {
+        title: 'Récap chapitre 2 — Le temps',
+        columns: ['Fonction', 'Effet', 'Repère'],
+        rows: [
+          ['slow / fast', 'étire / comprime', '= "/" et "*"'],
+          ['rev', 'retourne chaque cycle', 'fin -> début'],
+          ['palindrome', 'alterne endroit/envers', 'la boucle respire'],
+          ['iter(n)', 'décale le départ', 'la boucle tourne'],
+          ['ply(n)', 'répète chaque coup', 'roulement / bégaiement'],
+        ],
+      },
+      exercise:
+        'Triture le temps : change iter(4) en iter(3), slow(2) en fast(1.5), ' +
+        'le ply en "<1 2 1 3>". Même matériel, mille grooves.',
+      free:
+        "Tu sais maintenant plier le temps. Au chapitre suivant, on invite le HASARD — " +
+        "mais un hasard maîtrisé, reproductible, qui devient un vrai instrument.",
+    },
+  ],
+};
+
+export const m5chapitre3 = {
+  module: 5,
+  chapter: 'Le hasard maîtrisé',
+  title: 'Le hasard maîtrisé',
+  subtitle: 'Du contrôle dans l’aléatoire',
+  flashs: [
+    {
+      id: '5.11',
+      kicker: 'Des flux, pas des notes',
+      title: 'Les signaux : rand, sine, perlin',
+      concept:
+        "Un SIGNAL est une valeur continue qui bouge tout le temps — pas des notes, un flux. " +
+        "rand (hasard 0->1), sine (une vague), perlin (un hasard doux). On les rend musicaux " +
+        "avec .segment(n) (prélever n valeurs par cycle) et .range(min,max) (recadrer). " +
+        "On les a croisés au M4 pour le filtre ; ici, on en fait des notes.",
+      code: 'n(irand(8).segment(8)).scale("C:minor").s("triangle")',
+      decode: [
+        ['irand(8)', 'des entiers aléatoires entre 0 et 7.'],
+        ['.segment(8)', 'on prélève 8 valeurs par cycle (sinon le flux est continu).'],
+        ['.scale("C:minor")', 'chaque entier devient un degré de gamme.'],
+      ],
+      theory: {
+        title: 'Le mot juste',
+        items: [
+          ['signal', 'une valeur continue, infiniment fine.'],
+          ['segment(n)', 'transforme le flux continu en n événements nets.'],
+          ['range(a,b)', 'recadre un signal 0->1 vers a->b.'],
+        ],
+      },
+      exercise:
+        'Remplace irand(8) par sine.segment(8).range(0,7). ' +
+        'Le hasard devient une vague régulière : compare les deux ambiances.',
+    },
+
+    {
+      id: '5.12',
+      kicker: 'Le secret',
+      title: 'Le hasard est déterministe',
+      concept:
+        "Surprise : le « hasard » de Strudel est REPRODUCTIBLE. Même code = même suite, à chaque " +
+        "fois. C'est une graine (seed). Donc tu peux DÉCALER la graine pour choisir le hasard qui " +
+        "te plaît, au lieu de le subir. C'est le coeur de l'informatique musicale : du chaos sous contrôle.",
+      code: 'n(irand(8).segment(4)).scale("C:pentatonic").ribbon(1337, 2).s("triangle")',
+      decode: [
+        ['ribbon(1337, 2)', 'boucle 2 cycles à partir du cycle 1337.'],
+        ['un fragment figé', 'tu gèles un bout d’aléatoire qui sonne bien.'],
+        ['change 1337', 'autre nombre = autre fragment. Tu « pêches » dans le hasard.'],
+      ],
+      theory: {
+        title: 'Pourquoi c’est puissant',
+        items: [
+          ['graine (seed)', 'le point de départ du générateur pseudo-aléatoire.'],
+          ['reproductible', 'ton morceau sonnera pareil demain — rien n’est perdu.'],
+          ['ribbon(n, len)', 'fige une fenêtre de len cycles à partir du cycle n.'],
+        ],
+      },
+      exercise:
+        'Essaie plusieurs nombres dans ribbon (1, 42, 1337, 9000...) jusqu’à trouver une boucle ' +
+        'que tu aimes. Tu choisis ton hasard.',
+    },
+
+    {
+      id: '5.13',
+      kicker: 'Piocher',
+      title: 'choose : tirer dans une liste',
+      concept:
+        "choose(a, b, c) pioche une valeur au hasard parmi celles que tu donnes. " +
+        "wchoose([\"a\",10],[\"b\",1]) PONDÈRE les chances (a sort 10 fois plus souvent). " +
+        "Et \"a | b | c\" pioche une fois par cycle. De quoi varier sans tout écrire.",
+      code: 'note("c2 g2 d2 f1").s(choose("sine","triangle","sawtooth"))',
+      decode: [
+        ['choose("sine","triangle","sawtooth")', 'la source change au hasard à chaque note.'],
+        ['wchoose(["sine",10],["bd:6",1])', 'mets le pouce sur la balance.'],
+        ['"a | b"', 'la barre = un choix par cycle (vu en M1).'],
+      ],
+      exercise:
+        'Varie le timbre tout seul : n("0 2 4").scale("C:major").s(choose("sawtooth","square")). ' +
+        'Relance plusieurs fois : la suite est stable, mais le grain change.',
+    },
+
+    {
+      id: '5.14',
+      kicker: 'Parfois',
+      title: 'sometimes & degrade',
+      concept:
+        "sometimes(f) applique f une fois sur deux ; ses cousins often (75 %), rarely (25 %). " +
+        "degrade() (ou le ? de la mini-notation) enlève des événements au hasard : ça « troue » " +
+        "un rythme trop régulier et le rend vivant. La régularité parfaite, c'est ennuyeux.",
+      code: 's("hh*8").degradeBy(.3).sometimesBy(.4, x=>x.speed(2))',
+      decode: [
+        ['degradeBy(.3)', 'environ 30 % des coups retirés au hasard.'],
+        ['sometimesBy(.4, x=>x.speed(2))', '40 % du temps : double la vitesse de lecture.'],
+        ['déterministe', 'toujours reproductible (même graine).'],
+      ],
+      theory: {
+        title: 'La famille « parfois »',
+        items: [
+          ['sometimes', 'une fois sur deux (50 %).'],
+          ['often / rarely', '75 % / 25 %.'],
+          ['degrade / ?', 'retire la moitié des événements au hasard.'],
+        ],
+      },
+      exercise:
+        'Pars d’un s("hh*16") plat et donne-lui vie : ajoute .degrade() puis ' +
+        '.sometimes(x=>x.gain(1.4)). Un charley qui respire.',
+    },
+
+    {
+      id: '5.15',
+      kicker: 'On assemble',
+      title: 'Le chaos sous contrôle',
+      concept:
+        "Réunissons-le : une batterie qui se troue (degrade), des accents qui tombent parfois " +
+        "(sometimes), et une mélodie pêchée dans le hasard puis figée (irand + ribbon). " +
+        "Personne n'a écrit cette mélodie — tu as écrit la RÈGLE, et tu as choisi la graine.",
+      code:
+        'setcpm(120/4)\n' +
+        '$: s("bd*4").degradeBy(.1)\n' +
+        '$: s("hh*8").degradeBy(.3).sometimesBy(.3, x=>x.gain(1.4))\n' +
+        '$: n(irand(8).segment(8)).scale("C:minor:pentatonic").s("triangle").ribbon(8, 2).lpf(1500)',
+      decode: [
+        ['.degradeBy(.1)', 'le kick saute rarement un coup : moins mécanique.'],
+        ['.sometimesBy(.3, ...)', 'des accents de charley imprévus.'],
+        ['irand + ribbon(8, 2)', 'une mélo aléatoire figée sur 2 cycles.'],
+      ],
+      recap: {
+        title: 'Récap chapitre 3 — Le hasard maîtrisé',
+        columns: ['Outil', 'Rôle', 'Repère'],
+        rows: [
+          ['rand / irand / perlin', 'signaux aléatoires', 'avec .segment(n)'],
+          ['choose / wchoose', 'piocher dans une liste', 'pondérable'],
+          ['degrade / ?', 'trouer un motif', 'retire au hasard'],
+          ['sometimes / often / rarely', 'transformer parfois', '50 / 75 / 25 %'],
+          ['ribbon(n, len)', 'figer une graine', 'reproductible'],
+        ],
+      },
+      exercise:
+        'Change la graine du ribbon, le taux de degrade, la gamme. ' +
+        'Cherche TON accident heureux, puis fige-le. C’est ça, composer avec le hasard.',
+      free:
+        "Le hasard est devenu un instrument : tu le diriges. Au chapitre suivant, on apprend à " +
+        "faire BEAUCOUP avec PEU : une seule ligne qui se démultiplie en un arrangement complet.",
+    },
+  ],
+};
+
+export const m5chapitre4 = {
+  module: 5,
+  chapter: 'Accumulation & calques',
+  title: 'Accumulation & calques',
+  subtitle: 'Beaucoup à partir de peu',
+  flashs: [
+    {
+      id: '5.16',
+      kicker: 'Une copie par-dessus',
+      title: 'superimpose : doubler une voix',
+      concept:
+        "superimpose(f) joue l'original ET une copie passée dans la fonction f, en même temps. " +
+        "Une ligne devient deux voix. layer(f) fait pareil mais SANS l'original (que des copies). " +
+        "C'est l'harmonie automatique : tu écris une mélodie, la fonction crée la deuxième voix.",
+      code: 'n("0 2 4 6".superimpose(x=>x.add(2))).scale("C:major").s("triangle")',
+      decode: [
+        ['"0 2 4 6"', 'la mélodie en degrés.'],
+        ['.superimpose(x=>x.add(2))', 'ajoute une copie +2 degrés : une tierce au-dessus.'],
+        ['les deux ensemble', 'harmonie parallèle, sans écrire la 2e voix.'],
+      ],
+      theory: {
+        title: 'superimpose vs layer',
+        items: [
+          ['superimpose(f)', 'original + copie(s) transformée(s).'],
+          ['layer(f, g)', 'que les copies (pas l’original).'],
+          ['add(2)', 'sur des degrés = une tierce dans la gamme.'],
+        ],
+      },
+      exercise:
+        'Fais bouger l’harmonie : .superimpose(x=>x.add("<2 4>")). ' +
+        'La 2e voix alterne tierce et quinte selon le cycle.',
+    },
+
+    {
+      id: '5.17',
+      kicker: 'L’écho qui arrange',
+      title: 'off : une copie décalée',
+      concept:
+        "off(t, f) superpose une copie décalée de t (en cycles) ET transformée par f. " +
+        "C'est l'écho qui fait l'arrangement : une note, puis sa réponse un peu plus tard, " +
+        "un peu plus haut. Avec off, une phrase se répond à elle-même.",
+      code: '"c3 eb3 g3".off(1/8, x=>x.add(7)).note().s("triangle")',
+      decode: [
+        ['off(1/8, ...)', 'une copie décalée d’un huitième de cycle.'],
+        ['x=>x.add(7)', 'cette copie monte de 7 demi-tons (une quinte).'],
+        ['résultat', 'la phrase d’origine + sa réponse plus aiguë, en canon.'],
+      ],
+      exercise:
+        'Joue avec le décalage et l’intervalle : off(1/4, x=>x.add(12)) ' +
+        '(écho plus lent, à l’octave). C’est un mini-arrangement en une ligne.',
+    },
+
+    {
+      id: '5.18',
+      kicker: 'Rebonds',
+      title: 'echo : répétitions qui s’éteignent',
+      concept:
+        "echo(n, t, fb) répète le motif n fois, décalé de t à chaque fois, en baissant le " +
+        "volume (fb). C'est un delay rythmique « fait main » : chaque rebond est plus faible. " +
+        "echoWith permet même de transformer le son à chaque rebond.",
+      code: 's("bd sd").echo(3, 1/6, .8)',
+      decode: [
+        ['echo(3, 1/6, .8)', '3 répétitions, 1/6 de cycle d’écart, 80 % du volume à chaque fois.'],
+        ['les rebonds', 's’éteignent progressivement, comme un vrai écho.'],
+        ['echoWith(3, 1/6, f)', 'pareil, mais applique f (ex. monter) à chaque rebond.'],
+      ],
+      exercise:
+        'Fais rebondir un clap : s("cp").echo(4, 1/8, .7). ' +
+        'Change le feedback (.5 puis .95) : un écho court ou qui s’accroche.',
+    },
+
+    {
+      id: '5.19',
+      kicker: 'La stéréo par fonction',
+      title: 'jux : gauche / droite',
+      concept:
+        "jux(f) joue l'original à GAUCHE et une copie transformée par f à DROITE. " +
+        "Largeur stéréo instantanée. En vrai, c'est superimpose + un pan automatique : " +
+        "encore une fois, une fonction qui démultiplie une seule ligne.",
+      code: 'n(run(8)).scale("C:major").s("sawtooth").jux(rev)',
+      decode: [
+        ['jux(rev)', 'gauche = la gamme qui monte, droite = elle descend.'],
+        ['au casque', 'les deux oreilles entendent des choses différentes : ça s’ouvre.'],
+        ['jux(x=>x.fast(2))', 'marche avec n’importe quelle fonction.'],
+      ],
+      exercise:
+        'Envoie la quinte à droite : .jux(x=>x.add(7)). ' +
+        'Mets un casque pour bien entendre l’espace se créer.',
+    },
+
+    {
+      id: '5.20',
+      kicker: 'On assemble',
+      title: 'Beaucoup à partir de peu',
+      concept:
+        "Le pari du chapitre : partir d'UNE ligne et la démultiplier en texture. " +
+        "Ici, une seule mélodie en degrés devient un canon (off), s'ouvre en stéréo (jux), " +
+        "sur une batterie. Compte ce que tu as écrit : presque rien. Écoute ce que ça donne.",
+      code:
+        'setcpm(120/4)\n' +
+        '$: s("bd*4, hh*8")\n' +
+        '$: n("0 2 4 6 7 6 4 2".off(1/8, x=>x.add(7))).scale("C:minor").s("sawtooth").lpf(1500).jux(rev).gain(.5)',
+      decode: [
+        ['une seule ligne', '"0 2 4 6 7 6 4 2" : la matière de départ.'],
+        ['.off(1/8, x=>x.add(7))', 'elle se répond une quinte au-dessus.'],
+        ['.jux(rev)', 'puis s’ouvre en stéréo (envers à droite).'],
+      ],
+      recap: {
+        title: 'Récap chapitre 4 — Accumulation',
+        columns: ['Fonction', 'Ce qu’elle ajoute', 'Repère'],
+        rows: [
+          ['superimpose(f)', 'copie transformée + original', 'harmonie'],
+          ['layer(f)', 'copies seules', 'sans original'],
+          ['off(t, f)', 'copie décalée + transformée', 'canon / écho'],
+          ['echo(n, t, fb)', 'rebonds qui s’éteignent', 'delay fait main'],
+          ['jux(f)', 'copie à droite', 'stéréo'],
+        ],
+      },
+      exercise:
+        'Empile les calques : ajoute .superimpose(x=>x.add(12)) à la ligne. ' +
+        'Une mélodie, une octave, un canon, une stéréo — tout d’une même phrase.',
+      free:
+        "Tu sais faire foisonner une idée minuscule. Dernier chapitre : d'où vient tout ça " +
+        "(TidalCycles, le fonctionnel), comment arranger dans le temps, sortir vers le MIDI, " +
+        "et un morceau final qui réunit les CINQ modules — et qui vit tout seul.",
+    },
+  ],
+};
+
+export const m5chapitre5 = {
+  module: 5,
+  chapter: 'L’héritage & le grand tableau',
+  title: 'L’héritage & le grand tableau',
+  subtitle: 'D’où ça vient, où ça va',
+  flashs: [
+    {
+      id: '5.21',
+      kicker: 'La famille',
+      title: 'Tidal, Strudel & le fonctionnel',
+      concept:
+        "Strudel est la version navigateur de TidalCycles, écrit à l'origine en Haskell — un " +
+        "langage 100 % fonctionnel. L'idée géniale héritée : TOUT est pattern, et tout se COMPOSE. " +
+        "Strudel l'a porté en JavaScript pour que ça tourne dans un onglet, sans rien installer.",
+      code: 'note("c e g b").add("<0 3 5>").s("sawtooth")',
+      decode: [
+        ['add("<0 3 5>")', 'un pattern qui transforme un pattern (transpose par cycle).'],
+        ['pas de boucle, pas de variable de temps', "on branche des fonctions, c'est tout."],
+        ['l’héritage Tidal', 'des briques qui se composent à l’infini.'],
+      ],
+      theory: {
+        title: 'Le mot juste',
+        items: [
+          ['TidalCycles', 'l’ancêtre (Haskell, ~2009), pour la scène algorave.'],
+          ['Strudel', 'le portage JavaScript, dans le navigateur (2022+).'],
+          ['fonctionnel', 'on compose des fonctions ; on ne modifie rien en place.'],
+        ],
+      },
+      exercise:
+        'Compose deux transformations patternées : .add("<0 3 5>").rev(). ' +
+        'Change l’ordre et écoute : composer, ce n’est pas commutatif.',
+    },
+
+    {
+      id: '5.22',
+      kicker: 'Arranger dans le temps',
+      title: 'firstOf / lastOf / when',
+      concept:
+        "Pour qu'un morceau ÉVOLUE, on applique une fonction de temps en temps. " +
+        "firstOf(4, f) applique f au 1er de chaque groupe de 4 cycles ; lastOf au dernier ; " +
+        "when(motif, f) selon un motif binaire. C'est l'arrangement écrit en règles.",
+      code: 'n("0 1 2 3").scale("C:major").firstOf(4, x=>x.rev()).s("triangle")',
+      decode: [
+        ['firstOf(4, x=>x.rev())', '3 cycles normaux, le 4e à l’envers.'],
+        ['ça respire sur 4 mesures', 'une variation régulière, sans y penser.'],
+        ['lastOf(4, f)', 'cible le DERNIER cycle du groupe.'],
+      ],
+      exercise:
+        'Mets un emballement en fin de cycle : .lastOf(4, x=>x.fast(2)). ' +
+        'Un petit « fill » automatique tous les 4 cycles.',
+    },
+
+    {
+      id: '5.23',
+      kicker: 'La transformation voyageuse',
+      title: 'chunk : un morceau à la fois',
+      concept:
+        "chunk(n, f) découpe le motif en n parts et applique f à UNE part par cycle, en tournant. " +
+        "Le changement se promène dans la phrase, cycle après cycle. Très organique : on dirait " +
+        "qu'une main passe sur le clavier.",
+      code: 'n("0 1 2 3").scale("C:major").chunk(4, x=>x.add(7)).s("sawtooth")',
+      decode: [
+        ['chunk(4, x=>x.add(7))', 'cycle 1 : la 1re note +7 ; cycle 2 : la 2e ; etc.'],
+        ['la quinte voyage', 'l’accent se déplace dans la mélodie.'],
+        ['chunkBack', 'pareil, mais le voyage va dans l’autre sens.'],
+      ],
+      exercise:
+        'Fais voyager le timbre, pas la hauteur : .chunk(4, x=>x.s("square")). ' +
+        'Une note sur quatre change de son, et ça tourne.',
+    },
+
+    {
+      id: '5.24',
+      kicker: 'Sortir de la boîte',
+      title: 'MIDI : piloter de vrais instruments',
+      concept:
+        "Strudel ne fait pas que du son interne : il peut piloter de VRAIS instruments. " +
+        ".midi(\"nom\") envoie tes patterns à un synthé matériel ou logiciel par MIDI, " +
+        "direct dans le navigateur (Web MIDI), sans rien installer. Ton code devient un séquenceur.",
+      code: 'chord("<C^7 A7 Dm7 G7>").voicing().s("sawtooth").lpf(2000).gain(.5)',
+      decode: [
+        ['chord(...).voicing()', 'une grille d’accords réalisée (M2).'],
+        ['ici .s("sawtooth")', 'on l’entend en interne, pour vérifier.'],
+        ['.midi("IAC Driver")', 'remplace .s(...) pour l’envoyer vers un appareil MIDI.'],
+      ],
+      theory: {
+        title: 'Entrées / sorties',
+        items: [
+          ['MIDI', 'protocole standard pour piloter synthés et claviers.'],
+          ['Web MIDI', 'marche directement dans le navigateur, sans logiciel.'],
+          ['OSC', 'autre sortie, vers SuperCollider (le moteur de TidalCycles).'],
+        ],
+      },
+      exercise:
+        'Sans matériel, reste sur le son interne. Si tu as un port MIDI : lance le code, ' +
+        'lis le nom du port dans la console, puis remplace .s("sawtooth") par .midi("ce-nom").',
+    },
+
+    {
+      id: '5.25',
+      kicker: 'Le morceau final',
+      title: 'Tout Keymaker, en mouvement',
+      concept:
+        "Le final du module ET du parcours : un morceau qui se transforme TOUT SEUL, en réunissant " +
+        "les cinq modules. Batterie (M1) + grille d'accords (M2) + basse façon instrument (M3) + son " +
+        "sculpté (M4) + les outils génératifs (M5 : iter, off, degrade, sometimes, signal). " +
+        "Tu ne joues pas ce morceau : tu as écrit la règle, et il vit.",
+      code:
+        'setcpm(120/4)\n' +
+        '$: s("bd*4, [~ cp]*2").bank("RolandTR909").degradeBy(.08)\n' +
+        '$: s("hh*8").degradeBy(.3).sometimesBy(.3, x=>x.gain(1.3))\n' +
+        '$: note("c2 ~ g2 ~").s("gm_acoustic_bass").gain(.7)\n' +
+        '$: chord("<Cm7 Abmaj7 Fm7 G7>").voicing().s("triangle").gain(.3).room(.4)\n' +
+        '$: n("0 1 2 3 4 5 6 7").scale("C:minor").s("sawtooth").iter(4).off(1/8, x=>x.add(12)).lpf(sine.range(500,2000).slow(4)).gain(.35)',
+      decode: [
+        ['couche 1-2 (M1)', 'batterie 909 qui se troue (degrade) avec des accents (sometimes).'],
+        ['couche 3-4 (M2/M3)', 'basse d’instrument + grille d’accords avec un peu de réverb.'],
+        ['couche 5 (M4/M5)', 'mélodie qui tourne (iter), se répond (off) et balaye au filtre (signal).'],
+      ],
+      recap: {
+        title: 'Récap chapitre 5 — Le grand tableau',
+        columns: ['Module', 'Apport', 'Exemple'],
+        rows: [
+          ['M1 Live coding', 'le rythme', 'bd / hh / stack'],
+          ['M2 Solfège', 'l’harmonie', 'scale / chord'],
+          ['M3 Guitare', 'le geste', 'gm_* / add'],
+          ['M4 Son & Effets', 'le timbre', 'lpf / room'],
+          ['M5 Informatique', 'le mouvement', 'iter / off / degrade'],
+        ],
+      },
+      exercise:
+        'Approprie-toi le morceau : change la gamme (C:minor -> C:dorian), la grille d’accords, ' +
+        'la graine du hasard. Une règle, des variations infinies.',
+      free:
+        "Tu as les clés (Keymaker !). Tu n'écris plus des notes : tu écris des RÈGLES, et la " +
+        "machine fait sonner le temps. C'est ça, le live coding. Le Module 6 (Composition & Projets) " +
+        "viendra structurer tout ça — mais tu as déjà tout pour improviser.",
+    },
+  ],
+};
+
+/* Le Module 5 entier : la carte de ses 5 chapitres. */
+export const module5 = {
+  id: 5,
+  titre: 'Module 5 — Informatique Musicale',
+  title: 'Module 5',
+  subtitle: 'Le code comme instrument : un pattern est une fonction du temps',
+  chapitres: [m5chapitre1, m5chapitre2, m5chapitre3, m5chapitre4, m5chapitre5],
+};
+
 /* Tous les modules de Keymaker, dans l'ordre du parcours. */
-export const modules = [module1, module2, module3, module4];
+export const modules = [module1, module2, module3, module4, module5];
 
 // Rétro-compatibilité : certains imports historiques pointaient sur flash11.
 export const flash11 = chapitre1.flashs[0];
