@@ -16,6 +16,9 @@
 // Un chapitre « stub » (chapitres 3-5, pas encore rédigés en données) porte
 // `locked: true` et des flashs réduits à { id, title } — assez pour la carte du Parcours.
 
+// Module 7 « Genres & Styles » (Chantier Electro) — défini à part dans module7.js.
+import { module7 } from './module7.js';
+
 export const chapitre1 = {
   module: 1,
   chapter: 'Premier contact',
@@ -28,7 +31,8 @@ export const chapitre1 = {
       title: 'Le live coding & le premier son',
       concept:
         "En live coding, tu écris du code et tu l'entends tout de suite. " +
-        "Pas de compilation, pas d'export. Le code, c'est l'instrument.",
+        "Pas de compilation, pas d'export. Le code, c'est l'instrument. " +
+        "Cap de ce module : coder un vrai beat techno — kick 4/4 sec, hi-hats, bassline.",
       code: 'sound("casio")',
       decode: [
         ['sound(...)', '« joue ce son ».'],
@@ -627,9 +631,9 @@ export const chapitre5 = {
       concept:
         "Toutes les briques du Module 1 réunies : batterie, tempo et notes en un seul empilement. " +
         "Pas encore un morceau — une démonstration que tout s'emboîte.",
-      code: 'setcpm(120/4)\n$: sound("bd*4, [~ cp]*2, [~ hh]*4").bank("RolandTR909")\n$: note("<c2 ab1 f1 g1>*2").sound("gm_acoustic_bass")\n$: n("0 2 <4 5> 2").scale("C:minor").sound("piano")',
+      code: 'setcpm(132/4)\n$: sound("bd*4, [~ cp]*2, [~ hh]*4").bank("RolandTR909")\n$: note("<c2 ab1 f1 g1>*2").sound("gm_acoustic_bass")\n$: n("0 2 <4 5> 2").scale("C:minor").sound("piano")',
       decode: [
-        ['setcpm(120/4)', "tempo house : 120 BPM en 4/4 (ch.3)."],
+        ['setcpm(132/4)', "tempo techno : 132 BPM en 4/4 (ch.3)."],
         ['bd*4, [~ cp]*2, [~ hh]*4', "batterie 3 couches avec parallèle et sous-séquences (ch.1-2)."],
         ['<c2 ab1 f1 g1>*2', "basse en alternance d'accords (ch.2 + ch.4)."],
         ['n("0 2 <4 5> 2").scale("C:minor")', "mélodie en gamme mineure avec alternance (ch.4)."],
@@ -638,9 +642,10 @@ export const chapitre5 = {
         "Joue cet empilement, écoute-le. " +
         "Puis identifie la brique (chapitre) derrière chaque ligne.",
       free:
-        "Tu tiens toutes les briques du Module 1. " +
-        "Reparts de cet empilement et bidouille-le : change la gamme, le tempo, " +
-        "ajoute une couche, mute-en une avec _$:. C'est ça, le live coding.",
+        "Tu tiens toutes les briques du Module 1 — de quoi coder un beat techno. " +
+        "Reparts de cet empilement : pousse le tempo vers 130-138, garde-le minimal et sec, " +
+        "puis mute une couche avec _$: en plein jeu. Une couche qui disparaît puis revient, " +
+        "c'est exactement comme ça qu'un DJ fait respirer un morceau — le breakdown.",
     },
   ],
 };
@@ -675,7 +680,8 @@ export const m2chapitre1 = {
       title: 'La hauteur : grave ↔ aigu',
       concept:
         "Une note, c'est d'abord une hauteur (pitch) : grave ou aigu. " +
-        "Plus la vibration est rapide, plus c'est aigu. note() joue des hauteurs — comme au Module 1.",
+        "Plus la vibration est rapide, plus c'est aigu. note() joue des hauteurs — comme au Module 1. " +
+        "Le fil rouge de ce module : la trance — de la théorie rendue émotionnelle, pour comprendre pourquoi certaines notes donnent des frissons.",
       code: 'note("c3 e3 g3 c4").sound("piano")',
       decode: [
         ['c3 → c4', "on monte du grave vers l'aigu."],
@@ -1432,20 +1438,20 @@ export const m2chapitre5 = {
       kicker: 'Tout ensemble',
       title: 'Bilan : un morceau dans une tonalité',
       concept:
-        'Réunissons tout : un tempo (M1), une batterie (M1), une basse sur les fondamentales, ' +
-        'des accords par grille, et une mélodie en pentatonique — le tout dans UNE tonalité (la mineur). ' +
-        "C'est un vrai bout de morceau.",
+        'Réunissons tout en trance : un tempo (M1), une batterie (M1), une basse sur les fondamentales, ' +
+        'des accords de 7e par grille, et une mélodie en la mineur qui monte — le tout dans UNE tonalité. ' +
+        "C'est un vrai bout de morceau, et ça sonne déjà émotionnel.",
       code:
-        'setcpm(120/4)\n' +
-        '$: sound("bd*4, [~ cp]*2, [~ hh]*4").bank("RolandTR909")\n' +
-        '$: note("<a1 f1 c2 g2>").sound("sawtooth").lpf(700).gain(.7)\n' +
-        '$: chord("<Am F C G>").voicing().sound("piano").gain(.5).room(.4)\n' +
-        '$: n("0 2 4 2 <3 5>").scale("A:minor:pentatonic").sound("triangle").gain(.5)',
+        'setcpm(140/4)\n' +
+        '$: sound("bd*4, [~ cp]*2, hh*8").bank("RolandTR909")\n' +
+        '$: note("<a1 f1 c2 g1>").sound("sawtooth").lpf(700).gain(.7)\n' +
+        '$: chord("<Am7 F^7 C^7 G7>").voicing().sound("sawtooth").lpf(2000).gain(.4).room(.5)\n' +
+        '$: n("0 2 4 7 9 7 4 2").scale("A:minor").sound("triangle").gain(.45).room(.3)',
       decode: [
-        ['setcpm(120/4)', 'tempo house, 120 BPM en 4/4 (M1 ch.3).'],
-        ['la basse <a1 f1 c2 g2>', 'la fondamentale de chaque accord (Am-F-C-G), bien grave.'],
-        ['chord(...).voicing()', 'les accords au piano, enchaînés en douceur.'],
-        ['A:minor:pentatonic', 'la mélodie reste dans la tonalité → tout sonne ensemble.'],
+        ['setcpm(140/4)', 'tempo trance, 140 BPM en 4/4 (M1 ch.3).'],
+        ['la basse <a1 f1 c2 g1>', 'la fondamentale de chaque accord (Am-F-C-G), bien grave.'],
+        ['chord("<Am7 F^7 C^7 G7>")', 'des accords de 7e (4 sons) en pad sawtooth filtré + réverb → la signature trance.'],
+        ['n("0 2 4 7 9 7 4 2").scale("A:minor")', 'une mélodie qui MONTE (0→9) puis redescend résoudre — le moteur émotionnel.'],
       ],
       theory: {
         title: 'Ce que tu viens de relier',
@@ -1471,9 +1477,9 @@ export const m2chapitre5 = {
         'Tout reste cohérent — tu as juste déménagé.',
       free:
         'Tu tiens le Module 2 entier : les 12 notes, les intervalles, les gammes, les accords et les tonalités — ' +
-        'relié à ta guitare et joué dans Strudel. Reprends le morceau ci-dessus et fais-le tien : ' +
-        'change la grille, la gamme, le tempo, ajoute ou mute une couche avec _$:. ' +
-        "C'est toi le Keymaker, maintenant.",
+        'relié à ta guitare et joué dans Strudel. Mission trance : écris une mélodie en mineur sur 8 temps, ' +
+        'et essaie de la faire « monter » vers sa résolution (vise la tonique, une octave au-dessus). ' +
+        "Cette tension qui se résout, c'est exactement ce qui donne des frissons en trance.",
     },
   ],
 };
@@ -1510,7 +1516,8 @@ export const m3chapitre1 = {
       title: 'Ta guitare, dans le code',
       concept:
         "Jusqu'ici tu jouais piano, sawtooth, triangle… Strudel embarque aussi de vraies " +
-        'guitares (banque General MIDI). On choisit le timbre avec .s("gm_…").',
+        'guitares (banque General MIDI). On choisit le timbre avec .s("gm_…"). ' +
+        "Fil rouge du module : l'industrial / EBM — là, la guitare n'est pas l'ennemie de l'électro, elles fusionnent (riff distordu sur kick rigide).",
       code: 'note("e3 a3 d4 g4").s("gm_acoustic_guitar_nylon").room(.3)',
       decode: [
         ['gm_acoustic_guitar_nylon', 'guitare classique (cordes nylon). Le « gm_ » = banque General MIDI.'],
@@ -2239,19 +2246,20 @@ export const m3chapitre5 = {
       kicker: 'Tout, ensemble',
       title: 'Bilan : un morceau guitare complet',
       concept:
-        'Le grand final : basse, accords grattés, mélodie pickée, batterie — une vraie guitare dans ' +
-        'une tonalité (M2), jouée comme un musicien (M3). Tu tiens les trois modules d\'un coup.',
+        "Le grand final, version industrial : basse, power chords distordus calés sur le kick, mélodie pickée, " +
+        'batterie 909 rigide — la guitare et l\'électro fusionnent dans une tonalité (M2), jouées comme un musicien (M3). ' +
+        "Tu tiens les trois modules d'un coup.",
       code:
-        'setcpm(110/4)\n' +
-        '$: sound("bd*4, [~ sd]*2, [~ hh]*4").bank("RolandTR909").gain(.6)\n' +
+        'setcpm(128/4)\n' +
+        '$: sound("bd*4, [~ sd]*2, hh*8").bank("RolandTR909").gain(.6)\n' +
         '$: note("<e2 c2 g2 d2>").s("gm_acoustic_bass").clip(.9).gain(.7)\n' +
-        '$: chord("<Em C G D>").voicing().struct("x ~ x x ~ x ~ x").s("gm_acoustic_guitar_steel").gain(.5).room(.3)\n' +
-        '$: n("0 2 4 2 <3 5>").scale("E:minor:pentatonic").s("gm_electric_guitar_clean").gain(.45).delay(.2)',
+        '$: note("<[e2,b2] [c3,g3] [g2,d3] [d3,a3]>").struct("x ~ x x ~ x ~ x").s("gm_distortion_guitar").distort("2:.3").gain(.5)\n' +
+        '$: n("0 2 4 2 <3 5>").scale("E:minor").s("gm_electric_guitar_clean").gain(.45).delay(.2)',
       decode: [
-        ['la batterie', 'le moteur (M1).'],
-        ['la basse <e2 c2 g2 d2>', 'la fondamentale de chaque accord (Em-C-G-D).'],
-        ['chord(…).struct(…)', 'les accords grattés en rythme (M2 + M3).'],
-        ['n(…).scale("E:minor:pentatonic")', 'la mélodie de guitare, dans la boîte.'],
+        ['la batterie 909 rigide', 'le moteur, carré, sans swing (M1).'],
+        ['les power chords distordus', 'fondamentale + quinte (pas de tierce), saturés → le mur industrial.'],
+        ['.struct("x ~ x x ~ x ~ x")', 'le riff calé sur le kick (M3).'],
+        ['n(…).scale("E:minor")', 'une mélodie de guitare claire qui tranche sur la disto.'],
       ],
       theory: {
         title: 'Les trois modules réunis',
@@ -2277,9 +2285,9 @@ export const m3chapitre5 = {
         'mélodie A:minor:pentatonic.',
       free:
         "Tu tiens le Module 3 : le manche, l'accordage, les accords ouverts, les power chords et " +
-        'barrés, et le jeu (picking, dynamique, effets). Surtout, tu relies ta guitare à la théorie (M2) ' +
-        "et au live coding (M1). Reprends ce morceau et fais-le tien : ta grille, ton riff, ton solo. " +
-        "La guitare et le code ne font plus qu'un — c'est toi le Keymaker. 🎸",
+        'barrés, et le jeu (picking, dynamique, effets). Mission industrial : pose tes power chords distordus ' +
+        "sur un beat 4/4 bien rigide, puis COUPE la guitare sur le temps 3 (mets un ~ dans le struct). " +
+        "Ce trou qui claque, c'est le riff industrial classique — la guitare et le code ne font plus qu'un. 🎸",
     },
   ],
 };
@@ -2306,7 +2314,8 @@ export const m4chapitre1 = {
       concept:
         "Tout son suit une chaîne : une SOURCE (l'onde de départ) puis un FILTRE (on sculpte le timbre), " +
         "une ENVELOPPE (la forme dans le temps) et des EFFETS (l'espace, la couleur). " +
-        "Ce module suit cette chaîne, une étape par chapitre.",
+        "Ce module suit cette chaîne, une étape par chapitre. " +
+        "Fil rouge : l'acid / psy-trance — le son acide, c'est exactement ça, une onde + un filtre + quelque chose qui fait bouger ce filtre.",
       code: 'note("c3 e3 g3 c4").s("sawtooth")',
       decode: [
         ['note("c3 e3 g3 c4")', 'quatre hauteurs (M1/M2).'],
@@ -2995,20 +3004,20 @@ export const m4chapitre5 = {
       kicker: 'Tout, ensemble',
       title: 'Le morceau final : M1 → M4',
       concept:
-        "Le grand final : un morceau produit qui réunit les quatre modules. Le live coding et le " +
+        "Le grand final, version acid / psy-trance : un morceau produit qui réunit les quatre modules. Le live coding et le " +
         "rythme (M1), la gamme et les accords (M2), la guitare (M3), et le son façonné main avec ses " +
-        "effets (M4). En do mineur.",
+        "effets (M4) — articulé autour d'une basse acide. En do mineur.",
       code:
-        'setcpm(120/4)\n' +
-        '$: s("bd*4, [~ sd]*2, [~ hh]*4").bank("RolandTR909").gain(.6)\n' +
-        '$: note("<c2 ab1 bb1 eb2>").s("sawtooth").lpf(700).lpenv(4).lpa(.01).lpd(.2).lps(.1).lpq(8).decay(.2).sustain(.2).gain(.5)\n' +
+        'setcpm(145/4)\n' +
+        '$: s("bd*4, [~ sd]*2, hh*8").bank("RolandTR909").gain(.6)\n' +
+        '$: note("c2(3,8)").s("sawtooth").lpf(500).lpenv(4).lpa(.01).lpd(.18).lps(.1).lpq(15).decay(.2).sustain(.15).gain(.5)\n' +
         '$: chord("<Cm Ab Bb Eb>").voicing().struct("x ~ x x").s("gm_electric_guitar_clean").distort("1.5:.3").delay(.3).delaytime(.375).delayfeedback(.3).orbit(2).gain(.4)\n' +
-        '$: n("0 3 5 7 5 3").scale("C:minor:pentatonic").s("sawtooth").attack(.01).release(.2).phaser(2).room(.4).orbit(3).gain(.35)',
+        '$: n("0 3 5 7 5 3").scale("C:minor").s("sawtooth").attack(.01).release(.2).phaser(2).room(.4).orbit(3).gain(.35)',
       decode: [
-        ['la batterie (M1)', 'le moteur rythmique.'],
-        ['la basse (M4)', 'sawtooth + enveloppe de filtre, façonnée main.'],
+        ['la batterie (M1)', 'le moteur rythmique : kick 4/4 + hats serrés.'],
+        ['la basse acide (M4)', 'sawtooth + enveloppe de filtre + résonance haute (lpq 15) sur un motif (3,8) → le squelch 303 du psy-trance.'],
         ['les accords (M2+M3)', 'grille Cm-Ab-Bb-Eb, guitare grattée + disto + délai.'],
-        ['la mélodie (M2+M4)', 'pentatonique de do mineur, phaser + réverb.'],
+        ['la mélodie (M2+M4)', 'do mineur, phaser + réverb.'],
       ],
       theory: {
         title: 'Les quatre modules réunis',
@@ -3033,11 +3042,10 @@ export const m4chapitre5 = {
       exercise:
         'Change la tonalité : grille chord("<Am F C G>"), basse <a1 f1 c2 g1>, mélodie A:minor:pentatonic.',
       free:
-        "Tu tiens le Module 4 — et avec lui, les quatre modules de Keymaker. Tu sais fabriquer un son " +
-        "depuis l'onde brute, le sculpter au filtre, lui donner une forme et un espace, et le colorer. " +
-        "Surtout, tu relies tout : le rythme (M1), l'harmonie (M2), ta guitare (M3) et le son lui-même " +
-        "(M4). Reprends ce morceau et fais-le tien : ton groove, tes accords, ton grain. Tu n'apprends " +
-        "plus Strudel — tu composes avec. 🎛️🎸",
+        "Tu tiens le Module 4 — et avec lui, les quatre modules de Keymaker. Mission acid : fabrique un son acide " +
+        "(sawtooth + lpf + résonance lpq haute + un filtre qui BOUGE — LFO rapide ou enveloppe courte) : c'est le squelch du psy-trance. " +
+        "Puis RALENTIS le mouvement (slow le LFO, allonge attack et release) → la même matière devient un pad trance planant. " +
+        "Tu n'apprends plus Strudel — tu sculptes le son. 🎛️",
     },
   ],
 };
@@ -3076,7 +3084,8 @@ export const m5chapitre1 = {
         "Jusqu'ici tu écrivais des notes. En vrai, Strudel ne range pas une liste : " +
         "à chaque cycle, il DEMANDE au pattern « qu'est-ce qui se passe maintenant ? ». " +
         "Un pattern est une fonction : tu lui donnes un instant, il rend des événements. " +
-        "C'est ça, le live coding — on écrit la règle, pas le résultat figé.",
+        "C'est ça, le live coding — on écrit la règle, pas le résultat figé. " +
+        "Deux terrains dans ce module : une musique qui se compose toute seule (ambient, hasard lent) et une musique qui joue avec notre perception du temps (drum & bass, breakbeat).",
       code: 'note("<c4 e4 g4>")',
       decode: [
         ['<c4 e4 g4>', "un élément par cycle : le moteur « interroge » le pattern à chaque tour."],
@@ -3745,8 +3754,10 @@ export const m5chapitre5 = {
         'la graine du hasard. Une règle, des variations infinies.',
       free:
         "Tu as les clés (Keymaker !). Tu n'écris plus des notes : tu écris des RÈGLES, et la " +
-        "machine fait sonner le temps. C'est ça, le live coding. Le Module 6 (Composition & Projets) " +
-        "viendra structurer tout ça — mais tu as déjà tout pour improviser.",
+        "machine fait sonner le temps. Deux directions à explorer avec ce morceau : (1) RALENTIS tout " +
+        "(setcpm bas, notes longues, beaucoup de room, degrade/sometimes) → une ambiance générative ambient ; " +
+        "(2) ACCÉLÈRE le ressenti (breakbeat, iter sur les hats, half-time feel) → un groove drum & bass. " +
+        "Le Module 6 (Composition & Projets) viendra structurer tout ça — mais tu as déjà tout pour improviser.",
     },
   ],
 };
@@ -3783,7 +3794,8 @@ export const m6chapitre1 = {
       concept:
         "Un morceau, ce n'est pas une ligne : c'est des couches qui jouent ensemble. " +
         "Dans le REPL, chaque ligne qui commence par $: est une PISTE. Tu en empiles " +
-        "autant que tu veux, elles sonnent en parallèle. C'est la table de mixage en code.",
+        "autant que tu veux, elles sonnent en parallèle. C'est la table de mixage en code. " +
+        "Fil rouge du module : la house — un morceau y raconte une histoire en 4 actes (intro / montée / drop / outro), et on va coder ces actes.",
       code:
         '$: s("bd*4")\n' +
         '$: s("~ cp")\n' +
@@ -4516,11 +4528,11 @@ export const m6chapitre5 = {
         'Approprie-toi le final : enlève le _ du lead, change la grille (<Cm7 Fm7 …>), ' +
         'la gamme (C:dorian), ajoute une section avec arrange. Ce morceau est à toi.',
       free:
-        "Tu as bouclé Keymaker : six modules, du premier « bd » au morceau complet. Tu sais " +
+        "Tu tiens les six modules cœur de Keymaker : du premier « bd » au morceau complet, tu sais " +
         "empiler, nommer, réutiliser, arranger, sculpter, mixer, jouer en live et partager. " +
-        "Strudel n'est plus un mystère — c'est ton studio, et tu en as les clés (Keymaker !). " +
-        "Le plus beau commence maintenant : faire TA musique. Reviens piocher dans les modules " +
-        "quand tu veux, et appelle Sati si tu bloques. Bravo, Felix.",
+        "Et maintenant, le terrain de jeu : le Module 7 « Genres & Styles » t'attend pour pousser " +
+        "chaque genre électro à fond — house, techno, drum & bass, trance, ambient — un vrai morceau par genre. " +
+        "Reviens piocher quand tu veux, et appelle Sati si tu bloques. Bravo, Felix.",
     },
   ],
 };
@@ -4535,7 +4547,89 @@ export const module6 = {
 };
 
 /* Tous les modules de Keymaker, dans l'ordre du parcours. */
-export const modules = [module1, module2, module3, module4, module5, module6];
+export const modules = [module1, module2, module3, module4, module5, module6, module7];
+
+// Rétro-compatibilité : certains imports historiques pointaient sur flash11.
+export const flash11 = chapitre1.flashs[0];
+        ['_lead$: + all(when…)', 'M6 : le lead est armé (mute), et all ferme le filtre 1 cycle sur 8.'],
+        ['tout Keymaker', 'batterie M1, gamme+accords M2, basse M3, filtre/réverb M4, off M5.'],
+      ],
+      recap: {
+        title: 'Récap chapitre 5 — Finir & jouer',
+        columns: ['Étape', 'Code', 'Sert à'],
+        rows: [
+          ['Mixer', 'gain / pan / orbit', 'équilibrer les couches'],
+          ['Jouer', '_$: / all(f)', 'monter le morceau en live'],
+          ['Exporter', 'onglet « export »', 'un fichier audio'],
+          ['Partager', 'URL / // @by', 'diffuser ton morceau'],
+          ['Hors-ligne', 'PWA', 'jouer sans réseau'],
+        ],
+      },
+      exercise:
+        'Approprie-toi le final : enlève le _ du lead, change la grille (<Cm7 Fm7 …>), ' +
+        'la gamme (C:dorian), ajoute une section avec arrange. Ce morceau est à toi.',
+      free:
+        "Tu tiens les six modules cœur de Keymaker : du premier « bd » au morceau complet, tu sais " +
+        "empiler, nommer, réutiliser, arranger, sculpter, mixer, jouer en live et partager. " +
+        "Et maintenant, le terrain de jeu : le Module 7 « Genres & Styles » t'attend pour pousser " +
+        "chaque genre électro à fond — house, techno, drum & bass, trance, ambient — un vrai morceau par genre. " +
+        "Reviens piocher quand tu veux, et appelle Sati si tu bloques. Bravo, Felix.",
+    },
+  ],
+};
+
+/* Le Module 6 entier : la carte de ses 5 chapitres. */
+export const module6 = {
+  id: 6,
+  titre: 'Module 6 — Composition & Projets',
+  title: 'Module 6',
+  subtitle: 'D’une boucle à un morceau : construire, arranger, jouer, partager',
+  chapitres: [m6chapitre1, m6chapitre2, m6chapitre3, m6chapitre4, m6chapitre5],
+};
+
+/* Tous les modules de Keymaker, dans l'ordre du parcours. */
+export const modules = [module1, module2, module3, module4, module5, module6, module7];
+
+// Rétro-compatibilité : certains imports historiques pointaient sur flash11.
+export const flash11 = chapitre1.flashs[0];
+        ['_lead$: + all(when…)', 'M6 : le lead est armé (mute), et all ferme le filtre 1 cycle sur 8.'],
+        ['tout Keymaker', 'batterie M1, gamme+accords M2, basse M3, filtre/réverb M4, off M5.'],
+      ],
+      recap: {
+        title: 'Récap chapitre 5 — Finir & jouer',
+        columns: ['Étape', 'Code', 'Sert à'],
+        rows: [
+          ['Mixer', 'gain / pan / orbit', 'équilibrer les couches'],
+          ['Jouer', '_$: / all(f)', 'monter le morceau en live'],
+          ['Exporter', 'onglet « export »', 'un fichier audio'],
+          ['Partager', 'URL / // @by', 'diffuser ton morceau'],
+          ['Hors-ligne', 'PWA', 'jouer sans réseau'],
+        ],
+      },
+      exercise:
+        'Approprie-toi le final : enlève le _ du lead, change la grille (<Cm7 Fm7 …>), ' +
+        'la gamme (C:dorian), ajoute une section avec arrange. Ce morceau est à toi.',
+      free:
+        "Tu tiens les six modules cœur de Keymaker : du premier « bd » au morceau complet, tu sais " +
+        "empiler, nommer, réutiliser, arranger, sculpter, mixer, jouer en live et partager. " +
+        "Et maintenant, le terrain de jeu : le Module 7 « Genres & Styles » t'attend pour pousser " +
+        "chaque genre électro à fond — house, techno, drum & bass, trance, ambient — un vrai morceau par genre. " +
+        "Reviens piocher quand tu veux, et appelle Sati si tu bloques. Bravo, Felix.",
+    },
+  ],
+};
+
+/* Le Module 6 entier : la carte de ses 5 chapitres. */
+export const module6 = {
+  id: 6,
+  titre: 'Module 6 — Composition & Projets',
+  title: 'Module 6',
+  subtitle: 'D’une boucle à un morceau : construire, arranger, jouer, partager',
+  chapitres: [m6chapitre1, m6chapitre2, m6chapitre3, m6chapitre4, m6chapitre5],
+};
+
+/* Tous les modules de Keymaker, dans l'ordre du parcours. */
+export const modules = [module1, module2, module3, module4, module5, module6, module7];
 
 // Rétro-compatibilité : certains imports historiques pointaient sur flash11.
 export const flash11 = chapitre1.flashs[0];

@@ -829,7 +829,10 @@ strudel-editor { display: none; } /* l'élément hôte n'affiche rien lui-même 
   width: min(540px, 96vw);
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* le défilement est interne à .sati-stream */
+  /* Le défilement reste interne à .sati-stream dans le cas normal, mais le
+     tiroir lui-même peut défiler en secours : sur petit écran (ou quand
+     « Connexion au Pi » est ouvert), le bas reste ainsi toujours accessible. */
+  overflow-y: auto;
   padding-bottom: 16px;
 }
 .sati-drawer .learn-head {
@@ -876,8 +879,10 @@ strudel-editor { display: none; } /* l'élément hôte n'affiche rien lui-même 
 
 /* Fil de messages (zone scrollable) */
 .sati-stream {
-  flex: 1;
-  min-height: 180px;
+  flex: 1 1 auto;
+  /* min-height bas : le fil cède de l'espace aux blocs du bas (composer,
+     réglages) avant de forcer le tiroir à défiler. */
+  min-height: 120px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
