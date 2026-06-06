@@ -12,6 +12,7 @@ import { markSeen, recordToday, isFirstVisitToday, summary as progressSummary, f
 import FlashNote from './FlashNote.jsx';
 import SnippetLibrary from './SnippetLibrary.jsx';
 import { addSnippet } from './notebook.js';
+import PatternViz from './PatternViz.jsx';
 
 /* ---------------------------------------------------------------------------
    Navigation multi-chapitres (Chantier 3).
@@ -47,7 +48,7 @@ const DEFAULT_PI_URL = 'https://personal-os.tailac998e.ts.net';
 // Réglages (Chantier 6) — persistés sur l'appareil.
 const SETTINGS_KEY = 'keymaker:settings';
 const TEXT_SCALE = { m: 1, l: 1.12, xl: 1.26 }; // facteur appliqué à --fs-scale + police éditeur
-const DEFAULT_SETTINGS = { textScale: 'm', reduceMotion: false, editorTheme: 'strudelTheme', lineNumbers: true, theme: 'void', autocomplete: true };
+const DEFAULT_SETTINGS = { textScale: 'm', reduceMotion: false, editorTheme: 'strudelTheme', lineNumbers: true, theme: 'void', autocomplete: true, viz: false };
 
 function readSettings() {
   let base = { ...DEFAULT_SETTINGS };
@@ -520,6 +521,11 @@ export default function App() {
         flashKey={mod + ':' + current.chapterIndex + ':' + current.flashInChapter}
         onSaveSnippet={saveSnippet}
         snipMsg={snipMsg}
+        vizOpen={settings.viz}
+        onToggleViz={() => updateSettings({ viz: !settings.viz })}
+        editorRef={editorRef}
+        reduceMotion={settings.reduceMotion}
+        theme={settings.theme}
       >
         {/* Éditeur UNIQUE : monté une fois ici, jamais remonté au changement de flash. */}
         <StrudelEditor
@@ -631,6 +637,11 @@ function Flash({
   flashKey,
   onSaveSnippet,
   snipMsg,
+  vizOpen,
+  onToggleViz,
+  editorRef,
+  reduceMotion,
+  theme,
   children,
 }) {
   return (
@@ -661,7 +672,26 @@ function Flash({
             <span className="dot" aria-hidden="true" />
             {playing ? 'en cours' : 'arrêté'}
           </span>
+          <button
+            className={'btn viz-toggle' + (vizOpen ? ' on' : '')}
+            onClick={onToggleViz}
+            aria-pressed={vizOpen}
+            title="Afficher/masquer la grille rythmique animée"
+          >
+            ◫ Visualiseur
+          </button>
         </div>
+
+        {/* Visualiseur de pattern (Chantier 26) : grille rythmique animée, lit le REPL. */}
+        {vizOpen && (
+          <PatternViz
+            editorRef={editorRef}
+            playing={playing}
+            theme={theme}
+            reduceMotion={reduceMotion}
+            onClose={onToggleViz}
+          />
+        )}
 
         {!ready && !error && <p className="hint loading">Chargement du moteur Strudel…</p>}
         {error && <p className="hint err">{error}</p>}

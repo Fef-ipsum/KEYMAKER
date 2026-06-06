@@ -1701,3 +1701,50 @@ strudel-editor { display: none; } /* l'élément hôte n'affiche rien lui-même 
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 .lib-del:hover { background: var(--surface-2); color: var(--danger); border-color: var(--danger); }
+
+/* ===========================================================================
+   Visualiseur de pattern (Chantier 26) — grille rythmique animée sous l'éditeur.
+   Lit le REPL (editor.pattern.queryArc) ; 100 % canvas, thème-aware.
+   =========================================================================== */
+.btn.viz-toggle {
+  flex: 0 0 auto;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 14px;
+  min-width: 0;
+}
+.btn.viz-toggle:not(:disabled):hover { background: var(--surface-2); color: var(--text); border-color: var(--border); }
+.btn.viz-toggle.on { color: var(--accent); border-color: var(--border); background: rgba(var(--accent-rgb), 0.10); }
+
+.viz {
+  margin-top: 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 10px 12px 12px;
+  animation: viz-in 0.18s ease both;
+}
+.app.reduce-motion .viz { animation: none; }
+@keyframes viz-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+.viz-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.viz-title { font-size: 13px; font-weight: 700; color: var(--text); letter-spacing: 0.01em; }
+.viz-live { font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
+.viz-live.on { color: var(--accent); }
+.viz-close {
+  margin-left: auto;
+  width: 28px; height: 28px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 8px;
+  border: 1px solid var(--border-soft);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 14px;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.viz-close:hover { color: var(--text); border-color: var(--border); background: var(--surface-2); }
+.viz-canvas { display: block; width: 100%; height: 150px; border-radius: 10px; }

@@ -32,14 +32,15 @@
 - ✅ **Chantier 21 — Mode Focus FAIT (6 juin 2026, en autonomie)** : interrupteur **`⤢ Focus`** qui masque tout sauf l'éditeur + Run/Stop + titre du flash (classe `.focus-mode` sur `.app`, `display:none` du superflu, éditeur **jamais recréé** → le son ne s'arrête pas). Sortie par **Échap** ou bouton **`✕ Quitter le focus`** en coin. État éphémère. Build propre (34 modules) + **13/13** montage jsdom + sentinelles. → `KEYMAKER_chantier21.md`
 - ✅ **Chantier 22 — Éditeur amélioré FAIT (6 juin 2026, en autonomie)** : **(1) auto-complétion** native de Strudel activée via `setAutocompletionEnabled` (découvert dans le bundle vendor — la vraie source `strudelAutocomplete`, pas un dico maison), réglable dans ⚙ Réglages → Éditeur, **ON par défaut**, persistée. **(2) erreurs de code inline** sous l'éditeur (lues sur `update.detail.error = evalError||schedulerError`, message simplifié, auto-effacement, visible en focus). Build propre (34 modules, bundle `index-BrHeOIB7.js`) + **15/15** logique (`cleanError`, `applyEditorSettings`) + **13/13** jsdom + sentinelles. → `KEYMAKER_chantier22.md`
 - 📖 **Référence Strudel à jour (5 juin 2026)** → `KEYMAKER_strudel_reference.md` : source de vérité distillée de strudel.cc (notes/hauteurs, sons GM + limites, mini-notation, effets, théorie, gotchas). **À consulter avant d'écrire du code Strudel** (cutoff Claude = mai 2025). Née de la validation M3 : `note("e2")` = 82 Hz (code guitare juste). **Cause du Mi grave muet trouvée & corrigée (5 juin)** : `gm_acoustic_guitar_steel` ne descend pas au Mi grave → 6 flashs (3.2, 3.3, 3.6, 3.8, 3.11, 3.12) passés en **nylon**, app rebuildée (bundle `index-CekULCjI.js`, 34 modules) + intégrité 94/94.
-- ⏳ **Chantier 14 — Validation audio M3→M6** : parcours à l'oreille des 100 flashs non encore validés. À faire avec Felix.
+- 🟡 **Chantier 14 — Validation audio M3→M7 — moitié autonome LIVRÉE (6 juin 2026)** : audit statique « risque silence » des **125 codes** (résultat : **0 risque haut** — bug *steel+grave* non récurrent, aucun `.midi()` muet, aucune erreur de syntaxe) + **outil d'écoute interactif** `KEYMAKER_validation_audio.html` (9 suspects en tête, statut OK/Problème par flash, progression sauvegardée). **Reste : la passe d'écoute avec Felix.** → `KEYMAKER_chantier14.md`
 - ⏳ **Chantier 15 — Review technique** : audit bundle, CSS, dépendances, accessibilité, tests manquants, sécurité Pi.
 - ⏳ **Chantier 30 — Onboarding interactif** : tour guidé pour un nouvel utilisateur — premier son en 30 secondes, explication de Sati, orientation dans les modules.
 - ⭐ **Chantier 31 — Intégration PO-33 KO** *(super intéressant)* : samples PO-33 dans Strudel + sync audio live. Strudel devient le cerveau d'un vrai setup hardware.
-- ⭐ **Chantier 26 — Visualiseur de pattern** : grille rythmique animée pendant la lecture. Voir la structure temporelle en plus de l'entendre.
+- ✅ **Chantier 26 — Visualiseur de pattern FAIT (6 juin 2026, en autonomie)** : panneau **`◫ Visualiseur`** sous l'éditeur — grille rythmique animée (voies × 16 pas, 4 temps marqués) + **curseur de lecture** calé sur le scheduler, qui LIT le pattern du REPL (`editor.pattern.queryArc` + `scheduler.now()`, éditeur **jamais recréé**). Thème-aware (Void/Clair/Matrix), réglage persisté `keymaker:settings.viz` (OFF par défaut), visible en Mode Focus. Cœur pur **`vizCore.js`** testé. Build **42 modules** (`index-BdUZ88b0.js`) + **vizCore 32/32** + **SSR 8/8** + intégrité 176 + sentinelles. → `KEYMAKER_chantier26.md`
 - ⏳ **Chantier 17 — Mode Quiz** : active recall — code à trous, reconnaissance de motifs, évaluation par Sati.
 - ✅ **Chantier 16 — Tableau de bord & progression FAIT (6 juin 2026, en autonomie)** : écran **🏠 Accueil** (overlay, éditeur jamais recréé) — % par module, **streak** (jours d'affilée), gros bouton **Reprendre**, cartes module (clic → 1ᵉʳ flash non vu), stats « X/151 flashs · N jours de pratique », bouton **📌 Mes snippets**. Suivi 100 % local (`progress.js`, helpers purs testés). Ouverture auto 1×/jour. Build 39 modules + **33/33** node + **15/15** jsdom + sentinelles. → `KEYMAKER_chantier16.md`
 - ⏳ **Chantier 18 — Sati next level** : proactivité, évaluation de code, défis musicaux générés, historique persistant cross-sessions.
+- ⏳ **Chantier 32 — UX Sati : Reset + Leçons personnalisées + Navigation modules** : (1) bouton Reset dans le tiroir Sati pour effacer la conversation en cours et repartir à zéro ; (2) possibilité de demander à Sati de créer une leçon ou des flashs sur un sujet difficile, un mélange de sujets, ou un concept mal compris — via une action rapide dans le chat ET/ou un bouton dédié ; (3) barre de défilement horizontale dans le sélecteur de modules du Parcours (actuellement tronqué après le Module 6, les modules suivants ne sont pas accessibles).
 - ⏳ **Chantier 28 — Notifications PWA de rappel** : notification desktop après X jours sans pratique. Opt-in. Rappel externe TDA-friendly.
 - ⏳ **Chantier 29 — Stats de pratique** : temps par module, heures/semaine sur 4 semaines, courbe de progression. Intégré au Tableau de bord (C16).
 - ⏳ **Chantier 23 — Répétition espacée (SRS)** : les flashs difficiles reviennent plus souvent, les maîtrisés s'espacent. L'infra (kind: 'difficulte') est presque prête.
@@ -181,11 +182,13 @@ Les 5 flashs de « Premier contact », navigables, livrés dans `keymaker-app/`.
 
 ---
 
-### ⏳ Chantier 14 — Validation audio M3→M6 — À FAIRE (avec Felix)
+### 🟡 Chantier 14 — Validation audio M3→M7 — MOITIÉ AUTONOME FAITE (6 juin 2026), écoute à faire (avec Felix)
+
+> **Livré en autonomie :** audit statique des 125 codes (**0 risque haut**) + outil d'écoute `KEYMAKER_validation_audio.html` (9 suspects en tête, statut OK/Problème, progression sauvegardée). **Reste : écouter** les 125 flashs (9 suspects d'abord) puis corriger les ⚠️. Détails & vérifs → `KEYMAKER_chantier14.md`.
 
 **Dette pédagogique critique.** Les codes des modules 3-6 ont été vérifiés contre la doc strudel.cc, mais pas encore tous *écoutés*. Il peut rester des sons muets, des registres inadaptés ou des patterns musicalement douteux.
 
-**Périmètre :** 100 flashs (M3 ch.1-5 / M4 ch.1-5 / M5 ch.1-5 / M6 ch.1-5).
+**Périmètre :** 125 flashs (M3 / M4 / M5 / M6 / **M7**, 5 chapitres chacun). *(Étendu depuis « 100 flashs M3-M6 » : M7 est arrivé après le chantier Electro et n'a pas plus été écouté.)*
 
 **Points chauds identifiés :**
 - M3 : 6 flashs déjà corrigés (Mi grave → nylon). Vérifier le reste, surtout les accords ouverts (ch.3) et les barrés (ch.4).
@@ -298,7 +301,9 @@ Résultat : le PO-33 suit le BPM de Strudel, tempo verrouillé, zéro dérive. L
 
 ---
 
-### ⭐ Chantier 26 — Visualiseur de pattern — PROPOSÉ
+### ✅ Chantier 26 — Visualiseur de pattern — FAIT (6 juin 2026, en autonomie)
+
+> ✅ **Réalisé.** Grille rythmique animée sous l'éditeur (voies × 16 pas, curseur calé sur `scheduler.now()`, lit `editor.pattern.queryArc`). Finalement **pas** via l'événement `update` mais via le **pattern + scheduler** (plus direct, vérifié dans le bundle vendor `index-1NNF4L0p.js`). Cœur pur testé **`vizCore.js`** + **`PatternViz.jsx`**. Détails : `KEYMAKER_chantier26.md`. La description ci-dessous = l'intention initiale.
 
 **Le gap cognitif le plus fréquent chez les débutants en live coding :** entendre le rythme sans comprendre *pourquoi* il sonne comme ça. Un pattern comme `"bd sd [hh hh] sd"` est plus clair à voir qu'à imaginer.
 
@@ -523,6 +528,34 @@ Résultat : le PO-33 suit le BPM de Strudel, tempo verrouillé, zéro dérive. L
 
 ---
 
+### ⏳ Chantier 32 — UX Sati : Reset, Leçons personnalisées & Navigation modules — PROPOSÉ
+
+Trois améliorations UX demandées par Felix (6 juin 2026) :
+
+**1. Bouton Reset dans le tiroir Sati**
+
+Aujourd'hui, il n'est pas possible d'effacer la conversation en cours avec Sati sans fermer et rouvrir le tiroir (et encore, la mémoire de session reste). Felix veut pouvoir repartir à zéro proprement — effacer l'historique de la conversation courante, sans toucher à la mémoire longue (IndexedDB + Pi).
+
+Implémentation : icône 🔄 ou bouton « Nouvelle conversation » dans le header du tiroir Sati → vide `history` (état React), réinitialise le fil d'affichage, affiche un message « Conversation réinitialisée ». *Ne supprime pas* la mémoire locale (C5/tranche 2) ni le journal distant (C5/tranche 3) — c'est juste le fil de chat en cours.
+
+**2. Leçons & flashs personnalisés à la demande**
+
+Felix veut pouvoir demander à Sati de créer une leçon ou un mini-parcours sur : un sujet mal compris, un concept difficile, ou un mélange de plusieurs sujets vus.
+
+Deux modes d'accès à considérer — à trancher pendant le chantier :
+- **Action rapide dans le chat Sati** (ex. « Crée une leçon sur les filtres et les enveloppes ») : Sati génère un mini-flash textuel + code directement dans la conversation. Zéro infra supplémentaire, mais limité au texte.
+- **Bouton dédié** (ex. « ✏️ Créer une leçon » dans le tiroir Sati) : ouvre un mini-formulaire → sujet libre, modules de référence → Sati génère un flash structuré (concept + code + exercice) qui s'ouvre dans l'éditeur principal. Plus riche, plus de friction.
+
+La décision entre les deux (ou une combinaison) sera prise en début de chantier selon la complexité d'implémentation. Dans les deux cas, Sati a déjà le contexte du flash courant et des modules vus — elle peut s'en servir pour personnaliser.
+
+**3. Barre de défilement dans le sélecteur de modules**
+
+Dans l'écran Parcours, le sélecteur de modules affiche les onglets côte à côte. Au-delà du Module 6, les modules ne sont plus accessibles (tronqués, aucun scroll possible). Avec 7 modules désormais (et potentiellement plus), c'est un bug UX.
+
+Correction : ajouter `overflow-x: auto` + `white-space: nowrap` (ou un scroll horizontal natif) sur le conteneur des onglets de modules. Simple en CSS, mais à valider visuellement sur les 3 thèmes et sur mobile.
+
+---
+
 ## Décisions verrouillées
 
 - Framework : **React**
@@ -689,6 +722,17 @@ Contrat Voyage **vérifié en direct** contre la clé du Pi avant de coder (1024
 - ⚠️ **Pont fichiers — pire visage cette session.** Après édition par l'outil, le mont a servi `App.jsx`/`StrudelEditor.jsx`/`Settings.jsx`/`styles.css` **tronqués** (App.jsx coupé en plein milieu, l.747) → `vite build` cassé. Piège sournois : un grep de sentinelle peut **passer** (le début du fichier est intact). **Parade fiable :** reconstruire dans `/tmp` depuis `git archive HEAD` (committé, byte-perfect, **hors pont**) + **réappliquer les éditions de façon déterministe** (Python, `assert count==1` par édition ; `StrudelEditor.jsx` réécrit en entier ; bloc CSS ajouté à la base git). Build dans `/tmp` (binaires natifs Linux présents), `dist/` recopié **sans suppression** (ancien bundle orphelin), sources reconstruites **réécrites sur le mont** par `cp` (write-through). **Leçon : ne jamais `cp` un fichier fraîchement édité du mont sans le reconstruire depuis git ou le valider par build.**
 - **Vérif :** `vite build` (compile = 1ʳᵉ validation) + **node 15/15** (intégrité données 151 flashs + `cleanError` + `applyEditorSettings`) + **jsdom 13/13** (jsdom installé à la volée dans `/tmp`, App réel monté via esbuild : toggle focus + Échap + sortie, toggle auto-complétion + persistance) + **sentinelles** dans le bundle livré. **Index git illisible côté sandbox** (extension écrite par git Windows) → commit/push laissés à `close_session.bat`.
 
+
+## Décisions techniques (Chantier 26 — Visualiseur)
+
+- **Lire, pas recréer** : le panneau lit `editorRef.current` (StrudelMirror) ; aucune nouvelle instance → le son ne s'arrête jamais (invariant C21/C22).
+- **Source de vérité = pattern + scheduler**, pas l'événement `update` : `editor.pattern.queryArc(cycle, cycle+1)` pour les *haps*, `scheduler.now()` (replis `repl.scheduler`/`scheduler`/`drawer.scheduler`) pour `cycle`/`phase`. Vérifié dans `public/vendor/strudel-repl/index-1NNF4L0p.js` (classe Drawer).
+- **Haps** : on garde les **discrets** (`whole` défini), on ignore les continus ; `whole.begin/end` = **Fractions** (`.valueOf()`). Voies stables d'un cycle à l'autre (Map persistante).
+- **Découpe testable** : cœur non-DOM dans **`vizCore.js`** (node **32/32**) ; `PatternViz.jsx` = canvas/thème seulement. **SSR 8/8** (`renderToStaticMarkup`) pour le markup.
+- **Thème & réglages** : couleurs lues sur les variables CSS → suit Void/Clair/Matrix sans couleur en dur. Réglage `viz` persisté `keymaker:settings`, **OFF** par défaut (TDA).
+- **Pont qui tronque (encore)** : 1er build KO (mont a servi un `App.jsx` tronqué, 954 l.) → `App.jsx` reconstruit depuis `git show HEAD` + 5 edits ré-appliqués en Python, écrit **via bash** (rafraîchit le cache), build dans `/tmp` (node_modules symlinké, binaires Linux déjà injectés). `dist/` livré byte-identique.
+- **Repo assaini au passage** : `lessons.js` (HEAD **tripliqué** → working tree dédupliqué 1×), `styles.css` & `roadmap.md` (tronqués par le mont → restaurés). `close_session.bat` **auto-répare un `index.lock` périmé** (le mont bloque `rm`).
+
 ---
 
-*Dernière mise à jour : 6 juin 2026 — **Chantiers 16 (Tableau de bord & progression), 20 (Partage & export), 24 (Carnet de notes par flash) & 27 (Bibliothèque de snippets) FAITS en autonomie** dans une même session (« lance les prochains chantiers, va aussi loin que tu peux ») : 4 chantiers 100 % côté client, livrés en **un seul bundle** `index-DR_TQsLb.js` (352,6 kB, **39 modules**) + CSS `index-Dyesxukz.css` (31,2 kB). Vérifs **84/84** : node 33 (progress/streak/round-trip URL/intégrité 151 flashs) + jsdom 15 (Accueil/partage) + node 22 (**migration IndexedDB v1→v2 préservant la mémoire de Sati** + notes + snippets) + jsdom 14 (notes & bibliothèque **bout-en-bout** avec fake-indexeddb). Nouveaux fichiers : `progress.js`, `Dashboard.jsx`, `notebook.js`, `FlashNote.jsx`, `SnippetLibrary.jsx` ; `memory.js` passé en **v2** ; `App.jsx`/`Dashboard.jsx`/`styles.css` étendus. Source ↔ build ↔ docs en phase (**byte-identité sha256** vérifiée sur le mont), thèmes Void/Clair/Matrix préservés. Reste : **commit via `close_session.bat`**. Détails : `KEYMAKER_chantier16/20/24/27.md`. Avant ça : **Chantiers 21 (Mode Focus) & 22 (Éditeur amélioré : auto-complétion native + erreurs inline) FAITS en autonomie** (build propre 34 modules, bundle `index-BrHeOIB7.js` 339,7 kB + CSS `index-dnzb9Du8.css`, tests **15/15** node + **13/13** jsdom + sentinelles dans le bundle livré ; reste : **commit via `close_session.bat`**, l'index git étant illisible côté sandbox). Détails : `KEYMAKER_chantier21.md` & `KEYMAKER_chantier22.md`. Avant ça : **Chantier 11 « Thème Matrix (vert) » FAIT (en autonomie)** : 3ᵉ thème CSS vert (`#00ff66`) + option Matrix dans ⚙ Réglages (Void/Clair/Matrix), même patron que le thème clair, build propre (34 modules). Détails : `KEYMAKER_chantier11.md`. Avant ça, même session : **Chantier 10 « Module 4 — Son & Effets » FAIT (en autonomie)** : 5 ch / 25 flashs (4.1→4.25), audio & effets vérifiés en direct sur strudel.cc, build propre (34 modules, bundle `index-oQUh9Mac.js`) + tests 86/86 + 14/14, `dist/` livré. Détails : `KEYMAKER_chantier10.md`. Avant ça : **Module 3 « Connexion Guitare » réconcilié** : une autre session avait ajouté le Module 3 (5 ch / 25 flashs) au **code seul** (sans rebuild ni doc) ; l'app a été **rebuildée en 3 modules / 76 flashs + thème clair** (bundle `index-NqFEHDkR.js`), README/roadmap resync, brief `KEYMAKER_chantier9.md` créé. Avant ça : **Chantier 8 « Thème clair » COMPLET** : 2ᵉ thème Light (indigo) + bascule Void/Clair dans ⚙ Réglages, posée sur `<html>`, persistée ; refactor `--accent-rgb`. Build propre (34 modules) + **15/15** montage runtime jsdom. Détails : `KEYMAKER_chantier8.md`. Précédé d'un **contrôle de cohérence docs↔app** (README réécrit, `architecture.md` daté, statut SSH/commit corrigés, règle « tous les fichiers à jour pendant/à la fin de session » posée). Avant ça : **Chantier 5 tranche 3 « mémoire distante » COMPLET** (en autonomie, **premier dev déployé en direct par SSH**) : journal + embeddings Voyage (`voyage-3.5-lite` 1024d) + rappel cosinus (seuil 0,55, repli FTS FR) injecté dans un 2ᵉ bloc système non-caché. Trois fichiers `modules/keymaker/src/` (`voyage.ts`, `sati.ts`, `anthropic.ts`), build `tsc` propre, déploiement `--no-deps` (**postgres intact**), test bout-en-bout vert (Sati cite le « voicing » sur une question reformulée **sans history**, dist 0,44). Commit `2f0debe` sur `origin/main`. Détails : `KEYMAKER_chantier5.md`. **Chantier 5 entièrement bouclé (tranches 1-2-3).** Prochains : valider les 25 codes Strudel du Module 2 à l'oreille · thème clair/sombre · Modules 3-6 · (optionnel) câblage app→`session_id` pour relier journal et sessions.*
+*Dernière mise à jour : 6 juin 2026 — **Chantier 26 « Visualiseur de pattern » FAIT (en autonomie)** : panneau `◫ Visualiseur` sous l'éditeur — grille rythmique animée (voies × 16 pas + **curseur calé sur `scheduler.now()`**) qui LIT le REPL (`editor.pattern.queryArc`), **éditeur jamais recréé**, thème-aware, réglage persisté `keymaker:settings.viz` (OFF par défaut), visible en Mode Focus. Nouveaux fichiers : **`vizCore.js`** (cœur pur, **32/32** node) + **`PatternViz.jsx`** ; `App.jsx`/`styles.css` étendus. Build **42 modules**, bundle `index-BdUZ88b0.js` (398,3 kB) + CSS `index-CcUo1K63.css` — **SSR 8/8** + intégrité **176 flashs** + sentinelles, livré **byte-identique** sur le mont. **Au passage, repo réparé** (corruption du pont) : `lessons.js` HEAD tripliqué → dédupliqué, `styles.css`/`roadmap.md` tronqués → restaurés, `close_session.bat` auto-répare un `index.lock` périmé. Détails : `KEYMAKER_chantier26.md`. **Reste : valider le visualiseur à l'œil (Felix).** Avant ça : Chantier Electro (Module 7 « Genres & Styles » → **176 flashs / 7 modules**) + Chantiers 16/20/21/22/24/27 en autonomie ; historique complet dans les sections ci-dessus.*

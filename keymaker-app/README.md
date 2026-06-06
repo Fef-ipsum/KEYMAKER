@@ -1,7 +1,7 @@
 # ꩜ Keymaker — l'app d'apprentissage Strudel CC + solfège
 
 PWA en français pour apprendre **le live coding (Strudel CC)** et **le solfège** en même temps.
-État actuel : **6 modules complets et jouables**, **151 flashs**, un écran **🏠 Accueil** (progression + streak), un **carnet de notes** et une **bibliothèque de snippets** par flash, le **partage vers strudel.cc**, un guide IA (**Sati**) et un écran **Réglages**. Tout tourne 100 % en local ; Sati se branche sur ton Pi.
+État actuel : **7 modules complets et jouables**, **176 flashs**, un écran **🏠 Accueil** (progression + streak), un **carnet de notes** et une **bibliothèque de snippets** par flash, un **visualiseur de rythme** (grille animée sous l'éditeur), le **partage vers strudel.cc**, un guide IA (**Sati**) et un écran **Réglages**. Tout tourne 100 % en local ; Sati se branche sur ton Pi.
 
 ---
 
@@ -16,6 +16,7 @@ Une fenêtre noire s'ouvre (le serveur local) et ton navigateur ouvre l'app tout
 - **▶ Run** (ou `Ctrl+Enter`) joue le son · **Stop** (ou `Ctrl+.`) l'arrête.
 - **⤢ Focus** (barre du haut) ouvre le **Mode Focus** : tout disparaît sauf l'éditeur et Run/Stop, pour une session de pratique pure. On en sort par **Échap** ou le bouton **✕** en coin (le son ne s'interrompt pas).
 - L'éditeur **complète les fonctions Strudel** pendant la frappe (Ctrl+Espace pour forcer) et **affiche les erreurs de code en clair** juste en dessous.
+- **◫ Visualiseur** (à côté de Run/Stop) ouvre une **grille rythmique animée** : un curseur balaie le cycle et les blocs s'allument au passage du son — pour *voir* le rythme, pas seulement l'entendre. Optionnel, retenu dans les Réglages.
 
 > 💡 Le tout premier son d'un échantillon met une seconde à charger. Internet utile **au premier usage** ; ensuite c'est en cache.
 
@@ -25,7 +26,7 @@ Une fenêtre noire s'ouvre (le serveur local) et ton navigateur ouvre l'app tout
 
 - **Précédent / Suivant** parcourent les flashs et **traversent les chapitres**.
 - Indicateur **Ch.N · n/m** + points du chapitre courant.
-- **☰ Parcours** ouvre la carte : sélecteur **Module 1 / 2 / 3 / 4 / 5 / 6**, chapitres repliables, clic pour aller à n'importe quel flash. Circulation **libre**.
+- **☰ Parcours** ouvre la carte : sélecteur **Module 1 à 7**, chapitres repliables, clic pour aller à n'importe quel flash. Circulation **libre**.
 - À la fin d'un module : bouton **« Module suivant ▶ »**.
 
 ---
@@ -126,7 +127,7 @@ keymaker-app/
 │  ├─ SatiChat.jsx · sati.js   ← guide IA : tiroir de chat + client SSE du Pi
 │  ├─ Settings.jsx      ← écran Réglages
 │  ├─ memory.js         ← mémoire locale de Sati + schéma IndexedDB v2 (stores notes/snippets)
-│  ├─ lessons.js        ← contenu : modules = [module1...module6], 151 flashs
+│  ├─ lessons.js        ← contenu : modules = [module1...module7], 176 flashs (M7 dans module7.js)
 │  └─ styles.css        ← thème Void + cartes + nav + table récap + overlays
 ├─ public/
 │  ├─ icons/            ← icônes PWA
@@ -136,4 +137,4 @@ keymaker-app/
 
 ---
 
-*Keymaker — Modules 1 à 6 complets (151 flashs) + Sati + Réglages (thèmes Void / Light / Matrix) + **Mode Focus** + **auto-complétion & erreurs inline** + **Accueil/progression**, **carnet de notes**, **bibliothèque de snippets** et **partage/export**. Strudel v1.3.0. Mis à jour le 6 juin 2026 (Chantiers 16, 20, 24 & 27, en autonomie).*
+*Keymaker — Modules 1 à 7 complets (176 flashs) + Sati + Réglages (thèmes Void / Light / Matrix) + **Mode Focus** + **auto-complétion & erreurs inline** + **Accueil/progression**, **carnet de notes**, **bibliothèque de snippets**, **partage/export** et **visualiseur de rythme**. Strudel v1.3.0. Mis à jour le 6 juin 2026 (Chantier 26 — Visualiseur de pattern, en autonomie).*

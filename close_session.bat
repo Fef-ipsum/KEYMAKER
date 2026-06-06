@@ -2,13 +2,19 @@
 cd /d "C:\Users\Felix\Projects\Strudel CC"
 
 echo.
-echo === KEYMAKER — Cloture de session ===
+echo === KEYMAKER - Cloture de session ===
 echo.
+
+rem -- Auto-reparation : retire un verrou git perime (un mont a pu bloquer sa suppression cote sandbox)
+if exist ".git\index.lock" (
+  echo Verrou git perime detecte -^> suppression.
+  del /f /q ".git\index.lock"
+)
 
 git status --short
 echo.
 
-set /p MSG="Message de commit (ex: 'Module X — ajout exercice Y'): "
+set /p MSG="Message de commit (ex: Module X - ajout exercice Y): "
 
 git add .
 git commit -m "%MSG%"
