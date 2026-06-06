@@ -95,11 +95,11 @@ export const m7chapitre1 = {
         'setcpm(124/4)\n' +
         '$: s("bd*4, ~ cp").bank("RolandTR909")\n' +
         '$: s("numbers:3").chop(8).gain(.7).room(.2)\n' +
-        '$: s("numbers").n("0 2 4 6").gain(.55)',
+        '$: n("0 2 4 6").s("numbers").gain(.55)',
       decode: [
         ['s("numbers:3")', "un échantillon vocal intégré (le chiffre « trois » parlé)."],
         ['.chop(8)', "découpe le sample en 8 tranches jouées dans l'ordre → l'effet « stutter » vocal."],
-        ['s("numbers").n("0 2 4 6")', "n() choisit le sample : ici 4 chiffres parlés en séquence."],
+        ['n("0 2 4 6").s("numbers")', "n(...) placé à GAUCHE impose le rythme (4 événements) -> on entend bien zéro, deux, quatre, six."],
         ['.room(.2)', "un voile de réverbe pour poser la voix dans l'espace."],
       ],
       theory: {
@@ -167,7 +167,7 @@ export const m7chapitre1 = {
         'setcpm(124/4)\n' +
         'const drums  = s("bd*4, ~ cp ~ cp, [~ hh]*4").bank("RolandTR909")\n' +
         'const bass   = note("<c2 c2 ab1 bb1>").s("sawtooth").lpf(900).gain(.7)\n' +
-        'const chords = chord("<Cm7 Abmaj7 Bbmaj7 Cm7>").voicing().s("sawtooth").lpf(2000).attack(.1).gain(.4).room(.4)\n' +
+        'const chords = chord("<Cm7 Ab^7 Bb^7 Cm7>").voicing().s("sawtooth").lpf(2000).attack(.1).gain(.4).room(.4)\n' +
         'const vox    = s("numbers:3").chop(8).gain(.5).room(.3)\n' +
         'arrange(\n' +
         '  [8,  bass],\n' +
@@ -440,7 +440,7 @@ export const m7chapitre3 = {
         "et réordonné sans fin. On le charge, on le hache, puis iter() le DÉCALE chaque mesure → une " +
         "boucle qui ne se répète jamais vraiment.",
       code:
-        'samples("github:yaxu/clean-breaks")\n' +
+        "samples({ amen: 'https://raw.githubusercontent.com/yaxu/clean-breaks/main/sounds/The_Winstons_-_Amen_Brother%20%5B2019-03-04%20124550%5D.wav' })\n" +
         'setcpm(170/4)\n' +
         '$: s("amen/4").fit().chop(16).iter(4).cut(1).gain(.9)\n' +
         '$: note("<c1 c1 eb1 c1>").s("sine").gain(.7)',
@@ -538,11 +538,11 @@ export const m7chapitre3 = {
         "On assemble : une intro atmosphérique (pad + sub), une montée, puis le DROP — le break amen " +
         "entre en plein, avec la reese. C'est la structure d'ouverture classique d'un morceau D&B.",
       code:
-        'samples("github:yaxu/clean-breaks")\n' +
+        "samples({ amen: 'https://raw.githubusercontent.com/yaxu/clean-breaks/main/sounds/The_Winstons_-_Amen_Brother%20%5B2019-03-04%20124550%5D.wav' })\n" +
         'setcpm(170/4)\n' +
         'const sub   = note("[24,24.2]*4").s("sawtooth").lpf(700).lpq(6).gain(.55)\n' +
         'const brk   = s("amen/4").fit().chop(16).iter(4).cut(1).gain(.9)\n' +
-        'const pad   = chord("<Cm7 Abmaj7>").voicing().s("sawtooth").lpf(1500).attack(.5).release(.8).room(.6).gain(.3)\n' +
+        'const pad   = chord("<Cm7 Ab^7>").voicing().s("sawtooth").lpf(1500).attack(.5).release(.8).room(.6).gain(.3)\n' +
         'arrange(\n' +
         '  [8,  stack(pad, sub)],\n' +
         '  [8,  stack(pad, sub, s("~ ~ sd ~").bank("RolandTR808").gain(.5))],\n' +
@@ -568,7 +568,7 @@ export const m7chapitre3 = {
         ],
       },
       exercise:
-        "Change la tonalité du pad et du sub (Fm : sub sur note(\"[29,29.2]\"), pad \"<Fm7 Dbmaj7>\"). " +
+        "Change la tonalité du pad et du sub (Fm : sub sur note(\"[29,29.2]\"), pad \"<Fm7 Db^7>\"). " +
         "Puis allonge le drop à 32 mesures.",
       free:
         "Fais ton D&B : un sub bien grave (sine ou reese désaccordé), l'amen haché et varié (chop + iter), " +
@@ -787,7 +787,7 @@ export const m7chapitre5 = {
       code:
         'setcpm(24/4)\n' +
         '$: note("c2").s("sine").gain(.35).room(.5)\n' +
-        '$: chord("<Cm7 Abmaj7>").voicing().s("sawtooth").lpf(900).attack(2).release(4).room(.85).roomsize(8).gain(.35)',
+        '$: chord("<Cm7 Ab^7>").voicing().s("sawtooth").lpf(900).attack(2).release(4).room(.85).roomsize(8).gain(.35)',
       decode: [
         ['setcpm(24/4)', "très lent : ~6 cycles/min → une mesure dure ~10 secondes."],
         ['note("c2").s("sine")', "un DRONE : une note grave tenue, le socle de la pièce."],
@@ -913,7 +913,7 @@ export const m7chapitre5 = {
       code:
         'setcpm(20/4)\n' +
         '$: note("c2").s("sine").gain(.3).room(.5)\n' +
-        '$: chord("<Cm7 Abmaj7 Fm7 Gm7>").voicing().superimpose(x=>x.add(0.1)).s("sawtooth").lpf(sine.range(400,1600).slow(16)).attack(3).release(5).room(.85).roomsize(9).gain(.26)\n' +
+        '$: chord("<Cm7 Ab^7 Fm7 Gm7>").voicing().superimpose(x=>x.add(0.1)).s("sawtooth").lpf(sine.range(400,1600).slow(16)).attack(3).release(5).room(.85).roomsize(9).gain(.26)\n' +
         '$: n(irand(8).segment(2)).scale("C:minor").s("triangle").attack(1).release(4).delay(.6).delaytime(.5).delayfeedback(.5).room(.9).orbit(2).gain(.2).degradeBy(.5)\n' +
         '$: s("space").chop(16).slow(3).delay(.5).delayfeedback(.5).room(.9).orbit(3).gain(.16)\n' +
         '$: n("<0 3 5 7 10 7 5 3>").scale("C:minor").s("sine").slow(4).sometimesBy(.4, x=>x.add(12)).room(.8).gain(.16)',
@@ -936,7 +936,7 @@ export const m7chapitre5 = {
         ],
       },
       exercise:
-        "Approprie-toi la pièce : change la grille (\"<Em9 Cmaj7 …>\"), la gamme (C:dorian, C:aeolian), " +
+        "Approprie-toi la pièce : change la grille (\"<Em9 C^7 …>\"), la gamme (C:dorian, C:aeolian), " +
         "les graines du hasard. Puis laisse-la tourner, vraiment, cinq minutes — c'est ça, l'ambient.",
       free:
         "C'est le tout dernier flash de Keymaker. Regarde le chemin parcouru : du premier « bd » au beat " +

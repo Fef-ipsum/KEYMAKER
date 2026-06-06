@@ -105,7 +105,7 @@ export const m8chapitre1 = {
         'setcpm(95/4)\n' +
         '// ton break : samples({ break:"/sounds/po33/break.wav" }) puis s("break/4")…\n' +
         '// démo avec un break en ligne (réseau, une fois) :\n' +
-        'samples("github:tidalcycles/dirt-samples")\n' +
+        "samples({ amen: 'https://raw.githubusercontent.com/yaxu/clean-breaks/main/sounds/The_Winstons_-_Amen_Brother%20%5B2019-03-04%20124550%5D.wav' })\n" +
         '$: s("amen/4").fit().chop(8).cut(1).gain(.9)',
       decode: [
         ['s("amen/4")', "joue un break sur 4 cycles. Remplace amen par TON sample : s(\"break/4\")."],

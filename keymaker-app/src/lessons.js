@@ -3732,7 +3732,7 @@ export const m5chapitre5 = {
         '$: s("bd*4, [~ cp]*2").bank("RolandTR909").degradeBy(.08)\n' +
         '$: s("hh*8").degradeBy(.3).sometimesBy(.3, x=>x.gain(1.3))\n' +
         '$: note("c2 ~ g2 ~").s("gm_acoustic_bass").gain(.7)\n' +
-        '$: chord("<Cm7 Abmaj7 Fm7 G7>").voicing().s("triangle").gain(.3).room(.4)\n' +
+        '$: chord("<Cm7 Ab^7 Fm7 G7>").voicing().s("triangle").gain(.3).room(.4)\n' +
         '$: n("0 1 2 3 4 5 6 7").scale("C:minor").s("sawtooth").iter(4).off(1/8, x=>x.add(12)).lpf(sine.range(500,2000).slow(4)).gain(.35)',
       decode: [
         ['couche 1-2 (M1)', 'batterie 909 qui se troue (degrade) avec des accents (sometimes).'],
@@ -4275,7 +4275,7 @@ export const m6chapitre4 = {
         "la HACHER. chop(n) coupe le sample en n tranches jouées dans l'ordre. Ça ne s'entend " +
         "pas encore — mais chaque tranche devient manipulable séparément.",
       code:
-        'samples("github:yaxu/clean-breaks")\n' +
+        "samples({ amen: 'https://raw.githubusercontent.com/yaxu/clean-breaks/main/sounds/The_Winstons_-_Amen_Brother%20%5B2019-03-04%20124550%5D.wav' })\n" +
         's("amen/4").fit().chop(16).cut(1)',
       decode: [
         ['s("amen/4")', 'le célèbre « Amen break », étalé sur 4 cycles.'],
@@ -4296,7 +4296,7 @@ export const m6chapitre4 = {
         "le break toi-même. splice fait pareil, mais cale la vitesse de chaque tranche sur sa " +
         "durée (pratique quand tu changes le tempo). C'est le sampling créatif en deux lignes.",
       code:
-        'samples("github:yaxu/clean-breaks")\n' +
+        "samples({ amen: 'https://raw.githubusercontent.com/yaxu/clean-breaks/main/sounds/The_Winstons_-_Amen_Brother%20%5B2019-03-04%20124550%5D.wav' })\n" +
         's("amen/4").fit().slice(8, "<0 2 1 3 4 6 5 7>").cut(1)',
       decode: [
         ['.slice(8, "<…>")', 'découpe en 8, et TOI tu donnes l’ordre des tranches.'],
