@@ -436,11 +436,11 @@ export const chapitre4 = {
       concept:
         "La même note existe à plusieurs hauteurs. " +
         "Un numéro après la lettre choisit l'octave.",
-      code: 'note("c2 e3 g4 b5").sound("piano")',
+      code: 'note("c2 e3 g4 c5").sound("piano")',
       decode: [
         ['c2', "do grave — le chiffre indique l'octave."],
         ['c5', "do aigu — même note, 3 octaves plus haut."],
-        ['sans numéro', "Strudel choisit une octave par défaut (~4)."],
+        ['sans numéro', "Strudel choisit une octave par défaut : 3."],
       ],
       theory: {
         title: "Côté solfège — l'octave",
@@ -475,7 +475,7 @@ export const chapitre4 = {
         ],
       },
       exercise:
-        'Joue les 12 notes chromatiques de c à c : note("c c# d d# e f f# g g# a a# b c5").sound("piano").',
+        'Joue les 12 notes chromatiques de c à c : note("c c# d d# e f f# g g# a a# b c4").sound("piano").',
     },
 
     {
@@ -765,7 +765,7 @@ export const m2chapitre1 = {
       concept:
         'Entre la plupart des lettres se cache une note intermédiaire : la touche noire. ' +
         "Mais entre mi-fa (E-F) et si-do (B-C), il n'y en a pas : elles sont déjà à un demi-ton.",
-      code: 'note("c c# d d# e f f# g g# a a# b c5").sound("piano")',
+      code: 'note("c c# d d# e f f# g g# a a# b c4").sound("piano")',
       decode: [
         ['#', 'dièse (sharp) : +1 demi-ton.'],
         ['b', 'bémol (flat) : −1 demi-ton.'],
@@ -781,7 +781,7 @@ export const m2chapitre1 = {
         ],
       },
       exercise:
-        'Compte les notes de c à c5 : tu dois en trouver 12. ' +
+        'Compte les notes de c à c4 : tu dois en trouver 12. ' +
         "Vérifie qu'il n'y a pas de touche noire entre e-f ni entre b-c.",
     },
 
@@ -925,7 +925,7 @@ export const m2chapitre2 = {
       concept:
         "La quinte juste (7 demi-tons) est l'intervalle le plus stable après l'octave. " +
         'Ni joyeux ni triste : juste solide. C\'est le power chord du rock — fondamentale + quinte, sans tierce.',
-      code: 'note("[c,g] [f,c5] [g,d5]").sound("sawtooth").lpf(800)',
+      code: 'note("[c,g] [f,c4] [g,d4]").sound("sawtooth").lpf(800)',
       decode: [
         ['[c,g]', 'quinte juste : 7 demi-tons. Le son « puissant », neutre.'],
         ['power chord', 'guitare saturée : la corde grave + sa quinte. Pas de tierce → ni majeur ni mineur.'],
@@ -940,7 +940,7 @@ export const m2chapitre2 = {
         ],
       },
       exercise:
-        'Enchaîne les power chords : note("[c,g] [f,c5] [g,d5] [c,g]"). ' +
+        'Enchaîne les power chords : note("[c,g] [f,c4] [g,d4] [c,g]"). ' +
         'Tu tiens déjà une base de riff rock.',
     },
 
@@ -976,7 +976,7 @@ export const m2chapitre2 = {
           ['Quarte juste', '5', 'note("[c,f]")'],
           ['Triton', '6', 'note("[c,f#]")'],
           ['Quinte juste', '7', 'note("[c,g]")'],
-          ['Octave', '12', 'note("[c,c5]")'],
+          ['Octave', '12', 'note("[c,c4]")'],
         ],
       },
       exercise:
@@ -1004,9 +1004,9 @@ export const m2chapitre3 = {
         'Une gamme (scale) est une suite de notes choisies dans l\'octave. ' +
         'La majeure suit une recette fixe : ton-ton-demi · ton-ton-ton-demi. ' +
         "C'est le « do ré mi fa sol la si do » que tout le monde connaît.",
-      code: 'note("c d e f g a b c5").sound("piano")',
+      code: 'note("c d e f g a b c4").sound("piano")',
       decode: [
-        ['c d e f g a b c5', 'do majeur : 7 notes + le retour à do.'],
+        ['c d e f g a b c4', 'do majeur : 7 notes + le retour à do.'],
         ['T-T-S-T-T-T-S', 'les écarts : do→ré→mi (ton, ton), mi→fa (demi), puis 3 tons, si→do (demi).'],
         ['les 2 demi-tons', 'toujours entre mi-fa et si-do. C\'est la signature du majeur.'],
       ],
@@ -1019,7 +1019,7 @@ export const m2chapitre3 = {
         ],
       },
       exercise:
-        'Rejoue do majeur, puis recommence depuis sol : note("g a b c5 d5 e5 f#5 g5"). ' +
+        'Rejoue do majeur, puis recommence depuis sol : note("g a b c4 d4 e4 f#4 g4"). ' +
         'Le f# apparaît pour garder la recette — c\'est sol majeur.',
     },
 
@@ -1301,7 +1301,7 @@ export const m2chapitre4 = {
           ['Diminué', '0-3-6', 'note("[c,eb,gb]")'],
           ['Augmenté', '0-4-8', 'note("[c,e,g#]")'],
           ['Grille', 'C Am F G', 'chord("<C Am F G>").voicing()'],
-          ['Cadence', 'I-IV-V', 'note("[c,e,g] [f,a,c5] [g,b,d5]")'],
+          ['Cadence', 'I-IV-V', 'note("[c,e,g] [f,a,c4] [g,b,d4]")'],
         ],
       },
       exercise:
@@ -1359,7 +1359,7 @@ export const m2chapitre5 = {
         'Pour garder la recette majeure (T-T-S-T-T-T-S) depuis une autre note, ' +
         "il faut parfois ajouter des dièses ou des bémols. La liste de ces altérations, " +
         "c'est l'armure (key signature) de la tonalité.",
-      code: 'note("g a b c5 d5 e5 f#5 g5").sound("piano")',
+      code: 'note("g a b c4 d4 e4 f#4 g4").sound("piano")',
       decode: [
         ['sol majeur', 'pour respecter la recette, le 7ᵉ degré doit être f# (pas f).'],
         ['1 dièse', "l'armure de sol majeur = un seul dièse (f#)."],
@@ -1375,7 +1375,7 @@ export const m2chapitre5 = {
         ],
       },
       exercise:
-        'Joue fa majeur : note("f a bb c5 d5 e5 f5") avec le bb obligatoire. ' +
+        'Joue fa majeur : note("f g a bb c4 d4 e4 f4") avec le bb obligatoire. ' +
         'Compare à do majeur (aucune altération).',
     },
 
