@@ -319,6 +319,53 @@ n(irand(8)).scale("C:minor")
 - Hasard reproductible : même code = même suite. `ribbon(seed, len)` sert à **pêcher** puis figer un fragment aléatoire qui plaît.
 - `.midi(...)` route vers l'appareil → **pas de son interne** ; pour rester audible en leçon, garder `.s(...)` et présenter `.midi(...)` en variante.
 
+## §13 — Module 6 « Composition & Projets » (Chantier 13)
+
+> Vérifiées **en direct** sur strudel.cc le 6 juin 2026 : pages `factories`, `code`, `recipes`, `faq`, `technical-manual/repl`, `stepwise`. Fil rouge pédagogique : **d'une boucle à un morceau** — le code devient un studio (construire, arranger, jouer en live, exporter).
+
+**Le stack en live (le workflow du REPL)** :
+- `$:` en début de ligne = **un membre du stack** (une piste), joué en parallèle ; plusieurs `$:` = plusieurs pistes (déjà utilisé M1-M5).
+- **Pistes nommées** : un nom devant `$:` étiquette la piste — `drums$:`, `bass$:`, `pad$:`. Le **nom doit être unique** ; seul `$:` peut se répéter (FAQ : `cello$:`, `violin1$:` …).
+- **Mute** : un `_` devant la piste la rend **muette** (= `hush` sur cette piste). `_$: s("bd")` ou `_drums$: …`. C'est l'interrupteur live.
+- `all(f)` = applique `f` à **TOUTES** les pistes du stack (bus master). Ex. `all(x=>x.release(.2))` ; `all(x=>x.when("<0!7 1>", y=>y.lpf(saw.range(200,2000))))` (balaye tout, tous les 8 cycles).
+- `hush()` coupe tout ; **Ctrl+.** (panic) arrête le moteur.
+
+**Réutiliser & factoriser (un projet qui tient)** :
+- `const nom = pattern` : définir un motif **une fois**, le réutiliser partout (voix, sections). FAQ Pachelbel : `const cello = note("…").sound("gm_tremolo_strings:3")`.
+- `register('nom', pat => pat.s("sawtooth").lpf(800).room(.3))` : créer **sa propre fonction chaînée** réutilisable (page `code`).
+- `.color("blue")` : étiqueter visuellement une voix (highlighting) — pour s'y retrouver dans un gros patch.
+
+**Structurer un morceau (arrangement)** :
+- `arrange([n, pat], [m, pat2], …)` : joue chaque pattern pour `n` cycles **à la suite** → couplet/refrain/pont. Pattern plus court que `n` → répété (pages `factories` + `faq`).
+- `mask("<0!24 1!40>")` : **active/coupe** une piste par cycles (0 = muet, 1 = joue). Arranger = poser le **même compteur de cycles** sur chaque piste et remplacer des 0 par des 1 (FAQ).
+- `pick([a,b,c])` indexé par un pattern : `"<0@2 1@2>".pick([sectionA, sectionB])` → séquence de sections ; `pickRestart` **relance** la section à chaque changement. Meilleur highlighting que `arrange` (FAQ).
+- Briques de base (déjà §12) : `cat`/`slowcat` (1 section/cycle), `seq`, `stepcat`, `stack` ; `<…>` (alternance par cycle) + `@n`/`!n` pour **tenir** une section.
+
+**Sculpter une boucle / un break (matière à track)** :
+- `chop(n)` découpe le sample en `n` tranches jouées dans l'ordre ; `slice(n, "<0 1 …>")` rejoue les tranches **dans un ordre choisi** ; `splice` = `slice` avec la vitesse calée sur la durée d'event ; `fit()` cale le sample sur le nombre de cycles ; `.cut(1)` coupe la tranche précédente (groupe de choke). Ex. recipe vérifié : `samples('github:yaxu/clean-breaks'); s("amen/4").fit().chop(16).cut(1)`.
+- `layer(x=>…, x=>…)` : plusieurs voix d'un même motif (≠ `superimpose` qui garde l'original). `s("sawtooth, square:0:.5")` : empiler des sons avec **gain par voix** (`nom:n:gain`).
+- Durée des sons : `clip` (×durée d'event), `release` (fondu de sortie), `decay`, `.end` (coupe le sample), `loop`/`loopEnd` (boucle un bout, ex. wavetable `wt_`).
+
+**Tempo & métrique** : `setcpm(BPM/temps_par_cycle)` → 4/4 = `setcpm(BPM/4)`. Convention projet : 1 cycle = 1 mesure.
+
+**Mixer** : `gain` (volume/piste), `pan`, `orbit(n)` (bus réverb/délai séparés), `postgain`, `compressor` (déjà §6).
+
+**Exporter / partager / jouer** (FAQ « How to record or export audio? ») :
+- **Onglet « export »** du REPL → rend et **télécharge un fichier audio** (le plus simple).
+- Capturer le flux stéréo du navigateur dans un DAW (Reaper/Audacity/Ardour), ou **OBS** (audio + vidéo de l'écran).
+- `.midi("port")` / `.osc()` → router vers un DAW/synthé matériel (page `input-output`, §12).
+- **Partage** : l'URL du REPL encode le patch (lien partageable) ; métadonnées `// @title`, `// @by` (pages `code`/`metadata`).
+- **Offline / PWA** : Strudel s'installe et tourne hors-ligne (page `pwa`).
+
+**Bonus — stepwise (⚠️ expérimental, à manier léger)** : `pace(n)` (cale un motif à `n` pas/cycle), `grow`/`shrink` (fait grandir/rétrécir une phrase pas à pas → intros/breakdowns), `stepcat`/`expand`/`contract`/`take`/`drop`/`zip`/`tour`. Marqué *experimental* sur strudel.cc → susceptible de changer ; à présenter comme piste d'exploration, **pas** comme fondation.
+
+**Pièges retenus pour le contenu M6** :
+- Strudel **n'est PAS un DAW** (FAQ) : on arrange par **règles** (arrange/mask/pick), pas par glisser-déposer → le présenter comme une force, pas un manque.
+- Pistes nommées : le **nom est unique** par piste ; `$:` est le seul label qui peut apparaître plusieurs fois.
+- `mask` d'arrangement : garder le **même total de cycles** sur chaque piste pour que les sections restent alignées.
+- `all(f)` agit sur **tout le stack courant** → idéal pour une transition globale, mais **attention au volume** (un filtre/disto sur tout peut surprendre).
+- Les samples externes (`samples('github:…')`) se **téléchargent au 1er usage** (réseau) puis sont en cache (§8) → pour un final robuste hors-ligne, privilégier les sons intégrés.
+
 ## §10 — Pages officielles (pour aller plus loin)
 
 Base : `https://strudel.cc/learn/`
@@ -327,4 +374,4 @@ REPL : `https://strudel.cc/` (onglet **sounds** = liste réelle des sons, dont t
 
 ---
 
-*Distillé depuis strudel.cc le 5 juin 2026 (Astro v5). **Complété au Chantier 10 (6 juin 2026)** : Module 4 « Son & Effets » — §6/§7 re-vérifiés sur /effects + /synths. **Complété au Chantier 12 (6 juin 2026)** : §12 Module 5 « Informatique Musicale » — fabriques, temps, signaux, hasard, conditionnel, accumulation, MIDI/OSC re-vérifiés en direct sur strudel.cc/learn. À compléter pour le Module 6 (composition & projets).*
+*Distillé depuis strudel.cc le 5 juin 2026 (Astro v5). **Complété au Chantier 10 (6 juin 2026)** : Module 4 « Son & Effets » — §6/§7 re-vérifiés sur /effects + /synths. **Complété au Chantier 12 (6 juin 2026)** : §12 Module 5 « Informatique Musicale » — fabriques, temps, signaux, hasard, conditionnel, accumulation, MIDI/OSC re-vérifiés en direct sur strudel.cc/learn. **Complété au Chantier 13 (6 juin 2026)** : §13 Module 6 « Composition & Projets » — stack live (`$:`/pistes nommées/`_` mute/`all`), réutilisation (`const`/`register`), arrangement (`arrange`/`mask`/`pick`), découpe de boucles (`chop`/`slice`/`splice`), export/partage (onglet export, OBS, MIDI/OSC, PWA) vérifiés en direct sur strudel.cc (factories/code/recipes/faq/repl/stepwise).*

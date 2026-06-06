@@ -1,7 +1,7 @@
 # ꩜ Keymaker — l'app d'apprentissage Strudel CC + solfège
 
 PWA en français pour apprendre **le live coding (Strudel CC)** et **le solfège** en même temps.
-État actuel : **5 modules complets et jouables**, **126 flashs**, un guide IA (**Sati**) et un écran **Réglages**. Tout tourne 100 % en local ; Sati se branche sur ton Pi.
+État actuel : **6 modules complets et jouables**, **151 flashs**, un guide IA (**Sati**) et un écran **Réglages**. Tout tourne 100 % en local ; Sati se branche sur ton Pi.
 
 ---
 
@@ -23,7 +23,7 @@ Une fenêtre noire s'ouvre (le serveur local) et ton navigateur ouvre l'app tout
 
 - **Précédent / Suivant** parcourent les flashs et **traversent les chapitres**.
 - Indicateur **Ch.N · n/m** + points du chapitre courant.
-- **☰ Parcours** ouvre la carte : sélecteur **Module 1 / 2 / 3 / 4 / 5**, chapitres repliables, clic pour aller à n'importe quel flash. Circulation **libre**.
+- **☰ Parcours** ouvre la carte : sélecteur **Module 1 / 2 / 3 / 4 / 5 / 6**, chapitres repliables, clic pour aller à n'importe quel flash. Circulation **libre**.
 - À la fin d'un module : bouton **« Module suivant ▶ »**.
 
 ---
@@ -49,6 +49,10 @@ Le son lui-même : fabriquer un timbre depuis l'onde brute, le filtrer, lui donn
 **Module 5 — Informatique Musicale** (25 flashs, 5 chapitres)
 1. Le pattern est une fonction · 2. Manipuler le temps · 3. Le hasard maîtrisé · 4. Accumulation & calques · 5. L'héritage & le grand tableau.
 Le code comme instrument — fil rouge **« un pattern est une fonction du temps »** : fabriques (`stack`/`seq`/`cat`/`run`), transformations du temps (`slow`/`fast`/`rev`/`iter`/`ply`), hasard reproductible (`irand`/`degrade`/`sometimes`/`ribbon`), accumulation (`superimpose`/`off`/`echo`/`jux`), arrangement (`firstOf`/`chunk`), sortie **MIDI** — et un **morceau génératif final qui réunit les 5 modules**.
+
+**Module 6 — Composition & Projets** (25 flashs, 5 chapitres)
+1. Le studio dans le navigateur (le stack live) · 2. Réutiliser : variables & fonctions · 3. Arranger dans le temps · 4. La matière d'un track · 5. Finir, jouer, partager.
+De la boucle au **morceau complet** — fil rouge **« d'une boucle à un morceau »** : le stack live (`$:`, pistes nommées, mute `_`, `all()`), la réutilisation (`const`, `register`, `color`), l'arrangement (`arrange`/`mask`/`pick`), la matière sonore (`samples`/`chop`/`slice`/`layer`), le mix (`gain`/`pan`/`orbit`), le live set, l'**export** (onglet export, OBS, MIDI/OSC) et la PWA — clôturé par un **projet final qui réunit les six modules**.
 
 Chaque flash suit le même moule : **Concept → éditeur Strudel → Décodage → Théorie (solfège) → Exercice**, avec une **table récap** en fin de chapitre et un **exercice libre** en clôture.
 
@@ -104,7 +108,7 @@ keymaker-app/
 │  ├─ SatiChat.jsx · sati.js   ← guide IA : tiroir de chat + client SSE du Pi
 │  ├─ Settings.jsx      ← écran Réglages
 │  ├─ memory.js         ← mémoire locale de Sati (IndexedDB)
-│  ├─ lessons.js        ← contenu : modules = [module1...module5], 126 flashs
+│  ├─ lessons.js        ← contenu : modules = [module1...module6], 151 flashs
 │  └─ styles.css        ← thème Void + cartes + nav + table récap + overlays
 ├─ public/
 │  ├─ icons/            ← icônes PWA
@@ -114,4 +118,4 @@ keymaker-app/
 
 ---
 
-*Keymaker — Modules 1 à 5 complets (126 flashs) + Sati + Réglages (thèmes Void / Light / Matrix). Strudel v1.3.0. Mis à jour le 6 juin 2026 (Module 5 « Informatique Musicale »).*
+*Keymaker — Modules 1 à 6 complets (151 flashs) + Sati + Réglages (thèmes Void / Light / Matrix). Strudel v1.3.0. Mis à jour le 6 juin 2026 (Module 6 « Composition & Projets » — le curriculum est complet).*

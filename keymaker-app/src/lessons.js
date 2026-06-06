@@ -3760,8 +3760,782 @@ export const module5 = {
   chapitres: [m5chapitre1, m5chapitre2, m5chapitre3, m5chapitre4, m5chapitre5],
 };
 
+/* ===========================================================================
+ * Module 6 — Composition & Projets  (Chantier 13, 6 juin 2026)
+ * Fil rouge : « D'une boucle à un morceau. » Le code devient un studio :
+ * construire (stack), réutiliser (const/register), arranger (arrange/mask/pick),
+ * sculpter la matière (chop/slice/layer), finir/jouer/partager (mix/live/export).
+ * Strudel vérifié en direct sur strudel.cc le 6 juin 2026 (cf. référence §13).
+ * Ponts permanents vers M1 (live coding), M2 (solfège), M3 (guitare),
+ * M4 (son & effets), M5 (informatique musicale).
+ * =========================================================================== */
+
+export const m6chapitre1 = {
+  module: 6,
+  chapter: 'Le studio dans le navigateur',
+  title: 'Le studio dans le navigateur',
+  subtitle: 'Empiler, nommer, couper, traiter : le stack live',
+  flashs: [
+    {
+      id: '6.1',
+      kicker: 'Empiler des pistes',
+      title: 'Le stack : plusieurs pistes en même temps',
+      concept:
+        "Un morceau, ce n'est pas une ligne : c'est des couches qui jouent ensemble. " +
+        "Dans le REPL, chaque ligne qui commence par $: est une PISTE. Tu en empiles " +
+        "autant que tu veux, elles sonnent en parallèle. C'est la table de mixage en code.",
+      code:
+        '$: s("bd*4")\n' +
+        '$: s("~ cp")\n' +
+        '$: note("c2 g2").s("sawtooth")',
+      decode: [
+        ['$:', 'au début d’une ligne : « ajoute cette piste au stack ».'],
+        ['3 lignes = 3 pistes', 'grosse caisse + clap + basse, superposés.'],
+        ['(pont M1)', 'c’est le stack que tu connais, écrit en clair, une piste par ligne.'],
+      ],
+      theory: {
+        title: 'Le mot juste',
+        items: [
+          ['stack', 'la pile de pistes jouées en même temps (= la virgule ",").'],
+          ['piste', 'une couche du morceau : batterie, basse, accords, lead…'],
+          ['parallèle', 'toutes les pistes partagent le même temps (les mêmes cycles).'],
+        ],
+      },
+      exercise:
+        'Ajoute une 4e piste : $: s("hh*8").gain(.6). Une chanson, ' +
+        'c’est juste des couches bien choisies.',
+    },
+
+    {
+      id: '6.2',
+      kicker: 'Mettre de l’ordre',
+      title: 'Nommer ses pistes',
+      concept:
+        "Quand le patch grossit, une pile de $: anonymes devient illisible. " +
+        "Tu peux DONNER UN NOM à chaque piste : un mot collé devant le $:. " +
+        "Le code se met à te parler : tu vois d'un coup d'œil qui fait quoi.",
+      code:
+        'drums$: s("bd*4, ~ cp").bank("RolandTR909")\n' +
+        'bass$: note("c2 g2 ~ c2").s("gm_acoustic_bass")\n' +
+        'chords$: chord("<Cm Ab>").voicing().s("triangle").gain(.4)',
+      decode: [
+        ['drums$:', 'un nom devant $: étiquette la piste.'],
+        ['nom unique', 'chaque piste a SON nom (seul « $: » peut se répéter).'],
+        ['(pont M2)', 'la grille d’accords du solfège, ici nommée « chords ».'],
+      ],
+      exercise:
+        'Renomme les pistes avec TES mots : kick$:, basse$:, nappe$:. ' +
+        'Un patch lisible, c’est un patch qu’on retrouve le lendemain.',
+    },
+
+    {
+      id: '6.3',
+      kicker: 'L’interrupteur live',
+      title: 'Couper une piste : le souligné _',
+      concept:
+        "En live coding, on ne réécrit pas tout : on ALLUME et on ÉTEINT des couches. " +
+        "Mets un _ juste devant une piste : elle devient muette, sans disparaître. " +
+        "Enlève le _ : elle revient. C'est ton geste de DJ le plus utile.",
+      code:
+        'drums$: s("bd*4, ~ cp").bank("RolandTR909")\n' +
+        '_bass$: note("c2 g2").s("gm_acoustic_bass")\n' +
+        'hats$: s("hh*8").gain(.5)',
+      decode: [
+        ['_ devant bass$:', 'le souligné COUPE la piste (mute), le code reste là.'],
+        ['enlève le _', 'la basse rentre. Construire/retirer en direct, sans tout casser.'],
+        ['hush() / Ctrl+.', 'tout couper d’un coup (le bouton « panic »).'],
+      ],
+      theory: {
+        title: 'Couper, en pratique',
+        items: [
+          ['_piste$:', 'mute UNE piste (= hush sur cette piste).'],
+          ['hush()', 'coupe TOUT le son, proprement.'],
+          ['Ctrl + .', 'arrêt d’urgence du moteur (panic).'],
+        ],
+      },
+      exercise:
+        'Lance le code, puis mute les hats (_hats$:). Attends 4 cycles, ' +
+        'enlève le _ : tu viens de faire entrer une couche. Voilà un « drop ».',
+    },
+
+    {
+      id: '6.4',
+      kicker: 'Le bus master',
+      title: 'all() : traiter toutes les pistes d’un coup',
+      concept:
+        "Parfois tu veux un effet sur TOUT le morceau à la fois : baisser le volume, " +
+        "fermer le filtre pour une transition. all(f) applique la fonction f à TOUTES " +
+        "les pistes du stack. C'est le bus master de ta table de mixage.",
+      code:
+        '$: s("bd*4, ~ cp").bank("RolandTR909")\n' +
+        '$: note("c2 g2 eb2 g2").s("sawtooth").gain(.6)\n' +
+        'all(x => x.room(.3))',
+      decode: [
+        ['all(x => x.room(.3))', 'colle une réverb sur TOUTES les pistes.'],
+        ['un seul geste', 'pas besoin de répéter .room sur chaque ligne.'],
+        ['(pont M4)', 'une transition : all(x => x.lpf(500)) ferme le filtre sur tout.'],
+      ],
+      exercise:
+        'Remplace par all(x => x.gain(.7)) : tout le mix baisse d’un coup. ' +
+        'Puis essaie all(x => x.fast(2)) le temps d’un cycle. Le bus master, c’est puissant.',
+    },
+
+    {
+      id: '6.5',
+      kicker: 'Le métronome commun',
+      title: 'Le tempo du morceau',
+      concept:
+        "Toutes les pistes partagent UN tempo. On le pose une fois, tout en haut, " +
+        "avec setcpm. Notre convention (depuis M1) : setcpm(BPM/4) = ton BPM en 4/4. " +
+        "Change-le, et le morceau entier accélère ou ralentit ensemble.",
+      code:
+        'setcpm(120/4)\n' +
+        'drums$: s("bd*4, ~ cp").bank("RolandTR909")\n' +
+        'bass$: note("c2 ~ g2 ~").s("gm_acoustic_bass")',
+      decode: [
+        ['setcpm(120/4)', '120 BPM en 4/4 : le métronome commun à toutes les pistes.'],
+        ['une seule fois, en haut', 'le tempo est global, comme dans un vrai studio.'],
+        ['(pont M1/M4)', 'la convention BPM/4 du projet : 1 cycle = 1 mesure.'],
+      ],
+      recap: {
+        title: 'Récap chapitre 1 — Le stack live',
+        columns: ['Geste', 'Code', 'Effet'],
+        rows: [
+          ['Empiler', '$: …', 'des pistes en parallèle'],
+          ['Nommer', 'drums$: …', 'une piste étiquetée, lisible'],
+          ['Couper', '_drums$: …', 'mute en direct (live)'],
+          ['Tout traiter', 'all(f)', 'effet global (bus master)'],
+          ['Tempo', 'setcpm(BPM/4)', 'le métronome commun'],
+        ],
+      },
+      exercise:
+        'Passe le tempo à setcpm(140/4) puis setcpm(90/4). Même morceau, ' +
+        'autre énergie. Le tempo, c’est déjà une décision artistique.',
+      free:
+        'Tu sais déjà faire jouer plusieurs pistes ensemble, les nommer, les couper et les traiter d’un bloc. C’est l’établi de tout le reste : un morceau, ce sont des couches qu’on choisit et qu’on pilote.',
+    },
+  ],
+};
+
+export const m6chapitre2 = {
+  module: 6,
+  chapter: 'Réutiliser : variables & fonctions',
+  title: 'Réutiliser : variables & fonctions',
+  subtitle: 'Définir une fois, rejouer partout',
+  flashs: [
+    {
+      id: '6.6',
+      kicker: 'Définir une fois',
+      title: 'La variable : const',
+      concept:
+        "Recopier le même motif partout, c'est la porte ouverte aux erreurs (et c'est " +
+        "fatigant). const te laisse définir un motif UNE fois, lui donner un nom, et le " +
+        "réutiliser autant que tu veux. Tu changes la définition : tout suit, d'un coup.",
+      code:
+        'const bass = note("c2 g2 ~ c2").s("gm_acoustic_bass")\n' +
+        '$: bass\n' +
+        '$: bass.add(note(12)).gain(.4)',
+      decode: [
+        ['const bass = …', 'on définit la basse une fois, on la nomme « bass ».'],
+        ['$: bass', 'on la joue telle quelle.'],
+        ['$: bass.add(note(12))', 'on la rejoue une octave plus haut — zéro recopie.'],
+      ],
+      theory: {
+        title: 'Le mot juste',
+        items: [
+          ['const', 'une « boîte » nommée qui contient un motif.'],
+          ['réutiliser', 'rejouer le même motif sans le réécrire.'],
+          ['(TDA-friendly)', 'moins de répétition = moins de charge mentale, moins de bugs.'],
+        ],
+      },
+      exercise:
+        'Crée const lead = n("0 2 4 7").scale("C:minor").s("triangle"), ' +
+        'puis joue-le deux fois : $: lead et $: lead.off(1/8, x=>x.add(12)).',
+    },
+
+    {
+      id: '6.7',
+      kicker: 'Une idée, des variations',
+      title: 'Transformer un motif réutilisé',
+      concept:
+        "Le vrai pouvoir du const : un seul motif source, plein de versions. Tu définis " +
+        "un riff, puis tu en joues l'original ET des variations transformées (M5) en " +
+        "parallèle. Beaucoup de musique à partir de très peu d'écriture.",
+      code:
+        'const riff = n("0 2 3 5").scale("C:minor")\n' +
+        '$: riff.s("sawtooth").gain(.5)\n' +
+        '$: riff.rev().s("triangle").gain(.4).off(1/8, x=>x.add(12))',
+      decode: [
+        ['const riff = …', 'le motif source, défini une fois (degrés de gamme, M2).'],
+        ['riff.rev()', 'la même idée, à l’envers (M5) : une 2e voix gratuite.'],
+        ['.off(1/8, …)', 'un écho décalé et transposé (M5) — ça s’épaissit tout seul.'],
+      ],
+      exercise:
+        'Ajoute une 3e voix : $: riff.slow(2).add(7).s("square").gain(.3). ' +
+        'Un motif, trois rôles. C’est ça, composer avec des règles.',
+    },
+
+    {
+      id: '6.8',
+      kicker: 'Ta chaîne maison',
+      title: 'register : créer ta propre fonction',
+      concept:
+        "Tu réutilises souvent la même chaîne d'effets ? Emballe-la dans UN nom avec " +
+        "register. Tu crées ta propre fonction chaînée, exactement comme .lpf ou .room, " +
+        "mais à toi. Ta signature sonore en un seul mot.",
+      code:
+        'register("keymaker", p => p.s("sawtooth").lpf(900).room(.3))\n' +
+        'note("c3 eb3 g3 c4").keymaker()',
+      decode: [
+        ['register("keymaker", p => …)', 'on emballe une chaîne d’effets dans un nom.'],
+        ['.keymaker()', 'on l’applique comme n’importe quelle fonction Strudel.'],
+        ['p => p.s(…).lpf(…)', 'p est le motif entrant ; on lui colle la chaîne.'],
+      ],
+      theory: {
+        title: 'Le mot juste',
+        items: [
+          ['register', 'déclare une nouvelle fonction chaînée réutilisable.'],
+          ['p => …', 'une « fonction flèche » : entrée p, sortie le motif traité.'],
+          ['composer', 'tes fonctions s’enchaînent avec les fonctions natives.'],
+        ],
+      },
+      exercise:
+        'Crée ta signature : register("moi", p => p.room(.5).gain(.6).clip(2)), ' +
+        'puis colle-la sur une basse : note("c2 g2").s("gm_acoustic_bass").moi().',
+    },
+
+    {
+      id: '6.9',
+      kicker: 'Se repérer d’un coup d’œil',
+      title: 'color() : organiser visuellement',
+      concept:
+        "Avec 5 ou 6 pistes qui tournent, savoir laquelle sonne devient dur. .color() " +
+        "teinte le surlignage d'une piste. Ça ne change pas le son : ça organise TON regard. " +
+        "Un petit luxe d'ergonomie qui sauve les gros patchs.",
+      code:
+        '$: s("bd*4, ~ cp").bank("RolandTR909").color("tomato")\n' +
+        '$: note("c2 g2 eb2 g2").s("sawtooth").color("cyan")',
+      decode: [
+        ['.color("tomato")', 'colore le surlignage des événements de cette piste.'],
+        ['repérage', 'd’un coup d’œil, tu sais quelle piste joue quoi.'],
+        ['zéro impact sonore', 'c’est purement visuel — pour t’organiser.'],
+      ],
+      exercise:
+        'Donne une couleur à chaque piste de ton patch (color("gold"), color("orchid")…). ' +
+        'Quand ça surligne, tu lis ton morceau comme une partition.',
+    },
+
+    {
+      id: '6.10',
+      kicker: 'Tout assembler',
+      title: 'Un mini-projet en const',
+      concept:
+        "Réunissons le chapitre : on définit chaque couche en const, on les monte en stack " +
+        "nommé. Le morceau devient une PARTITION lisible — une ligne par voix, des noms " +
+        "clairs. C'est le squelette de tous tes projets à venir.",
+      code:
+        'setcpm(110/4)\n' +
+        'const drums = s("bd*4, ~ cp, hh*8").bank("RolandTR909")\n' +
+        'const bass  = note("c2 ~ g2 ~").s("gm_acoustic_bass").gain(.7)\n' +
+        'const keys  = chord("<Cm7 Ab^7>").voicing().s("triangle").gain(.4).room(.3)\n' +
+        'drums$: drums\n' +
+        'bass$: bass\n' +
+        'keys$: keys',
+      decode: [
+        ['3 const en haut', 'chaque voix définie une fois (M1 batterie, M3 basse, M2 accords).'],
+        ['…$: drums / bass / keys', 'le stack nommé : une partition claire.'],
+        ['facile à faire évoluer', 'change une const, le morceau suit.'],
+      ],
+      recap: {
+        title: 'Récap chapitre 2 — Réutiliser',
+        columns: ['Outil', 'Code', 'Sert à'],
+        rows: [
+          ['Variable', 'const x = …', 'définir un motif une fois'],
+          ['Rejouer', '$: x', 'le jouer tel quel'],
+          ['Varier', 'x.rev() / x.add(7)', 'des versions transformées (M5)'],
+          ['Fonction', 'register("n", p=>…)', 'ta chaîne d’effets maison'],
+          ['Couleur', '.color("…")', 's’organiser visuellement'],
+        ],
+      },
+      exercise:
+        'Ajoute une 4e voix lead en const et monte-la dans le stack. ' +
+        'Tu tiens là le gabarit de tes futurs morceaux.',
+      free:
+        'Définir une fois, rejouer partout : ton code devient une partition au lieu d’un copier-coller. Moins d’écriture, moins d’erreurs — plus de place pour la musique.',
+    },
+  ],
+};
+
+export const m6chapitre3 = {
+  module: 6,
+  chapter: 'Arranger dans le temps',
+  title: 'Arranger dans le temps',
+  subtitle: 'De la boucle à la structure : intro, couplet, refrain',
+  flashs: [
+    {
+      id: '6.11',
+      kicker: 'La timeline',
+      title: 'arrange : des sections à la suite',
+      concept:
+        "Une boucle tourne en rond ; un morceau AVANCE. arrange pose une timeline : " +
+        "« joue A pendant N cycles, puis B pendant M ». C'est l'outil qui transforme " +
+        "tes boucles en couplet → refrain → pont. Strudel n'est pas un DAW : on arrange par règles.",
+      code:
+        'arrange(\n' +
+        '  [4, s("bd*4, ~ cp")],\n' +
+        '  [4, s("bd*4, ~ cp, hh*8")]\n' +
+        ').bank("RolandTR909")',
+      decode: [
+        ['arrange([4, A], [4, B])', 'A pendant 4 cycles, puis B pendant 4, en boucle.'],
+        ['[nombre, motif]', 'chaque paire = une durée (en cycles) et la section à jouer.'],
+        ['couplet → refrain', 'la structure d’un morceau, écrite en clair.'],
+      ],
+      theory: {
+        title: 'Le mot juste',
+        items: [
+          ['arrange', 'enchaîne des sections sur une ligne de temps.'],
+          ['section', 'un bloc musical (intro, couplet, refrain, pont…).'],
+          ['plus court que N', 'si le motif est plus court, il se répète pour remplir.'],
+        ],
+      },
+      exercise:
+        'Ajoute une 3e section calme : [2, s("bd ~ ~ ~")]. ' +
+        'Trois blocs, une vraie petite forme.',
+    },
+
+    {
+      id: '6.12',
+      kicker: 'Faire durer',
+      title: 'Tenir une section : <> @ !',
+      concept:
+        "Pour qu'une section RESPIRE, il faut la tenir plusieurs cycles. En mini-notation, " +
+        "<a b> change à chaque cycle ; avec !4 tu répètes, donc <c2!4 g2!4> garde c2 quatre " +
+        "cycles puis g2 quatre cycles. La même idée que @ (allonger) vue en M2.",
+      code:
+        'note("<c2!4 g2!4>").s("gm_acoustic_bass")\n' +
+        '$: chord("<Cm!4 G!4>").voicing().s("triangle").gain(.4)',
+      decode: [
+        ['<c2!4 g2!4>', 'c2 tenu 4 cycles, puis g2 tenu 4 cycles (un par cycle).'],
+        ['!n', 'répète l’élément n fois (M1) — ici pour étirer une section.'],
+        ['accords accordés', 'la basse et la grille changent ensemble, tous les 4 cycles.'],
+      ],
+      exercise:
+        'Fais un cycle harmonique long : <Cm!2 Ab!2 Fm!2 G!2> sur la grille et la basse. ' +
+        'Huit cycles de structure, sans rien recopier.',
+    },
+
+    {
+      id: '6.13',
+      kicker: 'Faire entrer les couches',
+      title: 'mask : activer une piste par sections',
+      concept:
+        "Une intro réussie, c'est des couches qui ENTRENT une à une. mask te laisse dire " +
+        "« cette piste joue ici, se tait là » avec un motif de 0 et de 1. Pose le MÊME " +
+        "compteur de cycles sur chaque piste, et tu décides qui sonne, quand.",
+      code:
+        '$: s("bd*4").bank("RolandTR909")\n' +
+        '$: s("hh*8").mask("<0 0 1 1>").gain(.6)\n' +
+        '$: note("c2 g2 eb2 g2").s("sawtooth").mask("<0 1 1 1>")',
+      decode: [
+        ['mask("<0 0 1 1>")', '0 = muet, 1 = joue : les hats arrivent au 3e cycle.'],
+        ['intro qui monte', 'la basse entre au 2e cycle, les hats au 3e.'],
+        ['même nombre de cases', 'garde 4 cases partout pour que tout reste aligné.'],
+      ],
+      theory: {
+        title: 'Le mot juste',
+        items: [
+          ['mask', 'un « pochoir » de 0/1 qui laisse passer ou bloque le son.'],
+          ['<0 0 1 1>', 'un état par cycle (M5 : un élément par cycle).'],
+          ['arranger sans DAW', 'plein de masques alignés = une structure complète.'],
+        ],
+      },
+      exercise:
+        'Inverse un masque (<1 1 0 0>) pour faire SORTIR une couche au lieu de l’entrer. ' +
+        'Entrer/sortir des couches, c’est 80 % de l’arrangement électronique.',
+    },
+
+    {
+      id: '6.14',
+      kicker: 'Séquencer des blocs',
+      title: 'pick : choisir la section à jouer',
+      concept:
+        "Autre façon d'arranger : range tes sections dans une liste, puis un motif d'index " +
+        "choisit laquelle joue. pick([couplet, refrain]) avec « <0@2 1@2> » = couplet 2 " +
+        "cycles, refrain 2 cycles. Lisible, et le surlignage suit mieux qu'avec arrange.",
+      code:
+        'const couplet = note("c2 eb2 g2 c3").s("sawtooth").gain(.5)\n' +
+        'const refrain = note("ab2 g2 f2 eb2").s("sawtooth").gain(.6)\n' +
+        '"<0@2 1@2>".pick([couplet, refrain])',
+      decode: [
+        ['pick([couplet, refrain])', 'un index (0 ou 1) choisit la section à jouer.'],
+        ['"<0@2 1@2>"', 'section 0 pendant 2 cycles, puis section 1 pendant 2 (@ = tenir).'],
+        ['pickRestart', 'variante qui RELANCE la section à chaque changement (départ net).'],
+      ],
+      exercise:
+        'Ajoute un pont (const pont = …) en 3e élément, puis joue "<0 1 0 2>".pick([…]). ' +
+        'Couplet, refrain, couplet, pont : une chanson.',
+    },
+
+    {
+      id: '6.15',
+      kicker: 'La forme complète',
+      title: 'Intro → couplet → refrain → outro',
+      concept:
+        "Assemblons : des const pour les sections, arrange pour la timeline, stack pour " +
+        "superposer batterie et harmonie dans les parties pleines. Une vraie petite forme, " +
+        "du silence du début au calme de la fin. Tu ne joues pas une boucle : tu racontes.",
+      code:
+        'setcpm(120/4)\n' +
+        'const groove = s("bd*4, ~ cp, hh*8").bank("RolandTR909")\n' +
+        'const harmo  = note("<c2 ab1 f1 g1>").s("gm_acoustic_bass").gain(.7)\n' +
+        'arrange(\n' +
+        '  [2, groove],\n' +
+        '  [4, stack(groove, harmo)],\n' +
+        '  [2, harmo]\n' +
+        ')',
+      decode: [
+        ['[2, groove]', 'intro : batterie seule, 2 cycles.'],
+        ['[4, stack(groove, harmo)]', 'le cœur : batterie + basse ensemble, 4 cycles.'],
+        ['[2, harmo]', 'outro : la basse seule s’éteint, 2 cycles.'],
+      ],
+      recap: {
+        title: 'Récap chapitre 3 — Arranger',
+        columns: ['Outil', 'Code', 'Sert à'],
+        rows: [
+          ['Timeline', 'arrange([n, pat] …)', 'des sections à la suite'],
+          ['Tenir', '<a!4 b!4>', 'garder une section N cycles'],
+          ['Voiler', 'mask("<0 1 1>")', 'entrer/sortir une couche'],
+          ['Choisir', 'pick([a, b])', 'séquencer des sections nommées'],
+          ['Empiler', 'stack(a, b)', 'superposer dans une partie pleine'],
+        ],
+      },
+      exercise:
+        'Allonge la forme : ajoute un refrain (stack des 3 voix) et un pont (harmo.add(5)). ' +
+        'Tu tiens une structure de morceau complète.',
+      free:
+        'Tes boucles savent maintenant raconter : entrer, monter, retomber. C’est toute la différence entre une boucle qui tourne et un morceau qui avance.',
+    },
+  ],
+};
+
+export const m6chapitre4 = {
+  module: 6,
+  chapter: 'La matière d’un track',
+  title: 'La matière d’un track',
+  subtitle: 'Charger, hacher, réordonner, épaissir le son',
+  flashs: [
+    {
+      id: '6.16',
+      kicker: 'Apporter tes sons',
+      title: 'samples() : charger un kit',
+      concept:
+        "Jusqu'ici tu jouais les sons intégrés. Pour un vrai projet, tu apportes TES sons : " +
+        "samples() charge une banque depuis le net (ou ton dossier). Une fois chargée, tu " +
+        "joues ses noms comme d'habitude. Attention : 1er jeu = téléchargement, possible silence.",
+      code:
+        'samples("github:tidalcycles/dirt-samples")\n' +
+        's("jazz:0 jazz:1 jazz:2 jazz:3").gain(.8)',
+      decode: [
+        ['samples("github:…")', 'charge une banque de sons (ici la collection « dirt »).'],
+        ['s("jazz:0 …")', 'on joue ses samples, « : » choisit le numéro (M2).'],
+        ['(rappel §8)', 'muet au tout premier jeu possible — rejoue une fois.'],
+      ],
+      theory: {
+        title: 'Charger tes propres sons',
+        items: [
+          ['depuis le net', 'samples("github:utilisateur/dépôt").'],
+          ['depuis ton disque', 'bouton « import sounds folder » du REPL.'],
+          ['une URL', 'héberge ta banque en ligne et charge-la par lien.'],
+        ],
+      },
+      exercise:
+        'Charge une autre banque (samples("github:tidalcycles/dirt-samples")) et explore : ' +
+        'tape un nom dans l’onglet « sounds » du REPL pour voir tout ce qui est dispo.',
+    },
+
+    {
+      id: '6.17',
+      kicker: 'Découper une boucle',
+      title: 'chop : trancher un break',
+      concept:
+        "Le geste fondateur de la musique électronique : prendre une boucle de batterie et " +
+        "la HACHER. chop(n) coupe le sample en n tranches jouées dans l'ordre. Ça ne s'entend " +
+        "pas encore — mais chaque tranche devient manipulable séparément.",
+      code:
+        'samples("github:yaxu/clean-breaks")\n' +
+        's("amen/4").fit().chop(16).cut(1)',
+      decode: [
+        ['s("amen/4")', 'le célèbre « Amen break », étalé sur 4 cycles.'],
+        ['.fit()', 'cale le sample sur la durée des cycles.'],
+        ['.chop(16).cut(1)', 'le coupe en 16 tranches ; cut(1) évite qu’elles se chevauchent.'],
+      ],
+      exercise:
+        'Manipule les tranches : ajoute .rev() (le break à l’envers) ou ' +
+        '.sometimesBy(.3, ply("2")) (M5) pour des doublements aléatoires.',
+    },
+
+    {
+      id: '6.18',
+      kicker: 'Remixer',
+      title: 'slice / splice : réordonner les tranches',
+      concept:
+        "chop joue les tranches dans l'ordre. slice te laisse CHOISIR l'ordre : tu remixes " +
+        "le break toi-même. splice fait pareil, mais cale la vitesse de chaque tranche sur sa " +
+        "durée (pratique quand tu changes le tempo). C'est le sampling créatif en deux lignes.",
+      code:
+        'samples("github:yaxu/clean-breaks")\n' +
+        's("amen/4").fit().slice(8, "<0 2 1 3 4 6 5 7>").cut(1)',
+      decode: [
+        ['.slice(8, "<…>")', 'découpe en 8, et TOI tu donnes l’ordre des tranches.'],
+        ['"<0 2 1 3 …>"', 'un nouvel agencement : le break est remixé.'],
+        ['splice', 'comme slice, mais la vitesse s’adapte à la durée (suit le tempo).'],
+      ],
+      exercise:
+        'Invente ton ordre : "<0 0 4 4 2 6 [5 7]>". Chaque suite donne un autre groove. ' +
+        'Tu viens de devenir beatmaker.',
+    },
+
+    {
+      id: '6.19',
+      kicker: 'Donner du corps',
+      title: 'layer : épaissir un son',
+      concept:
+        "Un son seul peut sonner maigre. Pour l'épaissir, on superpose des VOIX d'un même " +
+        "motif. layer(x=>…, x=>…) joue plusieurs versions transformées ensemble. Plus court " +
+        "encore : empile des sons d'un coup avec une virgule dans le s().",
+      code:
+        'note("<c2 ab1 f1 g1>").layer(\n' +
+        '  x => x.s("sawtooth"),\n' +
+        '  x => x.s("square").add(note(12)).gain(.5)\n' +
+        ')',
+      decode: [
+        ['layer(x=>…, x=>…)', 'deux voix du même motif : une sciée, une carrée à l’octave.'],
+        ['s("sawtooth, square")', 'plus court : empiler deux sons en une virgule.'],
+        ['"square:0:.5"', 'syntaxe nom:sample:gain pour doser chaque voix.'],
+      ],
+      exercise:
+        'Ajoute une 3e voix dans layer : x => x.add(note(7)).gain(.3) (une quinte, M2). ' +
+        'Trois voix légèrement différentes = un son riche et vivant.',
+    },
+
+    {
+      id: '6.20',
+      kicker: 'Sculpter le temps de chaque son',
+      title: 'Durées & transitions',
+      concept:
+        "La durée des sons fait le caractère : court et sec, ou long et tenu. clip étire/" +
+        "raccourcit chaque note (M3 palm mute) ; release ajoute un fondu de sortie ; end coupe " +
+        "un sample. Patterné, ça crée des respirations et des transitions vivantes.",
+      code:
+        'note("c eb g c4").clip("<.3 .6 1 2>")\n' +
+        '.s("gm_electric_guitar_clean").room(.3)',
+      decode: [
+        ['.clip("<.3 .6 1 2>")', 'la durée change à chaque cycle : staccato → tenu (M3).'],
+        ['.release(.2)', 'un fondu de sortie qui adoucit chaque note.'],
+        ['.end(.5) (samples)', 'ne garder que la 1re moitié du sample (coupe sèche).'],
+      ],
+      recap: {
+        title: 'Récap chapitre 4 — La matière',
+        columns: ['Geste', 'Code', 'Effet'],
+        rows: [
+          ['Charger', 'samples("…")', 'une banque de sons à toi'],
+          ['Hacher', 'chop(n)', 'tranches jouées dans l’ordre'],
+          ['Réordonner', 'slice / splice', 'remixer un break'],
+          ['Épaissir', 'layer / "a, b"', 'plusieurs voix d’un motif'],
+          ['Durée', 'clip / release / end', 'sculpter attaque & queue'],
+        ],
+      },
+      exercise:
+        'Reprends ton break du flash 6.18 et donne-lui un .release("<0 .3>") par cycle. ' +
+        'Un cycle net, un cycle qui traîne : déjà une intention.',
+      free:
+        'Charger, hacher, réordonner, épaissir, sculpter : tu travailles le son comme une matière. C’est le métier de producteur, tenu en quelques fonctions.',
+    },
+  ],
+};
+
+export const m6chapitre5 = {
+  module: 6,
+  chapter: 'Finir, jouer, partager',
+  title: 'Finir, jouer, partager',
+  subtitle: 'Mixer, performer en live, exporter — et le projet final',
+  flashs: [
+    {
+      id: '6.21',
+      kicker: 'Équilibrer les couches',
+      title: 'Mixer : gain, pan, orbit',
+      concept:
+        "Toutes tes pistes sonnent — mais ensemble, c'est la bouillie ? Le mix les met en " +
+        "place : gain règle le volume de chacune, pan les place à gauche/droite, orbit donne " +
+        "à une piste sa PROPRE réverb pour qu'elle ne pollue pas les autres (rappel M4/§8).",
+      code:
+        '$: s("bd*4").gain(.9)\n' +
+        '$: s("hh*8").gain(.5).pan(sine.range(.3,.7))\n' +
+        '$: note("c2 g2").s("sawtooth").gain(.7).orbit(2).room(.4)',
+      decode: [
+        ['gain par piste', 'doser chaque couche : la base du mixage.'],
+        ['.pan(sine.range(…))', 'un placement stéréo qui bouge doucement (M5 signal).'],
+        ['.orbit(2)', 'un bus de réverb séparé : la basse ne « bave » pas sur la batterie.'],
+      ],
+      theory: {
+        title: 'Le mot juste',
+        items: [
+          ['mixer', 'équilibrer volumes, espace et stéréo des pistes.'],
+          ['orbit', 'un canal d’effets globaux indépendant (réverb/délai).'],
+          ['(rappel §8)', 'réverb/délai sont partagés par orbit : sépare pour contrôler.'],
+        ],
+      },
+      exercise:
+        'Pose un orbit par famille : batterie en orbit 1, mélodies en orbit 2. ' +
+        'Des espaces distincts = un mix qui respire.',
+    },
+
+    {
+      id: '6.22',
+      kicker: 'Le live set',
+      title: 'Jouer en direct',
+      concept:
+        "Le live coding, c'est JOUER devant l'écran. Le secret : prépare un patch avec des " +
+        "pistes déjà mutées (_), puis enlève les _ une à une pour monter le morceau. Chaque " +
+        "Ctrl+Enter applique tes changements à chaud, sans couper le son. Tes deux mains : _ et all().",
+      code:
+        'setcpm(120/4)\n' +
+        'drums$: s("bd*4, ~ cp").bank("RolandTR909")\n' +
+        '_bass$: note("c2 ~ g2 ~").s("gm_acoustic_bass")\n' +
+        '_lead$: n("0 2 4 7").scale("C:minor").s("sawtooth").gain(.4)',
+      decode: [
+        ['des pistes en _ au départ', 'le set est « armé » : tout est prêt, muet.'],
+        ['enlève _bass$:, puis _lead$:', 'tu fais entrer les couches en direct.'],
+        ['Ctrl+Enter', 'applique chaque modif à chaud, sans interrompre le groove.'],
+      ],
+      theory: {
+        title: 'Tes gestes de live',
+        items: [
+          ['_piste$:', 'l’interrupteur : entrer/sortir une couche.'],
+          ['all(f)', 'une transition globale (filtre, volume) d’un geste.'],
+          ['Ctrl + . (panic)', 'le filet de sécurité : tout arrêter net.'],
+        ],
+      },
+      exercise:
+        'Joue ton set : lance, attends 4 cycles, enlève _bass$:, attends, enlève _lead$:, ' +
+        'puis all(x=>x.lpf(400)) pour un break. Tu performes.',
+    },
+
+    {
+      id: '6.23',
+      kicker: 'Garder & diffuser',
+      title: 'Exporter & partager ton morceau',
+      concept:
+        "Tu tiens un morceau qui te plaît ? Garde-le. L'onglet « export » du REPL le rend en " +
+        "fichier audio téléchargeable. Tu peux aussi capturer le son dans un DAW, ou router le " +
+        "tout en MIDI (M5). Et l'URL du REPL encode TOUT ton patch : un simple lien le partage.",
+      code:
+        '// @title Mon premier morceau\n' +
+        '// @by Felix\n' +
+        'setcpm(120/4)\n' +
+        '$: s("bd*4, ~ cp").bank("RolandTR909")\n' +
+        '$: note("c2 eb2 g2 c3").s("sawtooth").gain(.6).room(.3)',
+      decode: [
+        ['onglet « export »', 'rend ton morceau en fichier audio à télécharger.'],
+        ['// @title / // @by', 'des métadonnées : ta signature, dans le code.'],
+        ['l’URL du REPL', 'elle contient tout le patch — copie-la pour partager.'],
+      ],
+      theory: {
+        title: 'Sortir le son de Strudel',
+        items: [
+          ['export', 'onglet du REPL → fichier audio (le plus simple).'],
+          ['OBS / DAW', 'capturer l’audio (et la vidéo de l’écran) en externe.'],
+          ['MIDI / OSC (M5)', 'router vers un DAW ou un synthé matériel.'],
+        ],
+      },
+      exercise:
+        'Mets ton nom dans // @by, donne un // @title, puis copie l’URL du REPL : ' +
+        'voilà ton morceau, signé et partageable.',
+    },
+
+    {
+      id: '6.24',
+      kicker: 'Sans réseau',
+      title: 'Jouer hors-ligne : la PWA',
+      concept:
+        "Live coder ne doit pas dépendre du wifi de la salle. Strudel est une PWA : tu peux " +
+        "l'INSTALLER comme une appli, et il tourne hors-ligne. Les sons déjà chargés restent " +
+        "en cache. Keymaker aussi est une PWA — installe-la, elle marche sans réseau.",
+      code:
+        'setcpm(110/4)\n' +
+        '$: s("bd*4, ~ cp").bank("RolandTR808")\n' +
+        '$: note("c2 g2 eb2 g2").s("sawtooth").lpf(800).gain(.6)',
+      decode: [
+        ['PWA', 'une appli web installable, qui marche hors connexion.'],
+        ['sons en cache', 'une fois chargés, tes samples restent dispo (rappel §8).'],
+        ['Keymaker = PWA', 'cette app aussi : installe-la, joue partout.'],
+      ],
+      exercise:
+        'Charge tes sons une fois en ligne, coupe le réseau, relance : ça joue toujours. ' +
+        'Ton studio tient dans un onglet, même sans wifi.',
+    },
+
+    {
+      id: '6.25',
+      kicker: 'Le projet final',
+      title: 'Tout Keymaker, un morceau complet',
+      concept:
+        "Le bout du parcours. Un morceau STRUCTURÉ qui réunit les six modules : voix définies " +
+        "en const (M6), montées en stack nommé, une mutée pour le live, et all() qui ferme le " +
+        "filtre en transition. Batterie M1, gamme + accords M2, basse M3, filtre/réverb M4, " +
+        "écho génératif M5. Tu n'apprends plus : tu composes.",
+      code:
+        'setcpm(120/4)\n' +
+        'const drums = s("bd*4, [~ cp]*2, hh*8?").bank("RolandTR909").degradeBy(.08)\n' +
+        'const bass  = note("<c2 ab1 f1 g1>(3,8)").s("gm_acoustic_bass").gain(.7)\n' +
+        'const keys  = chord("<Cm7 Ab^7 Fm7 G7>").voicing().s("triangle").gain(.4).room(.4)\n' +
+        'const lead  = n("0 2 3 5 7").scale("C:minor").s("sawtooth")\n' +
+        '  .off(1/8, x=>x.add(12)).lpf(sine.range(600,2200).slow(8)).gain(.4)\n' +
+        'drums$: drums\n' +
+        'bass$:  bass\n' +
+        'keys$:  keys\n' +
+        '_lead$: lead\n' +
+        'all(x => x.when("<0!7 1>", y=>y.lpf(500)))',
+      decode: [
+        ['4 const + stack nommé', 'M6 : chaque voix définie une fois, le morceau lisible.'],
+        ['_lead$: + all(when…)', 'M6 : le lead est armé (mute), et all ferme le filtre 1 cycle sur 8.'],
+        ['tout Keymaker', 'batterie M1, gamme+accords M2, basse M3, filtre/réverb M4, off M5.'],
+      ],
+      recap: {
+        title: 'Récap chapitre 5 — Finir & jouer',
+        columns: ['Étape', 'Code', 'Sert à'],
+        rows: [
+          ['Mixer', 'gain / pan / orbit', 'équilibrer les couches'],
+          ['Jouer', '_$: / all(f)', 'monter le morceau en live'],
+          ['Exporter', 'onglet « export »', 'un fichier audio'],
+          ['Partager', 'URL / // @by', 'diffuser ton morceau'],
+          ['Hors-ligne', 'PWA', 'jouer sans réseau'],
+        ],
+      },
+      exercise:
+        'Approprie-toi le final : enlève le _ du lead, change la grille (<Cm7 Fm7 …>), ' +
+        'la gamme (C:dorian), ajoute une section avec arrange. Ce morceau est à toi.',
+      free:
+        "Tu as bouclé Keymaker : six modules, du premier « bd » au morceau complet. Tu sais " +
+        "empiler, nommer, réutiliser, arranger, sculpter, mixer, jouer en live et partager. " +
+        "Strudel n'est plus un mystère — c'est ton studio, et tu en as les clés (Keymaker !). " +
+        "Le plus beau commence maintenant : faire TA musique. Reviens piocher dans les modules " +
+        "quand tu veux, et appelle Sati si tu bloques. Bravo, Felix.",
+    },
+  ],
+};
+
+/* Le Module 6 entier : la carte de ses 5 chapitres. */
+export const module6 = {
+  id: 6,
+  titre: 'Module 6 — Composition & Projets',
+  title: 'Module 6',
+  subtitle: 'D’une boucle à un morceau : construire, arranger, jouer, partager',
+  chapitres: [m6chapitre1, m6chapitre2, m6chapitre3, m6chapitre4, m6chapitre5],
+};
+
 /* Tous les modules de Keymaker, dans l'ordre du parcours. */
-export const modules = [module1, module2, module3, module4, module5];
+export const modules = [module1, module2, module3, module4, module5, module6];
 
 // Rétro-compatibilité : certains imports historiques pointaient sur flash11.
 export const flash11 = chapitre1.flashs[0];
