@@ -271,7 +271,7 @@ n(irand(8)).scale("C:minor")
 
 ---
 
-## §9 — Fonctions utilisées dans Keymaker (M1→M3)
+## §9 — Fonctions utilisées dans Keymaker (M1→M4)
 
 | Fonction | Rôle | Où, dans Keymaker |
 |---|---|---|
@@ -290,6 +290,8 @@ n(irand(8)).scale("C:minor")
 
 ---
 
+> **Module 4 « Son & Effets » (Chantier 10) ajoute**, tous re-vérifiés §6/§7 en direct : filtres `lpf`/`lpq`/`hpf`/`bpf` · enveloppe d'ampli `attack`/`decay`/`sustain`/`release`/`adsr` · enveloppe de filtre `lpenv`/`lpa`/`lpd`/`lps` · saturation `distort`/`crush`/`coarse` · modulation `phaser`/`vib` · espace `room`/`roomsize`/`rlp`/`delay`/`delaytime`/`delayfeedback`/`orbit` · stéréo `pan`/`jux` · LFO `sine.range().segment()` · ondes `sine`/`triangle`/`square`/`sawtooth` & bruit `white`/`pink`/`brown`.
+
 ## §10 — Pages officielles (pour aller plus loin)
 
 Base : `https://strudel.cc/learn/`
@@ -298,4 +300,4 @@ REPL : `https://strudel.cc/` (onglet **sounds** = liste réelle des sons, dont t
 
 ---
 
-*Distillé depuis strudel.cc le 5 juin 2026 (Astro v5, doc à jour). À relire/compléter quand on attaque les Modules 4-6 (audio & effets · informatique musicale · composition).*
+*Distillé depuis strudel.cc le 5 juin 2026 (Astro v5). **Complété au Chantier 10 (6 juin 2026)** : Module 4 « Son & Effets » livré — §6/§7 (effets, ADSR, filtres, LFO, bruit) re-vérifiés en direct sur strudel.cc/learn/effects + /synths. À compléter pour les Modules 5-6 (informatique musicale · composition).*

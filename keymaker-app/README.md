@@ -1,7 +1,7 @@
 # ꩜ Keymaker — l'app d'apprentissage Strudel CC + solfège
 
 PWA en français pour apprendre **le live coding (Strudel CC)** et **le solfège** en même temps.
-État actuel : **3 modules complets et jouables**, **76 flashs**, un guide IA (**Sati**) et un écran **Réglages**. Tout tourne 100 % en local ; Sati se branche sur ton Pi.
+État actuel : **4 modules complets et jouables**, **101 flashs**, un guide IA (**Sati**) et un écran **Réglages**. Tout tourne 100 % en local ; Sati se branche sur ton Pi.
 
 ---
 
@@ -23,7 +23,7 @@ Une fenêtre noire s'ouvre (le serveur local) et ton navigateur ouvre l'app tout
 
 - **Précédent / Suivant** parcourent les flashs et **traversent les chapitres**.
 - Indicateur **Ch.N · n/m** + points du chapitre courant.
-- **☰ Parcours** ouvre la carte : sélecteur **Module 1 / 2 / 3**, chapitres repliables, clic pour aller à n'importe quel flash. Circulation **libre**.
+- **☰ Parcours** ouvre la carte : sélecteur **Module 1 / 2 / 3 / 4**, chapitres repliables, clic pour aller à n'importe quel flash. Circulation **libre**.
 - À la fin d'un module : bouton **« Module suivant ▶ »**.
 
 ---
@@ -41,6 +41,10 @@ Le solfège **entendu dans Strudel** (chaque concept est audible), avec un pont 
 **Module 3 — Connexion Guitare** (25 flashs, 5 chapitres)
 1. Le manche & l'accordage · 2. Lire le manche · 3. Les accords ouverts · 4. Power chords & barrés · 5. Le jeu.
 Relie la théorie (Modules 1-2) à ta guitare : le manche, les positions, les accords, le jeu.
+
+**Module 4 — Son & Effets** (25 flashs, 5 chapitres)
+1. La source (ondes & bruit) · 2. Le filtre · 3. L'enveloppe (ADSR) · 4. L'espace (réverb & délai) · 5. La couleur & le mix.
+Le son lui-même : fabriquer un timbre depuis l'onde brute, le filtrer, lui donner une forme (ADSR), un espace et de la couleur — chaque effet **audible**, ponts permanents vers M1/M2/M3.
 
 Chaque flash suit le même moule : **Concept → éditeur Strudel → Décodage → Théorie (solfège) → Exercice**, avec une **table récap** en fin de chapitre et un **exercice libre** en clôture.
 
@@ -96,7 +100,7 @@ keymaker-app/
 │  ├─ SatiChat.jsx · sati.js   ← guide IA : tiroir de chat + client SSE du Pi
 │  ├─ Settings.jsx      ← écran Réglages
 │  ├─ memory.js         ← mémoire locale de Sati (IndexedDB)
-│  ├─ lessons.js        ← contenu : modules = [module1, module2, module3], 76 flashs
+│  ├─ lessons.js        ← contenu : modules = [module1, module2, module3, module4], 101 flashs
 │  └─ styles.css        ← thème Void + cartes + nav + table récap + overlays
 ├─ public/
 │  ├─ icons/            ← icônes PWA
@@ -106,4 +110,4 @@ keymaker-app/
 
 ---
 
-*Keymaker — Modules 1 à 3 complets (76 flashs) + Sati + Réglages (thèmes Void / Light). Strudel v1.3.0. Mis à jour le 5 juin 2026 (Module 3 « Connexion Guitare » + thème clair).*
+*Keymaker — Modules 1 à 4 complets (101 flashs) + Sati + Réglages (thèmes Void / Light). Strudel v1.3.0. Mis à jour le 6 juin 2026 (Module 4 « Son & Effets »).*

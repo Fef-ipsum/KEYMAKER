@@ -2293,8 +2293,766 @@ export const module3 = {
   chapitres: [m3chapitre1, m3chapitre2, m3chapitre3, m3chapitre4, m3chapitre5],
 };
 
+export const m4chapitre1 = {
+  module: 4,
+  chapter: 'La source',
+  title: 'La source',
+  subtitle: 'Les ondes & le timbre',
+  flashs: [
+    {
+      id: '4.1',
+      kicker: 'Le plan du son',
+      title: 'Du son brut au son fini',
+      concept:
+        "Tout son suit une chaîne : une SOURCE (l'onde de départ) puis un FILTRE (on sculpte le timbre), " +
+        "une ENVELOPPE (la forme dans le temps) et des EFFETS (l'espace, la couleur). " +
+        "Ce module suit cette chaîne, une étape par chapitre.",
+      code: 'note("c3 e3 g3 c4").s("sawtooth")',
+      decode: [
+        ['note("c3 e3 g3 c4")', 'quatre hauteurs (M1/M2).'],
+        ['.s("sawtooth")', "la source : une onde « dent de scie », brute et riche."],
+        ['le son nu', "ici aucun filtre, aucun effet — on part du brut."],
+      ],
+      exercise:
+        'Remplace sawtooth par triangle puis relance. Même mélodie, timbre plus doux : ' +
+        'tu viens de changer la SOURCE.',
+    },
+
+    {
+      id: '4.2',
+      kicker: 'Les quatre ondes',
+      title: 'Les quatre ondes de base',
+      concept:
+        "Le synthé de Strudel a quatre ondes, de la plus douce à la plus mordante : " +
+        "sine (pure), triangle (douce), square (creuse) et sawtooth (riche).",
+      code: 'note("c3 c3 c3 c3").s("sine triangle square sawtooth")',
+      decode: [
+        ['sine', 'onde pure, ronde — une flûte, un sifflet.'],
+        ['triangle', "douce, un peu plus présente (le son par défaut)."],
+        ['square', 'creuse, « nasillarde » — la 8-bit, la clarinette.'],
+        ['sawtooth', 'la plus riche — cordes, cuivres, basses de synthé.'],
+      ],
+      theory: {
+        title: 'Le mot juste',
+        items: [
+          ['timbre', "le « caractère » d'un son : ce qui distingue deux sons de même hauteur."],
+          ['onde', 'la forme du son ; chaque forme a son timbre.'],
+          ['défaut', 'une note sans .s(...) sonne en triangle.'],
+        ],
+      },
+      exercise:
+        'Garde une seule onde et joue une vraie mélodie : ' +
+        'note("c3 e3 g3 e3").s("square"). Essaie les quatre, choisis ta préférée.',
+    },
+
+    {
+      id: '4.3',
+      kicker: 'Le grain',
+      title: 'Pourquoi les ondes sonnent différemment',
+      concept:
+        "La différence entre les ondes, ce sont les HARMONIQUES. La sine n'a qu'une seule fréquence " +
+        "(pure). La sawtooth empile une foule d'harmoniques (riche). Plus il y a d'harmoniques, " +
+        "plus on aura de matière à sculpter au filtre.",
+      code: 'note("c2").s("<sine sawtooth>").release(.5)',
+      decode: [
+        ['<sine sawtooth>', 'un cycle sine, un cycle sawtooth — compare-les.'],
+        ['sine', 'une seule fréquence → rien à filtrer, son « lisse ».'],
+        ['sawtooth', 'la fondamentale + tous ses harmoniques → du grain.'],
+      ],
+      theory: {
+        title: 'Côté théorie (pont M2)',
+        items: [
+          ['harmonique', "une fréquence multiple de la fondamentale (×2, ×3…)."],
+          ["×2 = l'octave", "le 1er harmonique, c'est l'octave au-dessus (M2)."],
+          ['×3 ≈ la quinte', 'un son riche contient déjà les intervalles du M2.'],
+        ],
+      },
+      exercise:
+        'Écoute sine puis sawtooth sur la même note. Lequel a « plus de grain » ? ' +
+        "C'est lui qu'on filtrera au chapitre suivant.",
+    },
+
+    {
+      id: '4.4',
+      kicker: 'Le bruit',
+      title: 'Le bruit : une source sans hauteur',
+      concept:
+        "Toutes les sources n'ont pas de note. Le BRUIT, c'est toutes les fréquences à la fois : " +
+        "white (dur), pink (médium), brown (doux). C'est la matière des cymbales, du souffle, de l'air.",
+      code: 's("<white pink brown>*8").decay(.04).sustain(0).gain(.4)',
+      decode: [
+        ['white / pink / brown', 'trois « couleurs » de bruit, du plus dur au plus doux.'],
+        ['*8', 'huit fois par cycle → un charley.'],
+        ['.decay(.04).sustain(0)', 'chaque coup retombe vite (percussion).'],
+      ],
+      theory: {
+        title: 'Le mot juste',
+        items: [
+          ['bruit', 'pas de hauteur définie : toutes les fréquences mélangées.'],
+          ['usage', 'charleston, cymbales, souffle, vent, transitions.'],
+          ['pont M1', "le « hh » de la batterie, c'est souvent du bruit filtré."],
+        ],
+      },
+      exercise:
+        'Mets le bruit sur un kick : s("bd*2, white*8").decay(.04).sustain(0). ' +
+        'Un mini-groove batterie 100 % synthétique.',
+    },
+
+    {
+      id: '4.5',
+      kicker: 'On assemble',
+      title: 'Mélanger les sources',
+      concept:
+        "On empile plusieurs sources avec $: (M1). Voici un kit entièrement synthétique : " +
+        "un kick (sine grave), un charley (bruit), une basse (sawtooth filtrée). Aucun sample.",
+      code:
+        'setcpm(120/4)\n' +
+        '$: note("c1*2").s("sine").decay(.18).sustain(0).gain(.9)\n' +
+        '$: s("white*8").decay(.03).sustain(0).gain(.35)\n' +
+        '$: note("c2 eb2 g2 c2").s("sawtooth").lpf(800).gain(.5)',
+      decode: [
+        ['note("c1*2").s("sine")', 'le kick : une sine très grave, qui retombe vite.'],
+        ['s("white*8")', 'le charley : du bruit court.'],
+        ['.s("sawtooth").lpf(800)', 'la basse : une onde riche, un peu filtrée.'],
+      ],
+      recap: {
+        title: 'Récap chapitre 1 — La source',
+        columns: ['Source', 'Timbre', 'Strudel'],
+        rows: [
+          ['sine', 'pure, ronde', '.s("sine")'],
+          ['triangle', 'douce (défaut)', '.s("triangle")'],
+          ['square', 'creuse, 8-bit', '.s("square")'],
+          ['sawtooth', 'riche, mordante', '.s("sawtooth")'],
+          ['bruit', 'sans hauteur', '.s("white"/"pink"/"brown")'],
+        ],
+      },
+      exercise:
+        "Fais ton propre kit : change l'onde de la basse, la couleur du bruit, " +
+        'la note du kick. Trois sources, ton son.',
+      free:
+        "Tu tiens la SOURCE : les quatre ondes, le bruit, et l'idée d'harmoniques. " +
+        "C'est le point de départ de tout son de synthé. Au chapitre suivant, on sort le ciseau : " +
+        "le filtre, pour sculpter ce son brut.",
+    },
+  ],
+};
+
+export const m4chapitre2 = {
+  module: 4,
+  chapter: 'Le filtre',
+  title: 'Le filtre',
+  subtitle: 'Sculpter le timbre',
+  flashs: [
+    {
+      id: '4.6',
+      kicker: 'Le passe-bas',
+      title: 'Le passe-bas : adoucir le son',
+      concept:
+        "Le filtre passe-bas (lpf) laisse passer les graves et coupe les aigus → il feutre, adoucit. " +
+        "La fréquence de coupure décide où ça coupe : basse = sourd, haute = brillant.",
+      code: 'note("c2 e2 g2 c3").s("sawtooth").lpf("<400 800 2000 8000>")',
+      decode: [
+        ['.lpf(...)', "le passe-bas : coupe au-dessus de la fréquence donnée."],
+        ['"<400 … 8000>"', "la coupure monte à chaque cycle → le son s'ouvre."],
+        ['cutoff', 'autre nom du même réglage (alias cutoff, ctf).'],
+      ],
+      theory: {
+        title: 'Synthèse soustractive',
+        items: [
+          ["l'idée", "partir d'un son riche (saw) et ENLEVER ce qu'on ne veut pas."],
+          ['passe-bas', "le filtre le plus courant : garde le corps, ôte la brillance."],
+          ['en hertz', 'la coupure va de ~20 à 20000 Hz.'],
+        ],
+      },
+      exercise:
+        'Descends à lpf(200) (très sourd), puis monte à lpf(6000) (brillant). Trouve « ta » zone.',
+    },
+
+    {
+      id: '4.7',
+      kicker: 'La résonance',
+      title: 'La résonance : faire chanter le filtre',
+      concept:
+        "La résonance (lpq) gonfle le son juste autour de la coupure → le filtre se met à « chanter », " +
+        "à siffler. C'est le son acid, le « waow ». Trop haut, ça crie : garde un gain raisonnable.",
+      code: 'note("c2 e2 g2 c3").s("sawtooth").lpf(600).lpq("<0 10 20 30>").gain(.5)',
+      decode: [
+        ['lpf(600)', 'coupure fixe, plutôt basse.'],
+        ['lpq("<0 … 30>")', 'la résonance monte → le filtre résonne de plus en plus.'],
+        ['lpq', 'alias resonance.'],
+      ],
+      theory: {
+        title: 'Le mot juste',
+        items: [
+          ['résonance', 'une bosse de volume pile à la coupure.'],
+          ['son acid', 'filtre résonant qui balaye = la signature de la TB-303.'],
+          ['prudence', 'résonance haute + balayage = ça peut crier. Baisse le gain.'],
+        ],
+      },
+      exercise:
+        'Pousse lpq(25) et balaye lpf("<300 600 1200 2400>"). Entends le filtre « parler ».',
+    },
+
+    {
+      id: '4.8',
+      kicker: 'Passe-haut & bande',
+      title: 'Passe-haut & passe-bande',
+      concept:
+        "Le passe-haut (hpf) fait l'inverse du passe-bas : il coupe les graves et garde l'aigu " +
+        "(son fin, « radio »). Le passe-bande (bpf) ne garde qu'une tranche au milieu.",
+      code: 'note("c2 e2 g2 c3").s("sawtooth").hpf("<200 1000 3000>")',
+      decode: [
+        ['.hpf(...)', 'le passe-haut : coupe en-dessous de la fréquence.'],
+        ['grave coupé', 'plus la valeur monte, plus le son devient fin.'],
+        ['bpf', "le passe-bande : ne garde qu'une bande (à tester en exercice)."],
+      ],
+      theory: {
+        title: 'Les trois filtres',
+        items: [
+          ['lpf', 'garde le grave (le plus courant).'],
+          ['hpf', "garde l'aigu (alléger, « téléphoner »)."],
+          ['bpf', 'garde une bande (+ bpq pour la largeur).'],
+        ],
+      },
+      exercise:
+        'Remplace hpf("<…>") par bpf(1200).bpq(8) : on ne garde plus qu\'une fine bande au milieu.',
+    },
+
+    {
+      id: '4.9',
+      kicker: 'Le balayage',
+      title: 'Le filtre qui bouge (LFO)',
+      concept:
+        "Au lieu d'une coupure fixe, on la fait BOUGER avec un signal (sine, saw…) → le balayage " +
+        "« wah » automatique. Piège : un signal n'est lu qu'au déclenchement d'une note. Pour un " +
+        "balayage fluide, multiplie les notes ou ajoute .segment(n).",
+      code: 'note("c2").s("sawtooth").segment(16).lpf(sine.range(300,3000).slow(2)).lpq(8).gain(.5)',
+      decode: [
+        ['sine.range(300,3000)', 'le cutoff oscille entre 300 et 3000 Hz.'],
+        ['.slow(2)', 'un aller-retour toutes les 2 mesures (lent).'],
+        ['.segment(16)', '16 paliers par cycle → sinon le filtre resterait figé.'],
+      ],
+      theory: {
+        title: 'Le piège du signal figé',
+        items: [
+          ['signal', 'sine / saw / tri / rand : une valeur qui varie en continu.'],
+          ['.range(min,max)', 'cale le signal entre deux valeurs.'],
+          ['.segment(n)', "force n lectures par cycle → le balayage s'entend."],
+        ],
+      },
+      exercise:
+        'Change sine en saw (montée qui retombe d\'un coup), ou ralentis avec .slow(4).',
+    },
+
+    {
+      id: '4.10',
+      kicker: 'On assemble',
+      title: 'Filtrer un groove entier',
+      concept:
+        "Un filtre sur tout un morceau change l'ambiance : une intro filtrée qui s'ouvre lentement, " +
+        "c'est la montée classique. Ici la basse s'ouvre sur 8 mesures.",
+      code:
+        'setcpm(120/4)\n' +
+        '$: s("bd*4, hh*8").gain(.6)\n' +
+        '$: note("c2 eb2 g2 c2").s("sawtooth").lpf(sine.range(400,4000).slow(8)).lpq(6).gain(.5)',
+      decode: [
+        ['lpf(sine.range(400,4000))', 'la coupure balaye du sourd au brillant.'],
+        ['.slow(8)', 'sur 8 mesures → une longue ouverture.'],
+        ['les 4 notes/mesure', 'suffisent à échantillonner ce balayage lent.'],
+      ],
+      recap: {
+        title: 'Récap chapitre 2 — Le filtre',
+        columns: ['Filtre', 'Effet', 'Strudel'],
+        rows: [
+          ['Passe-bas', "coupe l'aigu", '.lpf(800)'],
+          ['Résonance', 'fait chanter', '.lpq(20)'],
+          ['Passe-haut', 'coupe le grave', '.hpf(1500)'],
+          ['Passe-bande', 'garde une bande', '.bpf(1200).bpq(8)'],
+          ['Balayage', 'cutoff qui bouge', '.lpf(sine.range(300,3000)).segment(16)'],
+        ],
+      },
+      exercise:
+        "Monte ton intro : pars de lpf(300), ouvre jusqu'à 5000, ajoute lpq(8) pour le « waow ».",
+      free:
+        "Tu tiens le FILTRE : passe-bas, résonance, passe-haut/bande et le balayage automatique. " +
+        "Avec la source du ch.1, tu crées déjà des timbres infinis. Au ch.3 : l'ENVELOPPE, " +
+        "la forme du son dans le temps.",
+    },
+  ],
+};
+
+export const m4chapitre3 = {
+  module: 4,
+  chapter: "L'enveloppe",
+  title: "L'enveloppe",
+  subtitle: 'La forme du son dans le temps',
+  flashs: [
+    {
+      id: '4.11',
+      kicker: 'ADSR',
+      title: "L'enveloppe : la forme du son",
+      concept:
+        "Une note n'apparaît pas d'un bloc : elle a une forme dans le temps, l'enveloppe ADSR. " +
+        "Attaque (le temps pour monter), Déclin (la redescente), Maintien (le niveau tenu) et " +
+        "Relâche (l'extinction après la note).",
+      code: 'note("c3 e3 g3 c4").s("sawtooth").attack(.01).decay(.2).sustain(.3).release(.3)',
+      decode: [
+        ['attack(.01)', 'montée quasi instantanée.'],
+        ['decay(.2).sustain(.3)', "retombe à 30 % du volume et s'y tient."],
+        ['release(.3)', 'traîne un peu après la note.'],
+      ],
+      theory: {
+        title: 'ADSR = 4 lettres',
+        items: [
+          ['A — Attack', 'temps de montée.'],
+          ['D — Decay', 'temps de descente vers le maintien.'],
+          ['S — Sustain', 'le NIVEAU tenu (pas un temps !).'],
+          ['R — Release', 'extinction après le relâché.'],
+        ],
+      },
+      exercise:
+        'Change une seule lettre à la fois pour sentir son rôle. Commence par attack(.5).',
+    },
+
+    {
+      id: '4.12',
+      kicker: 'Attaque & relâche',
+      title: 'Nappe ou pulsation',
+      concept:
+        "L'attaque change tout. Lente = une nappe qui gonfle (pad). Nette = une frappe immédiate. " +
+        "La relâche, c'est la traîne quand la note s'arrête.",
+      code: 'note("<c3 e3 g3>").s("sawtooth").attack("<.5 .01>").release(.6).lpf(1500)',
+      decode: [
+        ['attack("<.5 .01>")', 'un cycle gonfle lentement, le suivant frappe net.'],
+        ['release(.6)', 'la note traîne après sa fin.'],
+        ['nappe vs frappe', 'même son, deux caractères opposés.'],
+      ],
+      theory: {
+        title: 'Le mot juste',
+        items: [
+          ['pad / nappe', "attaque lente + longue relâche = son d'ambiance."],
+          ['pluck / stab', 'attaque nette = son percussif, rythmique.'],
+          ['release', 'le « lâcher » : pour lier ou détacher les notes.'],
+        ],
+      },
+      exercise:
+        'Fais une vraie nappe : attack(1).release(2) sur note("<c3 e3>"). Puis l\'inverse : attack(0).release(.1).',
+    },
+
+    {
+      id: '4.13',
+      kicker: 'Déclin & maintien',
+      title: 'Le pluck : la note qui tombe',
+      concept:
+        "Pour un son percussif (pluck, mallet, kick) : attaque rapide + maintien à zéro → la note " +
+        "tombe toute seule. Important : le déclin ne s'entend QUE si le maintien est sous 1.",
+      code: 'note("c2 e2 g2 c3").s("sawtooth").attack(.01).decay(.15).sustain(0).lpf(2000)',
+      decode: [
+        ['attack(.01)', 'frappe immédiate.'],
+        ['decay(.15).sustain(0)', 'la note retombe à zéro en 0,15 s → un pluck.'],
+        ['sustain(0)', 'sans lui, le déclin serait inaudible.'],
+      ],
+      theory: {
+        title: 'Pont M1 & M3',
+        items: [
+          ['kick / batterie', "c'est exactement cette enveloppe (M1)."],
+          ['corde pincée', 'la guitare aussi : attaque nette, ça décline (M3).'],
+          ['maintien bas', "la clé d'un son qui « plucke »."],
+        ],
+      },
+      exercise:
+        'Monte sustain(.5) : la note se tient. Puis decay(.4).sustain(0) : un pluck plus long.',
+    },
+
+    {
+      id: '4.14',
+      kicker: 'Enveloppe de filtre',
+      title: "L'enveloppe de filtre : le son qui s'ouvre",
+      concept:
+        "Le coup de génie du synthé : faire bouger le FILTRE avec une enveloppe, à chaque note. " +
+        "Le son s'ouvre puis se referme tout seul — le fameux « waow ». lpenv = la profondeur, " +
+        "lpa/lpd/lps/lpr = l'ADSR du filtre.",
+      code: 'note("c2 e2 g2 c3").s("sawtooth").lpf(400).lpenv(4).lpa(.01).lpd(.2).lps(0).lpq(6)',
+      decode: [
+        ['lpf(400)', 'la coupure de base (fermée).'],
+        ['lpenv(4)', "à l'attaque, le filtre monte de 4 crans."],
+        ['lpa(.01).lpd(.2).lps(0)', 'puis redescend en 0,2 s → le « waow ».'],
+      ],
+      theory: {
+        title: 'Deux enveloppes',
+        items: [
+          ['ampli', 'attack/decay/sustain/release → le VOLUME.'],
+          ['filtre', 'lpa/lpd/lps/lpr + lpenv → la COUPURE.'],
+          ['lpenv', 'la profondeur : 0 = rien, plus = plus spectaculaire.'],
+        ],
+      },
+      exercise:
+        'Pousse lpenv(8) (plus spectaculaire), ou allonge lpd(.6) (ouverture plus longue).',
+    },
+
+    {
+      id: '4.15',
+      kicker: 'On assemble',
+      title: 'Façonner un son de A à Z',
+      concept:
+        "Source + filtre + enveloppe d'ampli + enveloppe de filtre = un son de synthé complet, " +
+        "fait main. Voici une basse acid : une sawtooth filtrée, qui plucke et dont le filtre claque " +
+        "à chaque note.",
+      code:
+        'setcpm(120/4)\n' +
+        'note("c2 c2 eb2 c2 g1 c2 eb2 d2").s("sawtooth").lpf(300).lpenv(5).lpa(.01).lpd(.18).lps(.1).lpq(10).attack(.01).decay(.2).sustain(.2).release(.08).gain(.5)',
+      decode: [
+        ['note("c2 c2 eb2 …")', 'un motif de basse en do mineur (M2).'],
+        ['lpenv(5).lpd(.18).lpq(10)', 'le filtre claque à chaque note (le grain acid).'],
+        ['decay(.2).sustain(.2)', "l'ampli plucke légèrement."],
+      ],
+      recap: {
+        title: "Récap chapitre 3 — L'enveloppe",
+        columns: ['Réglage', 'Rôle', 'Strudel'],
+        rows: [
+          ['Attaque', 'temps de montée', '.attack(.5)'],
+          ['Déclin / Maintien', 'chute puis niveau tenu', '.decay(.2).sustain(.3)'],
+          ['Relâche', 'traîne après la note', '.release(.6)'],
+          ["Tout d'un coup", 'les 4 ensemble', '.adsr(".01:.2:.3:.3")'],
+          ['Env. de filtre', 'la coupure qui bouge', '.lpenv(4).lpa(.01).lpd(.2)'],
+        ],
+      },
+      exercise:
+        'Transforme la basse en pad : attack(.6), sustain(.6), release(1), lpenv(2). Mêmes notes, tout autre son.',
+      free:
+        "Tu tiens l'ENVELOPPE : ADSR de l'ampli ET du filtre. Avec la source (ch.1) et le filtre " +
+        "(ch.2), tu fabriques maintenant n'importe quel son de synthé, de zéro. Au ch.4, on lui donne " +
+        "de l'ESPACE : réverb et délai.",
+    },
+  ],
+};
+
+export const m4chapitre4 = {
+  module: 4,
+  chapter: "L'espace",
+  title: "L'espace",
+  subtitle: 'Réverb & délai',
+  flashs: [
+    {
+      id: '4.16',
+      kicker: 'La réverb',
+      title: 'La réverb : mettre le son dans une pièce',
+      concept:
+        "La réverbération (room) place le son dans un espace : un peu = de la présence, beaucoup = " +
+        "une cathédrale. roomsize règle la taille de la pièce.",
+      code: 'note("c3 e3 g3 c4").s("triangle").room("<0 .3 .6 .9>").release(.2)',
+      decode: [
+        ['room("<0 … .9>")', 'la quantité de réverb monte à chaque cycle.'],
+        ['0', 'son sec, collé au haut-parleur.'],
+        ['.9', 'son lointain, baigné.'],
+      ],
+      theory: {
+        title: 'Le mot juste',
+        items: [
+          ['réverb', "les milliers de reflets d'un son dans un lieu."],
+          ['room', 'la quantité (0 à 1).'],
+          ['roomsize (sz)', 'la taille de la pièce (alias size).'],
+        ],
+      },
+      exercise:
+        'Ajoute .roomsize(8) (grande salle), puis .rlp(2000) (une réverb feutrée, sombre).',
+    },
+
+    {
+      id: '4.17',
+      kicker: 'Le délai',
+      title: "Le délai : l'écho qui répète",
+      concept:
+        "Le délai (delay) répète le son comme un écho. delaytime règle l'intervalle entre les échos, " +
+        "delayfeedback combien de répétitions. Attention : un feedback ≥ 1 enfle à l'infini.",
+      code: 'note("c3 ~ e3 ~").s("triangle").delay(.5).delaytime(.25).delayfeedback(.4).release(.1)',
+      decode: [
+        ['delay(.5)', "le niveau de l'écho (0 à 1)."],
+        ['delaytime(.25)', 'le temps entre deux échos (en secondes).'],
+        ['delayfeedback(.4)', 'combien de fois ça se répète.'],
+      ],
+      theory: {
+        title: 'Le mot juste',
+        items: [
+          ['delay', "la quantité d'écho envoyée."],
+          ['delaytime (dt)', "l'écart entre les répétitions."],
+          ['delayfeedback (dfb)', 'le nombre de répétitions — reste sous 1 !'],
+        ],
+      },
+      exercise:
+        'Pousse delayfeedback(.7) (longue traîne), puis delaytime(.125) (échos serrés).',
+    },
+
+    {
+      id: '4.18',
+      kicker: 'Le délai calé',
+      title: 'Caler le délai sur le tempo',
+      concept:
+        "Pour que l'écho groove, on cale delaytime sur le tempo. À 120 BPM, un temps dure 0,5 s. " +
+        "delaytime(.375) = trois croches : c'est le délai « pointé » que les guitaristes adorent (M3).",
+      code:
+        'setcpm(120/4)\n' +
+        '$: s("bd*4").gain(.6)\n' +
+        '$: note("c4 ~ ~ ~ e4 ~ ~ ~").s("triangle").delay(.6).delaytime(.375).delayfeedback(.5).gain(.7)',
+      decode: [
+        ['setcpm(120/4)', '120 BPM en 4/4 → 1 temps = 0,5 s (M1).'],
+        ['delaytime(.375)', '= 0,5 × 0,75 → la croche pointée.'],
+        ["l'écho danse", 'il tombe pile dans les trous du rythme.'],
+      ],
+      theory: {
+        title: 'Pont M3 — le délai du guitariste',
+        items: [
+          ['croche pointée', 'le délai « dotted », signature de bien des solos.'],
+          ['la noire', 'delaytime(.5) à 120 BPM = un écho par temps.'],
+          ['calé = musical', 'un délai au hasard brouille ; calé, il groove.'],
+        ],
+      },
+      exercise:
+        'Compare delaytime(.5) (la noire, carré) et delaytime(.375) (la croche pointée, qui « roule »).',
+    },
+
+    {
+      id: '4.19',
+      kicker: 'Les orbits',
+      title: 'Les orbits : séparer les espaces',
+      concept:
+        "Piège : la réverb et le délai sont PARTAGÉS par « orbit ». Deux couches sur le même orbit " +
+        "qui règlent room différemment → résultat imprévisible. La parade : .orbit(2) donne une " +
+        "chaîne d'effets séparée.",
+      code:
+        'setcpm(120/4)\n' +
+        '$: note("c3 e3 g3").s("triangle").room(.8).roomsize(6).orbit(2)\n' +
+        '$: s("bd*4").gain(.7)',
+      decode: [
+        ['.orbit(2)', 'le lead a sa propre réverb, à part.'],
+        ['la batterie', "reste sur l'orbit 1 (défaut) → sèche."],
+        ['sans orbit', 'la grande réverb « baverait » sur le kick.'],
+      ],
+      theory: {
+        title: 'Le mot juste',
+        items: [
+          ['orbit', 'un canal d\'effets globaux (réverb + délai).'],
+          ['1 par orbit', 'une seule réverb et un seul délai par orbit.'],
+          ['parade', 'un orbit différent par ambiance.'],
+        ],
+      },
+      exercise:
+        'Enlève .orbit(2) : écoute la batterie « polluée » par la réverb du lead. Puis remets-le.',
+    },
+
+    {
+      id: '4.20',
+      kicker: 'On assemble',
+      title: "Un mix avec de l'espace",
+      concept:
+        "Bien produire, c'est placer chaque élément dans l'espace : batterie sèche devant, lead avec " +
+        "un délai calé, nappe dans une grande réverb — chacun sur son orbit.",
+      code:
+        'setcpm(120/4)\n' +
+        '$: s("bd*4, [~ sd]*2").bank("RolandTR909").gain(.6)\n' +
+        '$: note("<c3 e3 g3 b3>").s("sawtooth").lpf(1500).delay(.4).delaytime(.375).delayfeedback(.4).orbit(2).gain(.4)\n' +
+        '$: note("<c4 e4 g4>").s("triangle").attack(.4).release(1).room(.9).roomsize(8).orbit(3).gain(.3)',
+      decode: [
+        ['batterie (orbit 1)', 'sèche, en avant.'],
+        ['lead (orbit 2)', 'délai pointé calé au tempo.'],
+        ['nappe (orbit 3)', 'attaque lente, grande réverb.'],
+      ],
+      recap: {
+        title: "Récap chapitre 4 — L'espace",
+        columns: ['Effet', 'Rôle', 'Strudel'],
+        rows: [
+          ['Réverb', 'la pièce', '.room(.5).roomsize(4)'],
+          ['Réverb feutrée', 'sombre, douce', '.room(.5).rlp(2000)'],
+          ['Délai', "l'écho", '.delay(.5).delaytime(.375)'],
+          ['Feedback', 'nb de répétitions', '.delayfeedback(.4)'],
+          ['Orbit', 'séparer les espaces', '.orbit(2)'],
+        ],
+      },
+      exercise:
+        'Place tes 3 couches dans 3 espaces : change les orbits, la taille des réverbs, le temps des délais.',
+      free:
+        "Tu tiens l'ESPACE : réverb, délai, délai calé au tempo, et les orbits pour ne pas tout " +
+        "mélanger. Ton son a maintenant une source, un timbre, une forme ET un lieu. Dernier " +
+        "chapitre : la COULEUR et le mix final.",
+    },
+  ],
+};
+
+export const m4chapitre5 = {
+  module: 4,
+  chapter: 'La couleur & le mix',
+  title: 'La couleur & le mix',
+  subtitle: 'Saturation, modulation & assemblage',
+  flashs: [
+    {
+      id: '4.21',
+      kicker: 'La saturation',
+      title: 'Salir le son : disto, crush, lo-fi',
+      concept:
+        "Salir le son lui donne du grain. distort = l'overdrive/disto (ta pédale, M3). crush réduit " +
+        "les bits → son 8-bit. coarse réduit l'échantillonnage → grain rétro. Attention : la disto " +
+        "monte vite en volume, garde un gain raisonnable.",
+      code: 'note("c2 eb2 g2 c2").s("sawtooth").lpf(2000).distort("4:.3").gain(.5)',
+      decode: [
+        ['distort("4:.3")', 'quantité 4, avec un post-gain de 0,3 pour ne pas hurler.'],
+        ['crush', 'réduit la résolution : crush(4) brutal, crush(16) propre.'],
+        ['coarse', "réduit l'échantillonnage : coarse(8) = lo-fi."],
+      ],
+      theory: {
+        title: 'Pont M3 — tes pédales',
+        items: [
+          ['distort (dist)', 'overdrive / distorsion = le grain rock.'],
+          ['crush', 'le son « jeu vidéo », bit-crushé.'],
+          ['gain', 'la disto pousse le volume → compense avec gain.'],
+        ],
+      },
+      exercise:
+        'Remplace par .crush("<16 8 4 2>") puis par .coarse("<1 4 8 16>"). Deux façons de « salir ».',
+    },
+
+    {
+      id: '4.22',
+      kicker: 'La modulation',
+      title: 'Phaser & vibrato : faire bouger le son',
+      concept:
+        "La modulation met le son en mouvement. Le phaser (pédale de guitare connue, M3) crée un " +
+        "balayage tournoyant. Le vibrato (vib) fait vibrer la hauteur, comme le doigt qui vibre " +
+        "sur la corde.",
+      code: 'n("0 2 4 7 4 2").scale("C:minor:pentatonic").s("sawtooth").phaser(2).vib("4:.2").release(.3)',
+      decode: [
+        ['phaser(2)', 'la vitesse du balayage tournoyant.'],
+        ['vib("4:.2")', 'vibrato à 4 Hz, profondeur 0,2 demi-ton.'],
+        ['mouvement', "le son « respire » au lieu d'être figé."],
+      ],
+      theory: {
+        title: 'Pont M3 — gestes & pédales',
+        items: [
+          ['phaser', 'Strudel le décrit comme « une pédale de guitare ».'],
+          ['vibrato', 'le geste du guitariste qui fait vibrer la corde.'],
+          ['modulation', 'tout ce qui fait varier un paramètre en continu.'],
+        ],
+      },
+      exercise:
+        'Essaie phaser("<1 4 8>") (de lent à rapide), ou vib("6:.5") (un vibrato bien large).',
+    },
+
+    {
+      id: '4.23',
+      kicker: 'Le mix',
+      title: 'Dynamique & stéréo',
+      concept:
+        "Mixer, c'est équilibrer les volumes (gain, velocity) et placer chaque son dans l'espace " +
+        "stéréo (pan : 0 = gauche, 1 = droite). postgain règle le volume final, après tous les effets.",
+      code:
+        'setcpm(120/4)\n' +
+        '$: s("hh*8").gain(.4).pan(sine.range(0,1).slow(2))\n' +
+        '$: note("c3 e3 g3 c4").s("triangle").pan("<0 1>").release(.3).gain(.6)',
+      decode: [
+        ['pan(sine.range(0,1))', 'le charley balaye de gauche à droite.'],
+        ['pan("<0 1>")', "les notes alternent un côté puis l'autre."],
+        ['gain / velocity', 'le volume ; postgain = volume final.'],
+      ],
+      theory: {
+        title: 'Le mot juste',
+        items: [
+          ['gain', "volume d'une couche (exponentiel)."],
+          ['pan', 'position stéréo, 0 → 1.'],
+          ['jux(rev)', "effet stéréo : la droite joue l'inverse de la gauche."],
+        ],
+      },
+      exercise:
+        "Ajoute .jux(rev) sur la mélodie : la voie droite joue à l'envers → large stéréo.",
+    },
+
+    {
+      id: '4.24',
+      kicker: "L'ordre compte",
+      title: 'La chaîne du signal',
+      concept:
+        "Surprise : l'ordre dans ton CODE ne change rien — Strudel applique toujours les effets dans " +
+        "le même ordre fixe (gain → filtres → saturation → pan → phaser → réverb/délai). Autre règle : " +
+        "chaque effet est à usage unique. Deux lpf ? Ils se télescopent, ils ne s'additionnent pas.",
+      code: 'note("c2 eb2 g2 c2").s("sawtooth").lpf(800).distort("3:.3").room(.3).gain(.6)',
+      decode: [
+        ["l'ordre du code", 'libre — le résultat sonore est le même.'],
+        ['la chaîne réelle', 'filtres, puis saturation, puis espace : toujours.'],
+        ['usage unique', 'un effet répété s\'écrase, il ne s\'empile pas.'],
+      ],
+      theory: {
+        title: "Deux règles d'or",
+        items: [
+          ['ordre fixe', 'gain → filtres → disto → pan → phaser → réverb/délai.'],
+          ['usage unique', "un effet appelé 2× s'écrase."],
+          ['conséquence', 'le filtre agit donc TOUJOURS avant la disto.'],
+        ],
+      },
+      exercise:
+        'Mets deux filtres : .lpf(300).distort("3:.3").lpf(3000). Tu n\'obtiens PAS deux filtrages — ils se télescopent.',
+    },
+
+    {
+      id: '4.25',
+      kicker: 'Tout, ensemble',
+      title: 'Le morceau final : M1 → M4',
+      concept:
+        "Le grand final : un morceau produit qui réunit les quatre modules. Le live coding et le " +
+        "rythme (M1), la gamme et les accords (M2), la guitare (M3), et le son façonné main avec ses " +
+        "effets (M4). En do mineur.",
+      code:
+        'setcpm(120/4)\n' +
+        '$: s("bd*4, [~ sd]*2, [~ hh]*4").bank("RolandTR909").gain(.6)\n' +
+        '$: note("<c2 ab1 bb1 eb2>").s("sawtooth").lpf(700).lpenv(4).lpa(.01).lpd(.2).lps(.1).lpq(8).decay(.2).sustain(.2).gain(.5)\n' +
+        '$: chord("<Cm Ab Bb Eb>").voicing().struct("x ~ x x").s("gm_electric_guitar_clean").distort("1.5:.3").delay(.3).delaytime(.375).delayfeedback(.3).orbit(2).gain(.4)\n' +
+        '$: n("0 3 5 7 5 3").scale("C:minor:pentatonic").s("sawtooth").attack(.01).release(.2).phaser(2).room(.4).orbit(3).gain(.35)',
+      decode: [
+        ['la batterie (M1)', 'le moteur rythmique.'],
+        ['la basse (M4)', 'sawtooth + enveloppe de filtre, façonnée main.'],
+        ['les accords (M2+M3)', 'grille Cm-Ab-Bb-Eb, guitare grattée + disto + délai.'],
+        ['la mélodie (M2+M4)', 'pentatonique de do mineur, phaser + réverb.'],
+      ],
+      theory: {
+        title: 'Les quatre modules réunis',
+        items: [
+          ['Module 1', 'tempo, mini-notation, batterie, $:.'],
+          ['Module 2', 'gamme, accords, tonalité, voicing.'],
+          ['Module 3', 'guitare : grattage, picking, effets.'],
+          ['Module 4', 'son : ondes, filtre, enveloppe, espace, couleur.'],
+        ],
+      },
+      recap: {
+        title: 'Récap chapitre 5 — La couleur & le mix',
+        columns: ['Outil', 'Rôle', 'Strudel'],
+        rows: [
+          ['Saturation', 'salir, réchauffer', '.distort("4:.3") / .crush(8)'],
+          ['Modulation', 'mettre en mouvement', '.phaser(2) / .vib("4:.2")'],
+          ['Stéréo', 'placer à gauche/droite', '.pan(.2) / .jux(rev)'],
+          ['Dynamique', 'le volume', '.gain(.6) / .postgain(1.2)'],
+          ['La chaîne', 'ordre fixe, usage unique', 'gain→filtre→disto→espace'],
+        ],
+      },
+      exercise:
+        'Change la tonalité : grille chord("<Am F C G>"), basse <a1 f1 c2 g1>, mélodie A:minor:pentatonic.',
+      free:
+        "Tu tiens le Module 4 — et avec lui, les quatre modules de Keymaker. Tu sais fabriquer un son " +
+        "depuis l'onde brute, le sculpter au filtre, lui donner une forme et un espace, et le colorer. " +
+        "Surtout, tu relies tout : le rythme (M1), l'harmonie (M2), ta guitare (M3) et le son lui-même " +
+        "(M4). Reprends ce morceau et fais-le tien : ton groove, tes accords, ton grain. Tu n'apprends " +
+        "plus Strudel — tu composes avec. 🎛️🎸",
+    },
+  ],
+};
+
+/* Le Module 4 entier : la carte de ses 5 chapitres. */
+export const module4 = {
+  id: 4,
+  titre: 'Module 4 — Son & Effets',
+  title: 'Module 4',
+  subtitle: 'Sculpter le son : ondes, filtres, enveloppes, espace, couleur',
+  chapitres: [m4chapitre1, m4chapitre2, m4chapitre3, m4chapitre4, m4chapitre5],
+};
+
 /* Tous les modules de Keymaker, dans l'ordre du parcours. */
-export const modules = [module1, module2, module3];
+export const modules = [module1, module2, module3, module4];
 
 // Rétro-compatibilité : certains imports historiques pointaient sur flash11.
 export const flash11 = chapitre1.flashs[0];
