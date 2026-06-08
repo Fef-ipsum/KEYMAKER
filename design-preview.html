@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="fr" data-theme="void">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Keymaker · Atelier Void — aperçu</title>
+<link rel="stylesheet" href="keymaker-app/src/styles.css" />
+<style>
+  /* Aperçu seulement : fausse coloration de l'éditeur + sélecteur de thème. */
+  html, body { height: 100%; }
+  .fake-cm { margin: 0; padding: 18px 20px; font-family: var(--font-mono); font-size: calc(18px * var(--fs-scale,1)); line-height: 1.7; color: var(--text); white-space: pre; overflow-x: auto; }
+  .fake-cm .fn { color: var(--accent); }
+  .fake-cm .str { color: #34d399; }
+  .fake-cm .num { color: #fb923c; }
+  .fake-cm .pun { color: var(--muted); }
+  .fake-cm .cm-cursor-line { position: relative; }
+  .theme-switch { position: fixed; right: 16px; bottom: 16px; z-index: 60; display: inline-flex; gap: 4px; padding: 5px; border-radius: 999px;
+    background: linear-gradient(180deg, var(--surface-2), var(--surface)); border: 1px solid var(--hair); box-shadow: inset 0 1px 0 var(--sheen), var(--amb-soft);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); font-family: var(--font-ui); }
+  .theme-switch button { font-family: var(--font-ui); font-size: 12px; font-weight: 700; color: var(--muted); background: transparent; border: none; border-radius: 999px; padding: 7px 13px; cursor: pointer; }
+  .theme-switch button.on { color: var(--accent-ink); background: var(--accent); }
+  .preview-sep { height: 1px; margin: 56px 0 8px; background: linear-gradient(90deg, transparent, var(--hair), transparent); border: 0; }
+</style>
+</head>
+<body>
+<div class="app" data-theme="void">
+
+  <header class="topbar">
+    <div class="wordmark"><span class="glyph" aria-hidden="true">&#42796;</span> Keymaker</div>
+    <nav class="crumbs">Module 2 &middot; Le rythme &middot; <strong>Flash 2.4</strong></nav>
+    <div class="topbar-actions">
+      <button class="tb-btn"><svg class="tb-btn-ico" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 7.5L7.5 2 14 7.5V13.5a1 1 0 01-1 1H9.5v-3.5h-4V14.5H2a1 1 0 01-1-1V7.5z"/></svg>Accueil</button>
+      <button class="tb-btn"><svg class="tb-btn-ico" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5V1h4M10 1h4v4M14 10v4h-4M5 14H1v-4"/></svg>Focus</button>
+      <button class="sati-btn status-ok"><span class="sati-dot status-ok" aria-hidden="true"></span>Sati</button>
+      <button class="tb-btn"><svg class="tb-btn-ico" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="1.5" y1="3.5" x2="13.5" y2="3.5"/><line x1="1.5" y1="7.5" x2="13.5" y2="7.5"/><line x1="1.5" y1="11.5" x2="13.5" y2="11.5"/></svg>Parcours</button>
+      <button class="tb-btn"><svg class="tb-btn-ico" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="7.5" r="2.2"/><path d="M7.5 1v1.8m0 8.4V13m-6.5-5.5h1.8m8.4 0H13M3.3 3.3l1.27 1.27m5.83 5.83 1.27 1.27M11.7 3.3l-1.27 1.27M4.43 9.3 3.16 10.57"/></svg>Réglages</button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <p class="kicker">Module 2 &middot; Le rythme</p>
+    <h1 class="title">Poser le premier battement</h1>
+
+    <section class="card concept">
+      <p>Un pattern, c'est une suite de sons dans le temps. <code>sound("bd hh sd hh")</code> joue quatre sons sur un tour&nbsp;: grosse caisse, charley, caisse claire, charley. Le cycle se répète tout seul, comme une mesure.</p>
+    </section>
+
+    <div class="flash-note">
+      <button class="flash-note-head"><span class="flash-note-ico">&#9998;</span><span class="flash-note-label">Ma note</span><span class="flash-note-preview">se souvenir&nbsp;: bd = kick, sd = snare</span><span class="flash-note-chevron">&#9662;</span></button>
+    </div>
+
+    <section class="editor-block">
+      <div class="editor-frame">
+        <div class="editor-host">
+<pre class="fake-cm"><span class="fn">sound</span><span class="pun">(</span><span class="str">"bd hh sd hh"</span><span class="pun">)</span>
+  <span class="pun">.</span><span class="fn">bank</span><span class="pun">(</span><span class="str">"RolandTR909"</span><span class="pun">)</span>
+  <span class="pun">.</span><span class="fn">gain</span><span class="pun">(</span><span class="num">0.9</span><span class="pun">)</span></pre>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn run"><span class="btn-main">&#9654; Run</span><span class="btn-kbd">Ctrl + Enter</span></button>
+        <button class="btn stop"><span class="btn-main">&#9632; Stop</span><span class="btn-kbd">Ctrl + .</span></button>
+        <span class="status on" role="status"><span class="dot" aria-hidden="true"></span>en cours</span>
+        <button class="btn viz-toggle on">&#9711; Visualiseur</button>
+        <button class="btn posync-toggle">&#9703; Sync PO-33</button>
+      </div>
+
+      <div class="share-row">
+        <button class="share-btn"><svg class="share-btn-ico" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 1v8m0 0L5 6.5m2.5 2.5L10 6.5"/><path d="M2 11v2.5a1 1 0 001 1h9a1 1 0 001-1V11"/></svg>Sauvegarder</button>
+        <button class="share-btn"><svg class="share-btn-ico" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2H2.5a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9"/><path d="M9 1h5v5M8 7l6-6"/></svg>Ouvrir dans Strudel</button>
+        <button class="share-btn"><svg class="share-btn-ico" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 1v9m0 0L5 7.5m2.5 2.5L10 7.5"/><path d="M1.5 12v1.5a1 1 0 001 1h10a1 1 0 001-1V12"/></svg>Télécharger .js</button>
+      </div>
+    </section>
+
+    <section class="card decode">
+      <h2>Décodage</h2>
+      <ul>
+        <li><code>bd</code> grosse caisse (bass drum)</li>
+        <li><code>hh</code> charley (hi-hat)</li>
+        <li><code>sd</code> caisse claire (snare drum)</li>
+        <li><code>.bank()</code> choisit la boîte à rythmes</li>
+      </ul>
+    </section>
+
+    <section class="card theory">
+      <h2>Solfège &middot; la pulsation</h2>
+      <ul>
+        <li><code>4 temps</code> le cycle se divise en parts égales</li>
+        <li><code>noire</code> un son par temps = une noire</li>
+      </ul>
+    </section>
+
+    <section class="card exo">
+      <h2>Exercice</h2>
+      <p>Remplace un <code>hh</code> par un silence <code>~</code> et écoute le trou. Puis double les charleys&nbsp;: <code>hh*2</code>.</p>
+    </section>
+
+    <nav class="flash-nav">
+      <button class="nav-btn prev">Précédent</button>
+      <div class="progress">
+        <span class="chap-label">Ch.2 &middot; Le rythme</span>
+        <div class="dots"><span class="dot-step done"></span><span class="dot-step done"></span><span class="dot-step done"></span><span class="dot-step current"></span><span class="dot-step"></span><span class="dot-step"></span></div>
+        <span class="count">4/6</span>
+      </div>
+      <button class="nav-btn next">Suivant</button>
+    </nav>
+
+    <hr class="preview-sep" />
+
+    <p class="kicker">Accueil</p>
+    <h1 class="title">Ta progression</h1>
+    <section class="dash-hero">
+      <div class="dash-streak">
+        <svg class="dash-streak-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg>
+        <span class="dash-streak-num">7</span>
+        <span class="dash-streak-word">jours d'affilée</span>
+      </div>
+      <button class="dash-resume">
+        <span class="dash-resume-main">&#9654; Reprendre</span>
+        <span class="dash-resume-sub">Module 2 &middot; Flash 2.4</span>
+      </button>
+    </section>
+    <section class="dash-global">
+      <div class="dash-global-line"><span class="dash-global-label">Parcours complet</span><span class="dash-global-val">48 / 151 flashs &middot; 32%</span></div>
+      <div class="dash-bar"><div class="dash-bar-fill" style="width:32%"></div></div>
+      <p class="dash-global-sub">7 jours de pratique au total.</p>
+    </section>
+    <section class="dash-modules">
+      <h3 class="set-h">Tes modules</h3>
+      <div class="dash-mod-grid">
+        <button class="dash-mod here"><div class="dash-mod-top"><span class="dash-mod-badge">2</span><span class="dash-mod-meta"><span class="dash-mod-title">Le rythme</span><span class="dash-mod-sub">Pulsation, mesures, patterns</span></span><span class="dash-mod-here">ici</span></div><div class="dash-bar dash-bar-sm"><div class="dash-bar-fill" style="width:48%"></div></div><span class="dash-mod-count">12/25 &middot; 48%</span></button>
+        <button class="dash-mod"><div class="dash-mod-top"><span class="dash-mod-badge">1</span><span class="dash-mod-meta"><span class="dash-mod-title">Les fondations</span><span class="dash-mod-sub">Sons, notes, premiers cycles</span></span><span class="dash-mod-check">&#10003;</span></div><div class="dash-bar dash-bar-sm"><div class="dash-bar-fill" style="width:100%"></div></div><span class="dash-mod-count">26/26 &middot; 100%</span></button>
+        <button class="dash-mod"><div class="dash-mod-top"><span class="dash-mod-badge">3</span><span class="dash-mod-meta"><span class="dash-mod-title">Mélodie &amp; gammes</span><span class="dash-mod-sub">Notes, intervalles, gammes</span></span></div><div class="dash-bar dash-bar-sm"><div class="dash-bar-fill" style="width:14%"></div></div><span class="dash-mod-count">4/25 &middot; 14%</span></button>
+      </div>
+    </section>
+
+    <footer class="foot">Module 2 &middot; 5 chapitres &middot; tourne 100&nbsp;% en local</footer>
+  </main>
+</div>
+
+<div class="theme-switch" role="group" aria-label="Thème">
+  <button data-set="void" class="on">Void</button>
+  <button data-set="light">Light</button>
+  <button data-set="matrix">Matrix</button>
+</div>
+<script>
+  var sw = document.querySelector('.theme-switch');
+  sw.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    var t = b.getAttribute('data-set');
+    document.documentElement.setAttribute('data-theme', t);
+    document.querySelector('.app').setAttribute('data-theme', t);
+    sw.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); });
+  });
+</script>
+</body>
+</html>

@@ -1,4 +1,15 @@
 // Keymaker — Chantier 16 : Tableau de bord & progression.  [build:c16-dashboard]
+// Icônes SVG inline pour la dashboard (remplace 🔥 et 📌).
+const IcoFlame = () => (
+  <svg className="dash-streak-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/>
+  </svg>
+);
+const IcoBookmark = () => (
+  <svg style={{display:'block', width:14, height:14, flexShrink:0, opacity:0.75}} viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M3 2h9a1 1 0 011 1v9.5l-4.5-2.5L4 12.5V3a1 1 0 011-1z"/>
+  </svg>
+);
 //
 // Écran d'ACCUEIL, rendu PAR-DESSUS le flash (même patron que Parcours / Sati /
 // Réglages) → l'éditeur reste monté dessous, jamais recréé. Pensé TDA-friendly :
@@ -31,7 +42,7 @@ export default function Dashboard({ summary, modules, currentModuleIndex, resume
         {/* ---- Bandeau : streak + reprise + total ---- */}
         <section className="dash-hero">
           <div className="dash-streak" title="Jours consécutifs de pratique">
-            <span className="dash-streak-flame" aria-hidden="true">🔥</span>
+            <IcoFlame />
             <span className="dash-streak-num">{s.streak}</span>
             <span className="dash-streak-word">{streakWord} d'affilée</span>
           </div>
@@ -98,7 +109,7 @@ export default function Dashboard({ summary, modules, currentModuleIndex, resume
 
         {onOpenLibrary && (
           <div className="dash-actions">
-            <button className="dash-lib-btn" onClick={onOpenLibrary}>📌 Mes snippets</button>
+            <button className="dash-lib-btn" onClick={onOpenLibrary} style={{display:'inline-flex',alignItems:'center',gap:7}}><IcoBookmark /> Mes snippets</button>
           </div>
         )}
 

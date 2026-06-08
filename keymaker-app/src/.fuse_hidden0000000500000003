@@ -1966,13 +1966,13 @@ button:focus-visible,
 
 
 /* ===========================================================================
-   ATELIER VOID — couche premium (juin 2026)
+   ATELIER VOID — refonte « horlogerie » (juin 2026)
    Couche premium APPEND-ONLY : matière, profondeur, précision. Surcharge par
    ordre de source (spécificité égale → la dernière gagne). 100 % var() → les 3
    thèmes (Void / Light / Matrix) restent corrects. Mouvement calme, respecte
    déjà .reduce-motion + prefers-reduced-motion (qui coupent toutes les anim).
-   Matiere : profondeur, reflets et lueurs maitrisees ; surfaces en relief,
-   accent lumineux parcimonieux. Pilotable via Reglages > Apparence.
+   Métaphore : l'app comme un instrument de précision — biseaux concentriques,
+   verre saphir sur cadran sombre, index appliqués, lume cyan parcimonieux.
    =========================================================================== */
 
 /* ---- 1. Jetons premium (neutres) + matières par thème ---- */
@@ -2393,70 +2393,4 @@ code {
 @media (max-width: 640px) {
   .topbar { margin: 10px 10px 6px; border-radius: 16px; padding: 10px 12px; }
   .card { padding: 18px 18px; }
-}
-
-/* ===========================================================================
-   PERSONNALISATION — panneau « Apparence » (accent / halo / fond / grain / curseur)
-   Piloté par Réglages → variables & classes posées sur <html>. 100 % var(), tous thèmes.
-   =========================================================================== */
-
-/* Grain : texture très fine DERRIÈRE le contenu (z-index:-1) → matité du fond,
-   jamais par-dessus le texte. Fixe + pointer-events:none (perf mobile). */
-html.grain-on body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
-  background-size: 180px 180px;
-  opacity: 0.05;
-  mix-blend-mode: overlay;
-}
-[data-theme="light"].grain-on body::before { opacity: 0.045; mix-blend-mode: multiply; }
-
-/* Lumière au curseur : lueur d'accent DERRIÈRE le contenu, suit --mx/--my (posés par
-   App au pointermove). Centrée par défaut. Douce, ne gêne jamais la lecture. */
-html.spotlight-on body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: radial-gradient(460px circle at var(--mx, 50%) var(--my, 50%),
-    rgba(var(--accent-rgb), calc(0.13 * var(--glow-strength, 1))), transparent 62%);
-}
-
-/* Accent : grille de pastilles + sélecteur libre (Réglages › Apparence). */
-.set-row-col { flex-direction: column; align-items: stretch; gap: 13px; }
-.set-swatches { display: flex; flex-wrap: wrap; gap: 10px; }
-.set-swatch {
-  width: 32px; height: 32px;
-  border-radius: 11px;
-  border: 1px solid var(--hair);
-  background: var(--sw, var(--surface-2));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
-  cursor: pointer;
-  padding: 0;
-  position: relative;
-  transition: transform 0.35s var(--ease-out), box-shadow 0.25s var(--ease);
-}
-.set-swatch:hover { transform: translateY(-2px); }
-.set-swatch.on {
-  box-shadow: 0 0 0 2px var(--bg-2), 0 0 0 4px var(--sw, var(--accent)), 0 6px 18px -6px var(--sw, var(--lume));
-}
-.set-swatch-auto {
-  background: conic-gradient(from 210deg, #22d3ee, #5b5bd6, #33e6a6, #f5b73d, #fb7aa0, #22d3ee);
-}
-.set-swatch-auto.on { box-shadow: 0 0 0 2px var(--bg-2), 0 0 0 4px var(--text); }
-.set-swatch-custom { overflow: hidden; display: inline-grid; place-items: center; }
-.set-swatch-custom::after {
-  content: '+';
-  font-size: 17px; font-weight: 700; line-height: 1;
-  color: #fff; mix-blend-mode: difference;
-}
-.set-swatch-custom input[type="color"] {
-  position: absolute; inset: -2px;
-  width: calc(100% + 4px); height: calc(100% + 4px);
-  border: none; background: transparent; padding: 0; cursor: pointer; opacity: 0;
 }

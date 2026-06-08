@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="fr" data-theme="void">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Keymaker · Choisis ton lume</title>
+<link rel="stylesheet" href="keymaker-app/src/styles.css" />
+<style>
+  body { margin: 0; }
+  .lume-page { max-width: 1320px; margin: 0 auto; padding: 30px clamp(16px,3vw,34px) 60px; }
+  .lume-head { margin: 6px 0 26px; }
+  .lume-head h1 { font-family: var(--font-display); font-size: 30px; letter-spacing: -0.02em; margin: 0 0 8px; color: var(--text); }
+  .lume-head p { margin: 0; color: var(--muted); font-size: 15px; max-width: 60ch; line-height: 1.5; }
+  .lume-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 18px; align-items: start; }
+  .lume-col { min-height: auto !important; padding: 18px 18px 20px; border: 1px solid var(--hair); border-radius: 24px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.006)); box-shadow: inset 0 1px 0 var(--sheen), var(--amb-soft); }
+  .lume-tag { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; font-weight: 700; color: var(--text); margin: 0 0 16px; }
+  .lume-tag code { font-size: 12px; }
+  .lume-chip { width: 13px; height: 13px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--lume), inset 0 1px 0 rgba(255,255,255,0.4); flex: 0 0 auto; }
+  .lume-sub { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; margin-left: auto; }
+  .lume-col .wordmark { font-size: 18px; margin-bottom: 14px; }
+  .lume-col .editor-block { margin: 16px 0 6px; }
+  .fake-cm { margin: 0; padding: 14px 16px; font-family: var(--font-mono); font-size: 14px; line-height: 1.7; color: var(--text); white-space: pre; overflow-x: auto; }
+  .fake-cm .fn { color: var(--accent); }
+  .fake-cm .str { color: #34d399; }
+  .lume-foot { margin: 30px 2px 0; color: var(--muted); font-size: 14px; }
+  .lume-foot code { font-size: 12.5px; }
+</style>
+</head>
+<body>
+<div class="lume-page">
+  <header class="lume-head">
+    <h1>Choisis ton lume</h1>
+    <p>Le même écran, quatre teintes. Seule la couleur d'accent change — tout le reste (matière, profondeur, structure) est identique. Regarde le halo de l'éditeur, le bouton Run, le point de progression actif et la pastille du logo.</p>
+  </header>
+  <div class="lume-row" id="row"></div>
+  <p class="lume-foot">Dis-moi laquelle te parle (nom ou hex) et je l'applique en une variable&nbsp;: <code>--accent</code> dans <code>styles.css</code>. Réversible en deux secondes.</p>
+</div>
+
+<script>
+var lumes = [
+  { name: 'Cyan glacier', tag: 'Actuel', accent: '#22d3ee', rgb: '34, 211, 238', ink: '#04141a' },
+  { name: 'Ambre / Or', tag: 'Chaud · horloger', accent: '#f5b73d', rgb: '245, 183, 61', ink: '#241a02' },
+  { name: 'Vert phosphore', tag: 'Lume classique', accent: '#33e6a6', rgb: '51, 230, 166', ink: '#03241a' },
+  { name: 'Bleu glacier', tag: 'Froid · clinique', accent: '#5fa8ff', rgb: '95, 168, 255', ink: '#04122a' }
+];
+function col(l) {
+  var vars = '--accent:' + l.accent + ';--accent-rgb:' + l.rgb + ';--accent-ink:' + l.ink + ';'
+    + '--border:rgba(' + l.rgb + ',0.18);--lume:rgba(' + l.rgb + ',0.85);'
+    + '--glow:0 0 0 1px rgba(' + l.rgb + ',0.18), 0 12px 40px -18px rgba(' + l.rgb + ',0.45);';
+  var halo = 'box-shadow: inset 0 1px 0 var(--sheen-strong), 0 0 0 1px rgba(' + l.rgb + ',0.32), 0 0 38px -10px var(--lume), var(--amb)';
+  return '<div class="lume-col app" data-theme="void" style="' + vars + '">'
+    + '<div class="lume-tag"><span class="lume-chip"></span>' + l.name + ' &middot; <code>' + l.accent + '</code><span class="lume-sub">' + l.tag + '</span></div>'
+    + '<div class="wordmark"><span class="glyph" aria-hidden="true">&#42796;</span> Keymaker</div>'
+    + '<p class="kicker">Module 2 &middot; Le rythme</p>'
+    + '<h2 class="title" style="font-size:23px;margin:0 0 14px">Poser le premier battement</h2>'
+    + '<section class="card concept"><p style="font-size:15px;margin:0">Un pattern, c\'est une suite de sons. <code>sound("bd hh sd hh")</code> en joue quatre par tour.</p></section>'
+    + '<section class="editor-block">'
+    +   '<div class="editor-frame" style="' + halo + '"><div class="editor-host"><pre class="fake-cm"><span class="fn">sound</span>(<span class="str">"bd hh sd hh"</span>)\n  .<span class="fn">bank</span>(<span class="str">"RolandTR909"</span>)</pre></div></div>'
+    +   '<div class="controls" style="margin-top:13px;gap:10px">'
+    +     '<button class="btn run" style="min-width:0"><span class="btn-main">&#9654; Run</span></button>'
+    +     '<button class="btn stop" style="min-width:0"><span class="btn-main">&#9632; Stop</span></button>'
+    +     '<span class="status on"><span class="dot" aria-hidden="true"></span>en cours</span>'
+    +   '</div>'
+    + '</section>'
+    + '<nav class="flash-nav" style="margin-top:16px;padding-top:16px">'
+    +   '<button class="nav-btn prev">Préc.</button>'
+    +   '<div class="progress"><div class="dots"><span class="dot-step done"></span><span class="dot-step done"></span><span class="dot-step done"></span><span class="dot-step current"></span><span class="dot-step"></span><span class="dot-step"></span></div><span class="count">4/6</span></div>'
+    +   '<button class="nav-btn next">Suivant</button>'
+    + '</nav>'
+    + '</div>';
+}
+document.getElementById('row').innerHTML = lumes.map(col).join('');
+</script>
+</body>
+</html>

@@ -14,6 +14,7 @@ import SnippetLibrary from './SnippetLibrary.jsx';
 import { addSnippet } from './notebook.js';
 import PatternViz from './PatternViz.jsx';
 import PoSync from './PoSync.jsx';
+import { resolveAccent, HALO_STRENGTH, BG_PRESETS } from './design.js';
 
 /* ---------------------------------------------------------------------------
    Navigation multi-chapitres (Chantier 3).
@@ -49,7 +50,7 @@ const DEFAULT_PI_URL = 'https://personal-os.tailac998e.ts.net';
 // Réglages (Chantier 6) — persistés sur l'appareil.
 const SETTINGS_KEY = 'keymaker:settings';
 const TEXT_SCALE = { m: 1, l: 1.12, xl: 1.26 }; // facteur appliqué à --fs-scale + police éditeur
-const DEFAULT_SETTINGS = { textScale: 'm', reduceMotion: false, editorTheme: 'strudelTheme', lineNumbers: true, theme: 'void', autocomplete: true, viz: false, posync: false };
+const DEFAULT_SETTINGS = { textScale: 'm', reduceMotion: false, editorTheme: 'strudelTheme', lineNumbers: true, theme: 'void', autocomplete: true, viz: false, posync: false, accent: 'auto', accentCustom: '#22d3ee', halo: 'balanced', backdrop: 'auto', grain: false, spotlight: false };
 
 function readSettings() {
   let base = { ...DEFAULT_SETTINGS };
@@ -140,6 +141,57 @@ function readStart() {
   return { mod: 0, pos: 0 };
 }
 
+/* ---------------------------------------------------------------------------
+   Icônes SVG inline — topbar & UI (remplace les emojis qui ne scalent pas).
+   Toutes 15×15 viewBox, stroke-only, strokeWidth 1.5.
+   --------------------------------------------------------------------------- */
+const IcoHome = () => (
+  <svg className="tb-btn-ico" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M1 7.5L7.5 2 14 7.5V13.5a1 1 0 01-1 1H9.5v-3.5h-4V14.5H2a1 1 0 01-1-1V7.5z"/>
+  </svg>
+);
+const IcoExpand = () => (
+  <svg className="tb-btn-ico" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M1 5V1h4M10 1h4v4M14 10v4h-4M5 14H1v-4"/>
+  </svg>
+);
+const IcoMenu = () => (
+  <svg className="tb-btn-ico" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+    <line x1="1.5" y1="3.5" x2="13.5" y2="3.5"/>
+    <line x1="1.5" y1="7.5" x2="13.5" y2="7.5"/>
+    <line x1="1.5" y1="11.5" x2="13.5" y2="11.5"/>
+  </svg>
+);
+const IcoGear = () => (
+  <svg className="tb-btn-ico" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="7.5" cy="7.5" r="2.2"/>
+    <path d="M7.5 1v1.8m0 8.4V13m-6.5-5.5h1.8m8.4 0H13M3.3 3.3l1.27 1.27m5.83 5.83 1.27 1.27M11.7 3.3l-1.27 1.27M4.43 9.3 3.16 10.57"/>
+  </svg>
+);
+const IcoSave = () => (
+  <svg className="share-btn-ico" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M7.5 1v8m0 0L5 6.5m2.5 2.5L10 6.5"/>
+    <path d="M2 11v2.5a1 1 0 001 1h9a1 1 0 001-1V11"/>
+  </svg>
+);
+const IcoExternal = () => (
+  <svg className="share-btn-ico" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M6 2H2.5a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9"/>
+    <path d="M9 1h5v5M8 7l6-6"/>
+  </svg>
+);
+const IcoDownload = () => (
+  <svg className="share-btn-ico" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M7.5 1v9m0 0L5 7.5m2.5 2.5L10 7.5"/>
+    <path d="M1.5 12v1.5a1 1 0 001 1h10a1 1 0 001-1V12"/>
+  </svg>
+);
+const IcoBookmark = () => (
+  <svg className="dash-lib-ico" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M3 2h9a1 1 0 011 1v9.5l-4.5-2.5L4 12.5V3a1 1 0 011-1z"/>
+  </svg>
+);
+
 export default function App() {
   // Position de départ figée au 1er rendu (reprise) : module + flash.
   const startRef = useRef(readStart());
@@ -228,6 +280,55 @@ export default function App() {
       document.documentElement.setAttribute('data-theme', settings.theme || 'void');
     } catch { /* ignore */ }
   }, [settings.theme]);
+
+  // Personnalisation (Apparence) — applique accent / halo / fond / effets sur <html>.
+  // 100 % cosmétique, tout en try/catch : un souci ici ne doit jamais casser l'app.
+  // Accent 'auto' → on RETIRE l'override (chaque thème garde sa couleur d'origine).
+  useEffect(() => {
+    const el = document.documentElement;
+    try {
+      const A = resolveAccent(settings);
+      if (A) {
+        el.style.setProperty('--accent', A.hex);
+        el.style.setProperty('--accent-rgb', A.rgb);
+        el.style.setProperty('--accent-ink', A.ink);
+      } else {
+        el.style.removeProperty('--accent');
+        el.style.removeProperty('--accent-rgb');
+        el.style.removeProperty('--accent-ink');
+      }
+      el.style.setProperty('--glow-strength', String(HALO_STRENGTH[settings.halo] ?? 1));
+      // Fond : presets réservés aux thèmes sombres ; sinon on laisse le thème faire.
+      const dark = (settings.theme || 'void') !== 'light';
+      const bp = dark ? BG_PRESETS[settings.backdrop] : null;
+      if (bp) {
+        el.style.setProperty('--bg', bp.bg);
+        el.style.setProperty('--bg-2', bp.bg2);
+        el.style.setProperty('--bg-fade', bp.fade);
+      } else {
+        el.style.removeProperty('--bg');
+        el.style.removeProperty('--bg-2');
+        el.style.removeProperty('--bg-fade');
+      }
+      el.classList.toggle('grain-on', !!settings.grain);
+      el.classList.toggle('spotlight-on', !!settings.spotlight);
+    } catch { /* cosmétique */ }
+  }, [settings.accent, settings.accentCustom, settings.halo, settings.backdrop, settings.grain, settings.spotlight, settings.theme]);
+
+  // Lumière au curseur (spotlight) — met à jour --mx/--my (coords viewport) lues par
+  // la CSS. Coupée si « réduire les animations ». Listener passif, retiré quand off.
+  useEffect(() => {
+    if (!settings.spotlight || settings.reduceMotion) return;
+    const onMove = (e) => {
+      try {
+        const el = document.documentElement;
+        el.style.setProperty('--mx', e.clientX + 'px');
+        el.style.setProperty('--my', e.clientY + 'px');
+      } catch { /* ignore */ }
+    };
+    window.addEventListener('pointermove', onMove, { passive: true });
+    return () => window.removeEventListener('pointermove', onMove);
+  }, [settings.spotlight, settings.reduceMotion]);
 
   // Réglages d'éditeur : appliqués dès qu'il est prêt, puis à chaque changement.
   useEffect(() => {
@@ -461,18 +562,20 @@ export default function App() {
 
         <div className="topbar-actions">
           <button
-            className="home-btn"
+            className="tb-btn"
             onClick={() => setDashOpen(true)}
             title="Accueil — ta progression"
           >
-            🏠 Accueil
+            <IcoHome />
+            Accueil
           </button>
           <button
-            className="focus-btn"
+            className="tb-btn"
             onClick={() => setFocusMode(true)}
             title="Mode Focus : éditeur seul, zéro distraction (Échap pour sortir)"
           >
-            ⤢ Focus
+            <IcoExpand />
+            Focus
           </button>
           <button
             className={'sati-btn status-' + piStatus.state}
@@ -483,16 +586,18 @@ export default function App() {
             <span className="sati-dot" aria-hidden="true" />
             Sati
           </button>
-          <button className="parcours-btn" onClick={() => setLearnOpen(true)} aria-haspopup="dialog">
-            ☰ Parcours
+          <button className="tb-btn" onClick={() => setLearnOpen(true)} aria-haspopup="dialog">
+            <IcoMenu />
+            Parcours
           </button>
           <button
-            className="reglages-btn"
+            className="tb-btn"
             onClick={() => setSettingsOpen(true)}
             aria-haspopup="dialog"
             title="Réglages"
           >
-            ⚙ Réglages
+            <IcoGear />
+            Réglages
           </button>
         </div>
       </header>
@@ -731,13 +836,16 @@ function Flash({
         {/* Partage & export (Chantier 20) — masqué en Mode Focus via .focus-mode. */}
         <div className="share-row">
           <button className="share-btn" onClick={onSaveSnippet} title="Sauvegarder ce pattern dans ta bibliothèque">
-            ☆ Sauvegarder
+            <IcoSave />
+            Sauvegarder
           </button>
           <button className="share-btn" onClick={onOpenInStrudel} title="Ouvrir ce code dans le REPL officiel strudel.cc (nouvel onglet)">
-            ↗ Ouvrir dans Strudel
+            <IcoExternal />
+            Ouvrir dans Strudel
           </button>
           <button className="share-btn" onClick={onDownloadJs} title="Télécharger ce code en fichier .js">
-            ⤓ Télécharger .js
+            <IcoDownload />
+            Télécharger .js
           </button>
           {snipMsg && <span className="share-msg" role="status">{snipMsg}</span>}
         </div>

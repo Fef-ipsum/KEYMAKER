@@ -4,6 +4,7 @@
 // l'éditeur restent montés dessous, jamais recréés. Tous les réglages ont un
 // effet réel immédiat et sont persistés (clé keymaker:settings) côté App.
 import { useEffect, useState } from 'react';
+import { ACCENTS, HALOS, BACKDROPS } from './design.js';
 
 // Taille de texte → facteur --fs-scale (voir App + styles.css).
 const TEXT_SIZES = [
@@ -168,6 +169,115 @@ export default function Settings({
               onToggle={(v) => onChange({ reduceMotion: v })}
               label="Réduire les animations"
             />
+          </div>
+        </section>
+
+        {/* ---- Personnalisation (design pilotable) ---- */}
+        <section className="set-section">
+          <h3 className="set-h">Personnalisation</h3>
+
+          <div className="set-row set-row-col">
+            <div className="set-row-label">
+              <span className="set-name">Couleur d'accent</span>
+              <span className="set-desc">
+                La couleur vive de l'app : boutons, halo, points de progression. « Par thème » garde la
+                couleur d'origine de chaque thème ; le dernier carré ouvre un sélecteur libre.
+              </span>
+            </div>
+            <div className="set-swatches" role="group" aria-label="Couleur d'accent">
+              {ACCENTS.map((a) =>
+                a.key === 'auto' ? (
+                  <button
+                    key="auto"
+                    type="button"
+                    className={'set-swatch set-swatch-auto' + (settings.accent === 'auto' ? ' on' : '')}
+                    onClick={() => onChange({ accent: 'auto' })}
+                    title="Par thème"
+                    aria-label="Par thème"
+                    aria-pressed={settings.accent === 'auto'}
+                  />
+                ) : (
+                  <button
+                    key={a.key}
+                    type="button"
+                    className={'set-swatch' + (settings.accent === a.key ? ' on' : '')}
+                    style={{ '--sw': a.hex }}
+                    onClick={() => onChange({ accent: a.key })}
+                    title={a.label}
+                    aria-label={a.label}
+                    aria-pressed={settings.accent === a.key}
+                  />
+                )
+              )}
+              <label
+                className={'set-swatch set-swatch-custom' + (settings.accent === 'custom' ? ' on' : '')}
+                style={{ '--sw': settings.accentCustom || '#22d3ee' }}
+                title="Personnalisé"
+              >
+                <input
+                  type="color"
+                  value={settings.accentCustom || '#22d3ee'}
+                  onChange={(e) => onChange({ accent: 'custom', accentCustom: e.target.value })}
+                  aria-label="Couleur personnalisée"
+                />
+              </label>
+            </div>
+          </div>
+
+          <div className="set-row">
+            <div className="set-row-label">
+              <span className="set-name">Intensité du halo</span>
+              <span className="set-desc">La force des lueurs autour des éléments actifs (éditeur, boutons…).</span>
+            </div>
+            <div className="set-seg" role="group" aria-label="Intensité du halo">
+              {HALOS.map((h) => (
+                <button
+                  key={h.key}
+                  className={'set-seg-btn' + ((settings.halo || 'balanced') === h.key ? ' on' : '')}
+                  onClick={() => onChange({ halo: h.key })}
+                  aria-pressed={(settings.halo || 'balanced') === h.key}
+                >
+                  {h.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {settings.theme !== 'light' && (
+            <div className="set-row">
+              <div className="set-row-label">
+                <span className="set-name">Fond</span>
+                <span className="set-desc">Profondeur de l'arrière-plan sombre. « Noir pur » = idéal écrans OLED.</span>
+              </div>
+              <div className="set-seg" role="group" aria-label="Fond">
+                {BACKDROPS.map((b) => (
+                  <button
+                    key={b.key}
+                    className={'set-seg-btn' + ((settings.backdrop || 'auto') === b.key ? ' on' : '')}
+                    onClick={() => onChange({ backdrop: b.key })}
+                    aria-pressed={(settings.backdrop || 'auto') === b.key}
+                  >
+                    {b.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="set-row">
+            <div className="set-row-label">
+              <span className="set-name">Grain</span>
+              <span className="set-desc">Texture très fine sur le fond — de la matière, façon papier photo.</span>
+            </div>
+            <Toggle on={!!settings.grain} onToggle={(v) => onChange({ grain: v })} label="Grain" />
+          </div>
+
+          <div className="set-row">
+            <div className="set-row-label">
+              <span className="set-name">Lumière au curseur</span>
+              <span className="set-desc">Une lueur d'accent qui suit la souris. Coupée si « réduire les animations ».</span>
+            </div>
+            <Toggle on={!!settings.spotlight} onToggle={(v) => onChange({ spotlight: v })} label="Lumière au curseur" />
           </div>
         </section>
 
