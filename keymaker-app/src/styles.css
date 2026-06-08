@@ -2460,3 +2460,222 @@ html.spotlight-on body::after {
   width: calc(100% + 4px); height: calc(100% + 4px);
   border: none; background: transparent; padding: 0; cursor: pointer; opacity: 0;
 }
+
+/* ============================================================
+   Chantier 32 — Studio (le bac à sable, hors leçon).  [studio]
+   Couche plein écran SOUS l'overlay Sati (z-index 40) : on peut
+   donc ouvrir Sati par-dessus le Studio. 100 % thème-aware.
+   ============================================================ */
+.studio {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow-y: auto;
+  color: var(--text);
+  background:
+    radial-gradient(1100px 600px at 75% -10%, rgba(var(--accent-rgb), 0.10), transparent 60%),
+    radial-gradient(900px 500px at 0% 110%, rgba(91, 91, 214, 0.10), transparent 55%),
+    var(--bg);
+  animation: studioIn 0.28s var(--ease-out, ease) both;
+}
+@keyframes studioIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+.app.reduce-motion .studio { animation: none; }
+
+/* En-tête du Studio (collant) */
+.studio-top {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px clamp(16px, 4vw, 40px);
+  border-bottom: 1px solid var(--border-soft);
+  background: linear-gradient(var(--bg), var(--bg-fade));
+  backdrop-filter: blur(8px);
+}
+.studio-brand { display: flex; align-items: center; gap: 12px; }
+.studio-glyph {
+  font-size: 26px;
+  color: var(--accent);
+  text-shadow: 0 0 18px rgba(var(--accent-rgb), 0.6);
+}
+.studio-id .kicker { margin: 0 0 2px; }
+.studio-title { font-size: 22px; font-weight: 800; margin: 0; }
+
+.studio-top-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.studio-close {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-radius: 11px;
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.studio-close:hover { background: var(--surface); border-color: var(--border); }
+.studio-kbd {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  border: 1px solid var(--border-soft);
+  border-radius: 5px;
+  padding: 0 5px;
+}
+
+/* Le bouton Studio de la topbar : liseré accent pour inviter au clic */
+.tb-btn-studio { border-color: rgba(var(--accent-rgb), 0.35); }
+
+/* Corps : éditeur (1fr) + panneau latéral (320px), empilés sous 900px */
+.studio-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: clamp(16px, 3vw, 28px);
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  padding: clamp(18px, 3vw, 32px) clamp(16px, 4vw, 40px) 64px;
+}
+@media (max-width: 900px) {
+  .studio-body { grid-template-columns: 1fr; }
+}
+.studio-editor-block { min-width: 0; }
+.studio .editor-host { min-height: clamp(220px, 36vh, 420px); }
+.studio .editor-host .cm-editor { font-size: calc(20px * var(--fs-scale, 1)); }
+
+/* Tempo (− valeur +) */
+.studio-tempo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.studio-tempo-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border-soft);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.studio-tempo-btn:hover:not(:disabled) { border-color: var(--border); background: var(--surface); }
+.studio-tempo-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.studio-tempo-val {
+  min-width: 78px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  font-size: 14px;
+}
+.studio-tempo-val b { color: var(--text); font-size: 16px; }
+
+/* Panneau latéral */
+.studio-side { display: flex; flex-direction: column; gap: 16px; }
+.studio-panel {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+.studio-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.studio-panel h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  color: var(--accent);
+  margin: 0 0 4px;
+}
+.studio-panel-sub { color: var(--muted); font-size: 13px; margin: 2px 0 12px; }
+.studio-surprise {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 7px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.studio-surprise:hover:not(:disabled) { border-color: var(--border); background: var(--surface); }
+.studio-surprise:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Starters : grille 2 colonnes, un clic = ça joue */
+.studio-starters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.studio-starter {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+  padding: 11px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 0.08s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+.studio-starter:hover:not(:disabled) {
+  border-color: var(--border);
+  box-shadow: 0 10px 26px -16px rgba(var(--accent-rgb), 0.7);
+  transform: translateY(-1px);
+}
+.studio-starter:active:not(:disabled) { transform: translateY(0); }
+.studio-starter:disabled { opacity: 0.5; cursor: not-allowed; }
+.studio-starter-label { font-weight: 800; font-size: 15px; }
+.studio-starter-hint { color: var(--muted); font-size: 12px; }
+.app.reduce-motion .studio-starter:hover { transform: none; }
+
+/* Aide-mémoire */
+.studio-cheatlist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.studio-cheatlist code { color: var(--accent); }
+.studio-cheat-foot { margin: 12px 0 0; font-size: 12px; color: var(--muted); line-height: 1.8; }
+.studio kbd {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 1px 5px;
+  color: var(--text);
+}
+.studio-link {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  text-decoration: underline;
+}
+/* CSSEOF-studio-sentinel */

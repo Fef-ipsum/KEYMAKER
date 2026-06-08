@@ -49,6 +49,28 @@ const QUICK_ACTIONS = [
   },
 ];
 
+// Actions rapides du STUDIO (Chantier 32) : orientées « faire du son », pas pédagogie.
+const STUDIO_ACTIONS = [
+  {
+    key: 'idea',
+    label: 'Donne-moi une idée',
+    prompt: "Propose-moi une idée de pattern Strudel sympa à essayer maintenant. Donne le code, court et directement jouable.",
+    mode: undefined,
+  },
+  {
+    key: 'improve',
+    label: 'Améliore mon code',
+    prompt: "Regarde le code de mon éditeur Studio et améliore-le, ou propose une variation intéressante. Donne le code modifié, bref.",
+    mode: 'fast',
+  },
+  {
+    key: 'twist',
+    label: 'Surprends-moi',
+    prompt: "Surprends-moi : transforme ce que j'ai dans l'éditeur en quelque chose d'inattendu mais jouable. Code + une phrase d'explication.",
+    mode: undefined,
+  },
+];
+
 function modelLabel(model) {
   if (!model) return '';
   if (model.includes('haiku')) return 'Haiku';
@@ -78,7 +100,7 @@ function inlineRich(text) {
   return nodes;
 }
 
-export default function SatiChat({ piUrl, status, onChangeUrl, onTest, getContext, onClose }) {
+export default function SatiChat({ piUrl, status, onChangeUrl, onTest, getContext, onClose, studio = false }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
@@ -232,6 +254,7 @@ export default function SatiChat({ piUrl, status, onChangeUrl, onTest, getContex
   const offline = status?.state !== 'ok';
   const empty = messages.length === 0;
   const recall = buildDifficultyRecall(difficulties); // rappel doux quand le fil est vide
+  const actions = studio ? STUDIO_ACTIONS : QUICK_ACTIONS; // Chantier 32 : jeu d'actions selon le contexte
 
   return (
     <div className="learn-overlay sati-overlay" role="dialog" aria-modal="true" aria-label="Sati, le guide">
@@ -243,7 +266,11 @@ export default function SatiChat({ piUrl, status, onChangeUrl, onTest, getContex
             <h2 className="learn-title">
               <span className={'sati-dot status-' + (status?.state || 'unknown')} aria-hidden="true" /> Sati
             </h2>
-            <p className="learn-sub">Elle voit ton flash et ton code. Elle attend que tu lui parles.</p>
+            <p className="learn-sub">
+              {studio
+                ? 'Tu es dans le Studio. Elle voit ton code et t’aide à faire du son.'
+                : 'Elle voit ton flash et ton code. Elle attend que tu lui parles.'}
+            </p>
           </div>
           <button className="learn-close" onClick={onClose} aria-label="Fermer">
             ✕
@@ -266,12 +293,24 @@ export default function SatiChat({ piUrl, status, onChangeUrl, onTest, getContex
           {empty ? (
             <div className="sati-empty">
               <p className="sati-empty-lead">
-                Salut Felix. Pose-moi une question sur ce flash, ou clique une action ci-dessous.
+                {studio
+                  ? 'Salut Felix. Envie d’un son ? Demande-moi une idée, ou clique une action ci-dessous.'
+                  : 'Salut Felix. Pose-moi une question sur ce flash, ou clique une action ci-dessous.'}
               </p>
               <ul className="sati-empty-list">
-                <li>J'explique le concept du flash en français, simplement.</li>
-                <li>Je lis le code de ton éditeur et je repère ce qui coince.</li>
-                <li>Je te donne un indice sans cracher la réponse.</li>
+                {studio ? (
+                  <>
+                    <li>Je te propose un pattern jouable tout de suite.</li>
+                    <li>Je lis ton code et je l’améliore ou le fais varier.</li>
+                    <li>Je te surprends avec une idée inattendue.</li>
+                  </>
+                ) : (
+                  <>
+                    <li>J'explique le concept du flash en français, simplement.</li>
+                    <li>Je lis le code de ton éditeur et je repère ce qui coince.</li>
+                    <li>Je te donne un indice sans cracher la réponse.</li>
+                  </>
+                )}
               </ul>
               {recall && (
                 <p className="sati-recall" role="note">
@@ -287,7 +326,7 @@ export default function SatiChat({ piUrl, status, onChangeUrl, onTest, getContex
         </div>
 
         <div className="sati-actions" role="group" aria-label="Actions rapides">
-          {QUICK_ACTIONS.map((a) => (
+          {actions.map((a) => (
             <button
               key={a.key}
               className="sati-chip"

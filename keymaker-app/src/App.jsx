@@ -15,6 +15,7 @@ import { addSnippet } from './notebook.js';
 import PatternViz from './PatternViz.jsx';
 import PoSync from './PoSync.jsx';
 import { resolveAccent, HALO_STRENGTH, BG_PRESETS } from './design.js';
+import Studio, { STUDIO_DEFAULT } from './Studio.jsx';
 
 /* ---------------------------------------------------------------------------
    Navigation multi-chapitres (Chantier 3).
@@ -46,6 +47,12 @@ const OLDEST_KEY = 'keymaker:ch1:flashIndex'; // Chantier 2 : index simple dans 
 // Backend de Sati (Chantier 4). Pré-rempli avec l'URL Tailscale du Pi ; modifiable.
 const PI_URL_KEY = 'keymaker:piUrl';
 const DEFAULT_PI_URL = 'https://personal-os.tailac998e.ts.net';
+
+// Studio (Chantier 32) — code du bac à sable, persiste sur l'appareil.
+const STUDIO_CODE_KEY = 'keymaker:studio:code';
+function readStudioCode() {
+  try { return localStorage.getItem(STUDIO_CODE_KEY) || STUDIO_DEFAULT; } catch { return STUDIO_DEFAULT; }
+}
 
 // Réglages (Chantier 6) — persistés sur l'appareil.
 const SETTINGS_KEY = 'keymaker:settings';
@@ -162,6 +169,16 @@ const IcoMenu = () => (
     <line x1="1.5" y1="11.5" x2="13.5" y2="11.5"/>
   </svg>
 );
+const IcoStudio = () => (
+  <svg className="tb-btn-ico" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <line x1="3" y1="2" x2="3" y2="13"/>
+    <line x1="7.5" y1="2" x2="7.5" y2="13"/>
+    <line x1="12" y1="2" x2="12" y2="13"/>
+    <circle cx="3" cy="5.5" r="1.6"/>
+    <circle cx="7.5" cy="9.5" r="1.6"/>
+    <circle cx="12" cy="4.5" r="1.6"/>
+  </svg>
+);
 const IcoGear = () => (
   <svg className="tb-btn-ico" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <circle cx="7.5" cy="7.5" r="2.2"/>
@@ -210,6 +227,8 @@ export default function App() {
   const [focusMode, setFocusMode] = useState(false); // Chantier 21 : Mode Focus (éphémère, non persisté)
   const [dashOpen, setDashOpen] = useState(false); // Chantier 16 : tableau de bord (accueil)
   const [libraryOpen, setLibraryOpen] = useState(false); // Chantier 27 : bibliothèque de snippets
+  const [studioOpen, setStudioOpen] = useState(false); // Chantier 32 : Studio (bac à sable, hors leçon)
+  const studioEditorRef = useRef(null);                // éditeur Strudel dédié au Studio
   const [snipMsg, setSnipMsg] = useState(''); // Chantier 27 : confirmation éphémère de sauvegarde
 
   // Réglages persistés (Chantier 6) : taille de texte, animations, thème d'éditeur, numéros de ligne.
@@ -472,6 +491,33 @@ export default function App() {
     setLibraryOpen(false);
   }, []);
 
+  // Chantier 32 — Studio : ouvre le bac à sable en coupant d'abord le son de la leçon
+  // (un seul éditeur joue à la fois ; ils partagent l'AudioContext global de Strudel).
+  const openStudio = useCallback(async () => {
+    try { if (editorRef.current) await editorRef.current.stop(); } catch { /* ignore */ }
+    setPlaying(false);
+    setStudioOpen(true);
+  }, []);
+
+  const persistStudio = useCallback((code) => {
+    try { localStorage.setItem(STUDIO_CODE_KEY, code); } catch { /* non bloquant */ }
+  }, []);
+
+  const saveStudioSnippet = useCallback(async (code) => {
+    const when = new Date().toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
+    try { const saved = await addSnippet({ name: 'Studio — ' + when, code, module: 'studio' }); return !!saved; }
+    catch { return false; }
+  }, []);
+
+  // Contexte transmis à Sati quand Felix est dans le Studio (code live de l'éditeur dédié).
+  const getStudioContext = useCallback(() => {
+    const ed = studioEditorRef.current;
+    let liveCode = '';
+    try { if (ed && typeof ed.code === 'string') liveCode = ed.code; } catch { /* ignore */ }
+    if (!liveCode) { try { liveCode = (ed && ed.editor && ed.editor.state.doc.toString()) || ''; } catch { /* ignore */ } }
+    return { studio: true, moduleTitle: 'Studio', flashTitle: 'Studio libre', liveCode, error: null };
+  }, []);
+
   // Navigation : un seul curseur `pos` sur la liste plate du module courant. Circulation libre.
   const goTo = useCallback((i) => setPos(Math.max(0, Math.min(TOTAL - 1, i))), [TOTAL]);
   const goPrev = useCallback(() => setPos((p) => Math.max(0, p - 1)), []);
@@ -539,15 +585,16 @@ export default function App() {
   // Échap ferme d'abord les overlays ouverts (Parcours / Sati / Réglages),
   // sinon sort du Mode Focus (Chantier 21).
   useEffect(() => {
-    if (!learnOpen && !satiOpen && !settingsOpen && !dashOpen && !libraryOpen && !focusMode) return;
+    if (!learnOpen && !satiOpen && !settingsOpen && !dashOpen && !libraryOpen && !focusMode && !studioOpen) return;
     const onKey = (e) => {
       if (e.key !== 'Escape') return;
       if (learnOpen || satiOpen || settingsOpen || dashOpen || libraryOpen) { setLearnOpen(false); setSatiOpen(false); setSettingsOpen(false); setDashOpen(false); setLibraryOpen(false); }
+      else if (studioOpen) setStudioOpen(false);
       else if (focusMode) setFocusMode(false);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [learnOpen, satiOpen, settingsOpen, dashOpen, libraryOpen, focusMode]);
+  }, [learnOpen, satiOpen, settingsOpen, dashOpen, libraryOpen, focusMode, studioOpen]);
 
   return (
     <div className={'app' + (settings.reduceMotion ? ' reduce-motion' : '') + (focusMode ? ' focus-mode' : '')} data-theme={settings.theme || 'void'}>
@@ -576,6 +623,14 @@ export default function App() {
           >
             <IcoExpand />
             Focus
+          </button>
+          <button
+            className="tb-btn tb-btn-studio"
+            onClick={openStudio}
+            title="Studio : un bac à sable libre pour faire du son (hors leçon)"
+          >
+            <IcoStudio />
+            Studio
           </button>
           <button
             className={'sati-btn status-' + piStatus.state}
@@ -665,7 +720,8 @@ export default function App() {
           status={piStatus}
           onChangeUrl={savePiUrl}
           onTest={() => checkPi(piUrl)}
-          getContext={getContext}
+          getContext={studioOpen ? getStudioContext : getContext}
+          studio={studioOpen}
           onClose={() => setSatiOpen(false)}
         />
       )}
@@ -702,6 +758,22 @@ export default function App() {
         <SnippetLibrary
           onLoadSnippet={loadSnippetCode}
           onClose={() => setLibraryOpen(false)}
+        />
+      )}
+
+      {studioOpen && (
+        <Studio
+          initialCode={readStudioCode()}
+          piStatus={piStatus}
+          theme={settings.theme}
+          reduceMotion={settings.reduceMotion}
+          onOpenSati={() => setSatiOpen(true)}
+          onSaveSnippet={saveStudioSnippet}
+          onOpenInStrudel={(code) => { try { window.open(strudelUrl(code), '_blank', 'noopener'); } catch { /* ignore */ } }}
+          onDownload={(code) => downloadText('keymaker-studio.js', '// Keymaker — Studio (bac a sable)\n\n' + code + '\n')}
+          onEditorReady={(ed) => { studioEditorRef.current = ed; applyEditorSettings(ed, settings); }}
+          onPersist={persistStudio}
+          onClose={() => setStudioOpen(false)}
         />
       )}
 

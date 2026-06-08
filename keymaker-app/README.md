@@ -1,7 +1,7 @@
 # ꩜ Keymaker — l'app d'apprentissage Strudel CC + solfège
 
 PWA en français pour apprendre **le live coding (Strudel CC)** et **le solfège** en même temps.
-État actuel : **7 modules complets et jouables**, **176 flashs**, un écran **🏠 Accueil** (progression + streak), un **carnet de notes** et une **bibliothèque de snippets** par flash, un **visualiseur de rythme** (grille animée sous l'éditeur), le **partage vers strudel.cc**, un guide IA (**Sati**) et un écran **Réglages**. Tout tourne 100 % en local ; Sati se branche sur ton Pi.
+État actuel : **7 modules complets et jouables**, **176 flashs**, un écran **🏠 Accueil** (progression + streak), un **carnet de notes** et une **bibliothèque de snippets** par flash, un **visualiseur de rythme** (grille animée sous l'éditeur), le **partage vers strudel.cc**, un **🎛️ Studio** (bac à sable libre, hors leçon), un guide IA (**Sati**) et un écran **Réglages**. Tout tourne 100 % en local ; Sati se branche sur ton Pi.
 
 ---
 
@@ -39,6 +39,21 @@ Une fenêtre noire s'ouvre (le serveur local) et ton navigateur ouvre l'app tout
 - **↗ Ouvrir dans Strudel** ouvre ton code dans le REPL officiel strudel.cc · **⤓ Télécharger .js** l'enregistre en fichier propre.
 
 Tout est **100 % local** (rien n'est envoyé) et **masqué en Mode Focus**.
+
+---
+
+## 🎛️ Studio — faire du son (hors leçon)
+
+Bouton **🎛️ Studio** dans la barre du haut : un **bac à sable indépendant des leçons**. Pas de flash, pas de progression — juste un éditeur Strudel à toi pour **improviser et faire du son**.
+
+- **Démarrage rapide** : une grille de *starters* (House, Breakbeat, Acid, Mélodie, Ambient, Techno). **Un clic = ça charge et ça joue.** Édite ensuite à ta guise.
+- **🎲 Surprends-moi** : charge un pattern au hasard et le lance.
+- **Tempo** : −/+ ajuste le BPM (réécrit la ligne `setcpm` en tête).
+- **Run / Stop** (`Ctrl+Entrée` / `Ctrl+.`), **visualiseur** de rythme, **aide-mémoire** intégré.
+- **☆ Sauvegarder** (dans ta bibliothèque) · **↗ Ouvrir dans Strudel** · **⤓ Télécharger .js** · **⟲ Vider**.
+- **Sati à portée de clic** : elle voit ton code du Studio et propose des idées jouables (actions adaptées : *Donne-moi une idée*, *Améliore mon code*, *Surprends-moi*).
+
+Ton code du Studio est **retenu d'une session à l'autre** (local). Le son de la leçon s'arrête quand tu entres dans le Studio (un seul moteur joue à la fois). On en sort par **✕ Fermer** ou **Échap**.
 
 ---
 
@@ -137,4 +152,4 @@ keymaker-app/
 
 ---
 
-*Keymaker — Modules 1 à 7 complets (176 flashs) + Sati + Réglages (thèmes Void / Light / Matrix) + **Mode Focus** + **auto-complétion & erreurs inline** + **Accueil/progression**, **carnet de notes**, **bibliothèque de snippets**, **partage/export** et **visualiseur de rythme**. Strudel v1.3.0. Mis à jour le 6 juin 2026 (Chantier 26 — Visualiseur de pattern, en autonomie).*
+*Keymaker — Modules 1 à 7 complets (176 flashs) + **Studio (bac à sable)** + Sati + Réglages (thèmes Void / Light / Matrix) + **Mode Focus** + **auto-complétion & erreurs inline** + **Accueil/progression**, **carnet de notes**, **bibliothèque de snippets**, **partage/export** et **visualiseur de rythme**. Strudel v1.3.0. Mis à jour le 8 juin 2026 (Chantier 32 — Studio REPL, en autonomie).*

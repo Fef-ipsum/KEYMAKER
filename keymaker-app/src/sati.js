@@ -140,6 +140,7 @@ export async function streamSati({ piUrl, message, history = [], mode, signal, o
    --------------------------------------------------------------------------- */
 export function buildContextBlock(ctx = {}) {
   const {
+    studio, // Chantier 32 : true quand Felix est dans le Studio (hors leçon)
     moduleId,
     moduleTitle,
     chapterNumber,
@@ -154,13 +155,21 @@ export function buildContextBlock(ctx = {}) {
   } = ctx;
 
   const lines = ['<contexte_app>'];
-  lines.push(
-    `Felix apprend dans Keymaker. Position : Module ${moduleId ?? '?'} « ${moduleTitle ?? ''} »` +
-      ` · Chapitre ${chapterNumber ?? '?'} « ${chapterTitle ?? ''} »` +
-      ` · Flash ${flashId ?? '?'} « ${flashTitle ?? ''} ».`
-  );
-  if (concept) lines.push(`Concept enseigné ici : ${concept}`);
-  if (lessonCode) lines.push('Code de la leçon (référence) :\n```\n' + lessonCode + '\n```');
+  if (studio) {
+    lines.push(
+      "Felix est dans le STUDIO de Keymaker : un bac à sable libre, hors leçon. Il vient juste faire du son, " +
+        "improviser et expérimenter avec Strudel. Aide-le à créer ou modifier des patterns : propose des idées " +
+        "concrètes et immédiatement jouables, et reste bref et orienté action (pas de cours magistral)."
+    );
+  } else {
+    lines.push(
+      `Felix apprend dans Keymaker. Position : Module ${moduleId ?? '?'} « ${moduleTitle ?? ''} »` +
+        ` · Chapitre ${chapterNumber ?? '?'} « ${chapterTitle ?? ''} »` +
+        ` · Flash ${flashId ?? '?'} « ${flashTitle ?? ''} ».`
+    );
+    if (concept) lines.push(`Concept enseigné ici : ${concept}`);
+    if (lessonCode) lines.push('Code de la leçon (référence) :\n```\n' + lessonCode + '\n```');
+  }
   const live = (liveCode || '').trim();
   lines.push("Code actuellement dans l'éditeur de Felix :\n```\n" + (live || '(éditeur vide)') + '\n```');
   if (error) lines.push(`Dernière erreur affichée dans l'app : ${error}`);
