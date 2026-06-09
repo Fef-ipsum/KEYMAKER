@@ -9,10 +9,11 @@
 // hors-ligne. Les difficultés (« je comprends pas… ») sont repérées
 // automatiquement et glissées dans le contexte pour que Sati s'en souvienne.
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { streamSati, buildContextBlock, composeMessage, historyFromMessages } from './sati.js';
+import { streamSati, buildContextBlock, composeMessage, historyFromMessages, buildLessonPrompt } from './sati.js';
 import {
   loadThread,
   appendExchange,
+  clearThread,
   loadDifficulties,
   recordDifficulty,
   detectDifficulty,
@@ -106,6 +107,11 @@ export default function SatiChat({ piUrl, status, onChangeUrl, onTest, getContex
   const [busy, setBusy] = useState(false);
   const [mode, setMode] = useState('normal'); // 'normal' (Sonnet) | 'fast' (Haiku)
   const [difficulties, setDifficulties] = useState([]); // repères de mémoire locale (tranche 2)
+  // Chantier 33 — UX Sati :
+  const [confirmReset, setConfirmReset] = useState(false); // « Nouvelle conversation » en 2 temps (anti-clic)
+  const [notice, setNotice] = useState('');                // avis transitoire (ex. « réinitialisée »)
+  const [lessonOpen, setLessonOpen] = useState(false);     // champ « ✏️ Crée une leçon sur… »
+  const [lessonSubject, setLessonSubject] = useState('');
 
   const messagesRef = useRef(messages);
   useEffect(() => {
@@ -142,6 +148,13 @@ export default function SatiChat({ piUrl, status, onChangeUrl, onTest, getContex
       if (abortRef.current) abortRef.current.abort();
     };
   }, []);
+
+  // Chantier 33 : l'avis transitoire s'efface tout seul après quelques secondes.
+  useEffect(() => {
+    if (!notice) return undefined;
+    const t = setTimeout(() => setNotice(''), 2600);
+    return () => clearTimeout(t);
+  }, [notice]);
 
   // À l'ouverture : recharge le fil global + les difficultés depuis IndexedDB
   // (best-effort — si la base est indisponible, on démarre simplement à vide).
@@ -243,6 +256,31 @@ export default function SatiChat({ piUrl, status, onChangeUrl, onTest, getContex
     if (abortRef.current) abortRef.current.abort();
   }, []);
 
+  // Chantier 33 — « Nouvelle conversation » : vide le fil AFFICHÉ et le fil
+  // PERSISTÉ (IndexedDB), mais PAS les difficultés repérées ni le journal du Pi.
+  // Sati repart d'une page blanche sans oublier ce qui était difficile pour Felix.
+  const resetConversation = useCallback(() => {
+    if (abortRef.current) abortRef.current.abort();
+    clearThread().catch(() => {});
+    setMessages([]);
+    setInput('');
+    setBusy(false);
+    idRef.current = 0;
+    setConfirmReset(false);
+    setLessonOpen(false);
+    setNotice('Conversation réinitialisée — Sati garde tes points difficiles en mémoire.');
+  }, []);
+
+  // Chantier 33 — leçon personnalisée : à partir d'un sujet libre, Sati fabrique
+  // une mini-leçon (concept + code jouable + exercice) en mode soigné (Sonnet).
+  const submitLesson = useCallback(() => {
+    const subject = lessonSubject.trim();
+    if (!subject || busy) return;
+    setLessonOpen(false);
+    setLessonSubject('');
+    send(buildLessonPrompt(subject));
+  }, [lessonSubject, busy, send]);
+
   const onKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -272,10 +310,38 @@ export default function SatiChat({ piUrl, status, onChangeUrl, onTest, getContex
                 : 'Elle voit ton flash et ton code. Elle attend que tu lui parles.'}
             </p>
           </div>
-          <button className="learn-close" onClick={onClose} aria-label="Fermer">
-            ✕
-          </button>
+          <div className="sati-head-actions">
+            {!empty &&
+              (confirmReset ? (
+                <span className="sati-reset-confirm" role="group" aria-label="Confirmer la réinitialisation">
+                  <span className="sati-reset-q">Effacer&nbsp;?</span>
+                  <button className="sati-reset-yes" onClick={resetConversation}>
+                    Oui
+                  </button>
+                  <button className="sati-reset-no" onClick={() => setConfirmReset(false)}>
+                    Non
+                  </button>
+                </span>
+              ) : (
+                <button
+                  className="sati-reset"
+                  onClick={() => setConfirmReset(true)}
+                  title="Nouvelle conversation : efface le fil courant, garde la mémoire de Sati"
+                >
+                  ⟲ Nouvelle conversation
+                </button>
+              ))}
+            <button className="learn-close" onClick={onClose} aria-label="Fermer">
+              ✕
+            </button>
+          </div>
         </header>
+
+        {notice && (
+          <div className="sati-notice" role="status">
+            {notice}
+          </div>
+        )}
 
         {offline && (
           <div className="sati-banner" role="status">
@@ -337,7 +403,57 @@ export default function SatiChat({ piUrl, status, onChangeUrl, onTest, getContex
               {a.label}
             </button>
           ))}
+          {!studio && (
+            <button
+              className={'sati-chip sati-chip-lesson' + (lessonOpen ? ' on' : '')}
+              disabled={busy}
+              onClick={() => setLessonOpen((v) => !v)}
+              aria-expanded={lessonOpen}
+              title="Sati te fabrique une mini-leçon sur le sujet de ton choix"
+            >
+              ✏️ Crée une leçon
+            </button>
+          )}
         </div>
+
+        {lessonOpen && !studio && (
+          <div className="sati-lesson" role="group" aria-label="Créer une leçon sur mesure">
+            <input
+              className="sati-input sati-lesson-input"
+              type="text"
+              value={lessonSubject}
+              autoFocus
+              placeholder="Sujet…  ex. « les filtres + les enveloppes »"
+              onChange={(e) => setLessonSubject(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  submitLesson();
+                } else if (e.key === 'Escape') {
+                  e.preventDefault();
+                  setLessonOpen(false);
+                }
+              }}
+            />
+            <button
+              className="btn run sati-lesson-go"
+              onClick={submitLesson}
+              disabled={!lessonSubject.trim() || busy}
+            >
+              Générer ▸
+            </button>
+            <button
+              className="sati-lesson-cancel"
+              onClick={() => {
+                setLessonOpen(false);
+                setLessonSubject('');
+              }}
+              aria-label="Annuler"
+            >
+              ✕
+            </button>
+          </div>
+        )}
 
         <div className="sati-composer">
           <textarea

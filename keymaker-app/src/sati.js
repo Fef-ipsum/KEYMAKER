@@ -210,6 +210,26 @@ export function composeMessage(userText, contextBlock) {
 }
 
 /* ---------------------------------------------------------------------------
+   buildLessonPrompt — Chantier 33 : transforme un sujet libre (« les filtres »,
+   « gammes + accords ») en une consigne claire pour que Sati fabrique une
+   mini-leçon utile : concept court, code Strudel jouable, petit exercice.
+   PUR et testable (hors React). Le sujet est compacté et borné ; la
+   personnalisation fine (module/flash courant, niveau) vient du <contexte_app>
+   déjà injecté par buildContextBlock() côté envoi.
+   --------------------------------------------------------------------------- */
+export function buildLessonPrompt(subject) {
+  const s = String(subject == null ? '' : subject).replace(/\s+/g, ' ').trim().slice(0, 200);
+  const topic = s || 'un point que je revois';
+  return (
+    `Crée-moi une mini-leçon Keymaker sur : « ${topic} ». ` +
+    `Structure ta réponse en trois temps courts : (1) le concept en 2-3 phrases simples, ` +
+    `(2) un exemple de code Strudel directement jouable dans un bloc, ` +
+    `(3) un petit exercice pour m'entraîner. ` +
+    `Reste concret et adapté à mon niveau du moment.`
+  );
+}
+
+/* ---------------------------------------------------------------------------
    historyFromMessages — reconstruit un historique multi-tours PROPRE à partir du
    fil de chat : paires user→assistant strictement alternées, en sautant les
    échanges en erreur/interrompus (jamais de rôles consécutifs qui casseraient

@@ -40,7 +40,7 @@
 - ⏳ **Chantier 17 — Mode Quiz** : active recall — code à trous, reconnaissance de motifs, évaluation par Sati.
 - ✅ **Chantier 16 — Tableau de bord & progression FAIT (6 juin 2026, en autonomie)** : écran **🏠 Accueil** (overlay, éditeur jamais recréé) — % par module, **streak** (jours d'affilée), gros bouton **Reprendre**, cartes module (clic → 1ᵉʳ flash non vu), stats « X/151 flashs · N jours de pratique », bouton **📌 Mes snippets**. Suivi 100 % local (`progress.js`, helpers purs testés). Ouverture auto 1×/jour. Build 39 modules + **33/33** node + **15/15** jsdom + sentinelles. → `KEYMAKER_chantier16.md`
 - ⏳ **Chantier 18 — Sati next level** : proactivité, évaluation de code, défis musicaux générés, historique persistant cross-sessions.
-- ⏳ **Chantier 32 — UX Sati : Reset + Leçons personnalisées + Navigation modules** : (1) bouton Reset dans le tiroir Sati pour effacer la conversation en cours et repartir à zéro ; (2) possibilité de demander à Sati de créer une leçon ou des flashs sur un sujet difficile, un mélange de sujets, ou un concept mal compris — via une action rapide dans le chat ET/ou un bouton dédié ; (3) barre de défilement horizontale dans le sélecteur de modules du Parcours (actuellement tronqué après le Module 6, les modules suivants ne sont pas accessibles).
+- ✅ **Chantier 33 — UX Sati (Reset + Leçons à la demande) & Navigation modules — FAIT (9 juin 2026, en autonomie)** : (1) **⟲ Nouvelle conversation** dans le tiroir Sati (confirm 2 temps) — vide le fil affiché ET persisté, **préserve** les difficultés repérées + le journal Pi (`clearThread()`) ; (2) **✏️ Crée une leçon** — action rapide qui fabrique une mini-leçon sur mesure (concept + code jouable + exercice) via l'endpoint existant (`buildLessonPrompt()`) ; (3) **sélecteur de modules scrollable** — `overflow-x:auto` + `flex:0 0 auto` : les **Modules 7 & 8 étaient inaccessibles** (8 modules / 181 flashs), c'est réparé. Build 47 modules (`index-BwrwITym.js`) + **34/34** tests (16 unit `fake-indexeddb` + 18 jsdom) + sentinelles. *Le numéro 32 ayant été pris par le Studio REPL, ce chantier devient le 33.* → `KEYMAKER_chantier33.md`
 - ⏳ **Chantier 28 — Notifications PWA de rappel** : notification desktop après X jours sans pratique. Opt-in. Rappel externe TDA-friendly.
 - ⏳ **Chantier 29 — Stats de pratique** : temps par module, heures/semaine sur 4 semaines, courbe de progression. Intégré au Tableau de bord (C16).
 - ⏳ **Chantier 23 — Répétition espacée (SRS)** : les flashs difficiles reviennent plus souvent, les maîtrisés s'espacent. L'infra (kind: 'difficulte') est presque prête.
@@ -532,7 +532,9 @@ Résultat : le PO-33 suit le BPM de Strudel, tempo verrouillé, zéro dérive. L
 
 ---
 
-### ⏳ Chantier 32 — UX Sati : Reset, Leçons personnalisées & Navigation modules — PROPOSÉ
+### ✅ Chantier 33 — UX Sati : Reset, Leçons personnalisées & Navigation modules — FAIT (9 juin 2026, en autonomie)
+
+> ✅ **Réalisé** (renuméroté 33 — le 32 est devenu le Studio REPL). (1) **⟲ Nouvelle conversation** : `clearThread()` efface le fil (affiché + IndexedDB) en préservant difficultés + Pi, confirm 2 temps. (2) **✏️ Crée une leçon** : action rapide chat (choix tranché vs formulaire dédié) → `buildLessonPrompt()` + endpoint existant, zéro infra. (3) **Sélecteur de modules scrollable** : `overflow-x:auto` + `flex:0 0 auto` → Modules 7 & 8 (jusque-là coupés) accessibles. **34/34** tests verts. Détails : `KEYMAKER_chantier33.md`. La description ci-dessous = l'intention initiale.
 
 Trois améliorations UX demandées par Felix (6 juin 2026) :
 

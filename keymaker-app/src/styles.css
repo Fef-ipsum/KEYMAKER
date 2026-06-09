@@ -446,10 +446,29 @@ strudel-editor { display: none; } /* l'élément hôte n'affiche rien lui-même 
   display: flex;
   gap: 6px;
   margin: 0 0 18px;
+  /* Chantier 33 : au-delà de ~6 modules les onglets débordaient et devenaient
+     inaccessibles (Modules 7 & 8 invisibles). On rend la barre scrollable. */
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 5px;
 }
+.learn-modtabs::-webkit-scrollbar { height: 6px; }
+.learn-modtabs::-webkit-scrollbar-track { background: transparent; }
+.learn-modtabs::-webkit-scrollbar-thumb {
+  background: var(--border-soft);
+  border-radius: 6px;
+}
+.learn-modtabs::-webkit-scrollbar-thumb:hover { background: var(--border); }
 .learn-modtab {
   position: relative;
-  flex: 1;
+  /* Chantier 33 : taille au contenu (plus de flex:1 qui écrasait les onglets) →
+     « Module 8 » reste lisible et la barre scrolle horizontalement. */
+  flex: 0 0 auto;
+  white-space: nowrap;
+  scroll-snap-align: start;
   font-family: var(--font-ui);
   font-size: 14px;
   font-weight: 700;
@@ -1019,6 +1038,79 @@ strudel-editor { display: none; } /* l'élément hôte n'affiche rien lui-même 
 }
 .sati-chip:hover:not(:disabled) { background: rgba(var(--accent-rgb), 0.16); }
 .sati-chip:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* === Chantier 33 — UX Sati : « Nouvelle conversation » + leçon personnalisée ===
+   Tout en var(--…) → s'adapte aux 3 thèmes (Void / Clair / Matrix). */
+.sati-head-actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sati-reset {
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  padding: 7px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.sati-reset:hover { color: var(--text); border-color: var(--border); background: var(--surface); }
+.sati-reset-confirm { display: inline-flex; align-items: center; gap: 6px; }
+.sati-reset-q { font-family: var(--font-ui); font-size: 12.5px; font-weight: 700; color: var(--text); }
+.sati-reset-yes,
+.sati-reset-no {
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+}
+.sati-reset-yes { color: var(--accent-ink); background: var(--accent); border-color: transparent; }
+.sati-reset-yes:hover { filter: brightness(1.06); }
+.sati-reset-no { color: var(--muted); background: var(--surface-2); }
+.sati-reset-no:hover { color: var(--text); }
+
+.sati-notice {
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.10);
+  border: 1px solid rgba(var(--accent-rgb), 0.28);
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin: 0 0 12px;
+}
+
+.sati-chip-lesson.on { color: var(--accent-ink); background: var(--accent); border-color: transparent; }
+
+.sati-lesson {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0 12px;
+}
+.sati-lesson-input { flex: 1; min-width: 0; }
+.sati-lesson-go { flex: none; white-space: nowrap; }
+.sati-lesson-cancel {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  cursor: pointer;
+}
+.sati-lesson-cancel:hover { color: var(--text); }
 
 /* Zone de saisie */
 .sati-composer {

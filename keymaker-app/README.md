@@ -1,7 +1,7 @@
 # ꩜ Keymaker — l'app d'apprentissage Strudel CC + solfège
 
 PWA en français pour apprendre **le live coding (Strudel CC)** et **le solfège** en même temps.
-État actuel : **7 modules complets et jouables**, **176 flashs**, un écran **🏠 Accueil** (progression + streak), un **carnet de notes** et une **bibliothèque de snippets** par flash, un **visualiseur de rythme** (grille animée sous l'éditeur), le **partage vers strudel.cc**, un **🎛️ Studio** (bac à sable libre, hors leçon), un guide IA (**Sati**) et un écran **Réglages**. Tout tourne 100 % en local ; Sati se branche sur ton Pi.
+État actuel : **8 modules complets et jouables**, **181 flashs**, un écran **🏠 Accueil** (progression + streak), un **carnet de notes** et une **bibliothèque de snippets** par flash, un **visualiseur de rythme** (grille animée sous l'éditeur), le **partage vers strudel.cc**, un **🎛️ Studio** (bac à sable libre, hors leçon), un guide IA (**Sati**) et un écran **Réglages**. Tout tourne 100 % en local ; Sati se branche sur ton Pi.
 
 ---
 
@@ -26,7 +26,7 @@ Une fenêtre noire s'ouvre (le serveur local) et ton navigateur ouvre l'app tout
 
 - **Précédent / Suivant** parcourent les flashs et **traversent les chapitres**.
 - Indicateur **Ch.N · n/m** + points du chapitre courant.
-- **☰ Parcours** ouvre la carte : sélecteur **Module 1 à 7**, chapitres repliables, clic pour aller à n'importe quel flash. Circulation **libre**.
+- **☰ Parcours** ouvre la carte : sélecteur **Module 1 à 8** (barre **scrollable** — les Modules 7 & 8 ne sont plus coupés), chapitres repliables, clic pour aller à n'importe quel flash. Circulation **libre**.
 - À la fin d'un module : bouton **« Module suivant ▶ »**.
 
 ---
@@ -91,7 +91,8 @@ Chaque flash suit le même moule : **Concept → éditeur Strudel → Décodage 
 
 Tiroir de chat (bouton **Sati** dans la barre du haut). Elle **voit ton flash et ton code live** et répond en français, en streaming.
 
-- Actions rapides : *Explique ce flash* · *Corrige mon code* · *Un indice*. Modes **Normal** (Sonnet) / **Rapide** (Haiku).
+- Actions rapides : *Explique ce flash* · *Corrige mon code* · *Un indice* · **✏️ Crée une leçon** (mini-leçon sur mesure : concept + code jouable + exercice). Modes **Normal** (Sonnet) / **Rapide** (Haiku).
+- **⟲ Nouvelle conversation** (en-tête, confirm 2 temps) : repart d'un fil vierge — **garde** les difficultés repérées et la mémoire du Pi.
 - **Mémoire locale** (IndexedDB, hors-ligne) : le fil et les difficultés repérées survivent au rechargement.
 - Sati vit sur **ton Pi** (la clé API n'est jamais dans le navigateur). Sans Pi, l'app reste 100 % utilisable, simplement sans Sati.
 
@@ -142,7 +143,7 @@ keymaker-app/
 │  ├─ SatiChat.jsx · sati.js   ← guide IA : tiroir de chat + client SSE du Pi
 │  ├─ Settings.jsx      ← écran Réglages
 │  ├─ memory.js         ← mémoire locale de Sati + schéma IndexedDB v2 (stores notes/snippets)
-│  ├─ lessons.js        ← contenu : modules = [module1...module7], 176 flashs (M7 dans module7.js)
+│  ├─ lessons.js        ← contenu : modules = [module1...module8], 181 flashs (M7/M8 dans module7.js/module8.js)
 │  └─ styles.css        ← thème Void + cartes + nav + table récap + overlays
 ├─ public/
 │  ├─ icons/            ← icônes PWA
@@ -152,4 +153,4 @@ keymaker-app/
 
 ---
 
-*Keymaker — Modules 1 à 7 complets (176 flashs) + **Studio (bac à sable)** + Sati + Réglages (thèmes Void / Light / Matrix) + **Mode Focus** + **auto-complétion & erreurs inline** + **Accueil/progression**, **carnet de notes**, **bibliothèque de snippets**, **partage/export** et **visualiseur de rythme**. Strudel v1.3.0. Mis à jour le 8 juin 2026 (Chantier 32 — Studio REPL, en autonomie).*
+*Keymaker — Modules 1 à 8 complets (181 flashs) + **Studio (bac à sable)** + Sati (**⟲ reset de conversation** + **✏️ leçons à la demande**) + Réglages (thèmes Void / Light / Matrix) + **Mode Focus** + **auto-complétion & erreurs inline** + **Accueil/progression**, **carnet de notes**, **bibliothèque de snippets**, **partage/export** et **visualiseur de rythme**. Navigation modules **scrollable** (Modules 7 & 8 accessibles). Strudel v1.3.0. Mis à jour le 9 juin 2026 (Chantier 33 — UX Sati & navigation, en autonomie).*

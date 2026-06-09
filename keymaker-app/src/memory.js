@@ -254,6 +254,32 @@ export async function clearAllMemory() {
   });
 }
 
+// Efface UNIQUEMENT le fil de conversation courant (store 'messages'), en
+// PRÉSERVANT les difficultés repérées (mémoire longue locale) ET le journal
+// distant côté Pi. C'est le « Nouvelle conversation » du tiroir Sati (Chantier 33) :
+// on repart d'un fil vierge sans amnésie — Sati se souvient toujours des points durs.
+export async function clearThread() {
+  const db = await getDB();
+  if (!db) return false;
+  return new Promise((resolve) => {
+    let t;
+    try {
+      t = db.transaction(STORE_MSG, 'readwrite');
+    } catch {
+      resolve(false);
+      return;
+    }
+    try {
+      t.objectStore(STORE_MSG).clear();
+    } catch {
+      /* ignore */
+    }
+    t.oncomplete = () => resolve(true);
+    t.onerror = () => resolve(false);
+    t.onabort = () => resolve(false);
+  });
+}
+
 // Compteurs pour l'écran Réglages.
 export async function countMemory() {
   const db = await getDB();
