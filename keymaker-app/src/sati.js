@@ -7,7 +7,10 @@
 //   event: delta  → data {"text":"…"}              (jeton par jeton)
 //   event: done   → data {"text":"<texte complet>"}
 //   event: error  → data {"message":"…"}
-// Corps accepté : { message, history?, mode? }.
+// Corps accepté : { message, context?, history?, mode? }.
+//   • context = bloc <contexte_app> (Chantier 35) : envoyé SÉPARÉMENT du message.
+//     Le Pi l'assemble pour Claude mais ne journalise/embedde QUE le message →
+//     la mémoire sémantique encode la question de Felix, pas la position dans l'app.
 //   • history = [{role:'user'|'assistant', content}] → mémoire multi-tours (vérifié).
 //   • mode    = 'fast' (Haiku) | absent (Sonnet, défaut) | 'deep' (Opus).
 // La persona de Sati + le profil de Felix sont déjà injectés CÔTÉ PI (system prompt
@@ -73,24 +76,37 @@ function emitBlock(raw, onEvent) {
    Retourne { text, model }. Lève une Error explicite si le Pi est injoignable
    ou renvoie un `event: error`. `signal` (AbortController) permet d'interrompre.
    --------------------------------------------------------------------------- */
-export async function streamSati({ piUrl, message, history = [], mode, signal, onModel, onDelta }) {
+export async function streamSati({ piUrl, message, context, history = [], mode, signal, onModel, onDelta }) {
   const base = normalizePiUrl(piUrl);
   if (!base) throw new Error('URL du Pi vide — renseigne-la dans Connexion.');
 
   const body = { message };
+  if (context) body.context = context; // Chantier 35 : contexte séparé, jamais journalisé
   if (history && history.length) body.history = history;
   if (mode) body.mode = mode;
 
+  // 2 tentatives sur le fetch INITIAL uniquement (avant le premier octet reçu) :
+  // une micro-coupure Tailscale ne doit pas finir en « Pi injoignable » sec.
+  // On ne retente JAMAIS un stream entamé (réponse partielle déjà affichée).
   let res;
-  try {
-    res = await fetch(base + CHAT_PATH, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-      signal,
-    });
-  } catch (e) {
-    if (e && e.name === 'AbortError') throw e;
+  let lastErr = null;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      res = await fetch(base + CHAT_PATH, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal,
+      });
+      lastErr = null;
+      break;
+    } catch (e) {
+      if (e && e.name === 'AbortError') throw e;
+      lastErr = e;
+      if (attempt === 0) await new Promise((r) => setTimeout(r, 600));
+    }
+  }
+  if (lastErr || !res) {
     throw new Error('Pi injoignable. Vérifie Tailscale et la connexion.');
   }
 
@@ -202,8 +218,9 @@ function shortDate(ts) {
   }
 }
 
-// Assemble le message envoyé au Pi : contexte courant + question de Felix.
-// (Ce qui s'affiche dans le fil de chat reste, lui, la question seule.)
+// LEGACY (avant Chantier 35) : assemblait contexte + question en UN message.
+// Conservé pour les tests/compat, mais l'app envoie désormais { message, context }
+// séparés → le journal du Pi n'est plus pollué par le bloc <contexte_app>.
 export function composeMessage(userText, contextBlock) {
   if (!contextBlock) return userText;
   return contextBlock + '\n\n' + userText;

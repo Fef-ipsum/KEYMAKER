@@ -7,6 +7,14 @@ PWA en français pour apprendre **le live coding (Strudel CC)** et **le solfège
 
 ## ▶️ Lancer l'app (le plus simple)
 
+### 🌐 Depuis n'importe quel appareil (nouveau — Chantier 34)
+
+L'app est **servie par le Pi** : ouvre **`https://personal-os.tailac998e.ts.net/keymaker/app/`** depuis tout appareil connecté à Tailscale (PC, tablette, téléphone). Installable en PWA (« Ajouter à l'écran d'accueil »). Zéro config : Sati se branche toute seule (même origine). Toujours à jour du dernier build livré sur le Pi.
+
+> ⚠️ L'interface n'est pas encore optimisée pour petit écran (< 880 px) — confortable sur PC et tablette paysage, étroit sur téléphone (Chantier 40 prévu).
+
+### 💻 En local sur le PC (sans réseau)
+
 **Double-clique sur `start.bat`.**
 
 Une fenêtre noire s'ouvre (le serveur local) et ton navigateur ouvre l'app tout seul sur `http://localhost:4321`.

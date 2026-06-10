@@ -96,8 +96,9 @@ Hors `modules/keymaker/`, Keymaker touche **3 fichiers**. Câblage réel relevé
 ## C — Surface d'échange
 
 **Endpoints exposés** (derrière Caddy `/keymaker*`, Tailscale-only) :
-- `POST /keymaker/ai/chat` → **SSE** (`model`/`delta`/`done`/`error` ; corps `{message, history?, mode?}` ; `fast`=Haiku, défaut=Sonnet, `deep`=Opus ; persona injectée serveur).
+- `POST /keymaker/ai/chat` → **SSE** (`model`/`delta`/`done`/`error` ; corps `{message, context?, history?, mode?}` — Chantier 35 : `context` = bloc app, jamais journalisé ; `fast`=Haiku, défaut=Sonnet, `deep`=Opus ; persona injectée serveur ; `max_tokens` 600/1500/4000 selon le mode).
 - `GET /keymaker/health` → ping (utilisé par l'app + le healthcheck du container).
+- `GET /keymaker/app/*` → **l'app Keymaker (PWA statique)** servie par le module (Chantier 34, 10 juin 2026) : `@fastify/static` sur le volume `modules/keymaker/webapp/` (monté `:ro` via `docker-compose.keymaker.yml`, **ma zone**), repli SPA, redirect `/keymaker/app`→`/keymaker/app/`. Passe par la route Caddy `/keymaker*` **existante** → aucun nouveau fichier partagé touché.
 
 **Events publiés/consommés :** aucun. **Ce que d'autres modules attendent de lui :** rien (feuille). Seule extension future possible : lectures cross-module **en lecture seule** si la perf de Sati l'exige — déclarée ici d'abord.
 

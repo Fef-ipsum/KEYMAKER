@@ -9,7 +9,7 @@
 // hors-ligne. Les difficultés (« je comprends pas… ») sont repérées
 // automatiquement et glissées dans le contexte pour que Sati s'en souvienne.
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { streamSati, buildContextBlock, composeMessage, historyFromMessages, buildLessonPrompt } from './sati.js';
+import { streamSati, buildContextBlock, historyFromMessages, buildLessonPrompt } from './sati.js';
 import {
   loadThread,
   appendExchange,
@@ -105,7 +105,7 @@ export default function SatiChat({ piUrl, status, onChangeUrl, onTest, getContex
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
-  const [mode, setMode] = useState('normal'); // 'normal' (Sonnet) | 'fast' (Haiku)
+  const [mode, setMode] = useState('normal'); // 'normal' (Sonnet) | 'fast' (Haiku) | 'deep' (Opus — Chantier 35)
   const [difficulties, setDifficulties] = useState([]); // repères de mémoire locale (tranche 2)
   // Chantier 33 — UX Sati :
   const [confirmReset, setConfirmReset] = useState(false); // « Nouvelle conversation » en 2 temps (anti-clic)
@@ -187,7 +187,8 @@ export default function SatiChat({ piUrl, status, onChangeUrl, onTest, getContex
       const text = (rawText != null ? rawText : input).trim();
       if (!text || busy) return;
 
-      const useMode = opts.mode !== undefined ? opts.mode : mode === 'fast' ? 'fast' : undefined;
+      const useMode =
+        opts.mode !== undefined ? opts.mode : mode === 'fast' ? 'fast' : mode === 'deep' ? 'deep' : undefined;
 
       setInput('');
       const userMsg = { id: nextId(), role: 'user', text };
@@ -215,15 +216,17 @@ export default function SatiChat({ piUrl, status, onChangeUrl, onTest, getContex
           .catch(() => {});
       }
 
-      // Le contexte envoyé inclut les difficultés récentes → Sati « se souvient ».
-      const apiMessage = composeMessage(text, buildContextBlock({ ...ctx, difficulties: diffsRef.current }));
+      // Chantier 35 : le contexte (avec les difficultés récentes) part SÉPARÉMENT
+      // de la question → le Pi ne journalise/embedde que la question de Felix.
+      const apiContext = buildContextBlock({ ...ctx, difficulties: diffsRef.current });
 
       const ctrl = new AbortController();
       abortRef.current = ctrl;
       try {
         const result = await streamSati({
           piUrl,
-          message: apiMessage,
+          message: text,
+          context: apiContext,
           history,
           mode: useMode,
           signal: ctrl.signal,
@@ -272,13 +275,14 @@ export default function SatiChat({ piUrl, status, onChangeUrl, onTest, getContex
   }, []);
 
   // Chantier 33 — leçon personnalisée : à partir d'un sujet libre, Sati fabrique
-  // une mini-leçon (concept + code jouable + exercice) en mode soigné (Sonnet).
+  // une mini-leçon (concept + code jouable + exercice). Chantier 35 : en mode
+  // « deep » (Opus, max_tokens 4000) → la leçon n'est plus tronquée à 1024 tokens.
   const submitLesson = useCallback(() => {
     const subject = lessonSubject.trim();
     if (!subject || busy) return;
     setLessonOpen(false);
     setLessonSubject('');
-    send(buildLessonPrompt(subject));
+    send(buildLessonPrompt(subject), { mode: 'deep' });
   }, [lessonSubject, busy, send]);
 
   const onKeyDown = (e) => {
@@ -481,6 +485,13 @@ export default function SatiChat({ piUrl, status, onChangeUrl, onTest, getContex
                 title="Haiku — réponses rapides"
               >
                 Rapide
+              </button>
+              <button
+                className={'sati-mode' + (mode === 'deep' ? ' on' : '')}
+                onClick={() => setMode('deep')}
+                title="Opus — explications profondes, réponses longues (plus lent)"
+              >
+                Profond
               </button>
             </div>
             {busy ? (

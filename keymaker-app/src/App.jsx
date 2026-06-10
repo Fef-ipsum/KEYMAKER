@@ -45,8 +45,18 @@ const OLD_M1_KEY = 'keymaker:m1:pos';        // Chantier 3 : { c, f } (Module 1 
 const OLDEST_KEY = 'keymaker:ch1:flashIndex'; // Chantier 2 : index simple dans le chapitre 1 — migré
 
 // Backend de Sati (Chantier 4). Pré-rempli avec l'URL Tailscale du Pi ; modifiable.
+// Chantier 34 : quand l'app est SERVIE PAR LE PI (/keymaker/app/), le backend est
+// à la même origine → défaut = window.location.origin (zéro config sur un nouvel
+// appareil : tablette, téléphone). En dev local (start.bat, localhost:4321), on
+// garde l'URL Tailscale comme avant.
 const PI_URL_KEY = 'keymaker:piUrl';
-const DEFAULT_PI_URL = 'https://personal-os.tailac998e.ts.net';
+const DEFAULT_PI_URL = (() => {
+  try {
+    const h = window.location.hostname;
+    if (h && h !== 'localhost' && h !== '127.0.0.1') return window.location.origin;
+  } catch { /* jsdom/SSR : repli statique */ }
+  return 'https://personal-os.tailac998e.ts.net';
+})();
 
 // Studio (Chantier 32) — code du bac à sable, persiste sur l'appareil.
 const STUDIO_CODE_KEY = 'keymaker:studio:code';
