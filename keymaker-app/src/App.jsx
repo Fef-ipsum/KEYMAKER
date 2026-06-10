@@ -14,6 +14,8 @@ import Review from './Review.jsx';
 import ExerciseCard from './ExerciseCard.jsx';
 import { recordQuizResult, markPracticed, todaysReview, levelOf, readSrs } from './srs.js';
 import { initSessionTracking, trackFlash } from './sessionTrack.js';
+import FlowBar from './FlowBar.jsx';
+import { buildFlowPlan } from './flow.js';
 import FlashNote from './FlashNote.jsx';
 import SnippetLibrary from './SnippetLibrary.jsx';
 import { addSnippet } from './notebook.js';
@@ -290,6 +292,10 @@ export default function App() {
   const [editorHidden, setEditorHidden] = useState(() => {
     try { return window.matchMedia('(max-width: 600px)').matches; } catch { return false; }
   });
+
+  // Chantier 44 — Mode Flow : « j'ai X minutes » → plan local (révision → nouveau
+  // → défi), bandeau FlowBar par-dessus l'app qui reste 100 % utilisable.
+  const [flow, setFlow] = useState(null); // { plan, stepIndex, startTs, minutes, learnLeft, stats }
 
   // Réglages persistés (Chantier 6) : taille de texte, animations, thème d'éditeur, numéros de ligne.
   const [settings, setSettings] = useState(readSettings);
@@ -650,6 +656,69 @@ export default function App() {
     goToFlash(e.mi, e.ci, e.fi);
   }, [goToFlash]);
 
+  // Chantier 44 — prochain flash NON VU, tous modules confondus (à partir du
+  // module courant). Tout vu ? On avance simplement d'un flash.
+  const goToNextUnseenFlash = useCallback(() => {
+    try {
+      for (let k = 0; k < modules.length; k++) {
+        const mi = (mod + k) % modules.length;
+        const u = firstUnseenIndex(mi, FLATS[mi]);
+        if (u >= 0) {
+          const e = FLATS[mi][u];
+          goToFlash(mi, e.chapterIndex, e.flashInChapter);
+          return;
+        }
+      }
+      goNext();
+    } catch { /* best-effort */ }
+  }, [mod, goToFlash, goNext]);
+
+  // Chantier 44 — démarrer / avancer / quitter le Flow.
+  const startFlow = useCallback((minutes) => {
+    const unseenCount = Math.max(0, Object.keys(FLASH_INDEX).length - seenIdSet().size);
+    const plan = buildFlowPlan({ minutes, dueCount: review.total, unseenCount });
+    if (!plan.length) return;
+    setDashOpen(false);
+    const first = plan[0];
+    setFlow({
+      plan,
+      stepIndex: 0,
+      startTs: Date.now(),
+      minutes,
+      learnLeft: first.type === 'learn' ? first.count : 0,
+      stats: { reviewed: 0, learned: 0, challenged: false },
+    });
+    if (first.type === 'learn') goToNextUnseenFlash();
+  }, [review, goToNextUnseenFlash]);
+
+  const advanceFlow = useCallback(() => {
+    if (!flow) return;
+    const st = flow.plan[flow.stepIndex];
+    // Étape learn multi-flashs : on décrémente et on navigue, sans changer d'étape.
+    if (st && st.type === 'learn' && flow.learnLeft > 1) {
+      goToNextUnseenFlash();
+      setFlow({ ...flow, learnLeft: flow.learnLeft - 1, stats: { ...flow.stats, learned: flow.stats.learned + 1 } });
+      return;
+    }
+    const stats = { ...flow.stats };
+    if (st && st.type === 'learn') stats.learned += 1;
+    if (st && st.type === 'challenge') stats.challenged = true;
+    const ni = flow.stepIndex + 1;
+    const ns = flow.plan[ni];
+    if (ns && ns.type === 'learn') goToNextUnseenFlash();
+    setFlow({ ...flow, stepIndex: ni, learnLeft: ns && ns.type === 'learn' ? ns.count : 0, stats });
+  }, [flow, goToNextUnseenFlash]);
+
+  const quitFlow = useCallback(() => setFlow(null), []);
+
+  // Révision pendant un Flow : même mécanique SRS + compteur du récap.
+  const flowReviewAnswer = useCallback((flashId, correct) => {
+    quizResult(flashId, correct);
+    setFlow((f) => (f ? { ...f, stats: { ...f.stats, reviewed: f.stats.reviewed + 1 } } : f));
+  }, [quizResult]);
+
+  const flowOnReviewStep = !!(flow && flow.plan[flow.stepIndex] && flow.plan[flow.stepIndex].type === 'review');
+
   // Chantier 16 — depuis une carte du tableau de bord : aller au 1er flash NON vu
   // du module choisi (ou son 1er flash si tout est déjà vu).
   const goToModule = useCallback((mIndex) => {
@@ -883,6 +952,7 @@ export default function App() {
           resumeLabel={'Module ' + curModule.id + ' · Flash ' + flash.id}
           reviewCount={review.total}
           onOpenReview={() => { setDashOpen(false); setReviewOpen(true); }}
+          onStartFlow={startFlow}
           onResume={() => setDashOpen(false)}
           onPickModule={(mi) => { goToModule(mi); setDashOpen(false); }}
           onOpenLibrary={() => { setDashOpen(false); setLibraryOpen(true); }}
@@ -933,9 +1003,24 @@ export default function App() {
         <Review
           due={dueCards}
           editorRef={editorRef}
-          onAnswer={quizResult}
+          onAnswer={flowOnReviewStep ? flowReviewAnswer : quizResult}
           onGoToFlash={goToFlashId}
           onClose={() => setReviewOpen(false)}
+          onDone={flowOnReviewStep ? () => { setReviewOpen(false); advanceFlow(); } : undefined}
+        />
+      )}
+
+      {/* Mode Flow (Chantier 44) : bandeau d'orchestration, l'app reste utilisable. */}
+      {flow && (
+        <FlowBar
+          flow={flow}
+          piUrl={piUrl}
+          recentTitles={FLAT.slice(Math.max(0, pos - 4), pos + 1).map((e) => e.flash.id + ' ' + e.flash.title)}
+          editorRef={editorRef}
+          onOpenReview={() => setReviewOpen(true)}
+          onNextUnseen={goToNextUnseenFlash}
+          onAdvance={advanceFlow}
+          onQuit={quitFlow}
         />
       )}
 

@@ -110,3 +110,18 @@ export async function verifyExercise({ piUrl, flashId, flashTitle, exercise, con
       : (data.verdict === 'ok' ? 'Objectif atteint, bien joué.' : 'Pas encore — réessaie.'),
   };
 }
+
+// Chantier 44 — défi créatif du Mode Flow. Opus (deep) + profil vivant injectés
+// CÔTÉ PI. Long (jusqu'à ~20 s) : le timeout est large, l'UI montre une attente
+// chaleureuse, et flow.js a une banque locale de repli si ça échoue.
+export async function generateChallenge({ piUrl, recent, minutes, signal }) {
+  const data = await postJSON(piUrl, '/keymaker/ai/challenge', { recent, minutes }, { signal, timeoutMs: 45000 });
+  if (!data || typeof data.title !== 'string' || typeof data.brief !== 'string' || !data.title.trim()) {
+    throw new Error('Défi illisible.');
+  }
+  return {
+    title: data.title.trim(),
+    brief: data.brief.trim(),
+    code: typeof data.code === 'string' ? data.code.trim() : '',
+  };
+}

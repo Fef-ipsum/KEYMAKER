@@ -16,7 +16,7 @@ import { useMemo, useState, useCallback } from 'react';
 import { QuestionCard, usePreviewAudio } from './Quiz.jsx';
 import { questionForFlash, readBank } from './srs.js';
 
-export default function Review({ due, editorRef, onAnswer, onGoToFlash, onClose }) {
+export default function Review({ due, editorRef, onAnswer, onGoToFlash, onClose, onDone }) {
   // Une question de banque par carte, choisie UNE fois au montage (stable).
   const bank = useMemo(() => readBank(), []);
   const cards = useMemo(
@@ -145,7 +145,10 @@ export default function Review({ due, editorRef, onAnswer, onGoToFlash, onClose 
               Réussi → on espace. Raté → on revoit demain. C'est l'espacement qui fait la mémoire.
             </p>
             <div className="quiz-end-actions">
-              <button className="btn quiz-leave" onClick={onClose}>Fermer</button>
+              {/* Chantier 44 : dans un Flow, « Fermer » devient « Continuer le flow ». */}
+              <button className="btn quiz-leave" onClick={onDone || onClose} autoFocus>
+                {onDone ? 'Continuer le flow ▶' : 'Fermer'}
+              </button>
             </div>
           </div>
         )}

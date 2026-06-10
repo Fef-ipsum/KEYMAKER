@@ -102,3 +102,24 @@ eq(normalizeVerdict(undefined), 'retry', 'verdict absent → retry');
 
 if (ko) { console.error(`\n${ko}/${n} tests en échec`); process.exit(1); }
 console.log(`✓ ${n}/${n} tests OK — Leitner, maîtrise, file de révision, sanitisation.`);
+
+/* ---- Chantier 44 : buildFlowPlan ---- */
+const { buildFlowPlan, stepLabel, pickLocalChallenge, LOCAL_CHALLENGES } = await import('../keymaker-app/src/flow.js');
+let p = buildFlowPlan({ minutes: 10, dueCount: 4, unseenCount: 100 });
+eq(p.map((x) => x.type), ['review', 'learn'], '10 min avec dues : review+learn, pas de défi');
+eq(p[0].count, 3, '10 min : révision plafonnée à 3');
+p = buildFlowPlan({ minutes: 10, dueCount: 0, unseenCount: 100 });
+eq(p.map((x) => x.type), ['learn', 'challenge'], '10 min sans dues : learn+challenge');
+p = buildFlowPlan({ minutes: 20, dueCount: 7, unseenCount: 100 });
+eq(p.map((x) => x.type), ['review', 'learn', 'challenge'], '20 min : les 3 étapes');
+eq(p[0].count, 5, '20 min : révision plafonnée à 5');
+eq(p[1].count, 2, '20 min : 2 flashs nouveaux');
+p = buildFlowPlan({ minutes: 40, dueCount: 1, unseenCount: 1 });
+eq(p[1].count, 1, 'learn borné par les non-vus restants');
+p = buildFlowPlan({ minutes: 40, dueCount: 0, unseenCount: 0 });
+eq(p.map((x) => x.type), ['challenge'], 'tout vu, rien de dû : défi seul');
+eq(stepLabel({ type: 'review', count: 1 }), 'Révision · 1 carte', 'stepLabel singulier');
+eq(typeof pickLocalChallenge(0.99).title, 'string', 'banque locale : pioche valide');
+eq(LOCAL_CHALLENGES.length >= 8, true, 'banque locale fournie');
+
+console.log('✓ flow.js : plans 10/20/40, bornes et repli vérifiés.');

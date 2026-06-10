@@ -19,7 +19,7 @@ const IcoBookmark = () => (
 // 100 % présentationnel : App calcule le `summary` (depuis progress.js) et passe les
 // actions. Données lues à l'ouverture, donc toujours fraîches.
 
-export default function Dashboard({ summary, modules, currentModuleIndex, resumeLabel, reviewCount, onOpenReview, onResume, onPickModule, onOpenLibrary, onClose }) {
+export default function Dashboard({ summary, modules, currentModuleIndex, resumeLabel, reviewCount, onOpenReview, onStartFlow, onResume, onPickModule, onOpenLibrary, onClose }) {
   const s = summary || { perModule: [], totalSeen: 0, totalFlashs: 0, days: 0, streak: 0, pct: 0 };
   const streakWord = s.streak <= 1 ? 'jour' : 'jours';
   const daysWord = s.days <= 1 ? 'jour' : 'jours';
@@ -53,6 +53,24 @@ export default function Dashboard({ summary, modules, currentModuleIndex, resume
             {resumeLabel && <span className="dash-resume-sub">{resumeLabel}</span>}
           </button>
         </section>
+
+        {/* ---- Mode Flow (Chantier 44) : « j'ai X minutes », Sati orchestre ---- */}
+        {onStartFlow && (
+          <section className="dash-flow">
+            <div className="dash-flow-txt">
+              <span className="dash-flow-glyph" aria-hidden="true">🌊</span>
+              <span className="dash-review-label">
+                Mode Flow
+                <span className="dash-review-sub">Dis combien de temps tu as — révision, nouveau, défi : tout s'enchaîne.</span>
+              </span>
+            </div>
+            <div className="dash-flow-btns">
+              <button className="dash-flow-btn" onClick={() => onStartFlow(10)}>~10 min</button>
+              <button className="dash-flow-btn main" onClick={() => onStartFlow(20)}>~20 min</button>
+              <button className="dash-flow-btn" onClick={() => onStartFlow(40)}>~40 min</button>
+            </div>
+          </section>
+        )}
 
         {/* ---- Révision du jour (Chantier 38) : la file Leitner, 3 minutes max ---- */}
         {nDue > 0 && onOpenReview && (

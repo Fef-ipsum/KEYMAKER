@@ -3207,3 +3207,115 @@ html.spotlight-on body::after {
   /* Tables récap : le scroll horizontal existe déjà (.recap-scroll), on borne la police */
   .recap-table { font-size: 14px; }
 }
+
+/* ============================================================
+   Chantier 44 — Mode Flow.  [build:c44-flow]
+   Carte de lancement (Accueil) + bandeau d'orchestration fixé en bas.
+   ============================================================ */
+
+/* ---- Carte « Mode Flow » de l'Accueil ---- */
+.dash-flow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 14px 0 4px;
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-soft);
+  background: var(--surface);
+}
+.dash-flow-txt { display: flex; align-items: center; gap: 12px; flex: 1 1 280px; }
+.dash-flow-glyph { font-size: 22px; }
+.dash-flow-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.dash-flow-btn {
+  font-size: 15px;
+  font-weight: 700;
+  padding: 11px 16px;
+  border-radius: 11px;
+  border: 1px solid var(--border-soft);
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+  min-height: 44px;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+.dash-flow-btn:hover { border-color: rgba(var(--accent-rgb), 0.5); }
+.dash-flow-btn.main {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: transparent;
+  box-shadow: 0 10px 30px -12px rgba(var(--accent-rgb), 0.8);
+}
+
+/* ---- Bandeau Flow ---- */
+.flow-bar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 14px;
+  z-index: 30; /* au-dessus du contenu, sous rien d'autre (les overlays sont des dialogues) */
+  width: min(720px, calc(100vw - 20px));
+  border-radius: 16px;
+  border: 1px solid rgba(var(--accent-rgb), 0.4);
+  background: linear-gradient(180deg, var(--bg-2), var(--bg));
+  box-shadow: 0 18px 50px -18px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(var(--accent-rgb), 0.08);
+  padding: 10px 14px 12px;
+}
+.flow-head { display: flex; align-items: center; gap: 10px; }
+.flow-glyph { font-size: 16px; }
+.flow-title { font-weight: 800; letter-spacing: 0.04em; }
+.flow-clock {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--muted);
+  margin-left: 2px;
+}
+.flow-clock.over { color: var(--accent); }
+.flow-steps-ind { display: flex; gap: 5px; margin-left: auto; }
+.flow-step-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+}
+.flow-step-dot.past { background: var(--accent); border-color: var(--accent); }
+.flow-step-dot.now { border-color: var(--accent); box-shadow: 0 0 8px -2px rgba(var(--accent-rgb), 0.9); }
+.flow-quit {
+  background: none; border: none; color: var(--muted);
+  font-size: 15px; cursor: pointer; padding: 6px 8px; margin-left: 4px;
+}
+.flow-quit:hover { color: var(--text); }
+
+.flow-body { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 8px; }
+.flow-msg { margin: 0; flex: 1 1 320px; line-height: 1.45; font-size: 15px; }
+.flow-cta {
+  font-size: 15px;
+  font-weight: 800;
+  padding: 11px 18px;
+  border-radius: 11px;
+  border: 1px solid transparent;
+  background: var(--accent);
+  color: var(--accent-ink);
+  cursor: pointer;
+  min-height: 44px;
+  box-shadow: 0 10px 30px -12px rgba(var(--accent-rgb), 0.8);
+}
+.flow-cta:active { transform: translateY(1px); }
+.flow-cta.ghost {
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: var(--border-soft);
+  box-shadow: none;
+}
+.flow-cta.ghost:hover { border-color: rgba(var(--accent-rgb), 0.5); }
+
+.flow-challenge { display: block; }
+.flow-ch-title { margin: 2px 0 4px; font-weight: 800; font-size: 16px; color: var(--accent); }
+.flow-ch-local { color: var(--muted); font-weight: 400; font-size: 13px; }
+.flow-ch-brief { margin: 0 0 10px; line-height: 1.5; font-size: 15px; }
+.flow-ch-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+@media (max-width: 600px) {
+  .flow-bar { bottom: 8px; width: calc(100vw - 12px); }
+  .flow-cta { flex: 1 1 auto; }
+}
