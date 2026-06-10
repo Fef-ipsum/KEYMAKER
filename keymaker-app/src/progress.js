@@ -135,6 +135,12 @@ export function summary(totals, now = new Date()) {
   return summaryFrom(read(), totals, now);
 }
 
+// Clés "m:c:f" des flashs vus (Chantier 38) : App les convertit en ids stables
+// pour croiser avec la maîtrise (srs.js) sans dupliquer l'état « vu » ici.
+export function seenKeys() {
+  return Object.keys(read().seen);
+}
+
 // Index (dans la liste plate du module) du 1er flash NON vu — pour « reprendre ce
 // module » depuis une carte du tableau de bord. -1 si tout est vu (l'appelant
 // retombe alors sur le 1er flash). `flat` = FLATS[mIndex].

@@ -1,14 +1,18 @@
 // Keymaker — app d'apprentissage Strudel/solfège.
 // Chantier 6 : écran Réglages (⚙ + overlay). [build:c6-settings]
 // Chantier 21 : Mode Focus (éditeur seul). Chantier 22 : erreurs inline + auto-complétion. [build:c21-focus c22-editor]
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { useRef, useState, useCallback, useEffect, useMemo } from 'react';
 import StrudelEditor from './StrudelEditor.jsx';
 import SatiChat from './SatiChat.jsx';
 import Settings from './Settings.jsx';
 import { modules } from './lessons.js';
 import { countMemory, loadDifficulties, clearAllMemory } from './memory.js';
 import Dashboard from './Dashboard.jsx';
-import { markSeen, recordToday, isFirstVisitToday, summary as progressSummary, firstUnseenIndex } from './progress.js';
+import { markSeen, recordToday, isFirstVisitToday, summary as progressSummary, firstUnseenIndex, seenKeys } from './progress.js';
+import Quiz from './Quiz.jsx';
+import Review from './Review.jsx';
+import ExerciseCard from './ExerciseCard.jsx';
+import { recordQuizResult, markPracticed, todaysReview, levelOf, readSrs } from './srs.js';
 import FlashNote from './FlashNote.jsx';
 import SnippetLibrary from './SnippetLibrary.jsx';
 import { addSnippet } from './notebook.js';
@@ -39,6 +43,38 @@ function buildFlat(chapitres) {
 // Une liste plate PAR module (les modules sont statiques → calculé une fois au chargement).
 // Chantier 7 : on passe de « le Module 1 » à « plusieurs modules ».
 const FLATS = modules.map((m) => buildFlat(m.chapitres));
+
+// Chantiers 37/38 : index id STABLE ('1.4') → coordonnées + données. La maîtrise
+// et la révision parlent en ids stables (insensibles à l'insertion d'un chapitre),
+// l'app navigue en indices — ce pont est calculé une fois.
+const FLASH_INDEX = (() => {
+  const idx = {};
+  modules.forEach((m, mi) => {
+    FLATS[mi].forEach((e) => {
+      idx[e.flash.id] = {
+        mi,
+        ci: e.chapterIndex,
+        fi: e.flashInChapter,
+        flash: e.flash,
+        where: 'Module ' + m.id + ' · Ch.' + (e.chapterIndex + 1) + ' ' + (e.chap.chapter || e.chap.title || ''),
+      };
+    });
+  });
+  return idx;
+})();
+
+// Ids stables des flashs VUS (croisement progress.js « m:c:f » ↔ srs.js « 1.4 »).
+function seenIdSet() {
+  const out = new Set();
+  try {
+    for (const k of seenKeys()) {
+      const [m, c, f] = String(k).split(':').map((n) => parseInt(n, 10));
+      const e = (FLATS[m] || []).find((x) => x.chapterIndex === c && x.flashInChapter === f);
+      if (e) out.add(e.flash.id);
+    }
+  } catch { /* best-effort */ }
+  return out;
+}
 
 const STORE_KEY = 'keymaker:pos';            // Chantier 7 : { m: moduleIndex, c: chapterIndex, f: flashInChapter }
 const OLD_M1_KEY = 'keymaker:m1:pos';        // Chantier 3 : { c, f } (Module 1 implicite) — migré
@@ -241,6 +277,11 @@ export default function App() {
   const studioEditorRef = useRef(null);                // éditeur Strudel dédié au Studio
   const [snipMsg, setSnipMsg] = useState(''); // Chantier 27 : confirmation éphémère de sauvegarde
 
+  // Chantiers 37/38/39 : quiz de chapitre, révision espacée, maîtrise.
+  const [quizFor, setQuizFor] = useState(null);     // null | { mi, ci } — chapitre quizzé
+  const [reviewOpen, setReviewOpen] = useState(false); // session de révision (SRS)
+  const [srsTick, setSrsTick] = useState(0);        // invalide les dérivés après chaque résultat
+
   // Réglages persistés (Chantier 6) : taille de texte, animations, thème d'éditeur, numéros de ligne.
   const [settings, setSettings] = useState(readSettings);
   const updateSettings = useCallback((patch) => {
@@ -382,6 +423,45 @@ export default function App() {
   const loadMemoryInfo = useCallback(async () => {
     const [counts, difficulties] = await Promise.all([countMemory(), loadDifficulties(6)]);
     return { counts, difficulties };
+  }, []);
+
+  // Niveaux de maîtrise par flash (new/seen/practiced/mastered) — Chantier 38.
+  // Recalculés après chaque résultat (srsTick) et à l'ouverture des écrans qui
+  // les affichent (lecture localStorage : bon marché, ~200 clés).
+  const levels = useMemo(() => {
+    const seen = seenIdSet();
+    const srs = readSrs();
+    const out = {};
+    for (const id of Object.keys(FLASH_INDEX)) out[id] = levelOf(id, srs, seen.has(id));
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [srsTick, dashOpen, learnOpen, quizFor, reviewOpen]);
+
+  // File de révision du jour (Leitner) : { due: [...max 5], total }.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const review = useMemo(() => todaysReview(), [srsTick, dashOpen, reviewOpen]);
+
+  // Cartes dues enrichies pour l'overlay de révision (titre, concept, position).
+  const dueCards = useMemo(
+    () => (review.due || [])
+      .map((d) => {
+        const e = FLASH_INDEX[d.flashId];
+        return e ? { ...d, title: e.flash.title, concept: e.flash.concept, code: e.flash.code, where: e.where } : null;
+      })
+      .filter(Boolean),
+    [review]
+  );
+
+  // Un résultat de question (quiz initial OU révision) → maîtrise + boîte Leitner.
+  const quizResult = useCallback((flashId, correct) => {
+    try { recordQuizResult(flashId, correct); } catch { /* best-effort */ }
+    setSrsTick((t) => t + 1);
+  }, []);
+
+  // Exercice validé par Sati (Chantier 39) → flash « pratiqué ».
+  const practiced = useCallback((flashId) => {
+    try { markPracticed(flashId); } catch { /* best-effort */ }
+    setSrsTick((t) => t + 1);
   }, []);
 
   // Dérivés du module + flash courants (recalculés à chaque rendu).
@@ -542,6 +622,16 @@ export default function App() {
     setPos(i >= 0 ? i : 0);
   }, []);
 
+  // Chantier 38 — ouvrir la leçon d'un flash depuis la révision (id stable).
+  const goToFlashId = useCallback((flashId) => {
+    const e = FLASH_INDEX[flashId];
+    if (!e) return;
+    setReviewOpen(false);
+    setQuizFor(null);
+    setDashOpen(false);
+    goToFlash(e.mi, e.ci, e.fi);
+  }, [goToFlash]);
+
   // Chantier 16 — depuis une carte du tableau de bord : aller au 1er flash NON vu
   // du module choisi (ou son 1er flash si tout est déjà vu).
   const goToModule = useCallback((mIndex) => {
@@ -595,16 +685,17 @@ export default function App() {
   // Échap ferme d'abord les overlays ouverts (Parcours / Sati / Réglages),
   // sinon sort du Mode Focus (Chantier 21).
   useEffect(() => {
-    if (!learnOpen && !satiOpen && !settingsOpen && !dashOpen && !libraryOpen && !focusMode && !studioOpen) return;
+    if (!learnOpen && !satiOpen && !settingsOpen && !dashOpen && !libraryOpen && !focusMode && !studioOpen && quizFor == null && !reviewOpen) return;
     const onKey = (e) => {
       if (e.key !== 'Escape') return;
-      if (learnOpen || satiOpen || settingsOpen || dashOpen || libraryOpen) { setLearnOpen(false); setSatiOpen(false); setSettingsOpen(false); setDashOpen(false); setLibraryOpen(false); }
+      if (quizFor != null || reviewOpen) { setQuizFor(null); setReviewOpen(false); }
+      else if (learnOpen || satiOpen || settingsOpen || dashOpen || libraryOpen) { setLearnOpen(false); setSatiOpen(false); setSettingsOpen(false); setDashOpen(false); setLibraryOpen(false); }
       else if (studioOpen) setStudioOpen(false);
       else if (focusMode) setFocusMode(false);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [learnOpen, satiOpen, settingsOpen, dashOpen, libraryOpen, focusMode, studioOpen]);
+  }, [learnOpen, satiOpen, settingsOpen, dashOpen, libraryOpen, focusMode, studioOpen, quizFor, reviewOpen]);
 
   return (
     <div className={'app' + (settings.reduceMotion ? ' reduce-motion' : '') + (focusMode ? ' focus-mode' : '')} data-theme={settings.theme || 'void'}>
@@ -699,6 +790,12 @@ export default function App() {
         editorRef={editorRef}
         reduceMotion={settings.reduceMotion}
         theme={settings.theme}
+        piUrl={piUrl}
+        piOk={piStatus.state === 'ok'}
+        readLiveCode={readLiveCode}
+        onPracticed={practiced}
+        onOpenQuiz={() => setQuizFor({ mi: mod, ci: current.chapterIndex })}
+        dotLevels={chap.flashs.map((f) => levels[f.id] || 'new')}
       >
         {/* Éditeur UNIQUE : monté une fois ici, jamais remonté au changement de flash. */}
         <StrudelEditor
@@ -716,6 +813,11 @@ export default function App() {
           currentModuleIndex={mod}
           currentChapterIndex={current.chapterIndex}
           currentFlashInChapter={current.flashInChapter}
+          levels={levels}
+          onQuiz={(mi, ci) => {
+            setLearnOpen(false);
+            setQuizFor({ mi, ci });
+          }}
           onPick={(mi, ci, fi) => {
             goToFlash(mi, ci, fi);
             setLearnOpen(false);
@@ -757,6 +859,8 @@ export default function App() {
           modules={modules}
           currentModuleIndex={mod}
           resumeLabel={'Module ' + curModule.id + ' · Flash ' + flash.id}
+          reviewCount={review.total}
+          onOpenReview={() => { setDashOpen(false); setReviewOpen(true); }}
           onResume={() => setDashOpen(false)}
           onPickModule={(mi) => { goToModule(mi); setDashOpen(false); }}
           onOpenLibrary={() => { setDashOpen(false); setLibraryOpen(true); }}
@@ -784,6 +888,32 @@ export default function App() {
           onEditorReady={(ed) => { studioEditorRef.current = ed; applyEditorSettings(ed, settings); }}
           onPersist={persistStudio}
           onClose={() => setStudioOpen(false)}
+        />
+      )}
+
+      {/* Quiz de chapitre (Chantier 37) : généré par Sati, alimente la maîtrise + le SRS. */}
+      {quizFor != null && modules[quizFor.mi] && modules[quizFor.mi].chapitres[quizFor.ci] && (
+        <Quiz
+          piUrl={piUrl}
+          moduleId={modules[quizFor.mi].id}
+          moduleTitle={modules[quizFor.mi].titre || modules[quizFor.mi].title}
+          chapterIndex={quizFor.ci}
+          chapterTitle={modules[quizFor.mi].chapitres[quizFor.ci].chapter || modules[quizFor.mi].chapitres[quizFor.ci].title || ''}
+          flashs={modules[quizFor.mi].chapitres[quizFor.ci].flashs || []}
+          editorRef={editorRef}
+          onResult={quizResult}
+          onClose={() => setQuizFor(null)}
+        />
+      )}
+
+      {/* Révision espacée (Chantier 38) : la file Leitner du jour, depuis l'Accueil. */}
+      {reviewOpen && (
+        <Review
+          due={dueCards}
+          editorRef={editorRef}
+          onAnswer={quizResult}
+          onGoToFlash={goToFlashId}
+          onClose={() => setReviewOpen(false)}
         />
       )}
 
@@ -834,6 +964,12 @@ function Flash({
   editorRef,
   reduceMotion,
   theme,
+  piUrl,
+  piOk,
+  readLiveCode,
+  onPracticed,
+  onOpenQuiz,
+  dotLevels,
   children,
 }) {
   return (
@@ -959,10 +1095,15 @@ function Flash({
         </section>
       )}
 
-      <section className="card exo">
-        <h2>Exercice</h2>
-        <p>{flash.exercise}</p>
-      </section>
+      {/* Carte Exercice + « ✓ Vérifie mon exercice » (Chantier 39). key = reset au changement de flash. */}
+      <ExerciseCard
+        key={'exo:' + flashKey}
+        flash={flash}
+        piUrl={piUrl}
+        piOk={piOk}
+        readLiveCode={readLiveCode}
+        onPracticed={onPracticed}
+      />
 
       {flash.recap && <RecapTable recap={flash.recap} />}
 
@@ -970,6 +1111,17 @@ function Flash({
         <section className="card free">
           <h2>Exercice libre · fin du chapitre</h2>
           <p>{flash.free}</p>
+        </section>
+      )}
+
+      {/* Fin de chapitre (Chantier 37) : le quiz transforme « vu » en « su ». */}
+      {withinIndex === withinTotal - 1 && onOpenQuiz && (
+        <section className="card quiz-cta">
+          <div className="quiz-cta-txt">
+            <h2>Quiz du chapitre</h2>
+            <p>3-4 questions pour ancrer ce que tu viens de voir. Les ratés reviendront en révision, au bon moment.</p>
+          </div>
+          <button className="btn quiz-cta-btn" onClick={onOpenQuiz}>🎯 Lancer le quiz</button>
         </section>
       )}
 
@@ -985,6 +1137,7 @@ function Flash({
         atEnd={atEnd}
         onPrev={onPrev}
         onNext={onNext}
+        dotLevels={dotLevels}
       />
 
       <footer className="foot">Module {moduleId} · {moduleChapters} chapitres · tourne 100&nbsp;% en local</footer>
@@ -1030,7 +1183,7 @@ function RecapTable({ recap }) {
    <FlashNav> — Précédent / indicateur « Ch.N · n/m » + points / Suivant.
    Les points représentent les flashs du chapitre courant.
    --------------------------------------------------------------------------- */
-function FlashNav({ moduleId, hasNextModule, onNextModule, chapterNumber, chapterTitle, withinIndex, withinTotal, atStart, atEnd, onPrev, onNext }) {
+function FlashNav({ moduleId, hasNextModule, onNextModule, chapterNumber, chapterTitle, withinIndex, withinTotal, atStart, atEnd, onPrev, onNext, dotLevels }) {
   return (
     <nav className="flash-nav" aria-label="Navigation entre les flashs">
       <button className="nav-btn prev" onClick={onPrev} disabled={atStart}>
@@ -1045,7 +1198,11 @@ function FlashNav({ moduleId, hasNextModule, onNextModule, chapterNumber, chapte
           {Array.from({ length: withinTotal }).map((_, i) => (
             <span
               key={i}
-              className={'dot-step' + (i === withinIndex ? ' current' : i < withinIndex ? ' done' : '')}
+              className={
+                'dot-step' +
+                (i === withinIndex ? ' current' : i < withinIndex ? ' done' : '') +
+                (dotLevels && dotLevels[i] ? ' lvl-' + dotLevels[i] : '')
+              }
             />
           ))}
         </div>
@@ -1078,7 +1235,7 @@ function FlashNav({ moduleId, hasNextModule, onNextModule, chapterNumber, chapte
    Rendu PAR-DESSUS le flash (qui reste monté) → l'éditeur n'est jamais recréé.
    Chapitres verrouillés (3-5) : flashs listés mais non cliquables (« à venir »).
    --------------------------------------------------------------------------- */
-function LearnOverlay({ modules, currentModuleIndex, currentChapterIndex, currentFlashInChapter, onPick, onClose }) {
+function LearnOverlay({ modules, currentModuleIndex, currentChapterIndex, currentFlashInChapter, levels, onQuiz, onPick, onClose }) {
   // `view` = le module AFFICHÉ dans le Parcours (peut différer du module en cours de lecture :
   // Felix peut feuilleter le Module 2 tout en restant « sur » un flash du Module 1).
   const [view, setView] = useState(currentModuleIndex);
@@ -1136,6 +1293,11 @@ function LearnOverlay({ modules, currentModuleIndex, currentChapterIndex, curren
             const isOpen = open.has(ci);
             const isCurrent = view === currentModuleIndex && ci === currentChapterIndex;
             const locked = !!c.locked;
+            // Chantier 37 : le quiz du chapitre apparaît dès que tous ses flashs ont été vus.
+            const quizReady =
+              !locked && onQuiz && levels &&
+              c.flashs.length > 0 &&
+              c.flashs.every((f) => levels[f.id] && levels[f.id] !== 'new');
             return (
               <section className={'learn-chapter' + (locked ? ' locked' : '') + (isCurrent ? ' current' : '')} key={ci}>
                 <button
@@ -1148,6 +1310,18 @@ function LearnOverlay({ modules, currentModuleIndex, currentChapterIndex, curren
                     <span className="learn-chapter-title">{c.title}</span>
                     <span className="learn-chapter-sub">{c.subtitle}</span>
                   </span>
+                  {quizReady && (
+                    <span
+                      className="learn-quiz-btn"
+                      role="button"
+                      tabIndex={0}
+                      onClick={(e) => { e.stopPropagation(); onQuiz(view, ci); }}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); e.preventDefault(); onQuiz(view, ci); } }}
+                      title="Quiz de ce chapitre (3-4 questions)"
+                    >
+                      🎯 Quiz
+                    </span>
+                  )}
                   {locked && <span className="learn-lock">à venir</span>}
                   {isCurrent && !locked && <span className="learn-here-dot" aria-hidden="true" />}
                   <span className={'learn-chevron' + (isOpen ? ' open' : '')} aria-hidden="true">
@@ -1156,7 +1330,7 @@ function LearnOverlay({ modules, currentModuleIndex, currentChapterIndex, curren
                 </button>
 
                 {isOpen && (
-                  <ol className="learn-list">
+                  <ol className="learn-list" data-haslevels="true">
                     {c.flashs.map((f, fi) => {
                       const here = isCurrent && fi === currentFlashInChapter;
                       if (locked) {
@@ -1169,6 +1343,7 @@ function LearnOverlay({ modules, currentModuleIndex, currentChapterIndex, curren
                           </li>
                         );
                       }
+                      const lvl = (levels && levels[f.id]) || 'new';
                       return (
                         <li key={f.id}>
                           <button
@@ -1176,8 +1351,14 @@ function LearnOverlay({ modules, currentModuleIndex, currentChapterIndex, curren
                             onClick={() => onPick(view, ci, fi)}
                             aria-current={here ? 'true' : undefined}
                           >
-                            <span className="learn-id">{f.id}</span>
+                            <span
+                              className={'learn-id lvl-' + lvl}
+                              title={lvl === 'mastered' ? 'maîtrisé' : lvl === 'practiced' ? 'pratiqué' : lvl === 'seen' ? 'vu' : 'pas encore vu'}
+                            >
+                              {f.id}
+                            </span>
                             <span className="learn-item-title">{f.title}</span>
+                            {lvl === 'mastered' && <span className="learn-lvl-star" aria-hidden="true">✦</span>}
                             {here && <span className="learn-tag">ici</span>}
                           </button>
                         </li>
@@ -1189,6 +1370,13 @@ function LearnOverlay({ modules, currentModuleIndex, currentChapterIndex, curren
             );
           })}
         </div>
+
+        {/* Chantier 38 : lecture des pastilles de maîtrise. */}
+        <p className="learn-legend" aria-hidden="true">
+          <span className="lvl-dot lvl-seen" /> vu
+          <span className="lvl-dot lvl-practiced" /> pratiqué
+          <span className="lvl-dot lvl-mastered" /> maîtrisé
+        </p>
       </div>
     </div>
   );
