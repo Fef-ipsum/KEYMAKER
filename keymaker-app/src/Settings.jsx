@@ -1,4 +1,10 @@
 // Keymaker — Chantier 6 : écran Réglages.
+// Chantier 41 : polices UI vendorisées (le mono est toujours JetBrains Mono).
+const APP_FONTS = [
+  { key: 'nunito', label: 'Nunito' },
+  { key: 'jakarta', label: 'Jakarta' },
+  { key: 'system', label: 'Système' },
+];
 //
 // Overlay rendu PAR-DESSUS le flash (comme Parcours / Sati) : le flash et
 // l'éditeur restent montés dessous, jamais recréés. Tous les réglages ont un
@@ -139,6 +145,26 @@ export default function Settings({
               ))}
             </div>
           </div>
+
+          <div className="set-row">
+            <div className="set-row-label">
+              <span className="set-name">Police</span>
+              <span className="set-desc">Nunito (ronde) ou Plus Jakarta Sans (nette) — vendorisées, zéro requête externe. Le code reste en JetBrains Mono.</span>
+            </div>
+            <div className="set-seg" role="group" aria-label="Police">
+              {APP_FONTS.map((f) => (
+                <button
+                  key={f.key}
+                  className={'set-seg-btn' + ((settings.font || 'nunito') === f.key ? ' on' : '')}
+                  onClick={() => onChange({ font: f.key })}
+                  aria-pressed={(settings.font || 'nunito') === f.key}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
 
           <div className="set-row">
             <div className="set-row-label">

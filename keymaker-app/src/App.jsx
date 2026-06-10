@@ -106,7 +106,7 @@ function readStudioCode() {
 // Réglages (Chantier 6) — persistés sur l'appareil.
 const SETTINGS_KEY = 'keymaker:settings';
 const TEXT_SCALE = { m: 1, l: 1.12, xl: 1.26 }; // facteur appliqué à --fs-scale + police éditeur
-const DEFAULT_SETTINGS = { textScale: 'm', reduceMotion: false, editorTheme: 'strudelTheme', lineNumbers: true, theme: 'void', autocomplete: true, viz: false, posync: false, accent: 'auto', accentCustom: '#22d3ee', halo: 'balanced', backdrop: 'auto', grain: false, spotlight: false };
+const DEFAULT_SETTINGS = { font: 'nunito', textScale: 'm', reduceMotion: false, editorTheme: 'strudelTheme', lineNumbers: true, theme: 'void', autocomplete: true, viz: false, posync: false, accent: 'auto', accentCustom: '#22d3ee', halo: 'balanced', backdrop: 'auto', grain: false, spotlight: false };
 
 function readSettings() {
   let base = { ...DEFAULT_SETTINGS };
@@ -374,6 +374,13 @@ export default function App() {
       document.documentElement.setAttribute('data-theme', settings.theme || 'void');
     } catch { /* ignore */ }
   }, [settings.theme]);
+
+  // Police UI (Chantier 41) — posée sur <html> ; les @font-face vendorisés font le reste.
+  useEffect(() => {
+    try {
+      document.documentElement.setAttribute('data-font', settings.font || 'nunito');
+    } catch { /* ignore */ }
+  }, [settings.font]);
 
   // Personnalisation (Apparence) — applique accent / halo / fond / effets sur <html>.
   // 100 % cosmétique, tout en try/catch : un souci ici ne doit jamais casser l'app.
@@ -1035,6 +1042,18 @@ export default function App() {
   );
 }
 
+// Chantier 41 (D5) : astuces affichées pendant le chargement du moteur.
+const ENGINE_TIPS = [
+  'Un ~ dans la mini-notation = un silence. Le groove vit dans les trous.',
+  '.bank("RolandTR808") rebranche toute ta batterie sur une boîte mythique.',
+  '<a b c> joue UNE valeur par cycle — parfait pour faire évoluer un pattern.',
+  'hh*4 répète le hi-hat 4 fois dans le temps d\'une seule note.',
+  'Ctrl+Enter met à jour le son SANS le couper : c\'est ça, le live coding.',
+  '.lpf(800) adoucit le son — ouvre-le doucement pour faire monter un morceau.',
+  '.slow(2) étire ton pattern, .fast(2) le compresse. Même code, autre énergie.',
+  'note("c3 e3 g3") = un Do majeur égrené. Le solfège est déjà dans le code.',
+];
+
 /* ---------------------------------------------------------------------------
    <Flash> — un écran de flash, piloté par un objet `flash`.
    L'éditeur Strudel arrive en `children` (slot) pour rester monté entre les flashs.
@@ -1081,6 +1100,8 @@ function Flash({
   onToggleEditor,
   children,
 }) {
+  // Astuce du loader : choisie une fois (stable tant que le moteur charge).
+  const [engineTip] = useState(() => ENGINE_TIPS[Math.floor(Math.random() * ENGINE_TIPS.length)]);
   return (
     <main className="stage">
       <p className="kicker">{flash.kicker}</p>
@@ -1158,7 +1179,15 @@ function Flash({
           />
         )}
 
-        {!ready && !error && <p className="hint loading">Chargement du moteur Strudel…</p>}
+        {!ready && !error && (
+          <div className="engine-loading" role="status">
+            <span className="engine-spinner" aria-hidden="true" />
+            <div>
+              <p className="engine-loading-main">Le moteur Strudel arrive…</p>
+              <p className="engine-loading-tip">💡 {engineTip}</p>
+            </div>
+          </div>
+        )}
         {error && <p className="hint err">{error}</p>}
 
         {/* Erreur de code Strudel (Chantier 22) : message simplifié, sous l'éditeur. */}
