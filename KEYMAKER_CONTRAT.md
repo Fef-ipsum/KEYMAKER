@@ -102,6 +102,8 @@ Hors `modules/keymaker/`, Keymaker touche **3 fichiers**. Câblage réel relevé
 
 **Events publiés/consommés :** aucun. **Ce que d'autres modules attendent de lui :** rien (feuille). Seule extension future possible : lectures cross-module **en lecture seule** si la perf de Sati l'exige — déclarée ici d'abord.
 
+**Lecture cross-schema DÉCLARÉE (Chantier 42, 10 juin 2026)** : le module **morning-report** du Personal OS est autorisé à lire **`keymaker.sessions`** et **`keymaker.journal`** en **lecture seule** (une ligne « hier X min de Strudel · streak · N flashs à revoir » dans le brief du matin). Implémentation côté Personal OS ; Keymaker garantit la stabilité de ces deux tables (colonnes existantes non renommées sans préavis ici). Les sessions sont réelles depuis le Chantier 42 (S3) : `mode, module_id, flashs_vus jsonb, duree_sec`.
+
 ---
 
 ## D — Ne touche jamais
