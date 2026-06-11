@@ -42,6 +42,12 @@ export const chapitre1 = {
       exercise:
         'Lance sound("casio"), puis remplace « casio » par « metal » et relance. ' +
         'Tu viens de faire ta première boucle Run → modifier → rejouer.',
+      culture: {
+        artist: 'DJ_Dave',
+        track: 'ses sets algorave en live (YouTube)',
+        why:
+          "la scène live coding d'aujourd'hui : elle compose de l'électro en direct, code projeté à l'écran — exactement le geste que tu apprends ici.",
+      },
     },
 
     {
@@ -249,7 +255,7 @@ export const chapitre2 = {
           'les crochets compressent tout dans un cycle ; les chevrons répartissent sur plusieurs cycles.',
         ],
         ['<a b c>', 'équivaut à [a b c]/3.'],
-        ['exemple', 'sound("bd sd, [~ <sd cp>]*2") — la caisse claire alterne avec un clap.'],
+        ['exemple', 'sound("bd <hh oh> sd <hh oh oh>") — le charleston alterne fermé/ouvert selon le cycle.'],
       ],
       exercise: 'Ajoute une variation à ta batterie avec < > sans changer le tempo.',
     },
@@ -264,6 +270,7 @@ export const chapitre2 = {
       code: 'sound("hh hh hh, bd casio")',
       decode: [
         [',', 'sépare des couches indépendantes, toutes calées sur le même cycle.'],
+        ['exemple', 'sound("bd sd, [~ <sd cp>]*2") — deux couches : le kick-snare, et une alternance snare/clap (< >, flash 2.6).'],
         [
           'vers le ch.5',
           "c'est la version « mini-notation » de l'empilement — le chapitre 5 généralisera avec stack et $:.",
@@ -352,6 +359,7 @@ export const chapitre3 = {
       code: 'setcpm(90/4)\nsound("<bd hh rim hh>*8")',
       decode: [
         ['setcpm(90/4)', "90 BPM en mesure 4/4 — 4 temps par cycle. Strudel calcule 90÷4 = 22,5 cpm."],
+        ['"<bd hh rim hh>*8"', "la combinaison < > + * : *8 tire 8 pas de l'alternance par cycle, en tournant dans la liste."],
         ['setcpm(120/4)', "120 BPM — tempo house classique."],
         ['setcpm(128/4)', "128 BPM — tempo techno typique."],
         ['setcps(x)', "existe aussi : cycles par seconde. setcpm(x) = setcps(x/60). On reste sur setcpm."],
@@ -636,7 +644,7 @@ export const chapitre5 = {
       decode: [
         ['setcpm(132/4)', "tempo techno : 132 BPM en 4/4 (ch.3)."],
         ['bd*4, [~ cp]*2, [~ hh]*4', "batterie 3 couches avec parallèle et sous-séquences (ch.1-2)."],
-        ['<c2 ab1 f1 g1>*2', "basse en alternance d'accords (ch.2 + ch.4)."],
+        ['<c2 ab1 f1 g1>*2', "basse en alternance de notes SEULES — les fondamentales, pas des accords (ch.2 + ch.4)."],
         ['n("0 2 <4 5> 2").scale("C:minor")', "mélodie en gamme mineure avec alternance (ch.4)."],
       ],
       exercise:
@@ -647,6 +655,12 @@ export const chapitre5 = {
         "Reparts de cet empilement : pousse le tempo vers 130-138, garde-le minimal et sec, " +
         "puis mute une couche avec _$: en plein jeu. Une couche qui disparaît puis revient, " +
         "c'est exactement comme ça qu'un DJ fait respirer un morceau — le breakdown.",
+      culture: {
+        artist: 'Jeff Mills',
+        track: 'The Bells',
+        why:
+          "LE manifeste de la techno minimale (Detroit) : trois éléments, un riff, une 909 jouée live — la version maître de ton empilement à 132 BPM.",
+      },
     },
   ],
 };
@@ -707,8 +721,8 @@ export const m2chapitre1 = {
       kicker: "L'alphabet musical",
       title: 'Sept lettres qui bouclent',
       concept:
-        'Toute la musique occidentale tient avec 7 lettres : A B C D E F G. ' +
-        "Après G, on repart à A, une octave plus haut. Un alphabet qui tourne en boucle.",
+        "Rappel express — déjà vu en M1 (4.2) : 7 lettres A–G qui bouclent, après G on repart à A, une octave plus haut. " +
+        "L'approfondissement ici : ancrer la correspondance do-ré-mi ↔ C-D-E une bonne fois pour toutes.",
       code: 'note("a b c d e f g a").sound("piano")',
       decode: [
         ['système anglais', 'Strudel utilise les lettres A–G, comme sur ta guitare et les grilles d\'accords.'],
@@ -763,8 +777,8 @@ export const m2chapitre1 = {
       kicker: 'Les touches noires',
       title: 'Dièses, bémols & le piège mi-fa / si-do',
       concept:
-        'Entre la plupart des lettres se cache une note intermédiaire : la touche noire. ' +
-        "Mais entre mi-fa (E-F) et si-do (B-C), il n'y en a pas : elles sont déjà à un demi-ton.",
+        "Dièses et bémols : rappel de M1 (4.4). L'approfondissement ici, c'est LE piège à retenir — " +
+        "entre mi-fa (E-F) et si-do (B-C), PAS de touche noire : elles sont déjà à un demi-ton.",
       code: 'note("c c# d d# e f f# g g# a a# b c4").sound("piano")',
       decode: [
         ['#', 'dièse (sharp) : +1 demi-ton.'],
@@ -790,8 +804,8 @@ export const m2chapitre1 = {
       kicker: "L'octave",
       title: "L'octave : la même note, plus haut",
       concept:
-        'Après 12 demi-tons, on retombe sur la même note, deux fois plus aiguë : ' +
-        "c'est l'octave. Voilà pourquoi do revient à chaque octave — la boucle de l'alphabet.",
+        "L'octave, tu la pratiques depuis M1 (4.3) : 12 demi-tons, même nom, fréquence doublée. " +
+        "L'approfondissement : POURQUOI l'oreille entend « la même note » — l'équivalence d'octave.",
       code: 'note("c2 c3 c4 c5").sound("piano")',
       decode: [
         ['c2 → c3', 'une octave = 12 demi-tons = +1 au chiffre.'],
@@ -929,7 +943,7 @@ export const m2chapitre2 = {
       decode: [
         ['[c,g]', 'quinte juste : 7 demi-tons. Le son « puissant », neutre.'],
         ['power chord', 'guitare saturée : la corde grave + sa quinte. Pas de tierce → ni majeur ni mineur.'],
-        ['.sound("sawtooth").lpf(800)', 'une dent de scie filtrée — un son plus « électrique ».'],
+        ['.sound("sawtooth").lpf(800)', 'une dent de scie filtrée — un son plus « électrique ». Le filtre lpf sera expliqué au Module 4.'],
       ],
       theory: {
         title: 'Côté solfège — la quinte',
@@ -1101,6 +1115,35 @@ export const m2chapitre3 = {
       exercise:
         'Joue la même phrase en C:major puis A:minor (le code le fait seul). ' +
         "Mêmes notes, mais l'une « finit chez do », l'autre « chez la ».",
+    },
+
+    {
+      id: '2.14b',
+      kicker: 'Les couleurs cachées',
+      title: 'Les modes : dorien, phrygien…',
+      concept:
+        "Pousse l'idée de la relative (2.14) jusqu'au bout : les MÊMES notes, démarrées sur chaque degré, " +
+        "donnent 7 gammes différentes — les modes. Deux stars en électro : le dorien (mineur « lumineux ») " +
+        "et le phrygien (sombre, couleur espagnole).",
+      code: 'n("0 2 4 7 9 7 4 2").scale("<C:minor C:dorian C:phrygian>").s("sawtooth").lpf(1200)',
+      decode: [
+        ['scale("C:dorian")', 'comme le mineur, mais la 6te est MAJEURE → mineur lumineux, le mode chouchou de la house et de la techno mélodique.'],
+        ['scale("C:phrygian")', 'comme le mineur, mais la 2de est MINEURE (un demi-ton au-dessus de la tonique) → sombre, tendu : psy-trance, EBM, flamenco.'],
+        ['<…>', 'la même phrase change de mode à chaque cycle : écoute la couleur tourner, une seule note diffère à chaque fois.'],
+      ],
+      theory: {
+        title: 'Côté solfège — les modes',
+        items: [
+          ['mode', 'la gamme majeure démarrée sur un autre degré : mêmes notes, autre « maison ».'],
+          ['dorien (dorian)', 'mineur + 6te majeure. So What de Miles Davis — et tant de house.'],
+          ['phrygien (phrygian)', 'mineur + 2de mineure. Le frisson sombre de la psy et du metal.'],
+          ['éolien (aeolian)', 'le nom « mode » du mineur naturel (2.13) — tu le connais déjà.'],
+          ['guitare', 'ta penta mineure + un doigt : ajoute la 6te majeure et tu joues dorien.'],
+        ],
+      },
+      exercise:
+        'Reprends une mélodie en C:minor et passe-la en C:dorian puis C:phrygian — une seule note change, ' +
+        'toute l’ambiance bascule. Les exercices des modules 5 à 7 te proposent C:dorian : maintenant tu sais ce que c’est.',
     },
 
     {
@@ -1451,7 +1494,7 @@ export const m2chapitre5 = {
       decode: [
         ['setcpm(140/4)', 'tempo trance, 140 BPM en 4/4 (M1 ch.3).'],
         ['la basse <a1 f1 c2 g1>', 'la fondamentale de chaque accord (Am-F-C-G), bien grave.'],
-        ['chord("<Am7 F^7 C^7 G7>")', 'des accords de 7e (4 sons) en pad sawtooth filtré + réverb → la signature trance.'],
+        ['chord("<Am7 F^7 C^7 G7>")', 'des accords de 7e (4 sons) en pad sawtooth filtré + réverb → la signature trance (le filtre lpf : Module 4).'],
         ['n("0 2 4 7 9 7 4 2").scale("A:minor")', 'une mélodie qui MONTE (0→9) puis redescend résoudre — le moteur émotionnel.'],
       ],
       theory: {
@@ -1481,6 +1524,12 @@ export const m2chapitre5 = {
         'relié à ta guitare et joué dans Strudel. Mission trance : écris une mélodie en mineur sur 8 temps, ' +
         'et essaie de la faire « monter » vers sa résolution (vise la tonique, une octave au-dessus). ' +
         "Cette tension qui se résout, c'est exactement ce qui donne des frissons en trance.",
+      culture: {
+        artist: 'Energy 52',
+        track: 'Café del Mar',
+        why:
+          "l'hymne trance absolu (1993) : écoute la mélodie en mineur MONTER puis se résoudre — le moteur émotionnel exact de ce flash.",
+      },
     },
   ],
 };
@@ -1704,7 +1753,7 @@ export const m3chapitre2 = {
       code: 'note("0 2 4 5 7 9 11 12".add("48")).s("gm_acoustic_guitar_steel").clip(1.2)',
       decode: [
         ['"0 2 4 5 7 9 11 12"', 'les écarts en demi-tons de do majeur (M2 : T-T-S-T-T-T-S).'],
-        ['.add("48")', '48 = do central (c3) ; on cale la gamme dessus → do ré mi fa sol la si do.'],
+        ['.add("48")', '48 = do (c3), une octave SOUS le do central (c4 = 60, cf. M1 4.1) ; on cale la gamme dessus → do ré mi fa sol la si do.'],
         ['sur une corde', 'cette suite de cases « dessine » la gamme en ligne.'],
       ],
       theory: {
@@ -2031,7 +2080,7 @@ export const m3chapitre4 = {
         ],
       },
       exercise:
-        'Compose un riff : note("[0,7]".add("<40 40 43 45>")).fast(2). ' +
+        'Compose un riff : note("[0,7]".add("<40 40 43 45>")).fast(2) — .fast(2) accélère tout le motif ×2 (détaillé au M5). ' +
         'Quatre power chords, un vrai motif punk.',
     },
 
@@ -2289,6 +2338,12 @@ export const m3chapitre5 = {
         'barrés, et le jeu (picking, dynamique, effets). Mission industrial : pose tes power chords distordus ' +
         "sur un beat 4/4 bien rigide, puis COUPE la guitare sur le temps 3 (mets un ~ dans le struct). " +
         "Ce trou qui claque, c'est le riff industrial classique — la guitare et le code ne font plus qu'un. 🎸",
+      culture: {
+        artist: 'Front 242',
+        track: 'Headhunter',
+        why:
+          "l'EBM belge (1988) : kick rigide, basse-machine, riffs secs — le pont exact entre ta guitare et la boîte à rythmes, l'ADN de l'industrial.",
+      },
     },
   ],
 };
@@ -3016,7 +3071,7 @@ export const m4chapitre5 = {
         '$: n("0 3 5 7 5 3").scale("C:minor").s("sawtooth").attack(.01).release(.2).phaser(2).room(.4).orbit(3).gain(.35)',
       decode: [
         ['la batterie (M1)', 'le moteur rythmique : kick 4/4 + hats serrés.'],
-        ['la basse acide (M4)', 'sawtooth + enveloppe de filtre + résonance haute (lpq 15) sur un motif (3,8) → le squelch 303 du psy-trance.'],
+        ['la basse acide (M4)', 'sawtooth + enveloppe de filtre + résonance haute (lpq 15) sur un rythme euclidien (3,8) — 3 coups répartis sur 8 pas, le tresillo (flash 5.9b du M5) → le squelch 303 du psy-trance.'],
         ['les accords (M2+M3)', 'grille Cm-Ab-Bb-Eb, guitare grattée + disto + délai.'],
         ['la mélodie (M2+M4)', 'do mineur, phaser + réverb.'],
       ],
@@ -3047,6 +3102,12 @@ export const m4chapitre5 = {
         "(sawtooth + lpf + résonance lpq haute + un filtre qui BOUGE — LFO rapide ou enveloppe courte) : c'est le squelch du psy-trance. " +
         "Puis RALENTIS le mouvement (slow le LFO, allonge attack et release) → la même matière devient un pad trance planant. " +
         "Tu n'apprends plus Strudel — tu sculptes le son. 🎛️",
+      culture: {
+        artist: 'Phuture',
+        track: 'Acid Tracks',
+        why:
+          "Chicago 1987 : une TB-303 détournée de son rôle de basse, résonance à fond — le morceau fondateur de l'acid. Ton lpq(15) vient en droite ligne de là.",
+      },
     },
   ],
 };
@@ -3307,6 +3368,34 @@ export const m5chapitre2 = {
     },
 
     {
+      id: '5.9b',
+      kicker: 'Répartir',
+      title: 'Les rythmes euclidiens : (k,n)',
+      concept:
+        "Une paire de nombres après un son : (k,n) répartit k coups sur n pas, le plus également " +
+        "possible. C'est un rythme euclidien — et (3,8), le « tresillo », est LA syncope de l'électro " +
+        "entière. Deux nombres suffisent pour écrire des grooves que les percussionnistes jouent depuis des siècles.",
+      code: 'sound("bd(3,8), hh*8")',
+      decode: [
+        ['bd(3,8)', '3 kicks répartis au plus égal sur 8 pas : x ~ ~ x ~ ~ x ~ — le tresillo.'],
+        ['hh*8', 'la grille témoin : 8 pas réguliers pour ENTENDRE où tombent les 3 coups.'],
+        ['(k,n,r)', 'un 3e nombre fait tourner le motif : bd(3,8,2) démarre 2 pas plus loin.'],
+        ['sur des notes', 'marche aussi avec note() : note("c2(3,8)").s("sawtooth") = une basse syncopée en un geste.'],
+      ],
+      theory: {
+        title: 'Côté rythme — la famille euclidienne',
+        items: [
+          ['rythme euclidien (euclidean rhythm)', "répartition la plus égale possible de k coups sur n pas (l'algorithme d'Euclide — oui, le Grec)."],
+          ['(3,8) = tresillo', 'Cuba → le reggaeton, et la basse de la moitié de la techno et de la house.'],
+          ['(5,8), (5,16), (7,16)', 'cinquillo, bossa, samba… presque toutes les claves du monde tiennent dans (k,n).'],
+        ],
+      },
+      exercise:
+        'Joue sound("bd(3,8), hh*8"), puis essaie (5,8) et (7,16) sur le kick, et une rotation bd(3,8,2). ' +
+        'Tu recroiseras ce motif : les finals du M4 (4.25) et du M6 (6.25) l’utilisent.',
+    },
+
+    {
       id: '5.10',
       kicker: 'On assemble',
       title: 'Le temps comme matière',
@@ -3333,6 +3422,7 @@ export const m5chapitre2 = {
           ['palindrome', 'alterne endroit/envers', 'la boucle respire'],
           ['iter(n)', 'décale le départ', 'la boucle tourne'],
           ['ply(n)', 'répète chaque coup', 'roulement / bégaiement'],
+          ['(k,n)', 'répartit k coups sur n pas', '"bd(3,8)" — le tresillo'],
         ],
       },
       exercise:
@@ -3418,7 +3508,7 @@ export const m5chapitre3 = {
       decode: [
         ['choose("sine","triangle","sawtooth")', 'la source change au hasard à chaque note.'],
         ['wchoose(["sine",10],["bd:6",1])', 'mets le pouce sur la balance.'],
-        ['"a | b"', 'la barre = un choix par cycle (vu en M1).'],
+        ['"a | b"', 'la barre = un choix au hasard par cycle — une nouveauté de mini-notation (elle ne sort pas de M1).'],
       ],
       exercise:
         'Varie le timbre tout seul : n("0 2 4").scale("C:major").s(choose("sawtooth","square")). ' +
@@ -3759,6 +3849,12 @@ export const m5chapitre5 = {
         "(setcpm bas, notes longues, beaucoup de room, degrade/sometimes) → une ambiance générative ambient ; " +
         "(2) ACCÉLÈRE le ressenti (breakbeat, iter sur les hats, half-time feel) → un groove drum & bass. " +
         "Le Module 6 (Composition & Projets) viendra structurer tout ça — mais tu as déjà tout pour improviser.",
+      culture: {
+        artist: 'Aphex Twin',
+        track: 'Xtal',
+        why:
+          "l'ouverture de Selected Ambient Works 85-92 : des règles simples, un son qui évolue tout seul — l'esprit génératif de ce module, en chef-d'œuvre.",
+      },
     },
   ],
 };
@@ -4511,6 +4607,7 @@ export const m6chapitre5 = {
         'all(x => x.when("<0!7 1>", y=>y.lpf(500)))',
       decode: [
         ['4 const + stack nommé', 'M6 : chaque voix définie une fois, le morceau lisible.'],
+        ['(3,8)', 'le rythme euclidien (M5 5.9b) : 3 coups de basse répartis sur 8 pas — le tresillo.'],
         ['_lead$: + all(when…)', 'M6 : le lead est armé (mute), et all ferme le filtre 1 cycle sur 8.'],
         ['tout Keymaker', 'batterie M1, gamme+accords M2, basse M3, filtre/réverb M4, off M5.'],
       ],
@@ -4534,6 +4631,12 @@ export const m6chapitre5 = {
         "Et maintenant, le terrain de jeu : le Module 7 « Genres & Styles » t'attend pour pousser " +
         "chaque genre électro à fond — house, techno, drum & bass, trance, ambient — un vrai morceau par genre. " +
         "Reviens piocher quand tu veux, et appelle Sati si tu bloques. Bravo, Felix.",
+      culture: {
+        artist: 'Mr. Fingers',
+        track: 'Can You Feel It',
+        why:
+          "Chicago 1986 : quatre couches, une grille d'accords, zéro superflu — la preuve qu'une structure simple, bien arrangée, suffit à faire un classique.",
+      },
     },
   ],
 };

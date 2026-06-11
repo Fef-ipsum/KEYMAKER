@@ -3463,3 +3463,66 @@ code, pre, .editor-frame, .quiz-code code {
 [data-theme="light"] .dash-mod-badge {
   color: color-mix(in srgb, var(--mtint, var(--accent)) 62%, #1b2030);
 }
+
+/* ============================================================
+   Chantiers 48 & 51 (11 juin 2026) — Glossaire bilingue +
+   capsules culture « À écouter ».  [build:c48-c51]
+   ============================================================ */
+
+/* C51 — capsule culture : discrète, bordure pointillée, pas une carte de cours. */
+.card.culture {
+  border: 1px dashed color-mix(in srgb, var(--mtint, var(--accent)) 40%, transparent);
+  background: transparent;
+  box-shadow: none;
+}
+.card.culture h2 { color: var(--mtint, var(--accent)); }
+.card.culture p { margin: 0; font-size: 13.5px; color: var(--muted); }
+.card.culture strong { color: var(--text); font-weight: 600; }
+[data-theme="light"] .card.culture h2 {
+  color: color-mix(in srgb, var(--mtint, var(--accent)) 62%, #1b2030);
+}
+
+/* C48 — glossaire : réutilise .learn-overlay / .learn-panel / .learn-head. */
+.glossary-panel { max-width: 740px; }
+.glossary-search {
+  width: 100%;
+  margin: 14px 0 10px;
+  padding: 11px 14px;
+  border-radius: 11px;
+  border: 1px solid var(--border-soft);
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+.glossary-search:focus { outline: none; border-color: rgba(var(--accent-rgb), 0.55); }
+.glossary-list { list-style: none; margin: 0; padding: 0; }
+.glossary-item {
+  display: grid;
+  grid-template-columns: minmax(120px, 210px) 1fr auto;
+  gap: 4px 14px;
+  align-items: baseline;
+  padding: 9px 4px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.glossary-item:last-child { border-bottom: none; }
+.glossary-term {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  overflow-wrap: break-word;
+}
+.glossary-def { font-size: 13.5px; color: var(--text); }
+.glossary-src {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.glossary-empty { padding: 16px 4px; color: var(--muted); font-style: italic; }
+@media (max-width: 600px) {
+  .glossary-item { grid-template-columns: 1fr auto; }
+  .glossary-def { grid-column: 1 / -1; }
+}

@@ -50,6 +50,12 @@ export const m7chapitre1 = {
       exercise:
         "Joue le squelette, puis mute une couche à la fois avec _$: pour entendre le rôle de chacune. " +
         "Le charley offbeat coupé → tout de suite moins « house ».",
+      culture: {
+        artist: 'Frankie Knuckles',
+        track: 'Your Love',
+        why:
+          "le parrain de la house, Chicago : kick 4/4, bassline hypnotique, émotion — repère le charley offbeat dès l'intro.",
+      },
     },
 
     {
@@ -153,6 +159,12 @@ export const m7chapitre1 = {
       exercise:
         "Ajoute une section « break » : [8, stack(clap, bass)] (sans kick) avant le drop. " +
         "Couper le kick puis le faire revenir = l'effet le plus efficace de toute la house.",
+      culture: {
+        artist: 'Derrick May',
+        track: 'Strings of Life',
+        why:
+          "Detroit 1987 : pas de bassline, un piano euphorique, une structure en blocs qui montent — un cours d'arrangement à lui tout seul.",
+      },
     },
 
     {
@@ -243,6 +255,44 @@ export const m7chapitre2 = {
       exercise:
         "Résiste à l'envie d'ajouter. Enlève plutôt : coupe les charleys, ne garde que kick + basse. " +
         "Souvent, c'est là que ça devient vraiment techno.",
+      culture: {
+        artist: 'Plastikman',
+        track: 'Spastik',
+        why:
+          "13 minutes de quasi pures percussions 909 (Richie Hawtin, 1993) : le manifeste du « moins = plus » — écoute tout ce qui se passe avec si peu.",
+      },
+    },
+
+    {
+      id: '7.6b',
+      kicker: 'Le kick fait main',
+      title: 'penv : le kick synthétique',
+      concept:
+        "Un kick techno, c'est une note très grave dont la HAUTEUR plonge en quelques millisecondes : " +
+        "« tooow » → « bd ». penv (pitch envelope) fait exactement ça. Tu peux donc SYNTHÉTISER ton kick " +
+        "au lieu de le sampler — c'est ainsi que la TR-909 fabrique le sien.",
+      code:
+        'setcpm(132/4)\n' +
+        '$: note("c1*4").s("sine").penv(24).pdecay(.08).decay(.25).sustain(0).distort("1.4:.7").gain(.9)\n' +
+        '$: s("[~ hh]*4").bank("RolandTR909").gain(.35)',
+      decode: [
+        ['note("c1*4").s("sine")', "la base : une sinusoïde très grave, quatre fois par mesure."],
+        ['.penv(24)', "l'enveloppe de hauteur : la note démarre 24 demi-tons (2 octaves) plus haut…"],
+        ['.pdecay(.08)', "…et retombe en 80 ms → le « clic-plongeon » caractéristique du kick."],
+        ['.decay(.25).sustain(0)', "le volume meurt vite : un coup, pas une note tenue (M4)."],
+        ['.distort("1.4:.7")', "une pointe de saturation pour durcir le coup (M4)."],
+      ],
+      theory: {
+        title: 'Le mot juste',
+        items: [
+          ['penv / pdecay / pattack', "l'enveloppe de HAUTEUR (pitch envelope) : de combien la note plonge, et en combien de temps."],
+          ['kick synthétique', "un oscillateur qui pique du nez — la recette du kick 909/808."],
+          ['pourquoi faire ?', "un kick ACCORDÉ à ta tonalité (c1, e1…) et sculptable à l'infini."],
+        ],
+      },
+      exercise:
+        'Sculpte ton kick : penv(12) (plus doux) vs penv(36) (plus claquant) ; pdecay(.03) vs pdecay(.15). ' +
+        'Puis accorde-le à ta tonalité : note("e1*4") pour un morceau en mi mineur.',
     },
 
     {
@@ -342,6 +392,12 @@ export const m7chapitre2 = {
       exercise:
         "Change la forme : gain(sine.range(.3,1).fast(4)) (pompage plus doux) ou .fast(2) (un dip toutes les 2 temps). " +
         "Trouve le pompage qui te fait hocher la tête.",
+      culture: {
+        artist: 'Daft Punk',
+        track: 'One More Time',
+        why:
+          "le pompage sidechain rendu planétaire : tout le morceau « respire » au rythme du kick — exactement ton gain(saw.range(.3,1)).",
+      },
     },
 
     {
@@ -445,7 +501,7 @@ export const m7chapitre3 = {
         '$: s("amen/4").fit().chop(16).iter(4).cut(1).gain(.9)\n' +
         '$: note("<c1 c1 eb1 c1>").s("sine").gain(.7)',
       decode: [
-        ['samples("github:…")', "charge la banque de breaks (téléchargement réseau, UNE fois puis cache)."],
+        ['samples({ amen: url })', "charge le break depuis son URL sous le nom « amen » (téléchargement réseau, UNE fois puis cache — même geste qu'en M6 6.16)."],
         ['s("amen/4").fit()', "le break amen étalé sur 4 mesures, calé pile sur les cycles."],
         ['.chop(16)', "16 tranches jouées dans l'ordre."],
         ['.iter(4)', "décale le motif d'1/4 à chaque mesure → la variation infinie."],
@@ -462,6 +518,12 @@ export const m7chapitre3 = {
       exercise:
         "Remplace .iter(4) par .slice(16, \"<0 1 2 3 8 9 6 7>\") : tu réordonnes les tranches → " +
         "ton propre découpage du break. C'est ça, faire du D&B.",
+      culture: {
+        artist: 'The Winstons',
+        track: 'Amen, Brother',
+        why:
+          "le break de batterie le plus samplé de l'histoire (vers 1:26) : six secondes de 1969 devenues l'ADN de la jungle et du D&B.",
+      },
     },
 
     {
@@ -493,6 +555,12 @@ export const m7chapitre3 = {
       exercise:
         "Élargis le désaccord : note(\"[24,24.5]*8\") (plus rauque), puis resserre à 24.05 (presque pur). " +
         "Trouve le grain qui growl juste comme il faut.",
+      culture: {
+        artist: 'Reese (Kevin Saunderson)',
+        track: 'Just Want Another Chance',
+        why:
+          "Detroit 1988 : la basse détunée qui gronde dans l'intro a donné son NOM à la reese — toute la bass music en descend.",
+      },
     },
 
     {
@@ -646,6 +714,43 @@ export const m7chapitre4 = {
       exercise:
         "Empile une 2ᵉ couche : ajoute .superimpose(x=>x.add(0.3)) → 3 saws, encore plus large. " +
         "Trop, c'est combien ? Écoute où ça devient flou.",
+      culture: {
+        artist: 'System F',
+        track: 'Out of the Blue',
+        why:
+          "la trance de 1999 à son sommet (Ferry Corsten) : le supersaw du JP-8000 en pleine gloire — l'accord scintille comme ton superimpose.",
+      },
+    },
+
+    {
+      id: '7.17b',
+      kicker: "L'accord qui court",
+      title: "arp : l'arpégiateur",
+      concept:
+        "L'autre signature trance : l'accord ÉGRENÉ note à note, vite — l'arpège. arp() prend ton accord " +
+        "empilé et le déroule selon un motif d'indices : 0 = la note la plus grave, puis 1, 2… " +
+        "L'arpégiateur des synthés, en une fonction.",
+      code:
+        'setcpm(140/4)\n' +
+        '$: s("bd*4").bank("RolandTR909")\n' +
+        '$: chord("<Am F C G>").voicing().arp("0 1 2 3").fast(2).s("sawtooth").decay(.15).sustain(.1).delay(.3).room(.4).gain(.4)',
+      decode: [
+        ['chord("<Am F C G>").voicing()', "la grille d'accords, comme d'habitude (M2)."],
+        ['.arp("0 1 2 3")', "égrène l'accord du grave à l'aigu : note 0, 1, 2, 3 — un arpège montant."],
+        ['.arp("0 [0,2] 1 2")', "le motif est de la mini-notation : crochets, silences et < > marchent."],
+        ['.fast(2) + delay(.3)', "doublé de vitesse + écho → le mouvement perpétuel hypnotique de la trance."],
+      ],
+      theory: {
+        title: 'Le mot juste',
+        items: [
+          ['arpège', "les notes d'un accord jouées une par une au lieu d'ensemble."],
+          ['arpégiateur (arp)', "le module des synthés qui le fait tout seul ; arpWith(f) pour un ordre calculé."],
+          ['descendre', 'arp("3 2 1 0") — et "0 3 1 2" pour les motifs brisés.'],
+        ],
+      },
+      exercise:
+        'Essaie .arp("<[0 1 2 3] [3 2 1 0]>") : montée un cycle, descente le suivant. ' +
+        "Puis enlève .fast(2) — l'arpège redevient calme, presque ambient.",
     },
 
     {
@@ -805,6 +910,12 @@ export const m7chapitre5 = {
       exercise:
         "Descends encore : setcpm(16/4). Allonge attack(4).release(6). " +
         "Sens comment le morceau cesse d'être un « rythme » pour devenir un « lieu ».",
+      culture: {
+        artist: 'Brian Eno',
+        track: 'Ambient 1: Music for Airports (1/1)',
+        why:
+          "l'album qui a NOMMÉ le genre (1978) : des boucles de durées inégales qui se décalent — « aussi ignorable qu'intéressante », disait Eno.",
+      },
     },
 
     {
@@ -868,6 +979,37 @@ export const m7chapitre5 = {
       exercise:
         "Change la graine du hasard avec ribbon(3, 4) sur la couche irand : tu PÊCHES une variation, " +
         "puis tu la figes. Essaie plusieurs graines, garde celle que tu préfères.",
+    },
+
+    {
+      id: '7.23b',
+      kicker: 'Les engrenages',
+      title: 'Le polymètre : { a b, c d e }',
+      concept:
+        "Deux boucles de LONGUEURS différentes qui avancent au même pas : elles se décalent à chaque tour, " +
+        "comme deux engrenages, et ne se réalignent que bien plus tard. C'est le polymètre — l'astuce " +
+        "préférée de l'ambient et de l'IDM pour qu'une boucle ne se répète jamais vraiment.",
+      code:
+        'setcpm(24/4)\n' +
+        '$: note("c2").s("sine").gain(.3).room(.5)\n' +
+        '$: n("{0 4 2, 7 5 3 1}%4").scale("C:minor").s("triangle").attack(.5).release(2).room(.8).gain(.3)',
+      decode: [
+        ['{0 4 2, 7 5 3 1}', "deux séquences de longueurs DIFFÉRENTES (3 et 4 notes) dans un même pattern."],
+        ['%4', "la vitesse commune : 4 pas par cycle pour tout le monde."],
+        ['le décalage', "3 contre 4 → elles ne se réalignent que tous les 12 pas : la boucle « tourne » sans se répéter."],
+        ['polymeter(…)', "existe aussi en fonction (M5 : factories), si tu préfères éviter les accolades."],
+      ],
+      theory: {
+        title: 'Le mot juste',
+        items: [
+          ['polymètre (polymeter)', "des cycles de longueurs différentes superposés, même vitesse de pas."],
+          ['vs la virgule', '"a b, c d e" (M1) étire tout sur UN cycle ; {a b, c d e} laisse chacun sa longueur.'],
+          ['l\'héritage', "les tape loops de longueurs inégales de Brian Eno (Music for Airports) : le même principe, en bande magnétique."],
+        ],
+      },
+      exercise:
+        'Change les longueurs : {0 4 2 5, 7 5 3}%4 (4 contre 3), puis %3 ou %8 pour la densité. ' +
+        'Laisse tourner : note quand la figure se répète vraiment.',
     },
 
     {

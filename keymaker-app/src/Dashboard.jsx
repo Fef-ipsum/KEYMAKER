@@ -20,7 +20,7 @@ const IcoBookmark = () => (
 // 100 % présentationnel : App calcule le `summary` (depuis progress.js) et passe les
 // actions. Données lues à l'ouverture, donc toujours fraîches.
 
-export default function Dashboard({ summary, modules, currentModuleIndex, resumeLabel, reviewCount, onOpenReview, onStartFlow, daily, onDaily, onResume, onPickModule, onOpenLibrary, onClose }) {
+export default function Dashboard({ summary, modules, currentModuleIndex, resumeLabel, reviewCount, onOpenReview, onStartFlow, daily, onDaily, onResume, onPickModule, onOpenLibrary, onOpenGlossary, onClose }) {
   const s = summary || { perModule: [], totalSeen: 0, totalFlashs: 0, days: 0, streak: 0, pct: 0 };
   const streakWord = s.streak <= 1 ? 'jour' : 'jours';
   const daysWord = s.days <= 1 ? 'jour' : 'jours';
@@ -157,9 +157,14 @@ export default function Dashboard({ summary, modules, currentModuleIndex, resume
           </div>
         </section>
 
-        {onOpenLibrary && (
+        {(onOpenLibrary || onOpenGlossary) && (
           <div className="dash-actions">
-            <button className="dash-lib-btn" onClick={onOpenLibrary} style={{display:'inline-flex',alignItems:'center',gap:7}}><IcoBookmark /> Mes snippets</button>
+            {onOpenLibrary && (
+              <button className="dash-lib-btn" onClick={onOpenLibrary} style={{display:'inline-flex',alignItems:'center',gap:7}}><IcoBookmark /> Mes snippets</button>
+            )}
+            {onOpenGlossary && (
+              <button className="dash-lib-btn" onClick={onOpenGlossary} style={{display:'inline-flex',alignItems:'center',gap:7}}><span aria-hidden="true">📖</span> Glossaire</button>
+            )}
           </div>
         )}
 

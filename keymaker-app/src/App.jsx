@@ -18,6 +18,7 @@ import FlowBar from './FlowBar.jsx';
 import { buildFlowPlan, dailyChallenge, isDailyDone, markDailyDone } from './flow.js';
 import FlashNote from './FlashNote.jsx';
 import SnippetLibrary from './SnippetLibrary.jsx';
+import Glossary from './Glossary.jsx'; // Chantier 48 : glossaire bilingue
 import { addSnippet } from './notebook.js';
 import PatternViz from './PatternViz.jsx';
 import PoSync from './PoSync.jsx';
@@ -276,6 +277,7 @@ export default function App() {
   const [focusMode, setFocusMode] = useState(false); // Chantier 21 : Mode Focus (éphémère, non persisté)
   const [dashOpen, setDashOpen] = useState(false); // Chantier 16 : tableau de bord (accueil)
   const [libraryOpen, setLibraryOpen] = useState(false); // Chantier 27 : bibliothèque de snippets
+  const [glossaryOpen, setGlossaryOpen] = useState(false); // Chantier 48 : glossaire bilingue
   const [studioOpen, setStudioOpen] = useState(false); // Chantier 32 : Studio (bac à sable, hors leçon)
   const studioEditorRef = useRef(null);                // éditeur Strudel dédié au Studio
   const [snipMsg, setSnipMsg] = useState(''); // Chantier 27 : confirmation éphémère de sauvegarde
@@ -800,17 +802,17 @@ export default function App() {
   // Échap ferme d'abord les overlays ouverts (Parcours / Sati / Réglages),
   // sinon sort du Mode Focus (Chantier 21).
   useEffect(() => {
-    if (!learnOpen && !satiOpen && !settingsOpen && !dashOpen && !libraryOpen && !focusMode && !studioOpen && quizFor == null && !reviewOpen) return;
+    if (!learnOpen && !satiOpen && !settingsOpen && !dashOpen && !libraryOpen && !glossaryOpen && !focusMode && !studioOpen && quizFor == null && !reviewOpen) return;
     const onKey = (e) => {
       if (e.key !== 'Escape') return;
       if (quizFor != null || reviewOpen) { setQuizFor(null); setReviewOpen(false); }
-      else if (learnOpen || satiOpen || settingsOpen || dashOpen || libraryOpen) { setLearnOpen(false); setSatiOpen(false); setSettingsOpen(false); setDashOpen(false); setLibraryOpen(false); }
+      else if (learnOpen || satiOpen || settingsOpen || dashOpen || libraryOpen || glossaryOpen) { setLearnOpen(false); setSatiOpen(false); setSettingsOpen(false); setDashOpen(false); setLibraryOpen(false); setGlossaryOpen(false); }
       else if (studioOpen) setStudioOpen(false);
       else if (focusMode) setFocusMode(false);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [learnOpen, satiOpen, settingsOpen, dashOpen, libraryOpen, focusMode, studioOpen, quizFor, reviewOpen]);
+  }, [learnOpen, satiOpen, settingsOpen, dashOpen, libraryOpen, glossaryOpen, focusMode, studioOpen, quizFor, reviewOpen]);
 
   return (
     <div className={'app' + (settings.reduceMotion ? ' reduce-motion' : '') + (focusMode ? ' focus-mode' : '')} data-theme={settings.theme || 'void'}>
@@ -984,6 +986,7 @@ export default function App() {
           onResume={() => setDashOpen(false)}
           onPickModule={(mi) => { goToModule(mi); setDashOpen(false); }}
           onOpenLibrary={() => { setDashOpen(false); setLibraryOpen(true); }}
+          onOpenGlossary={() => { setDashOpen(false); setGlossaryOpen(true); }}
           onClose={() => setDashOpen(false)}
         />
       )}
@@ -994,6 +997,9 @@ export default function App() {
           onClose={() => setLibraryOpen(false)}
         />
       )}
+
+      {/* Glossaire bilingue (Chantier 48) : construit depuis les theory.items des leçons. */}
+      {glossaryOpen && <Glossary onClose={() => setGlossaryOpen(false)} />}
 
       {studioOpen && (
         <Studio
@@ -1260,6 +1266,16 @@ function Flash({
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {/* Capsule culture (Chantier 51) : un vrai morceau à écouter, lié au flash. */}
+      {flash.culture && (
+        <section className="card culture">
+          <h2>🎧 À écouter</h2>
+          <p>
+            <strong>{flash.culture.artist} — {flash.culture.track}</strong> : {flash.culture.why}
+          </p>
         </section>
       )}
 
