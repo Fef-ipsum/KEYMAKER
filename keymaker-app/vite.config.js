@@ -27,10 +27,25 @@ export default defineConfig({
         ]
       },
       workbox: {
-        // On précache la coquille de l'app, pas le moteur Strudel vendorisé
-        // (volumineux) — il sera mis en cache au premier usage par le navigateur.
-        globPatterns: ['**/*.{css,html,js,svg,png,webmanifest}'],
-        globIgnores: ['**/vendor/**']
+        // Chantier 47 : PRÉCACHE COMPLET — coquille + moteur vendorisé (~5 MB) +
+        // fonts + sons locaux → l'app démarre et joue dans le train, sans réseau.
+        globPatterns: ['**/*.{css,html,js,mjs,svg,png,webmanifest,woff2,wav,mp3,ogg,json}'],
+        maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
+        // Les SAMPLES distants (banques strudel chargées à la demande) passent en
+        // cache-first à l'usage : joués une fois = disponibles hors-ligne.
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) =>
+              url.origin !== self.location.origin &&
+              /\.(wav|mp3|ogg|flac|json)$/i.test(url.pathname),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'keymaker-samples',
+              expiration: { maxEntries: 600, maxAgeSeconds: 60 * 60 * 24 * 60 },
+              cacheableResponse: { statuses: [0, 200] }
+            }
+          }
+        ]
       }
     })
   ]

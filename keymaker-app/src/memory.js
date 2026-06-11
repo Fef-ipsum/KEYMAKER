@@ -11,7 +11,7 @@
 // les try/catch autour de localStorage ailleurs dans l'app.
 
 const DB_NAME = 'keymaker';
-const DB_VERSION = 2; // v2 (Chantiers 24+27) : ajoute les stores 'notes' et 'snippets'
+const DB_VERSION = 3; // v3 (Chantier 47) : répare l'index 'flashKey' des bases nées en v1 (bug B6)
 const STORE_MSG = 'messages'; //  fil GLOBAL : { id++, role:'user'|'sati', text, model?, ts }
 const STORE_DIFF = 'difficultes'; //  repères auto : { id++, flashKey, flashId, label, ts }  (index: flashKey)
 export const STORE_NOTES = 'notes'; // Chantier 24 : carnet par flash — { flashKey (keyPath), text, ts }
@@ -58,6 +58,12 @@ export function getDB() {
         const s = db.createObjectStore(STORE_DIFF, { keyPath: 'id', autoIncrement: true });
         s.createIndex('flashKey', 'flashKey', { unique: false });
       }
+      // B6 (v3) : une base née en v1 avait le store SANS l'index (la migration v2
+      // ne re-vérifiait pas). On le crée a posteriori via la transaction d'upgrade.
+      try {
+        const st = req.transaction.objectStore(STORE_DIFF);
+        if (!st.indexNames.contains('flashKey')) st.createIndex('flashKey', 'flashKey', { unique: false });
+      } catch { /* store tout juste créé ci-dessus : index déjà posé */ }
       // Chantiers 24 & 27 (passage v1 -> v2) : on AJOUTE deux stores sans toucher
       // à 'messages'/'difficultes' → la mémoire de Sati déjà stockée est préservée.
       if (!db.objectStoreNames.contains(STORE_NOTES)) {

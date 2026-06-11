@@ -9,6 +9,20 @@
 // partage l'AudioContext global de superdough. App arrête l'éditeur de leçon quand
 // le Studio s'ouvre, et le Studio arrête le sien à la fermeture → un seul son à la fois.
 import { useCallback, useEffect, useRef, useState } from 'react';
+import Oscilloscope from './Oscilloscope.jsx';
+
+// Chantier 46 — inverse de code2hash (App.jsx) : URL strudel.cc → code.
+// PUR et best-effort : '' si le lien n'est pas décodable.
+export function hash2code(urlOrHash) {
+  try {
+    const h = String(urlOrHash || '').split('#').pop().trim();
+    if (!h) return '';
+    const bin = atob(decodeURIComponent(h));
+    return new TextDecoder().decode(Uint8Array.from(bin, (ch) => ch.charCodeAt(0)));
+  } catch {
+    return '';
+  }
+}
 import StrudelEditor from './StrudelEditor.jsx';
 import PatternViz from './PatternViz.jsx';
 
@@ -133,10 +147,14 @@ export default function Studio({
     return code || startCode.current || '';
   }, []);
 
+  // Chantier 46 : oscilloscope + import d'une URL strudel.cc.
+  const [oscOpen, setOscOpen] = useState(false);
+  const [importUrl, setImportUrl] = useState('');
+  const toastTimerRef = useRef(null); // B5 (C47) : plus de timeout accroché à la fonction
   const flashToast = useCallback((msg) => {
     setToast(msg);
-    window.clearTimeout(flashToast._t);
-    flashToast._t = window.setTimeout(() => setToast(''), 2200);
+    window.clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = window.setTimeout(() => setToast(''), 2200);
   }, []);
 
   const handleReady = useCallback((ed) => {
@@ -191,6 +209,20 @@ export default function Studio({
     try { persistRef.current && persistRef.current(STUDIO_BLANK); } catch { /* ignore */ }
     flashToast('Page vierge');
   }, [flashToast]);
+
+  // Chantier 46 : import communauté — l'URL strudel.cc encode le code en base64.
+  const doImport = useCallback(async () => {
+    const code = hash2code(importUrl);
+    if (!code) { flashToast('Lien illisible — colle une URL strudel.cc complète'); return; }
+    const ed = edRef.current;
+    if (ed) {
+      try { await ed.stop(); } catch { /* ignore */ }
+      try { ed.setCode(code); } catch { /* ignore */ }
+      try { persistRef.current && persistRef.current(code); } catch { /* ignore */ }
+    }
+    setImportUrl('');
+    flashToast('⤵ Pattern importé — Run pour l\'écouter');
+  }, [importUrl, flashToast]);
 
   const surprise = useCallback(() => {
     const pick = STARTERS[Math.floor(Math.random() * STARTERS.length)];
@@ -337,7 +369,34 @@ export default function Studio({
             <button className="share-btn" onClick={clearCode} title="Repartir d'une page vierge">
               ⟲ Vider
             </button>
+            <button
+              className={'share-btn' + (oscOpen ? ' on' : '')}
+              onClick={() => setOscOpen((o) => !o)}
+              aria-pressed={oscOpen}
+              title="Voir la forme d'onde du son (oscilloscope)"
+            >
+              〰 Oscillo
+            </button>
             {toast && <span className="share-msg" role="status">{toast}</span>}
+          </div>
+
+          {/* Chantier 46 : oscilloscope (le tap audio vit dans index.html). */}
+          {oscOpen && <Oscilloscope />}
+
+          {/* Chantier 46 : désosser les patterns de la communauté strudel.cc. */}
+          <div className="studio-import">
+            <input
+              className="studio-import-input"
+              type="text"
+              placeholder="Colle une URL strudel.cc/#… pour ouvrir le pattern ici"
+              value={importUrl}
+              onChange={(ev) => setImportUrl(ev.target.value)}
+              onKeyDown={(ev) => { if (ev.key === 'Enter') doImport(); }}
+              aria-label="URL strudel.cc à importer"
+            />
+            <button className="share-btn" onClick={doImport} title="Décoder l'URL et charger le pattern dans l'éditeur">
+              ⤵ Importer
+            </button>
           </div>
         </section>
 

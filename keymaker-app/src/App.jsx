@@ -8,14 +8,14 @@ import Settings from './Settings.jsx';
 import { modules } from './lessons.js';
 import { countMemory, loadDifficulties, clearAllMemory } from './memory.js';
 import Dashboard from './Dashboard.jsx';
-import { markSeen, recordToday, isFirstVisitToday, summary as progressSummary, firstUnseenIndex, seenKeys } from './progress.js';
+import { markSeen, recordToday, isFirstVisitToday, summary as progressSummary, firstUnseenIndex, seenKeys, todayStr } from './progress.js';
 import Quiz from './Quiz.jsx';
 import Review from './Review.jsx';
 import ExerciseCard from './ExerciseCard.jsx';
 import { recordQuizResult, markPracticed, todaysReview, levelOf, readSrs } from './srs.js';
 import { initSessionTracking, trackFlash } from './sessionTrack.js';
 import FlowBar from './FlowBar.jsx';
-import { buildFlowPlan } from './flow.js';
+import { buildFlowPlan, dailyChallenge, isDailyDone, markDailyDone } from './flow.js';
 import FlashNote from './FlashNote.jsx';
 import SnippetLibrary from './SnippetLibrary.jsx';
 import { addSnippet } from './notebook.js';
@@ -296,6 +296,25 @@ export default function App() {
   // Chantier 44 — Mode Flow : « j'ai X minutes » → plan local (révision → nouveau
   // → défi), bandeau FlowBar par-dessus l'app qui reste 100 % utilisable.
   const [flow, setFlow] = useState(null); // { plan, stepIndex, startTs, minutes, learnLeft, stats }
+
+  // Chantier 43 — défi du jour : déterministe par date, marqué « relevé » localement.
+  const [dailyTick, setDailyTick] = useState(0);
+  const daily = useMemo(() => {
+    const t = todayStr();
+    return { challenge: dailyChallenge(t), done: isDailyDone(t) };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dashOpen, dailyTick]);
+
+  const takeDaily = useCallback(async () => {
+    const ed = editorRef.current;
+    if (ed && daily.challenge.code) {
+      try { await ed.stop(); } catch { /* ignore */ }
+      try { ed.setCode(daily.challenge.code); } catch { /* ignore */ }
+    }
+    try { markDailyDone(todayStr()); } catch { /* ignore */ }
+    setDailyTick((t) => t + 1);
+    setDashOpen(false);
+  }, [daily]);
 
   // Réglages persistés (Chantier 6) : taille de texte, animations, thème d'éditeur, numéros de ligne.
   const [settings, setSettings] = useState(readSettings);
@@ -960,6 +979,8 @@ export default function App() {
           reviewCount={review.total}
           onOpenReview={() => { setDashOpen(false); setReviewOpen(true); }}
           onStartFlow={startFlow}
+          daily={daily}
+          onDaily={takeDaily}
           onResume={() => setDashOpen(false)}
           onPickModule={(mi) => { goToModule(mi); setDashOpen(false); }}
           onOpenLibrary={() => { setDashOpen(false); setLibraryOpen(true); }}

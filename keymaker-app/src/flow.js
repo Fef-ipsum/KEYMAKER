@@ -66,3 +66,45 @@ export const LOCAL_CHALLENGES = [
 export function pickLocalChallenge(rand = Math.random()) {
   return LOCAL_CHALLENGES[Math.floor(rand * LOCAL_CHALLENGES.length) % LOCAL_CHALLENGES.length];
 }
+
+/* ---------------------------------------------------------------------------
+   Chantier 43 — Défi du jour. Déterministe : la DATE choisit le défi (même
+   défi toute la journée, différent demain) dans la banque combinée. Marqué
+   « relevé » en localStorage. Anti-page-blanche : ouvrir → un défi → 10 min.
+   --------------------------------------------------------------------------- */
+export const DAILY_CHALLENGES = [
+  { title: 'Carte postale sonore', brief: 'Un lieu te vient en tête (gare, forêt, atelier…) ? Fais-le entendre en 4 lignes max. Pas de mélodie obligatoire : une ambiance.', code: 'sound("wind ~ insect ~")' },
+  { title: 'Le batteur fantôme', brief: 'Un beat où la grosse caisse ne tombe JAMAIS sur le premier temps. Bizarre au début, addictif ensuite.', code: 'sound("~ bd hh bd")' },
+  { title: 'Deux vitesses', brief: 'Superpose le même motif joué lent et rapide (.slow(2) + .fast(2)). Écoute les motifs se croiser.', code: 'note("c3 eb3 g3 bb3")' },
+  { title: 'Minimal house', brief: 'Kick 4/4, UN clap, UN hi-hat. Rien d\'autre — mais place-les pour que ça groove vraiment.', code: 'sound("bd bd bd bd")' },
+  { title: 'L\'intrus', brief: 'Un pattern propre… avec UN son qui n\'a rien à faire là (crow ? numbers ?). Fais-le sonner voulu.', code: 'sound("bd hh sd hh")' },
+  { title: 'Nappe du soir', brief: 'Pas de batterie aujourd\'hui : des notes longues, de la reverb, et le temps qui s\'étire.', code: 'note("c3 g3 e4").slow(4).room(0.8)' },
+  { title: 'Code golf', brief: 'Le groove le plus riche possible en UNE seule ligne de code. Compte tes caractères, recommence plus court.', code: 'sound("bd*2 [~ sd] hh*4")' },
+  { title: 'La gamme cachée', brief: 'Choisis une gamme (mineure ?) et improvise un motif qui ne sort JAMAIS de ses notes. Ton oreille te dira merci.', code: 'note("a2 c3 e3 a3")' },
+];
+
+const DAILY_KEY = 'keymaker:daily';
+
+// La date (YYYY-MM-DD) choisit le défi — déterministe, pur.
+export function dailyChallenge(dateStr) {
+  const all = DAILY_CHALLENGES.concat(LOCAL_CHALLENGES);
+  let h = 0;
+  for (const ch of String(dateStr)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return all[h % all.length];
+}
+
+export function readDaily() {
+  try {
+    const raw = localStorage.getItem(DAILY_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch { /* ignore */ }
+  return null;
+}
+
+export function markDailyDone(dateStr) {
+  try { localStorage.setItem(DAILY_KEY, JSON.stringify({ date: dateStr, done: true })); } catch { /* ignore */ }
+}
+
+export function isDailyDone(dateStr, stored = readDaily()) {
+  return !!(stored && stored.date === dateStr && stored.done);
+}

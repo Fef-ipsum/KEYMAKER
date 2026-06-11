@@ -19,7 +19,7 @@ const IcoBookmark = () => (
 // 100 % présentationnel : App calcule le `summary` (depuis progress.js) et passe les
 // actions. Données lues à l'ouverture, donc toujours fraîches.
 
-export default function Dashboard({ summary, modules, currentModuleIndex, resumeLabel, reviewCount, onOpenReview, onStartFlow, onResume, onPickModule, onOpenLibrary, onClose }) {
+export default function Dashboard({ summary, modules, currentModuleIndex, resumeLabel, reviewCount, onOpenReview, onStartFlow, daily, onDaily, onResume, onPickModule, onOpenLibrary, onClose }) {
   const s = summary || { perModule: [], totalSeen: 0, totalFlashs: 0, days: 0, streak: 0, pct: 0 };
   const streakWord = s.streak <= 1 ? 'jour' : 'jours';
   const daysWord = s.days <= 1 ? 'jour' : 'jours';
@@ -53,6 +53,22 @@ export default function Dashboard({ summary, modules, currentModuleIndex, resume
             {resumeLabel && <span className="dash-resume-sub">{resumeLabel}</span>}
           </button>
         </section>
+
+        {/* ---- Défi du jour (Chantier 43) : anti-page-blanche, un par date ---- */}
+        {daily && (
+          <section className={'dash-daily' + (daily.done ? ' done' : '')}>
+            <div className="dash-daily-txt">
+              <span className="dash-daily-glyph" aria-hidden="true">🎲</span>
+              <span className="dash-review-label">
+                Défi du jour · {daily.challenge.title}
+                <span className="dash-review-sub">{daily.challenge.brief}</span>
+              </span>
+            </div>
+            {daily.done
+              ? <span className="dash-daily-done" title="Défi du jour relevé">✓ relevé</span>
+              : <button className="dash-review-btn" onClick={onDaily}>Relever</button>}
+          </section>
+        )}
 
         {/* ---- Mode Flow (Chantier 44) : « j'ai X minutes », Sati orchestre ---- */}
         {onStartFlow && (

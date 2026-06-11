@@ -3388,3 +3388,62 @@ code, pre, .editor-frame, .quiz-code code {
 .engine-loading-main { margin: 0 0 3px; font-weight: 700; }
 .engine-loading-tip { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.45; }
 .engine-loading-tip code { font-family: var(--font-mono); }
+
+/* ============================================================
+   Chantiers 43 + 46 + 47 — défi du jour, studio augmenté, offline.
+   [build:c43-daily c46-studio c47-offline]
+   ============================================================ */
+
+/* ---- Défi du jour (Accueil) ---- */
+.dash-daily {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 14px 0 4px;
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  border: 1px dashed rgba(var(--accent-rgb), 0.45);
+  background: var(--surface);
+}
+.dash-daily.done { opacity: 0.75; border-style: solid; border-color: var(--border-soft); }
+.dash-daily-txt { display: flex; align-items: flex-start; gap: 12px; flex: 1 1 300px; }
+.dash-daily-glyph { font-size: 22px; }
+.dash-daily-done {
+  font-weight: 800;
+  color: var(--accent);
+  padding: 10px 14px;
+  white-space: nowrap;
+}
+
+/* ---- Oscilloscope (Studio) ---- */
+.osc-wrap {
+  margin-top: 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  background: var(--bg-2);
+  overflow: hidden;
+}
+.osc-canvas { display: block; width: 100%; height: 120px; }
+.osc-empty { margin: 0; padding: 18px 16px; color: var(--muted); font-size: 14px; }
+
+/* ---- Import strudel.cc (Studio) ---- */
+.studio-import {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.studio-import-input {
+  flex: 1 1 280px;
+  min-width: 0;
+  padding: 10px 14px;
+  border-radius: 11px;
+  border: 1px solid var(--border-soft);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.studio-import-input:focus { outline: none; border-color: rgba(var(--accent-rgb), 0.55); }
+.share-btn.on { color: var(--accent); border-color: rgba(var(--accent-rgb), 0.5); background: rgba(var(--accent-rgb), 0.08); }
