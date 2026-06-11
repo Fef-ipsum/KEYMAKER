@@ -3069,6 +3069,24 @@ html.spotlight-on body::after {
 .verify-btn.busy { opacity: 0.7; cursor: progress; }
 .verify-btn:disabled { cursor: progress; }
 .verify-hint { color: var(--muted); font-size: 14px; }
+/* Auto-validation — Felix garde la main (Chantier 56). Discret, secondaire, pas accentué. */
+.self-validate-btn {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.self-validate-btn:not(:disabled):hover {
+  color: var(--text);
+  border-color: rgba(var(--accent-rgb), 0.4);
+  background: rgba(var(--accent-rgb), 0.06);
+}
+.self-validate-btn:disabled { cursor: default; color: var(--accent); border-color: rgba(var(--accent-rgb), 0.4); opacity: 0.9; }
 .verify-feedback {
   margin-top: 12px;
   padding: 12px 16px;
@@ -3482,8 +3500,8 @@ code, pre, .editor-frame, .quiz-code code {
   color: color-mix(in srgb, var(--mtint, var(--accent)) 62%, #1b2030);
 }
 
-/* C48 — glossaire : réutilise .learn-overlay / .learn-panel / .learn-head. */
-.glossary-panel { max-width: 740px; }
+/* C56 — glossaire refait (thèmes + recherche + annotations). Réutilise .learn-overlay/.learn-panel/.learn-head. */
+.glossary-panel { max-width: 760px; display: flex; flex-direction: column; max-height: min(86vh, 920px); }
 .glossary-search {
   width: 100%;
   margin: 14px 0 10px;
@@ -3495,34 +3513,107 @@ code, pre, .editor-frame, .quiz-code code {
   font-family: inherit;
   font-size: 14px;
   box-sizing: border-box;
+  flex: 0 0 auto;
 }
 .glossary-search:focus { outline: none; border-color: rgba(var(--accent-rgb), 0.55); }
-.glossary-list { list-style: none; margin: 0; padding: 0; }
-.glossary-item {
-  display: grid;
-  grid-template-columns: minmax(120px, 210px) 1fr auto;
-  gap: 4px 14px;
-  align-items: baseline;
-  padding: 9px 4px;
-  border-bottom: 1px solid var(--border-soft);
+
+/* Chips de thèmes */
+.gloss-chips { display: flex; flex-wrap: wrap; gap: 7px; margin: 2px 0 10px; flex: 0 0 auto; }
+.gloss-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12.5px; font-weight: 600;
+  padding: 6px 11px; border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: transparent; color: var(--muted);
+  cursor: pointer; transition: color .15s ease, border-color .15s ease, background .15s ease;
 }
+.gloss-chip:hover { color: var(--text); border-color: rgba(var(--accent-rgb), 0.4); }
+.gloss-chip.on { color: var(--accent); border-color: rgba(var(--accent-rgb), 0.55); background: rgba(var(--accent-rgb), 0.10); }
+.gloss-chip-ico { font-size: 13px; }
+.gloss-chip-n { font-size: 11px; opacity: 0.7; font-variant-numeric: tabular-nums; }
+
+/* Zone défilante des sections */
+.glossary-scroll { flex: 1 1 auto; overflow-y: auto; min-height: 0; padding-right: 4px; }
+
+.gloss-section { margin: 0 0 22px; }
+.gloss-section-head {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 15px; font-weight: 700; color: var(--text);
+  margin: 0 0 2px; padding: 8px 0 6px;
+  border-bottom: 1px solid rgba(var(--accent-rgb), 0.22);
+  position: sticky; top: 0; background: var(--bg-2); z-index: 1; pointer-events: none;
+}
+.gloss-section-ico { font-size: 16px; }
+.gloss-section-n { margin-left: auto; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.gloss-section-hint { margin: 2px 0 8px; font-size: 12.5px; color: var(--muted); font-style: italic; }
+
+.glossary-list { list-style: none; margin: 0; padding: 0; }
+.glossary-item { padding: 11px 2px; border-bottom: 1px solid var(--border-soft); }
 .glossary-item:last-child { border-bottom: none; }
+.gloss-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; }
 .glossary-term {
   font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 13.5px; font-weight: 700;
   color: var(--accent);
   overflow-wrap: break-word;
 }
-.glossary-def { font-size: 13.5px; color: var(--text); }
-.glossary-src {
-  font-size: 11px;
+.gloss-en {
+  font-size: 11px; font-weight: 600;
   color: var(--muted);
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
+  padding: 1px 7px; border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  font-style: italic;
 }
+.glossary-src {
+  margin-left: auto;
+  font-size: 11px; color: var(--muted);
+  white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+.glossary-def { font-size: 14px; line-height: 1.5; color: var(--text); margin: 5px 0 0; }
+
+/* Annotations perso */
+.gloss-note-add {
+  margin-top: 7px; font-size: 12px; font-weight: 600;
+  padding: 3px 9px; border-radius: 999px;
+  border: 1px dashed var(--border-soft); background: transparent; color: var(--muted);
+  cursor: pointer; transition: color .15s ease, border-color .15s ease;
+}
+.gloss-note-add:hover { color: var(--accent); border-color: rgba(var(--accent-rgb), 0.5); }
+.gloss-note {
+  display: flex; align-items: flex-start; gap: 8px;
+  margin-top: 8px; padding: 8px 11px; border-radius: 10px;
+  background: rgba(var(--accent-rgb), 0.08);
+  border: 1px solid rgba(var(--accent-rgb), 0.28);
+}
+.gloss-note-ico { flex: 0 0 auto; font-size: 13px; line-height: 1.5; }
+.gloss-note-txt { flex: 1 1 auto; font-size: 13px; line-height: 1.5; color: var(--text); white-space: pre-wrap; overflow-wrap: break-word; }
+.gloss-note-actions { flex: 0 0 auto; display: flex; gap: 4px; }
+.gloss-note-edit, .gloss-note-del {
+  border: none; background: transparent; cursor: pointer;
+  font-size: 13px; padding: 1px 4px; border-radius: 6px; opacity: 0.7;
+}
+.gloss-note-edit:hover, .gloss-note-del:hover { opacity: 1; background: rgba(var(--accent-rgb), 0.12); }
+.gloss-note-edit-box { margin-top: 8px; }
+.gloss-note-input {
+  width: 100%; box-sizing: border-box;
+  padding: 9px 11px; border-radius: 10px;
+  border: 1px solid rgba(var(--accent-rgb), 0.45);
+  background: var(--surface); color: var(--text);
+  font-family: inherit; font-size: 13.5px; line-height: 1.5; resize: vertical;
+}
+.gloss-note-input:focus { outline: none; border-color: var(--accent); }
+.gloss-note-btns { display: flex; align-items: center; gap: 8px; margin-top: 7px; flex-wrap: wrap; }
+.gloss-note-save {
+  font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 999px;
+  border: 1px solid rgba(var(--accent-rgb), 0.45); background: rgba(var(--accent-rgb), 0.12); color: var(--accent); cursor: pointer;
+}
+.gloss-note-save:hover { background: rgba(var(--accent-rgb), 0.22); }
+.gloss-note-cancel {
+  font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--border-soft); background: transparent; color: var(--muted); cursor: pointer;
+}
+.gloss-note-cancel:hover { color: var(--text); }
+.gloss-note-tip { font-size: 11px; color: var(--muted); }
+
+.gloss-count { flex: 0 0 auto; margin: 8px 0 0; font-size: 12px; color: var(--muted); text-align: right; }
 .glossary-empty { padding: 16px 4px; color: var(--muted); font-style: italic; }
-@media (max-width: 600px) {
-  .glossary-item { grid-template-columns: 1fr auto; }
-  .glossary-def { grid-column: 1 / -1; }
-}

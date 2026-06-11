@@ -1,14 +1,16 @@
 // Keymaker — Chantier 39 : « ✓ Vérifie mon exercice ».  [build:c39-verify]
+// Chantier 56 (11 juin 2026) : « Je valide moi-même » — auto-validation.
 //
-// Remplace la carte Exercice statique du flash : même contenu, plus un bouton
-// qui envoie consigne + code live au Pi (route JSON /keymaker/ai/verify, Haiku).
-// Sati répond en 1-2 phrases : objectif atteint ? quoi améliorer ? Verdict « ok »
-// → le flash passe à « pratiqué » (srs.js, via onPracticed) et la pastille du
-// Parcours suit. Ferme la boucle consigne → production → feedback qui restait
-// ouverte depuis le Chantier 2.
+// Carte Exercice du flash + DEUX façons de passer le flash à « pratiqué » (srs.js) :
+//   1. Vérification par Sati (route JSON /keymaker/ai/verify, Haiku) : elle regarde
+//      consigne + code live et répond en 1-2 phrases. Verdict « ok » → pratiqué.
+//   2. Auto-validation (Felix) : un bouton « Je valide moi-même ». Parfois Sati
+//      n'est pas claire ou retient pour rien ; Felix garde la main et marque le
+//      flash pratiqué d'un geste, sans IA et sans Pi. C'est SON parcours.
+// Les deux chemins appellent le même onPracticed → la pastille du Parcours suit.
 //
-// Monté avec key={flashKey} par App : l'état (feedback affiché) se réinitialise
-// naturellement au changement de flash, zéro useEffect de nettoyage.
+// Monté avec key={flashKey} par App : l'état (feedback, auto-validation) se
+// réinitialise naturellement au changement de flash, zéro useEffect de nettoyage.
 
 import { useRef, useState } from 'react';
 import { verifyExercise } from './learnApi.js';
@@ -17,6 +19,7 @@ export default function ExerciseCard({ flash, piUrl, piOk, readLiveCode, onPract
   const [st, setSt] = useState('idle'); // idle | busy | done
   const [verdict, setVerdict] = useState(null); // 'ok' | 'retry'
   const [feedback, setFeedback] = useState('');
+  const [selfDone, setSelfDone] = useState(false); // auto-validé par Felix (Chantier 56)
   const busyRef = useRef(false);
 
   if (!flash || !flash.exercise) return null;
@@ -53,6 +56,12 @@ export default function ExerciseCard({ flash, piUrl, piOk, readLiveCode, onPract
     }
   };
 
+  // Auto-validation : Felix décide. Marque pratiqué, sans IA, sans Pi.
+  const selfValidate = () => {
+    try { onPracticed && onPracticed(flash.id); } catch { /* ignore */ }
+    setSelfDone(true);
+  };
+
   return (
     <section className="card exo">
       <h2>Exercice</h2>
@@ -67,12 +76,31 @@ export default function ExerciseCard({ flash, piUrl, piOk, readLiveCode, onPract
         >
           {st === 'busy' ? 'Sati regarde ton code…' : '✓ Vérifie mon exercice'}
         </button>
-        {st === 'idle' && <span className="verify-hint">Fais l'exercice dans l'éditeur, puis demande à Sati.</span>}
+
+        {/* Auto-validation — Felix garde la main (Chantier 56). Toujours dispo, même sans Pi. */}
+        <button
+          className="self-validate-btn"
+          onClick={selfValidate}
+          disabled={selfDone}
+          title="Marque cette leçon comme acquise, sans passer par Sati"
+        >
+          {selfDone ? '✓ Validé par toi' : 'Je valide moi-même'}
+        </button>
+
+        {st === 'idle' && !selfDone && (
+          <span className="verify-hint">Fais l'exercice dans l'éditeur, puis demande à Sati — ou valide toi-même.</span>
+        )}
       </div>
 
       {st === 'done' && feedback && (
         <div className={'verify-feedback ' + (verdict === 'ok' ? 'good' : 'bad')} role="status">
           <strong>{verdict === 'ok' ? '✓ Validé' : '↻ Pas encore'}</strong> — {feedback}
+        </div>
+      )}
+
+      {selfDone && (
+        <div className="verify-feedback good" role="status">
+          <strong>✓ Acquis</strong> — tu as validé cette leçon toi-même. Elle compte comme « pratiquée » dans ta progression.
         </div>
       )}
     </section>
