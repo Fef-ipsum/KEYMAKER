@@ -1,4 +1,5 @@
 // Keymaker — Chantier 16 : Tableau de bord & progression.  [build:c16-dashboard]
+import { MODULE_TINTS } from './design.js';
 // Icônes SVG inline pour la dashboard (remplace 🔥 et 📌).
 const IcoFlame = () => (
   <svg className="dash-streak-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -136,7 +137,7 @@ export default function Dashboard({ summary, modules, currentModuleIndex, resume
                   title={'Aller au Module ' + m.id}
                 >
                   <div className="dash-mod-top">
-                    <span className="dash-mod-badge">{m.id}</span>
+                    <span className="dash-mod-badge" style={{ '--mtint': MODULE_TINTS[m.id] }}>{m.id}</span>
                     <span className="dash-mod-meta">
                       <span className="dash-mod-title">{m.titre || m.title}</span>
                       <span className="dash-mod-sub">{m.subtitle}</span>

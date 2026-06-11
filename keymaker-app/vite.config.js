@@ -7,6 +7,19 @@ import { VitePWA } from 'vite-plugin-pwa';
 // (chargé au runtime, jamais bundlé par Vite) pour rester 100% local.
 export default defineConfig({
   base: '/',
+  build: {
+    rollupOptions: {
+      output: {
+        // Chantier D2/perf (11 juin 2026) : les leçons (~200 KB de données) dans
+        // leur PROPRE chunk → corriger une leçon n'invalide plus le cache du code
+        // de l'app (et inversement). Toujours chargé au boot (FLATS/SRS en ont
+        // besoin), mais en parallèle et mieux caché.
+        manualChunks(id) {
+          if (/src\/(lessons|module7|module8)\.js$/.test(id)) return 'lessons';
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     VitePWA({

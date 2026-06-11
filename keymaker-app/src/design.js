@@ -64,3 +64,18 @@ export function resolveAccent(settings) {
   const found = ACCENTS.find((x) => x.key === a);
   return found && found.hex ? { hex: found.hex, rgb: found.rgb, ink: found.ink } : null;
 }
+
+// Chantier D2 (11 juin 2026) — identité visuelle par module : une teinte
+// d'accent discrète (kicker du flash, badges, numéros de chapitre). L'app
+// raconte visuellement où on est ; l'accent GLOBAL (choix de Felix) reste roi
+// partout ailleurs. Fallback : var(--accent) si module inconnu.
+export const MODULE_TINTS = {
+  1: '#22d3ee', // Strudel & live coding — cyan (la maison)
+  2: '#a78bfa', // Solfège — violet
+  3: '#fbbf24', // Guitare — ambre
+  4: '#f472b6', // Audio & FX — rose
+  5: '#34d399', // Informatique musicale — vert
+  6: '#fb923c', // Composition — orange
+  7: '#f87171', // Genres & styles — rouge néon
+  8: '#60a5fa', // Module 8 — bleu
+};

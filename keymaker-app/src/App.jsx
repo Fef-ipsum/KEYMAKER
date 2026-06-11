@@ -21,7 +21,7 @@ import SnippetLibrary from './SnippetLibrary.jsx';
 import { addSnippet } from './notebook.js';
 import PatternViz from './PatternViz.jsx';
 import PoSync from './PoSync.jsx';
-import { resolveAccent, HALO_STRENGTH, BG_PRESETS } from './design.js';
+import { resolveAccent, HALO_STRENGTH, BG_PRESETS, MODULE_TINTS } from './design.js';
 import Studio, { STUDIO_DEFAULT } from './Studio.jsx';
 
 /* ---------------------------------------------------------------------------
@@ -1124,7 +1124,7 @@ function Flash({
   // Astuce du loader : choisie une fois (stable tant que le moteur charge).
   const [engineTip] = useState(() => ENGINE_TIPS[Math.floor(Math.random() * ENGINE_TIPS.length)]);
   return (
-    <main className="stage">
+    <main className="stage" style={{ '--mtint': MODULE_TINTS[moduleId] }}>
       <p className="kicker">{flash.kicker}</p>
       <h1 className="title">{flash.title}</h1>
 
@@ -1427,7 +1427,7 @@ function LearnOverlay({ modules, currentModuleIndex, currentChapterIndex, curren
   return (
     <div className="learn-overlay" role="dialog" aria-modal="true" aria-label="Parcours d'apprentissage">
       <div className="learn-backdrop" onClick={onClose} />
-      <div className="learn-panel">
+      <div className="learn-panel" style={{ '--mtint': MODULE_TINTS[module.id] }}>
         <header className="learn-head">
           <div>
             <p className="kicker">Parcours · Apprendre</p>

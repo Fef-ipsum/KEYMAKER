@@ -3447,3 +3447,19 @@ code, pre, .editor-frame, .quiz-code code {
 }
 .studio-import-input:focus { outline: none; border-color: rgba(var(--accent-rgb), 0.55); }
 .share-btn.on { color: var(--accent); border-color: rgba(var(--accent-rgb), 0.5); background: rgba(var(--accent-rgb), 0.08); }
+
+/* ============================================================
+   D2 (11 juin 2026) — identités visuelles par module. [build:d2-tints]
+   --mtint posée inline (App/Dashboard) ; fallback = accent global.
+   ============================================================ */
+.stage .kicker { color: var(--mtint, var(--accent)); }
+.learn-panel .learn-chapter-no { color: var(--mtint, var(--accent)); }
+.learn-panel .kicker { color: var(--mtint, var(--accent)); }
+.dash-mod-badge { color: var(--mtint, var(--accent)); border-color: color-mix(in srgb, var(--mtint, var(--accent)) 45%, transparent); }
+/* Thème clair : les teintes pastel manquent de contraste → on les assombrit. */
+[data-theme="light"] .stage .kicker,
+[data-theme="light"] .learn-panel .learn-chapter-no,
+[data-theme="light"] .learn-panel .kicker,
+[data-theme="light"] .dash-mod-badge {
+  color: color-mix(in srgb, var(--mtint, var(--accent)) 62%, #1b2030);
+}
