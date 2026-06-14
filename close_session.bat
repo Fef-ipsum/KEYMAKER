@@ -5,10 +5,14 @@ echo.
 echo === KEYMAKER - Cloture de session ===
 echo.
 
-rem -- Auto-reparation : retire un verrou git perime (un mont a pu bloquer sa suppression cote sandbox)
+rem -- Auto-reparation : retire les verrous git perimes (un mont a pu bloquer leur suppression cote sandbox)
 if exist ".git\index.lock" (
   echo Verrou git perime detecte -^> suppression.
   del /f /q ".git\index.lock"
+)
+if exist ".git\HEAD.lock" (
+  echo Verrou git perime detecte HEAD.lock -^> suppression.
+  del /f /q ".git\HEAD.lock"
 )
 
 git status --short
