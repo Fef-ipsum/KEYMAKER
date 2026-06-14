@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="void">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KO LAB — apprendre le PO-33 K.O!</title>
+<meta name="description" content="Apprendre le sampler Teenage Engineering PO-33 K.O! — leçons, simulateur jouable, révision espacée.">
+<style>
+/* ============================================================
+   KO LAB — trainer pour le Teenage Engineering PO-33 K.O!
+   Sœur de Keymaker. Thème Void par défaut (amber + LCD phosphore).
+   100% autonome, hors-ligne, zéro dépendance.
+   ============================================================ */
+
+:root, [data-theme="void"]{
+  --bg:        #0b0e17;
+  --bg-2:      #0f1320;
+  --surface:   rgba(255,255,255,0.035);
+  --surface-2: rgba(255,255,255,0.06);
+  --panel:     #141a28;
+  --border:    rgba(var(--accent-rgb), 0.20);
+  --border-soft: rgba(255,255,255,0.08);
+  --accent:    #f0b429;          /* amber KO */
+  --accent-rgb: 240, 180, 41;
+  --accent-2:  #34d1c4;          /* cyan secondaire (liens) */
+  --accent-ink:#1a1402;
+  --text:      #e7eef6;
+  --muted:     #93a6bd;
+  --danger:    #fb7185;
+  --good:      #4ade80;
+  --bg-fade:   rgba(11,14,23,0.82);
+  /* device */
+  --pcb:       #0a0c13;
+  --pcb-2:     #11141f;
+  --silk:      #d6deea;
+  --key:       #1a2030;
+  --key-face:  #222a3d;
+  --lcd-bg:    #0b1410;
+  --lcd-on:    #7dff9b;          /* phosphore vert */
+  --lcd-dim:   rgba(125,255,155,0.12);
+  --radius:    16px;
+  --ease:      cubic-bezier(0.32, 0.72, 0, 1);
+  --glow:      0 0 0 1px var(--border), 0 18px 50px -22px rgba(var(--accent-rgb), 0.45);
+  --font-ui:   ui-sans-serif, system-ui, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', 'SF Mono', Consolas, monospace;
+  --fs-body:   17px;
+  --fs-title:  clamp(28px, 4.2vw, 42px);
+}
+
+[data-theme="light"]{
+  --bg:#f3f5fb; --bg-2:#ffffff; --surface:rgba(20,24,48,0.05); --surface-2:rgba(20,24,48,0.09);
+  --panel:#ffffff; --border:rgba(193,135,18,0.34); --border-soft:rgba(20,24,48,0.12);
+  --accent:#b8770e; --accent-rgb:184,119,14; --accent-2:#0f9b8e; --accent-ink:#fff;
+  --text:#1a2030; --muted:#586074; --danger:#d92d54; --good:#1f9d57; --bg-fade:rgba(243,245,251,0.85);
+  --pcb:#11141f; --pcb-2:#1a1f2e; --silk:#e6ebf4; --key:#222a3d; --key-face:#2b3450;
+  --lcd-bg:#0b1410; --lcd-on:#7dff9b; --lcd-dim:rgba(125,255,155,0.12);
+}
+
+[data-theme="matrix"]{
+  --bg:#04080a; --bg-2:#081410; --surface:rgba(0,255,140,0.045); --surface-2:rgba(0,255,140,0.09);
+  --panel:#07140f; --border:rgba(0,255,140,0.28); --border-soft:rgba(120,255,180,0.12);
+  --accent:#26ff9c; --accent-rgb:38,255,156; --accent-2:#22d3ee; --accent-ink:#021a0e;
+  --text:#c8ffdd; --muted:#5fae84; --danger:#ff5d6c; --good:#26ff9c; --bg-fade:rgba(4,8,10,0.86);
+  --pcb:#03100a; --pcb-2:#06170f; --silk:#bdf5d2; --key:#0a1f16; --key-face:#0e2a1d;
+  --lcd-bg:#03120a; --lcd-on:#5dffa0; --lcd-dim:rgba(93,255,160,0.12);
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0; color:var(--text); font-family:var(--font-ui);
+  font-size:calc(var(--fs-body) * var(--fs-scale, 1)); line-height:1.6;
+  background:
+    radial-gradient(1100px 620px at 78% -12%, rgba(var(--accent-rgb),0.12), transparent 60%),
+    radial-gradient(900px 520px at -5% 108%, rgba(52,209,196,0.08), transparent 55%),
+    var(--bg);
+  background-attachment:fixed; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+::selection{ background:rgba(var(--accent-rgb),0.30); }
+a{ color:var(--accent-2); text-decoration:none; }
+button{ font-family:inherit; }
+
+/* ---------- Topbar ---------- */
+.topbar{
+  display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  padding:14px clamp(14px,4vw,40px); border-bottom:1px solid var(--border-soft);
+  position:sticky; top:0; z-index:20; background:linear-gradient(var(--bg), var(--bg-fade));
+  backdrop-filter:blur(10px);
+}
+.brand{ display:flex; align-items:center; gap:12px; cursor:pointer; user-select:none; }
+.brand .mark{
+  width:38px; height:38px; border-radius:11px; display:grid; place-items:center;
+  background:var(--pcb); border:1px solid var(--border-soft);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,0.08), 0 6px 18px -10px rgba(var(--accent-rgb),0.6);
+  font-family:var(--font-mono); font-weight:800; font-size:13px; color:var(--accent);
+  letter-spacing:-0.5px; position:relative;
+}
+.brand .mark::after{ content:""; position:absolute; inset:0; border-radius:inherit; box-shadow:0 0 0 3px rgba(var(--accent-rgb),0.0); }
+.brand .name{ font-weight:800; font-size:19px; letter-spacing:0.2px; }
+.brand .name b{ color:var(--accent); }
+.brand .sub{ display:block; font-family:var(--font-mono); font-size:10.5px; letter-spacing:2px;
+  text-transform:uppercase; color:var(--muted); margin-top:-2px; }
+
+.nav{ display:flex; gap:4px; align-items:center; flex-wrap:wrap; }
+.nav button{
+  appearance:none; border:1px solid transparent; background:transparent; color:var(--muted);
+  padding:8px 13px; border-radius:11px; font-size:13.5px; font-weight:600; cursor:pointer;
+  transition:all .35s var(--ease); display:inline-flex; align-items:center; gap:7px; min-height:40px;
+}
+.nav button .ic{ width:16px; height:16px; opacity:.85; }
+.nav button:hover{ color:var(--text); background:var(--surface); }
+.nav button.active{ color:var(--accent-ink); background:var(--accent); border-color:var(--accent);
+  box-shadow:0 6px 18px -8px rgba(var(--accent-rgb),0.7); }
+.nav button.active .ic{ opacity:1; }
+.iconbtn{
+  appearance:none; width:40px; height:40px; border-radius:11px; border:1px solid var(--border-soft);
+  background:var(--surface); color:var(--text); cursor:pointer; display:grid; place-items:center;
+  transition:all .35s var(--ease);
+}
+.iconbtn:hover{ background:var(--surface-2); transform:translateY(-1px); }
+
+/* ---------- Stage ---------- */
+.stage{ width:min(1080px, 100%); margin:0 auto; padding:clamp(20px,4vw,44px) clamp(14px,4vw,40px) 120px; }
+.eyebrow{
+  display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono);
+  font-size:10.5px; letter-spacing:2.5px; text-transform:uppercase; color:var(--accent);
+  background:rgba(var(--accent-rgb),0.10); border:1px solid var(--border);
+  padding:5px 11px; border-radius:999px; margin-bottom:14px;
+}
+.eyebrow.tone-muted{ color:var(--muted); background:var(--surface); border-color:var(--border-soft); }
+h1.title{ font-size:var(--fs-title); line-height:1.08; letter-spacing:-0.02em; margin:0 0 12px; font-weight:800; }
+.lede{ color:var(--muted); font-size:18px; max-width:62ch; margin:0 0 26px; }
+.section-head{ display:flex; align-items:baseline; justify-content:space-between; gap:14px; margin:38px 0 16px; flex-wrap:wrap; }
+.section-head h2{ font-size:21px; margin:0; letter-spacing:-0.01em; }
+.section-head .hint{ font-family:var(--font-mono); font-size:12px; color:var(--muted); }
+
+/* ---------- Double-bezel card ---------- */
+.tray{ background:var(--surface); border:1px solid var(--border-soft); border-radius:calc(var(--radius) + 6px);
+  padding:6px; transition:transform .5s var(--ease), box-shadow .5s var(--ease); }
+.card{ background:var(--panel); border-radius:var(--radius); border:1px solid var(--border-soft);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,0.05); padding:20px; }
+.tray:hover{ box-shadow:var(--glow); }
+
+/* reveal-on-scroll */
+.reveal{ opacity:0; transform:translateY(22px); filter:blur(6px); }
+.reveal.in{ opacity:1; transform:none; filter:none; transition:opacity .8s var(--ease), transform .8s var(--ease), filter .8s var(--ease); }
+@media (prefers-reduced-motion: reduce){ .reveal{ opacity:1; transform:none; filter:none; } }
+
+/* ---------- Buttons ---------- */
+.btn{
+  appearance:none; cursor:pointer; border:1px solid var(--border-soft); background:var(--surface-2);
+  color:var(--text); font-weight:700; font-size:14.5px; padding:12px 18px; border-radius:999px;
+  display:inline-flex; align-items:center; gap:10px; transition:all .4s var(--ease); min-height:46px;
+}
+.btn:hover{ transform:translateY(-1px); background:var(--surface); }
+.btn:active{ transform:scale(.98); }
+.btn .pill{ width:30px; height:30px; border-radius:999px; display:grid; place-items:center;
+  background:rgba(255,255,255,0.08); transition:transform .4s var(--ease); }
+.btn:hover .pill{ transform:translate(2px,-1px) scale(1.05); }
+.btn.primary{ background:var(--accent); color:var(--accent-ink); border-color:var(--accent);
+  box-shadow:0 10px 28px -12px rgba(var(--accent-rgb),0.85); }
+.btn.primary .pill{ background:rgba(0,0,0,0.18); }
+.btn.ghost{ background:transparent; }
+.btn.sm{ padding:8px 13px; min-height:38px; font-size:13px; }
+.btn:disabled{ opacity:.4; cursor:not-allowed; }
+
+.chip{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:11.5px;
+  padding:4px 9px; border-radius:8px; background:var(--surface); border:1px solid var(--border-soft); color:var(--muted); }
+.chip.live{ color:var(--accent); border-color:var(--border); background:rgba(var(--accent-rgb),0.08); }
+
+/* combo notation */
+.combo{ display:inline-flex; flex-wrap:wrap; gap:6px; align-items:center; font-family:var(--font-mono); font-size:13px; }
+.kbd{ display:inline-grid; place-items:center; min-width:30px; height:30px; padding:0 9px; border-radius:8px;
+  background:var(--key-face); color:var(--silk); border:1px solid rgba(255,255,255,0.10);
+  box-shadow:0 2px 0 rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.10); font-weight:700; font-size:12px; letter-spacing:.3px; }
+.kbd.accent{ background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
+.combo .plus{ color:var(--muted); font-weight:700; }
+
+/* ============================================================
+   HOME / DASHBOARD
+   ============================================================ */
+.hero{ display:grid; grid-template-columns:1.15fr 1fr; gap:26px; align-items:center; }
+@media (max-width:860px){ .hero{ grid-template-columns:1fr; } }
+.stat-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:8px 0 6px; }
+@media (max-width:680px){ .stat-row{ grid-template-columns:repeat(2,1fr); } }
+.stat{ padding:14px 16px; }
+.stat .n{ font-size:26px; font-weight:800; line-height:1; letter-spacing:-0.02em; }
+.stat .l{ font-family:var(--font-mono); font-size:10.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-top:7px; }
+.stat .n.accent{ color:var(--accent); }
+
+.modgrid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(250px,1fr)); gap:14px; }
+.modcard{ cursor:pointer; position:relative; overflow:hidden; }
+.modcard .topline{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+.modcard .mnum{ font-family:var(--font-mono); font-size:11px; color:var(--muted); letter-spacing:1px; }
+.modcard h3{ margin:0 0 6px; font-size:17px; letter-spacing:-0.01em; }
+.modcard p{ margin:0; color:var(--muted); font-size:13.5px; }
+.modcard .mtint{ position:absolute; inset:0 auto 0 0; width:4px; background:var(--mtint, var(--accent)); }
+.modcard.done .badge-done{ color:var(--good); }
+.dots{ display:flex; gap:4px; margin-top:14px; flex-wrap:wrap; }
+.dots i{ width:9px; height:9px; border-radius:3px; background:var(--surface-2); border:1px solid var(--border-soft); display:block; }
+.dots i.on{ background:var(--mtint, var(--accent)); border-color:transparent; }
+.bar{ height:7px; border-radius:99px; background:var(--surface-2); overflow:hidden; margin-top:14px; }
+.bar > i{ display:block; height:100%; background:linear-gradient(90deg, var(--mtint,var(--accent)), var(--accent)); border-radius:99px; transition:width .8s var(--ease); }
+
+/* ============================================================
+   LESSON VIEW
+   ============================================================ */
+.lesson-wrap{ display:grid; grid-template-columns:1fr 0.92fr; gap:24px; align-items:start; }
+@media (max-width:980px){ .lesson-wrap{ grid-template-columns:1fr; } }
+.lesson-body h2{ font-size:24px; letter-spacing:-0.01em; margin:0 0 6px; }
+.lesson-goal{ color:var(--accent); font-weight:600; margin:0 0 18px; font-size:15.5px; }
+.prose p{ margin:0 0 14px; }
+.prose strong{ color:var(--text); }
+.note{ border-left:3px solid var(--accent); background:rgba(var(--accent-rgb),0.06); padding:13px 16px;
+  border-radius:0 12px 12px 0; margin:18px 0; font-size:15px; }
+.note .lab{ font-family:var(--font-mono); font-size:10.5px; letter-spacing:2px; text-transform:uppercase; color:var(--accent); display:block; margin-bottom:5px; }
+.steps{ counter-reset:s; list-style:none; padding:0; margin:18px 0; display:grid; gap:10px; }
+.steps li{ counter-increment:s; position:relative; padding:13px 16px 13px 52px; background:var(--surface); border:1px solid var(--border-soft); border-radius:12px; font-size:15px; }
+.steps li::before{ content:counter(s); position:absolute; left:12px; top:11px; width:28px; height:28px; border-radius:8px;
+  background:var(--accent); color:var(--accent-ink); display:grid; place-items:center; font-family:var(--font-mono); font-weight:800; font-size:13px; }
+.combo-box{ margin:18px 0; padding:16px; border-radius:14px; background:var(--pcb); border:1px solid var(--border-soft); }
+.combo-box .lab{ font-family:var(--font-mono); font-size:10.5px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+.combo-box .cap{ color:var(--muted); font-size:13.5px; margin-top:10px; }
+
+.flash{ margin-top:22px; }
+.flash .q{ font-weight:700; font-size:16px; margin-bottom:10px; }
+.flash .a{ color:var(--muted); font-size:15px; display:none; }
+.flash.open .a{ display:block; animation:fade .4s var(--ease); }
+@keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
+
+.lesson-foot{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:30px; flex-wrap:wrap; }
+.crumbtrail{ font-family:var(--font-mono); font-size:12px; color:var(--muted); }
+
+/* lesson sidebar list */
+.lessonlist{ position:sticky; top:78px; }
+.lessonlist .li{ display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:11px; cursor:pointer;
+  transition:background .3s var(--ease); font-size:14px; }
+.lessonlist .li:hover{ background:var(--surface); }
+.lessonlist .li.active{ background:var(--surface-2); }
+.lessonlist .li .tick{ width:20px; height:20px; border-radius:6px; border:1px solid var(--border-soft); display:grid; place-items:center; flex:0 0 auto; font-size:11px; color:var(--muted); }
+.lessonlist .li.seen .tick{ background:var(--good); border-color:transparent; color:#04140a; }
+.lessonlist .li.master .tick{ background:var(--accent); border-color:transparent; color:var(--accent-ink); }
+
+/* ============================================================
+   DEVICE SIMULATOR
+   ============================================================ */
+.po{ --u: clamp(15px, 3.4vw, 22px); width:100%; max-width:560px; margin:0 auto; }
+.po-shell{ background:linear-gradient(160deg, var(--pcb-2), var(--pcb)); border-radius:22px; padding:calc(var(--u)*0.9);
+  border:1px solid rgba(255,255,255,0.06); box-shadow:0 30px 80px -40px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.06); position:relative; }
+.po-top{ display:flex; gap:calc(var(--u)*0.8); align-items:stretch; margin-bottom:calc(var(--u)*0.8); }
+.lcd{ flex:1; background:var(--lcd-bg); border-radius:12px; padding:12px 14px; position:relative; overflow:hidden;
+  border:1px solid rgba(125,255,155,0.10); box-shadow:inset 0 2px 14px rgba(0,0,0,0.7); min-height:118px;
+  display:flex; flex-direction:column; justify-content:space-between; }
+.lcd::before{ content:""; position:absolute; inset:0; background:repeating-linear-gradient(0deg, rgba(0,0,0,0.18) 0 1px, transparent 1px 3px); pointer-events:none; opacity:.5; }
+.lcd .row1{ display:flex; justify-content:space-between; align-items:flex-start; font-family:var(--font-mono); color:var(--lcd-on); }
+.lcd .mode{ font-size:13px; letter-spacing:2px; text-shadow:0 0 8px rgba(125,255,155,0.5); }
+.lcd .bpm{ font-size:13px; text-shadow:0 0 8px rgba(125,255,155,0.5); }
+.lcd .big{ font-family:var(--font-mono); font-size:34px; font-weight:700; color:var(--lcd-on); letter-spacing:1px; text-shadow:0 0 14px rgba(125,255,155,0.45); line-height:1; }
+.lcd .msg{ font-family:var(--font-mono); font-size:11px; color:var(--lcd-on); opacity:.85; min-height:14px; }
+.lcd .wr{ font-family:var(--font-mono); font-size:10px; color:var(--lcd-on); border:1px solid rgba(125,255,155,0.4); border-radius:4px; padding:1px 5px; opacity:.25; }
+.lcd .wr.on{ opacity:1; background:rgba(125,255,155,0.16); animation:wrb 1s steps(2) infinite; }
+@keyframes wrb{ 50%{ opacity:.4; } }
+/* mini step viz on lcd */
+.lcd-steps{ display:grid; grid-template-columns:repeat(16,1fr); gap:2px; margin-top:6px; }
+.lcd-steps i{ height:7px; border-radius:1px; background:var(--lcd-dim); }
+.lcd-steps i.on{ background:rgba(125,255,155,0.55); }
+.lcd-steps i.head{ background:var(--lcd-on); box-shadow:0 0 6px rgba(125,255,155,0.8); }
+
+.knobs{ display:flex; flex-direction:column; justify-content:space-between; gap:calc(var(--u)*0.5); width:calc(var(--u)*2.6); }
+.knob{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; }
+.knob .dial{ width:calc(var(--u)*2.1); height:calc(var(--u)*2.1); border-radius:50%; background:radial-gradient(circle at 38% 32%, #2a3247, #11151f);
+  border:1px solid rgba(255,255,255,0.10); box-shadow:0 6px 14px -6px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.12); position:relative; cursor:grab; }
+.knob .dial::after{ content:""; position:absolute; left:50%; top:7%; width:2px; height:34%; background:var(--accent); border-radius:2px; transform-origin:bottom center; transform:translateX(-50%) rotate(var(--rot,0deg)); box-shadow:0 0 6px rgba(var(--accent-rgb),0.7); }
+.knob .lab{ font-family:var(--font-mono); font-size:10px; letter-spacing:1px; color:var(--silk); opacity:.7; }
+
+/* function buttons */
+.fnrow{ display:grid; grid-template-columns:repeat(4,1fr); gap:calc(var(--u)*0.55); margin-bottom:calc(var(--u)*0.7); }
+.fnbtn{ appearance:none; cursor:pointer; border:none; border-radius:10px; padding:10px 6px 8px; min-height:50px;
+  background:linear-gradient(180deg, var(--key-face), var(--key)); color:var(--silk);
+  box-shadow:0 3px 0 rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08); transition:transform .08s ease, box-shadow .08s ease, background .2s ease;
+  display:flex; flex-direction:column; align-items:center; gap:3px; position:relative; }
+.fnbtn .nm{ font-family:var(--font-mono); font-size:11px; font-weight:700; letter-spacing:.5px; }
+.fnbtn .sub{ font-family:var(--font-mono); font-size:8.5px; letter-spacing:.5px; opacity:.5; }
+.fnbtn:active, .fnbtn.press{ transform:translateY(2px); box-shadow:0 1px 0 rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06); }
+.fnbtn.held{ background:linear-gradient(180deg, rgba(var(--accent-rgb),0.9), rgba(var(--accent-rgb),0.65)); color:var(--accent-ink); }
+.fnbtn.toggled{ outline:2px solid var(--accent); outline-offset:1px; }
+.fnbtn.hl{ animation:hlpulse 1.1s var(--ease) infinite; }
+@keyframes hlpulse{ 0%,100%{ box-shadow:0 3px 0 rgba(0,0,0,0.45), 0 0 0 0 rgba(var(--accent-rgb),0.0);} 50%{ box-shadow:0 3px 0 rgba(0,0,0,0.45), 0 0 0 6px rgba(var(--accent-rgb),0.35);} }
+.fnbtn.play.on .nm{ color:var(--good); }
+
+/* 16 key grid (2 rows of 8) */
+.keys{ display:grid; grid-template-columns:repeat(8,1fr); gap:calc(var(--u)*0.5); }
+.key{ appearance:none; cursor:pointer; aspect-ratio:1/1; border:none; border-radius:12px; position:relative;
+  background:linear-gradient(180deg, var(--key-face), var(--key)); color:var(--silk);
+  box-shadow:0 4px 0 rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.07); transition:transform .07s ease, box-shadow .12s ease, background .15s ease;
+  display:grid; place-items:center; font-family:var(--font-mono); font-weight:700; font-size:14px; }
+.key .kn{ opacity:.65; }
+.key .dot{ position:absolute; top:6px; right:7px; width:7px; height:7px; border-radius:50%; background:transparent; }
+.key.step-on{ background:linear-gradient(180deg, #2f3a54, #232c41); }
+.key.step-on .dot{ background:var(--accent); box-shadow:0 0 8px rgba(var(--accent-rgb),0.8); }
+.key.head{ box-shadow:0 4px 0 rgba(0,0,0,0.45), 0 0 0 2px var(--lcd-on); }
+.key.head .kn{ color:var(--lcd-on); opacity:1; }
+.key:active, .key.press{ transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05); }
+.key.lit{ background:linear-gradient(180deg, rgba(var(--accent-rgb),0.85), rgba(var(--accent-rgb),0.55)); color:var(--accent-ink); }
+.key.hl{ animation:keyhl 1.1s var(--ease) infinite; }
+@keyframes keyhl{ 0%,100%{ box-shadow:0 4px 0 rgba(0,0,0,0.45), 0 0 0 0 rgba(var(--accent-rgb),0); } 50%{ box-shadow:0 4px 0 rgba(0,0,0,0.45), 0 0 0 5px rgba(var(--accent-rgb),0.4); } }
+.key .slabel{ position:absolute; bottom:5px; left:0; right:0; text-align:center; font-size:7.5px; letter-spacing:.3px; opacity:.45; text-transform:uppercase; }
+
+/* simulator surrounding UI */
+.sim-toolbar{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:center; margin-bottom:18px; }
+.seg{ display:inline-flex; background:var(--surface); border:1px solid var(--border-soft); border-radius:11px; padding:3px; gap:3px; }
+.seg button{ appearance:none; border:none; background:transparent; color:var(--muted); font-weight:700; font-size:13px;
+  padding:8px 14px; border-radius:8px; cursor:pointer; transition:all .3s var(--ease); }
+.seg button.on{ background:var(--accent); color:var(--accent-ink); }
+.sim-hint{ text-align:center; color:var(--muted); font-size:13.5px; margin:16px auto 0; max-width:54ch; min-height:20px; }
+.sim-hint b{ color:var(--text); }
+.coach{ max-width:560px; margin:16px auto 0; }
+.coach .card{ display:flex; gap:14px; align-items:flex-start; }
+.coach .num{ font-family:var(--font-mono); font-weight:800; color:var(--accent); font-size:13px; flex:0 0 auto; padding-top:2px; }
+
+/* sample waveform */
+.wave{ width:100%; height:90px; border-radius:12px; background:var(--lcd-bg); border:1px solid rgba(125,255,155,0.12); display:block; }
+.sampler-panel{ max-width:560px; margin:0 auto; }
+.sampler-row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:center; margin-top:14px; }
+
+/* ============================================================
+   REVIEW / FLASHCARDS
+   ============================================================ */
+.review-card{ max-width:620px; margin:0 auto; text-align:center; padding:34px 26px; }
+.review-card .q{ font-size:21px; font-weight:700; margin:14px 0 22px; }
+.review-card .a{ color:var(--muted); font-size:16px; margin-bottom:8px; }
+.review-grade{ display:flex; gap:10px; justify-content:center; margin-top:24px; flex-wrap:wrap; }
+.progress-line{ display:flex; gap:5px; justify-content:center; margin-bottom:6px; }
+.progress-line i{ width:26px; height:5px; border-radius:99px; background:var(--surface-2); }
+.progress-line i.on{ background:var(--accent); }
+
+/* ============================================================
+   GLOSSARY
+   ============================================================ */
+.glos-controls{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
+.search{ flex:1; min-width:200px; display:flex; align-items:center; gap:10px; padding:10px 15px; border-radius:12px;
+  background:var(--surface); border:1px solid var(--border-soft); }
+.search input{ flex:1; background:transparent; border:none; outline:none; color:var(--text); font-size:15px; font-family:inherit; }
+.glos-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:12px; }
+.term{ padding:16px; }
+.term h4{ margin:0 0 4px; font-size:15.5px; display:flex; align-items:center; gap:8px; }
+.term .cat{ font-family:var(--font-mono); font-size:9.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--accent); }
+.term p{ margin:6px 0 0; color:var(--muted); font-size:13.5px; }
+
+/* filters */
+.filterbar{ display:flex; gap:7px; flex-wrap:wrap; }
+.filterbar button{ appearance:none; cursor:pointer; font-family:var(--font-mono); font-size:11px; letter-spacing:.5px;
+  padding:6px 11px; border-radius:999px; border:1px solid var(--border-soft); background:var(--surface); color:var(--muted); transition:all .3s var(--ease); }
+.filterbar button.on{ background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
+
+/* toast + modal */
+.toast{ position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(20px); opacity:0; pointer-events:none;
+  background:var(--panel); border:1px solid var(--border); color:var(--text); padding:12px 20px; border-radius:12px;
+  box-shadow:var(--glow); z-index:60; transition:all .4s var(--ease); font-size:14px; font-weight:600; }
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+.sheet-bg{ position:fixed; inset:0; background:rgba(2,4,10,0.62); backdrop-filter:blur(6px); z-index:50; opacity:0; pointer-events:none; transition:opacity .35s var(--ease); }
+.sheet-bg.show{ opacity:1; pointer-events:auto; }
+.sheet{ position:fixed; z-index:51; left:50%; top:50%; transform:translate(-50%,-46%) scale(.98); opacity:0; pointer-events:none;
+  width:min(520px,92vw); max-height:84vh; overflow:auto; background:var(--panel); border:1px solid var(--border-soft);
+  border-radius:20px; padding:24px; box-shadow:var(--glow); transition:all .4s var(--ease); }
+.sheet.show{ opacity:1; transform:translate(-50%,-50%) scale(1); pointer-events:auto; }
+
+.footer{ text-align:center; color:var(--muted); font-family:var(--font-mono); font-size:11.5px; letter-spacing:.5px; padding:30px 0 10px; }
+.footer b{ color:var(--accent); }
+
+.hide{ display:none !important; }
+.center{ text-align:center; }
+.mono{ font-family:var(--font-mono); }
+.muted{ color:var(--muted); }
+.spin{ display:inline-block; width:16px; height:16px; border:2px solid var(--border-soft); border-top-color:var(--accent); border-radius:50%; animation:sp .7s linear infinite; }
+@keyframes sp{ to{ transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" class="toast"></div>
+<div id="sheetBg" class="sheet-bg"></div>
+<div id="sheet" class="sheet"></div>
+<script>
+"use strict";
+
+/* ============================================================
+   DONNÉES — combos vérifiés sur le guide officiel Teenage Engineering
+   (teenage.engineering/guides/po-33). Notation TE : minuscules.
+   Token combo : "+" = plus ; "*xxx" = touche variable (accent).
+   demo[] = {hold:[ids], tap:id|null, knob:'A'|'B'} pour l'animation.
+   ============================================================ */
+
+const FX = [
+  { n:1,  name:'loop 16',       desc:"Boucle les 16 derniers pas joués — la plus longue.", impl:'loop' },
+  { n:2,  name:'loop 12',       desc:"Boucle sur 12 pas : crée un décalage, un côté bancal.", impl:'loop' },
+  { n:3,  name:'loop short',    desc:"Boucle courte (≈4 pas) : effet bégaiement rythmique.", impl:'loop' },
+  { n:4,  name:'loop shorter',  desc:"Boucle très courte (≈2 pas) : presque une note tenue.", impl:'loop' },
+  { n:5,  name:'unison',        desc:"Double le son à l'unisson : ça épaissit, ça gonfle.", impl:'detune' },
+  { n:6,  name:'unison low',    desc:"Unisson vers le grave : plus lourd, plus sombre.", impl:'detune' },
+  { n:7,  name:'octave up',     desc:"Monte d'une octave : tout devient aigu, façon cassette accélérée.", impl:'octave' },
+  { n:8,  name:'octave down',   desc:"Descend d'une octave : ralenti, gras, dramatique.", impl:'octave' },
+  { n:9,  name:'stutter 4',     desc:"Re-déclenche le pas en 4 : ta-ta-ta-ta.", impl:'stutter' },
+  { n:10, name:'stutter 3',     desc:"Re-déclenche en triolets de 3 : feel ternaire.", impl:'stutter' },
+  { n:11, name:'scratch',       desc:"Va-et-vient de lecture : imite un scratch de platine.", impl:'scratch' },
+  { n:12, name:'scratch fast',  desc:"Scratch rapide et nerveux.", impl:'scratch' },
+  { n:13, name:'6 / 8 quantize',desc:"Recale le groove en 6/8 : balancement ternaire.", impl:'feel' },
+  { n:14, name:'retrigger pattern', desc:"Relance le pattern depuis le pas 1 en boucle.", impl:'retrig' },
+  { n:15, name:'reverse',       desc:"Lit le motif à l'envers.", impl:'reverse' },
+  { n:16, name:'no effect',     desc:"Aucun effet. En write : write + fx + 16 efface les FX enregistrés.", impl:'none' },
+];
+
+/* Kit de batterie synthétisé (mode drum). type → moteur audio. */
+const KIT = [
+  { i:1,  name:'kick',     short:'KICK', type:'kick' },
+  { i:2,  name:'snare',    short:'SNR',  type:'snare' },
+  { i:3,  name:'hat closed',short:'HHC', type:'hatC' },
+  { i:4,  name:'hat open',  short:'HHO', type:'hatO' },
+  { i:5,  name:'clap',     short:'CLAP', type:'clap' },
+  { i:6,  name:'rim',      short:'RIM',  type:'rim' },
+  { i:7,  name:'tom',      short:'TOM',  type:'tom' },
+  { i:8,  name:'cowbell',  short:'CWB',  type:'cow' },
+  { i:9,  name:'sub bass', short:'BASS', type:'bass' },
+  { i:10, name:'blip',     short:'BLIP', type:'blip' },
+  { i:11, name:'stab',     short:'STAB', type:'stab' },
+  { i:12, name:'noise',    short:'NZ',   type:'noise' },
+  { i:13, name:'voice',    short:'VOX',  type:'vox' },
+  { i:14, name:'perc',     short:'PRC',  type:'perc' },
+  { i:15, name:'shaker',   short:'SHK',  type:'shaker' },
+  { i:16, name:'crash',    short:'CRSH', type:'crash' },
+];
+
+/* Tints par module (assombris auto en thème Light via mix) */
+const MTINTS = ['#f0b429','#34d1c4','#fb7185','#a78bfa','#f472b6','#38bdf8','#4ade80','#fbbf24','#22d3ee'];
+
+const MODULES = [
+{ id:1, title:"Prise en main", blurb:"Ce qu'est le KO!, son écran, ses 7 boutons et ses 16 touches.", lessons:[
+  { id:'1.1', title:"Le KO! en 30 secondes", goal:"Comprendre ce que fait la machine avant de toucher un bouton.",
+    prose:[
+      "Le <strong>PO-33 K.O!</strong> est un <strong>micro-sampler</strong> de Teenage Engineering. Traduction : il <strong>enregistre des sons</strong> (au micro ou par câble) puis te laisse les <strong>rejouer et les séquencer</strong> sur une grille de 16 pas.",
+      "Deux façons de jouer un son : en <strong>batterie</strong> (chaque touche = une tranche du son) ou en <strong>mélodie</strong> (chaque touche = une note d'une gamme). Le reste de l'app détaille chacune.",
+    ],
+    why:"Le KO! tient dans la poche, n'a pas de menus profonds : presque tout se fait avec des <em>combos de touches</em>. Apprendre les combos = maîtriser la machine.",
+    flash:{ q:"En une phrase, que fait le PO-33 K.O! ?", a:"Il échantillonne des sons (micro/line-in) et les rejoue/séquence sur 16 pas, en mode batterie ou mélodique." } },
+
+  { id:'1.2', title:"L'écran et les deux knobs", goal:"Lire l'écran LCD et savoir à quoi servent les knobs A et B.",
+    prose:[
+      "L'<strong>écran</strong> affiche en permanence l'essentiel : le <strong>mode</strong>, le <strong>tempo (bpm)</strong> en haut à droite, l'indicateur <strong>write</strong> quand tu édites, et le nombre de <strong>secondes restantes</strong> quand tu enregistres.",
+      "Les deux <strong>knobs A et B</strong> règlent toujours <strong>le paramètre affiché à l'instant</strong>. Ils n'ont pas une fonction fixe : leur rôle change selon le contexte (trim, filtre, tempo, swing…).",
+    ],
+    why:"Sur le KO!, A et B sont des couteaux suisses. Le réflexe à prendre : <em>d'abord regarder l'écran pour savoir ce que A et B contrôlent maintenant</em>.",
+    sim:'drum',
+    flash:{ q:"Les knobs A et B ont-ils une fonction fixe ?", a:"Non. Ils règlent le paramètre affiché à l'écran sur le moment (trim, filtre, tempo, swing…)." } },
+
+  { id:'1.3', title:"Les 7 boutons de fonction", goal:"Nommer sound, pattern, bpm, write, play, record, fx.",
+    prose:[
+      "Autour des 16 touches, sept boutons commandent tout : <strong>sound</strong> (choisir un son), <strong>pattern</strong> (choisir un motif), <strong>bpm</strong> (tempo), <strong>write</strong> (mode écriture), <strong>play</strong> (lecture/stop), <strong>record</strong> (échantillonner) et <strong>fx</strong> (effets + bascule des paramètres).",
+      "La logique : un bouton de fonction se <strong>maintient</strong>, puis on <strong>presse une touche 1–16</strong>. Par ex. <em>maintenir sound + presser 3</em> = choisir le son 3.",
+    ],
+    why:"Tous les combos suivent ce schéma « maintenir un bouton + presser une touche ». Une fois le réflexe acquis, le reste s'enchaîne.",
+    sim:'drum',
+    flash:{ q:"Quel est le schéma de base d'un combo sur le KO! ?", a:"Maintenir un bouton de fonction (sound, pattern, fx…) puis presser une touche 1–16." } },
+
+  { id:'1.4', title:"Les 16 touches ont trois rôles", goal:"Comprendre que 1–16 = sons, patterns ou effets selon le bouton tenu.",
+    prose:[
+      "Les <strong>16 touches numérotées</strong> changent de sens selon ce que tu tiens : avec <strong>sound</strong> → ce sont les <strong>16 sons</strong> ; avec <strong>pattern</strong> → les <strong>16 patterns</strong> ; avec <strong>fx</strong> → les <strong>16 effets</strong>.",
+      "Seules, en lecture, elles <strong>jouent</strong> le son sélectionné. En <strong>write</strong>, elles <strong>posent ou enlèvent</strong> un pas sur la grille.",
+    ],
+    why:"Un seul clavier, trois cartes mentales superposées. C'est ce qui rend le KO! si compact — et pourquoi connaître « quel bouton je tiens » est vital.",
+    sim:'drum',
+    flash:{ q:"À quoi servent les touches 1–16 quand on tient « fx » ?", a:"À déclencher les 16 effets (punch-in)." } },
+
+  { id:'1.5', title:"Play / Stop & les 16 pas", goal:"Lancer/arrêter la lecture et visualiser un pattern de 16 pas.",
+    prose:[
+      "Un <strong>pattern = 16 pas</strong>, joués en boucle de gauche à droite. <strong>play</strong> lance la lecture, <strong>play</strong> à nouveau l'arrête.",
+      "Une tête de lecture parcourt les pas. Sur l'écran et sur les touches, tu vois quel pas est en train de sonner.",
+    ],
+    why:"16 pas, c'est exactement <em>une mesure en 4/4 découpée en doubles-croches</em>. Tout le rythme du KO! tient dans cette grille (voir module 9).",
+    sim:'drum',
+    combo:{ tokens:['play'], cap:"lance / arrête la lecture", demo:[{hold:[], tap:'play'}] },
+    flash:{ q:"Combien de pas compte un pattern, et comment le lancer ?", a:"16 pas. On lance/arrête avec le bouton play." } },
+
+  { id:'1.6', title:"Allumer, horloge & extinction auto", goal:"Démarrer la machine, régler l'heure, voir l'état batterie.",
+    prose:[
+      "Au démarrage (2 piles AAA), le KO! demande l'<strong>heure</strong> : <strong>knob A</strong> = heures, <strong>knob B</strong> = minutes, puis une touche pour valider.",
+      "Sans action, il s'éteint tout seul (<strong>auto power off</strong>) et n'affiche plus que l'heure. Pour l'<strong>état batterie / infos système</strong> : <strong>sound + bpm</strong>.",
+    ],
+    why:"C'est aussi une horloge avec réveil. Bon à savoir : il s'éteint seul pour économiser les piles, sans perdre tes sons (tant que le lock tab est en place — module 8).",
+    combo:{ tokens:['sound','+','bpm'], cap:"affiche l'état batterie / les infos système", demo:[{hold:['sound'], tap:'bpm'}] },
+    flash:{ q:"Quel combo affiche l'état de la batterie / les infos système ?", a:"sound + bpm." } },
+]},
+
+{ id:2, title:"Le son & le mode drum", blurb:"Choisir un son, le jouer, le sculpter avec TONE / FILTER / TRIM.", lessons:[
+  { id:'2.1', title:"Sélectionner un son", goal:"Charger un des 16 sons sous les doigts.",
+    prose:[
+      "Pour choisir le son actif : <strong>maintenir sound + presser une touche 1–16</strong>. La touche choisie devient le son que tu joues et que tu édites.",
+      "Le son sélectionné est celui que <strong>write</strong> va séquencer, et celui que les knobs vont régler.",
+    ],
+    why:"Tout part du « son courant ». Avant d'écrire un pas ou de tourner un knob, demande-toi toujours : <em>quel son est sélectionné ?</em>",
+    sim:'drum',
+    combo:{ tokens:['sound','+','*1–16'], cap:"sélectionne le son correspondant", demo:[{hold:['sound'], tap:'k1'}] },
+    flash:{ q:"Comment sélectionner le son 5 ?", a:"Maintenir sound puis presser la touche 5." } },
+
+  { id:'2.2', title:"Jouer les sons en live", goal:"Déclencher les sons à la main, sans séquenceur.",
+    prose:[
+      "En lecture (hors write), presse simplement les <strong>touches 1–16</strong> pour <strong>jouer</strong> le son sélectionné. En mode drum, chaque touche déclenche une <strong>tranche</strong> différente du son.",
+      "Si tu n'entends rien, presse <strong>write une fois</strong> pour sortir/entrer du mode écriture : tu étais peut-être en train d'éditer.",
+    ],
+    why:"Jouer à la main avant de séquencer, c'est le meilleur moyen de <em>sentir</em> un son et de repérer ses tranches intéressantes.",
+    sim:'drum',
+    flash:{ q:"Tu presses les touches mais aucun son ne sort : quel réflexe ?", a:"Presser write une fois — tu es sans doute resté en mode écriture." } },
+
+  { id:'2.3', title:"16 slots, deux sections", goal:"Distinguer la section drum et la section mélodique.",
+    prose:[
+      "Les <strong>16 slots de son</strong> sont répartis en <strong>deux sections</strong> : <strong>drum</strong> et <strong>mélodique</strong>. Un même enregistrement se comporte différemment selon la section où il a été rangé.",
+      "En <strong>drum</strong>, chaque touche = une <strong>tranche</strong> (slice) du son. En <strong>mélodique</strong>, chaque touche = le <strong>son entier joué à une hauteur</strong> de la gamme.",
+    ],
+    why:"C'est LE concept du KO! : le même sample devient une boîte à rythmes (drum) ou un instrument jouable (mélodique) selon où tu le ranges.",
+    sim:'melodic',
+    flash:{ q:"Quelle différence entre un son rangé en drum et en mélodique ?", a:"Drum : chaque touche est une tranche du son. Mélodique : chaque touche joue le son entier à une hauteur de gamme." } },
+
+  { id:'2.4', title:"Sculpter : TONE / FILTER / TRIM", goal:"Basculer entre les 3 paires de paramètres avec fx.",
+    prose:[
+      "Le KO! a <strong>6 paramètres</strong>, en <strong>3 paires</strong>, tous réglés par A et B. On passe de l'une à l'autre en <strong>pressant fx</strong> :",
+      "<strong>TONE</strong> (hauteur + volume) · <strong>FILTER</strong> (passe-haut/passe-bas + résonance) · <strong>TRIM</strong> (début + longueur du son).",
+    ],
+    why:"Trois paires seulement : facile à mémoriser. fx fait défiler TONE → FILTER → TRIM. Regarde l'écran pour savoir où tu es.",
+    sim:'drum',
+    combo:{ tokens:['fx'], cap:"fait défiler TONE → FILTER → TRIM", demo:[{hold:[], tap:'fx'}] },
+    flash:{ q:"Quelles sont les 3 paires de paramètres, et comment basculer ?", a:"TONE (hauteur+volume), FILTER (passe-haut/bas+résonance), TRIM (début+longueur). On bascule en pressant fx." } },
+
+  { id:'2.5', title:"TRIM : caler le son", goal:"Régler le point de départ et la longueur d'une tranche.",
+    prose:[
+      "En mode <strong>TRIM</strong> : <strong>knob A = début</strong> du son, <strong>knob B = longueur</strong>. Tu enlèves le silence, tu gardes juste la partie qui claque.",
+      "En section drum, chaque tranche se règle <strong>individuellement</strong> : c'est la <strong>dernière tranche déclenchée</strong> qui est ajustée. Joue la tranche, puis tourne A/B.",
+    ],
+    why:"Un sample bien trimmé = un beat propre. 80% du « son pro » d'un KO! vient d'un trim soigné sur chaque tranche.",
+    sim:'sample',
+    combo:{ tokens:['fx','→','TRIM','+','A','/','B'], cap:"A = début, B = longueur (sur la dernière tranche jouée)", demo:[{hold:[], tap:'fx'},{hold:[], knob:'A'},{hold:[], knob:'B'}] },
+    flash:{ q:"En TRIM, que font A et B, et sur quelle tranche ?", a:"A = début, B = longueur. Ça agit sur la dernière tranche déclenchée." } },
+]},
+
+{ id:3, title:"Échantillonner", blurb:"Le cœur du KO! : enregistrer, gérer 40 s de mémoire, copier.", lessons:[
+  { id:'3.1', title:"Pourquoi sampler", goal:"Saisir l'intérêt d'enregistrer ses propres sons.",
+    prose:[
+      "Sampler, c'est <strong>capturer n'importe quel son du monde</strong> — ta voix, une casserole, un vinyle, un synthé — pour en faire un instrument.",
+      "Le KO! a <strong>40 secondes</strong> de mémoire au total, réparties sur les 16 slots. Court : on apprend vite à <em>choisir</em> et à <em>trimmer</em>.",
+    ],
+    why:"La contrainte (40 s) est une force : elle pousse à la créativité et à des samples courts et percussifs, parfaits pour le beatmaking.",
+    sim:'sample',
+    flash:{ q:"Combien de mémoire d'échantillonnage au total sur le KO! ?", a:"40 secondes, réparties sur les 16 slots." } },
+
+  { id:'3.2', title:"Enregistrer au micro", goal:"Capturer un son dans un slot avec le micro intégré.",
+    prose:[
+      "<strong>Maintiens record + une touche 1–16</strong> : le micro enregistre <strong>tant que tu tiens</strong>, et le son est rangé dans le slot que tu as pressé.",
+      "Pendant l'enregistrement, l'écran affiche les <strong>secondes restantes</strong>. Relâche pour arrêter.",
+    ],
+    why:"Maintenir = enregistrer : tu contrôles la durée au doigt. Pratique pour ne capturer que le claquement utile et économiser la mémoire.",
+    sim:'sample',
+    combo:{ tokens:['record','+','*1–16'], cap:"enregistre au micro dans ce slot tant que tu tiens", demo:[{hold:['record'], tap:'k1'}] },
+    flash:{ q:"Comment enregistrer un son au micro dans le slot 4 ?", a:"Maintenir record + presser 4 ; ça enregistre tant qu'on tient." } },
+
+  { id:'3.3', title:"Sampler via line-in", goal:"Enregistrer depuis une source branchée.",
+    prose:[
+      "Branche un câble jack dans l'entrée <strong>line in</strong> : le KO! enregistre alors <strong>automatiquement depuis le line in</strong> au lieu du micro.",
+      "Source idéale : téléphone, ordi, platine, autre synthé. Le geste reste le même : <strong>record + touche</strong>.",
+    ],
+    why:"Le micro capte la pièce (et son bruit). Le line-in donne un son propre, direct, sans réverb parasite — meilleur pour des samples nets.",
+    sim:'sample',
+    flash:{ q:"Que se passe-t-il si un câble est branché dans line in pendant l'enregistrement ?", a:"Le KO! enregistre depuis le line in au lieu du micro." } },
+
+  { id:'3.4', title:"Gérer les 40 secondes", goal:"Libérer de la place et supprimer un son.",
+    prose:[
+      "Mémoire pleine ? <strong>Supprime</strong> ou <strong>ré-enregistre par-dessus</strong> un slot existant. Pour effacer le son courant : <strong>maintiens record + presse sound</strong>.",
+      "Astuce : des samples courts et bien trimmés laissent de la marge pour en garder plus.",
+    ],
+    why:"40 s passent vite. Savoir effacer proprement évite la panique « mémoire pleine » en pleine session.",
+    sim:'sample',
+    combo:{ tokens:['record','+','sound'], cap:"supprime le son actuellement sélectionné", demo:[{hold:['record'], tap:'sound'}] },
+    flash:{ q:"Comment supprimer le son sélectionné ?", a:"Maintenir record + presser sound." } },
+
+  { id:'3.5', title:"Copier un son ou une tranche", goal:"Dupliquer un son/slice vers un autre slot.",
+    prose:[
+      "<strong>Copier un son</strong> vers un autre slot : <strong>maintiens write + sound, puis presse la touche de destination (1–16)</strong>.",
+      "<strong>Copier une tranche</strong> précise : <strong>write + sound</strong>, puis une touche <strong>9–16</strong> (la tranche source), puis la touche <strong>1–16</strong> de destination.",
+    ],
+    why:"Copier évite de re-sampler. Tu construis vite un kit en dupliquant un bon son et en le re-trimmant ailleurs.",
+    combo:{ tokens:['write','+','sound','→','*1–16'], cap:"copie le son courant vers le slot de destination", demo:[{hold:['write','sound'], tap:'k1'}] },
+    flash:{ q:"Comment copier le son courant vers le slot 8 ?", a:"Maintenir write + sound, puis presser 8." } },
+
+  { id:'3.6', title:"Drum ou mélodique à l'enregistrement", goal:"Choisir la section selon l'usage du sample.",
+    prose:[
+      "Le slot où tu ranges détermine le comportement : dans la <strong>section drum</strong>, le son sera <strong>tranché</strong> (slices) ; dans la <strong>section mélodique</strong>, il sera <strong>jouable à différentes hauteurs</strong>.",
+      "Donc : un beat à découper → section drum. Une note tenue, une voix, une nappe → section mélodique.",
+    ],
+    why:"Penser « à quoi va servir ce sample ? » avant d'enregistrer t'évite de devoir le recopier ailleurs ensuite.",
+    sim:'melodic',
+    flash:{ q:"Tu sample une note de basse pour jouer une mélodie : quelle section ?", a:"La section mélodique (le son sera jouable à différentes hauteurs)." } },
+]},
+
+{ id:4, title:"Séquencer", blurb:"Le write mode : poser un beat, live record et parameter locks.", lessons:[
+  { id:'4.1', title:"Entrer en write mode", goal:"Activer l'écriture et lire l'état des pas.",
+    prose:[
+      "<strong>Presse write</strong> pour entrer/sortir du mode écriture. L'indicateur <strong>write</strong> s'allume à l'écran.",
+      "En write, presse <strong>1–16</strong> pour <strong>poser</strong> un pas (la touche s'allume). Presse un pas <strong>déjà allumé</strong> pour l'<strong>enlever</strong>. <strong>play</strong> écoute le résultat.",
+    ],
+    why:"Write = le mode « je dessine le rythme pas à pas ». C'est l'opposé du live : ici tout est calé sur la grille, sans erreur de timing.",
+    sim:'drum',
+    combo:{ tokens:['write'], cap:"entre / sort du mode écriture", demo:[{hold:[], tap:'write'}] },
+    flash:{ q:"En write mode, comment enlève-t-on un pas déjà posé ?", a:"En pressant à nouveau ce pas (touche allumée → éteinte)." } },
+
+  { id:'4.2', title:"Poser ton premier beat", goal:"Écrire un kick/snare/hat sur la grille.",
+    prose:[
+      "La recette : <strong>1)</strong> sélectionne un son (sound + touche). <strong>2)</strong> entre en write. <strong>3)</strong> presse les pas où ce son doit sonner. <strong>4)</strong> change de son et recommence.",
+      "Chaque son a sa <strong>propre rangée de 16 pas</strong> ; le pattern superpose toutes les rangées.",
+    ],
+    why:"Un son après l'autre, tu empiles les couches. C'est exactement comme dessiner une partition de batterie ligne par ligne.",
+    sim:'drum',
+    flash:{ q:"Dans l'ordre, quelles sont les 4 étapes pour poser un beat ?", a:"1) sélectionner un son, 2) write on, 3) poser les pas, 4) changer de son et recommencer." } },
+
+  { id:'4.3', title:"Effacer & nettoyer", goal:"Corriger un pattern sans tout refaire.",
+    prose:[
+      "En write, presser un <strong>pas allumé</strong> l'efface. Pour repartir d'un son propre, enlève ses pas un à un.",
+      "Pour effacer un <strong>pattern entier</strong>, vois le module 7 : <strong>record + pattern</strong>.",
+    ],
+    why:"Savoir défaire vite = oser essayer. Pas besoin d'être parfait du premier coup.",
+    sim:'drum',
+    flash:{ q:"Comment effacer un seul pas d'un son ?", a:"En write mode, presser ce pas allumé pour l'éteindre." } },
+
+  { id:'4.4', title:"Live record (jouer en temps réel)", goal:"Enregistrer en jouant, pendant la lecture.",
+    prose:[
+      "Pendant que ça <strong>joue</strong> : <strong>maintiens write + presse les touches 1–16</strong> pour <strong>punch-in</strong> tes notes en direct. Elles sont <strong>quantizées</strong> selon le swing réglé.",
+      "Relâche write quand tu as fini. C'est le mode « je joue le groove au feeling ».",
+    ],
+    why:"Le live record donne un feel plus humain que le pas-à-pas, tout en restant calé grâce à la quantize. Le meilleur des deux mondes.",
+    sim:'drum',
+    combo:{ tokens:['(play)','write','+','*1–16'], cap:"en lecture : punch-in des notes en temps réel", demo:[{hold:['write'], tap:'k1'}] },
+    flash:{ q:"Comment enregistrer des notes en temps réel pendant la lecture ?", a:"Pendant que ça joue, maintenir write + presser les touches ; les notes sont quantizées au swing." } },
+
+  { id:'4.5', title:"Parameter lock (P-lock)", goal:"Figer un réglage de knob sur le pattern.",
+    prose:[
+      "Pendant la lecture, <strong>maintiens write + tourne A ou B</strong> : tu <strong>verrouilles</strong> le paramètre courant dans le pattern, pour le son sélectionné.",
+      "Verrouillables : <strong>tone</strong> et <strong>filter</strong>. Pour annuler un enregistrement de p-lock : <strong>record + tourne le knob</strong>.",
+    ],
+    why:"Les p-locks font « bouger » un son dans le temps (filtre qui s'ouvre, pitch qui monte) sans automation compliquée. C'est ce qui rend un pattern vivant.",
+    sim:'drum',
+    combo:{ tokens:['(play)','write','+','A','/','B'], cap:"verrouille tone/filter dans le pattern", demo:[{hold:['write'], knob:'A'}] },
+    flash:{ q:"Quels paramètres peut-on verrouiller (p-lock), et comment ?", a:"tone et filter — en lecture, maintenir write + tourner A/B." } },
+
+  { id:'4.6', title:"Tempo, swing & volume", goal:"Régler bpm, le swing et le volume général.",
+    prose:[
+      "<strong>Presse bpm</strong> pour changer de tempo préréglé : <strong>HIP HOP 80</strong>, <strong>DISCO 120</strong>, <strong>TENCHO 140</strong>. Pour un réglage fin (60–240) : <strong>maintiens bpm + tourne B</strong>.",
+      "<strong>Swing</strong> : <strong>maintiens bpm + tourne A</strong>. <strong>Volume général</strong> : <strong>maintiens bpm + presse 1–16</strong> (1 = bas, 16 = fort).",
+    ],
+    why:"Le swing décale les contretemps : c'est l'âme du groove hip-hop. Même un beat simple « respire » dès qu'on ajoute un peu de swing.",
+    sim:'drum',
+    combo:{ tokens:['bpm','+','A'], cap:"règle le swing (le balancement du groove)", demo:[{hold:['bpm'], knob:'A'}] },
+    flash:{ q:"Comment règle-t-on le swing ?", a:"Maintenir bpm + tourner le knob A." } },
+]},
+
+{ id:5, title:"Mode mélodique", blurb:"Transformer un sample en instrument jouable sur une gamme.", lessons:[
+  { id:'5.1', title:"Le clavier mélodique", goal:"Comprendre les touches comme une gamme.",
+    prose:[
+      "Dans la <strong>section mélodique</strong>, les <strong>16 touches forment une gamme</strong> : chaque touche rejoue le <strong>son entier</strong> à une <strong>hauteur</strong> différente, du grave vers l'aigu.",
+      "Tu joues une mélodie comme sur un petit clavier, avec ton propre sample comme « instrument ».",
+    ],
+    why:"C'est ce qui sépare un sampler d'une boîte à rythmes : ta voix ou un accord devient un synthé mélodique en deux gestes.",
+    sim:'melodic',
+    flash:{ q:"En mode mélodique, que fait chaque touche ?", a:"Elle rejoue le son entier à une hauteur de la gamme (clavier)." } },
+
+  { id:'5.2', title:"Jouer une mélodie", goal:"Improviser sur le clavier mélodique.",
+    prose:[
+      "Sélectionne un son mélodique (sound + touche de la section mélodique), puis <strong>joue les touches 1–16</strong> : chacune sonne plus haut que la précédente.",
+      "Commence par monter/descendre la gamme lentement pour repérer les notes qui sonnent bien ensemble.",
+    ],
+    why:"Jouer d'oreille avant d'écrire : tu mémorises où sont les notes agréables, ce qui rend l'écriture mélodique bien plus rapide.",
+    sim:'melodic',
+    flash:{ q:"Comment improvise-t-on une mélodie sur le KO! ?", a:"Choisir un son mélodique puis jouer les touches 1–16 (chaque touche = une hauteur)." } },
+
+  { id:'5.3', title:"Écrire une mélodie", goal:"Séquencer des notes mélodiques sur 16 pas.",
+    prose:[
+      "Comme pour la batterie : entre en <strong>write</strong> et pose des notes, ou utilise le <strong>live record</strong> (write + touches en lecture) pour jouer la ligne au feeling.",
+      "Une note par pas : le KO! mélodique est <strong>monophonique</strong> par séquence. Pense « ligne » (basse, lead) plutôt qu'« accord ».",
+    ],
+    why:"Penser en lignes monophoniques simplifie la composition et colle au format du KO! — une basse + un lead suffisent à un morceau entier.",
+    sim:'melodic',
+    flash:{ q:"Le séquenceur mélodique du KO! joue-t-il des accords ?", a:"Non, il est pensé monophonique : une note par pas (lignes de basse/lead)." } },
+
+  { id:'5.4', title:"Construire une ligne de basse", goal:"Poser une basse qui soutient le beat.",
+    prose:[
+      "Choisis un son grave (type sub/bass) en section mélodique. Pose la <strong>fondamentale sur le pas 1</strong>, puis quelques notes de la gamme aux pas forts (1, 5, 9, 13).",
+      "Garde-la <strong>simple</strong> : une bonne basse soutient, elle ne se fait pas remarquer.",
+    ],
+    why:"La basse relie le rythme (kick) et l'harmonie. Caler la fondamentale sur le kick (pas 1) ancre tout le morceau.",
+    sim:'melodic',
+    flash:{ q:"Sur quels pas poser les notes d'une basse simple en 16 pas ?", a:"Sur les pas forts : 1, 5, 9, 13 (la fondamentale sur le 1, calée avec le kick)." } },
+]},
+
+{ id:6, title:"Les effets (punch-in)", blurb:"Les 16 effets momentanés : loops, stutters, scratch, reverse…", lessons:[
+  { id:'6.1', title:"Le bouton fx", goal:"Déclencher un effet en temps réel.",
+    prose:[
+      "Pendant la lecture, <strong>maintiens fx + presse une touche 1–15</strong> : l'effet agit <strong>tant que tu tiens</strong> (momentané), puis tout revient à la normale.",
+      "Si <strong>write est actif</strong>, l'effet est <strong>enregistré</strong> dans le pattern. Pour effacer les effets enregistrés : <strong>write actif + fx + 16</strong>.",
+    ],
+    why:"Les punch-in FX, c'est la performance live du KO! : tu « joues » les effets à la main pour créer des breaks et des montées.",
+    sim:'drum',
+    combo:{ tokens:['(play)','fx','+','*1–15'], cap:"déclenche l'effet tant que tu tiens", demo:[{hold:['fx'], tap:'k9'}] },
+    flash:{ q:"Les punch-in FX sont-ils permanents ?", a:"Non, momentanés (tant qu'on tient fx + touche). Sauf si write est actif : ils sont alors enregistrés dans le pattern." } },
+
+  { id:'6.2', title:"La carte des 16 effets", goal:"Mémoriser ce que fait chaque touche d'effet.",
+    prose:[
+      "Les effets sont rangés par familles sur les touches 1–16. Survole-les ci-dessous (ou dans le simulateur) pour entendre/voir l'idée.",
+      "Repère mental : <strong>1–4 loops</strong>, <strong>5–8 hauteur</strong> (unison/octave), <strong>9–12 stutter/scratch</strong>, <strong>13–15 feel/reverse</strong>, <strong>16 = rien</strong>.",
+    ],
+    why:"Connaître la carte = atteindre le bon effet sans réfléchir en plein live. Les familles aident à mémoriser par blocs de 4.",
+    sim:'fx',
+    flash:{ q:"Que fait l'effet 16 ?", a:"Aucun effet (no effect). En write, write + fx + 16 efface les FX enregistrés." } },
+
+  { id:'6.3', title:"Loops & stutters", goal:"Créer des breaks rythmiques avec 1–4 et 9–10.",
+    prose:[
+      "<strong>loop 16 / 12 / short / shorter</strong> (touches 1–4) bouclent une portion de plus en plus courte du motif : de la boucle entière au bégaiement serré.",
+      "<strong>stutter 4 / 3</strong> (9–10) re-déclenchent le pas en cours, en binaire (4) ou en triolets (3).",
+    ],
+    why:"Loops et stutters fabriquent les fameux « rolls » et montées de fin de phrase. Un coup de loop shorter avant le temps 1 = tension instantanée.",
+    sim:'fx',
+    flash:{ q:"Quelle différence entre stutter 4 et stutter 3 ?", a:"stutter 4 re-déclenche en binaire (4 coups), stutter 3 en triolets (feel ternaire)." } },
+
+  { id:'6.4', title:"Scratch, octave, reverse…", goal:"Maîtriser 5–8 et 11–15.",
+    prose:[
+      "<strong>unison / unison low</strong> (5–6) épaississent ; <strong>octave up / down</strong> (7–8) transposent d'une octave. <strong>scratch / scratch fast</strong> (11–12) imitent la platine.",
+      "<strong>6/8 quantize</strong> (13) bascule en feel ternaire ; <strong>retrigger pattern</strong> (14) relance depuis le pas 1 ; <strong>reverse</strong> (15) joue à l'envers.",
+    ],
+    why:"Ces effets changent la couleur ou la direction du son. octave down + reverse sur un break = transition cinématique en une seconde.",
+    sim:'fx',
+    flash:{ q:"Que fait l'effet retrigger pattern (14) ?", a:"Il relance le pattern depuis le pas 1, en boucle, tant qu'on le tient." } },
+
+  { id:'6.5', title:"Jouer les FX musicalement", goal:"Utiliser les effets au bon moment.",
+    prose:[
+      "Règle d'or : un effet se place <strong>en fin de phrase</strong> (pas 13–16) pour annoncer la suite, ou sur <strong>un temps fort</strong> pour surprendre.",
+      "Moins, c'est plus : un effet bien placé marque ; dix effets enchaînés noient le morceau.",
+    ],
+    why:"Les FX ponctuent le récit du morceau (intro → couplet → break → drop). Les semer avec parcimonie garde l'impact.",
+    sim:'drum',
+    flash:{ q:"Où placer typiquement un effet pour annoncer la suite ?", a:"En fin de phrase, sur les pas 13–16 (montée/transition)." } },
+]},
+
+{ id:7, title:"Patterns & morceau", blurb:"Plusieurs motifs, les copier, les chaîner en chanson.", lessons:[
+  { id:'7.1', title:"Sélectionner un pattern", goal:"Naviguer entre les 16 patterns.",
+    prose:[
+      "<strong>Maintiens pattern + presse 1–16</strong> pour choisir le pattern actif. La <strong>led qui clignote</strong> indique le pattern en cours.",
+      "Chaque pattern est une grille de 16 pas indépendante : tu construis plusieurs motifs (couplet, refrain…) et tu navigues entre eux.",
+    ],
+    why:"Un seul pattern = une boucle qui lasse. Plusieurs patterns = de la variation, donc un vrai morceau.",
+    sim:'drum',
+    combo:{ tokens:['pattern','+','*1–16'], cap:"sélectionne le pattern correspondant", demo:[{hold:['pattern'], tap:'k1'}] },
+    flash:{ q:"Comment savoir quel pattern est actif ?", a:"La led qui clignote indique le pattern en cours." } },
+
+  { id:'7.2', title:"Copier & effacer un pattern", goal:"Dupliquer un motif, repartir de zéro.",
+    prose:[
+      "<strong>Copier</strong> le pattern actif vers un autre slot : <strong>maintiens write + pattern, puis presse la touche 1–16</strong> de destination.",
+      "<strong>Effacer</strong> le pattern actif : <strong>record + pattern</strong>.",
+    ],
+    why:"Copier puis modifier légèrement (un fill, un son en plus) crée des variations cohérentes — l'astuce n°1 pour étoffer un morceau vite.",
+    sim:'drum',
+    combo:{ tokens:['write','+','pattern','→','*1–16'], cap:"copie le pattern actif vers la destination", demo:[{hold:['write','pattern'], tap:'k2'}] },
+    flash:{ q:"Comment effacer le pattern actif ?", a:"record + pattern." } },
+
+  { id:'7.3', title:"Chaîner les patterns (le morceau)", goal:"Enchaîner des motifs en une séquence.",
+    prose:[
+      "<strong>Maintiens pattern</strong> et <strong>presse les touches dans l'ordre voulu</strong> : tu construis une <strong>chaîne</strong> (jusqu'à 128 patterns). Un même pattern peut revenir plusieurs fois.",
+      "Exemple : <strong>1, 1, 1, 4</strong> joue trois fois le pattern 1 puis le 4, et la chaîne boucle.",
+    ],
+    why:"Le chaînage est le « mode morceau » du KO! : c'est là que des boucles deviennent une structure intro/couplet/refrain.",
+    sim:'drum',
+    combo:{ tokens:['pattern','+','1','1','1','4'], cap:"chaîne : 3× pattern 1 puis pattern 4", demo:[{hold:['pattern'], tap:'k1'},{hold:['pattern'], tap:'k1'},{hold:['pattern'], tap:'k4'}] },
+    flash:{ q:"Que joue la chaîne 1,1,1,4 ?", a:"Trois fois le pattern 1, puis le pattern 4, puis ça boucle." } },
+
+  { id:'7.4', title:"Structurer un morceau", goal:"Penser intro / couplet / refrain / break.",
+    prose:[
+      "Répartis tes idées : <strong>P1 intro</strong> (épuré), <strong>P2 couplet</strong>, <strong>P3 refrain</strong> (plus dense), <strong>P4 break</strong> (batterie seule ou FX).",
+      "Une chaîne type : <strong>1 · 2 · 3 · 2 · 3 · 4</strong>. Varie la densité pour créer du relief.",
+    ],
+    why:"L'oreille adore la tension/détente : alterner épuré et dense maintient l'intérêt sans ajouter de nouveaux sons.",
+    sim:'drum',
+    flash:{ q:"Comment créer du relief dans un morceau sans ajouter de sons ?", a:"En alternant la densité des patterns (épuré ↔ dense) au fil de la chaîne." } },
+]},
+
+{ id:8, title:"Sync, sauvegarde & live", blurb:"Volume casque, backup, synchroniser plusieurs PO, reset.", lessons:[
+  { id:'8.1', title:"Le volume (attention au casque)", goal:"Régler le volume général en sécurité.",
+    prose:[
+      "<strong>Maintiens bpm + presse 1–16</strong> pour le volume général (1 = bas, 16 = fort).",
+      "Au <strong>casque</strong>, le guide officiel prévient : <strong>ne dépasse 5 qu'avec prudence</strong>. Tes oreilles d'abord.",
+    ],
+    why:"Le KO! peut sortir fort. Protéger son audition, c'est protéger l'outil n°1 d'un beatmaker (et d'un horloger) : l'oreille.",
+    sim:'drum',
+    combo:{ tokens:['bpm','+','*1–16'], cap:"règle le volume général (5 max au casque !)", demo:[{hold:['bpm'], tap:'k5'}] },
+    flash:{ q:"Quelle précaution de volume au casque ?", a:"Ne dépasser le niveau 5 qu'avec prudence (bpm + touche)." } },
+
+  { id:'8.2', title:"Sauvegarder tes données", goal:"Backup des sons & patterns vers un enregistreur.",
+    prose:[
+      "Le KO! peut envoyer toutes ses données en audio vers un enregistreur (câble line out → line in). <strong>Transmettre : write + sound + play</strong>.",
+      "<strong>Recevoir / restaurer : write + sound + record</strong> (met l'unité en attente). ⚠ À la réception, <strong>tout est écrasé</strong> sur l'unité réceptrice.",
+    ],
+    why:"Pas de carte mémoire : la sauvegarde passe par l'audio. Indispensable avant un reset ou pour archiver un kit que tu aimes.",
+    combo:{ tokens:['write','+','sound','+','play'], cap:"transmet (sauvegarde) les données", demo:[{hold:['write','sound'], tap:'play'}] },
+    flash:{ q:"Quel combo transmet (sauvegarde) les données du KO! ?", a:"write + sound + play (réception/restauration : write + sound + record)." } },
+
+  { id:'8.3', title:"Synchroniser plusieurs PO", goal:"Caler le KO! avec d'autres Pocket Operators.",
+    prose:[
+      "Relie deux unités par un câble stéréo. Sur le <strong>master</strong> : <strong>maintiens record + presse bpm</strong> pour faire défiler les <strong>modes de sync SY0–SY5</strong>.",
+      "En sync, le signal se partage : <strong>audio à droite, sync à gauche</strong>. play sur l'esclave (attend), puis play sur le master (démarre).",
+    ],
+    why:"La sync laisse jouer plusieurs PO ensemble, parfaitement calés. C'est tout l'écosystème Pocket Operator qui s'ouvre.",
+    combo:{ tokens:['record','+','bpm'], cap:"fait défiler les modes de sync SY0–SY5 (sur le master)", demo:[{hold:['record'], tap:'bpm'}] },
+    flash:{ q:"Comment changer le mode de sync sur l'unité master ?", a:"Maintenir record + presser bpm (défile SY0→SY5)." } },
+
+  { id:'8.4', title:"Reset & lock tab", goal:"Réinitialiser, et protéger ses patterns.",
+    prose:[
+      "<strong>Reset usine</strong> : <strong>maintiens pattern + write en insérant les piles</strong>. Tout revient au défaut.",
+      "Le <strong>lock tab</strong> (languette) : cassé, il <strong>gèle tous les patterns</strong> (protection). ⚠ Une fois retiré, l'<strong>échantillonnage n'est plus possible</strong>.",
+    ],
+    why:"Le reset dépanne quand la machine bug. Le lock tab est un choix : figer une création… au prix de ne plus pouvoir sampler.",
+    combo:{ tokens:['pattern','+','write'], cap:"+ insérer les piles = reset usine", demo:[{hold:['pattern'], tap:'write'}] },
+    flash:{ q:"Comment faire un reset usine ?", a:"Maintenir pattern + write tout en insérant les piles." } },
+
+  { id:'8.5', title:"Astuces de performance", goal:"Quelques réflexes pour jouer en live.",
+    prose:[
+      "Prépare <strong>2–4 patterns</strong> contrastés à l'avance, garde une main sur <strong>fx</strong> pour les transitions, et une chaîne mentale claire.",
+      "Un <strong>break</strong> (FX + pattern épuré) avant un retour plein relance l'énergie à coup sûr.",
+    ],
+    why:"Le live se gagne en préparation : moins tu improvises la structure, plus tu es libre d'improviser les effets et le groove.",
+    sim:'drum',
+    flash:{ q:"Quel ingrédient simple relance l'énergie d'un live ?", a:"Un break (pattern épuré + FX) juste avant un retour en plein." } },
+]},
+
+{ id:9, title:"Solfège du beatmaker", blurb:"Le minimum de théorie pour que tes 16 pas sonnent juste.", lessons:[
+  { id:'9.1', title:"BPM, mesure & 16 pas", goal:"Relier la grille du KO! au solfège.",
+    prose:[
+      "Les <strong>16 pas = 1 mesure de 4/4</strong> en <strong>doubles-croches</strong>. Les <strong>temps</strong> tombent sur les pas <strong>1, 5, 9, 13</strong> ; les <strong>croches</strong> sur 1,3,5,7…",
+      "Le <strong>bpm</strong> (battements par minute) fixe la vitesse : 80 (hip-hop), 120 (disco/house), 140 (trap/tencho).",
+    ],
+    why:"Comprendre que la grille EST une mesure de solfège te permet de placer kick, snare et hats au bon endroit sans tâtonner.",
+    sim:'drum',
+    flash:{ q:"À quoi correspondent les 16 pas en solfège ?", a:"À une mesure de 4/4 en doubles-croches ; les temps tombent sur 1, 5, 9, 13." } },
+
+  { id:'9.2', title:"Lire une grille rythmique", goal:"Savoir où vont kick, snare et hats.",
+    prose:[
+      "Recette de base : <strong>kick</strong> sur 1 et 9 (les temps forts), <strong>snare</strong> sur 5 et 13 (les contretemps 2 et 4), <strong>hats</strong> sur tous les pas impairs (ou tous, pour serrer).",
+      "C'est le squelette « four-on-the-floor » revisité : à toi de l'habiller ensuite.",
+    ],
+    why:"Ce placement kick/snare est universel en musiques actuelles. Le connaître, c'est avoir un beat « qui marche » en 30 secondes.",
+    sim:'drum',
+    flash:{ q:"Placement classique du snare sur 16 pas ?", a:"Sur les pas 5 et 13 (les temps 2 et 4)." } },
+
+  { id:'9.3', title:"3 grooves à reproduire", goal:"Mettre les mains à la pâte sur le simulateur.",
+    prose:[
+      "Ouvre le simulateur et reproduis : <strong>1) Four-on-the-floor</strong> (kick 1,5,9,13). <strong>2) Boom-bap</strong> (kick 1,11 · snare 5,13). <strong>3) Trap</strong> (kick 1,7,10 · snare 5,13 · hats roulés).",
+      "Lance la lecture, ajuste, écoute la différence de <em>feel</em> entre les trois.",
+    ],
+    why:"Reproduire des grooves connus entraîne l'oreille et la main bien plus vite que la théorie seule. Le simulateur est là pour ça.",
+    sim:'drum',
+    flash:{ q:"Quel kick caractérise le four-on-the-floor ?", a:"Un kick sur chaque temps : pas 1, 5, 9 et 13." } },
+
+  { id:'9.4', title:"Gammes pour le mélodique", goal:"Choisir des notes qui sonnent ensemble.",
+    prose:[
+      "Pour ne jamais sonner faux, reste dans une <strong>gamme</strong>. La plus sûre : la <strong>pentatonique mineure</strong> (5 notes) — toutes ses notes vont bien ensemble.",
+      "En mode mélodique, repère ces notes sur le clavier et compose tes lignes uniquement avec elles.",
+    ],
+    why:"La pentatonique mineure est le « mode facile » de la mélodie : impossible de tomber sur une note vraiment fausse. Idéale pour démarrer.",
+    sim:'melodic',
+    flash:{ q:"Quelle gamme est la plus sûre pour débuter une mélodie ?", a:"La pentatonique mineure (5 notes) : toutes ses notes sonnent bien ensemble." } },
+]},
+];
+
+/* ============================================================
+   GLOSSAIRE — termes du KO! et du beatmaking
+   ============================================================ */
+const GLOSSARY = [
+  { t:"Sampler", c:"base", d:"Instrument qui enregistre des sons puis les rejoue. Le KO! est un micro-sampler de 40 s." },
+  { t:"Sample", c:"base", d:"Un son enregistré, rangé dans un des 16 slots." },
+  { t:"Slot", c:"base", d:"Emplacement mémoire pour un son (16 au total), en section drum ou mélodique." },
+  { t:"Tranche (slice)", c:"drum", d:"En mode drum, une touche déclenche une portion (tranche) du son enregistré." },
+  { t:"Pas (step)", c:"séquence", d:"Une des 16 cases de la grille. 16 pas = une boucle." },
+  { t:"Pattern", c:"séquence", d:"Une grille de 16 pas. Le KO! en garde 16, chaînables en morceau." },
+  { t:"Write mode", c:"séquence", d:"Mode écriture : poser/enlever des pas. Activé par le bouton write." },
+  { t:"Live record", c:"séquence", d:"Enregistrer en jouant pendant la lecture : write + touches, quantizé au swing." },
+  { t:"Quantize", c:"séquence", d:"Recaler automatiquement les notes jouées sur la grille rythmique." },
+  { t:"Parameter lock (p-lock)", c:"séquence", d:"Figer tone/filter dans le pattern : en lecture, write + tourner A/B." },
+  { t:"Swing", c:"rythme", d:"Décalage des contretemps qui donne le groove. bpm + knob A." },
+  { t:"BPM", c:"rythme", d:"Tempo en battements/minute. Préréglages 80 / 120 / 140 ; fin 60–240 via bpm + B." },
+  { t:"Punch-in FX", c:"effets", d:"Effets momentanés joués à la main : fx + touche 1–15 pendant la lecture." },
+  { t:"Loop (FX 1–4)", c:"effets", d:"Boucle une portion du motif, de longue (16) à très courte (shorter)." },
+  { t:"Stutter (FX 9–10)", c:"effets", d:"Re-déclenche le pas en cours : stutter 4 (binaire) ou 3 (triolets)." },
+  { t:"Scratch (FX 11–12)", c:"effets", d:"Va-et-vient de lecture imitant une platine vinyle." },
+  { t:"Unison (FX 5–6)", c:"effets", d:"Double le son à l'unisson pour l'épaissir (normal ou grave)." },
+  { t:"Octave (FX 7–8)", c:"effets", d:"Transpose d'une octave vers l'aigu ou le grave." },
+  { t:"Retrigger pattern (FX 14)", c:"effets", d:"Relance le pattern depuis le pas 1 en boucle." },
+  { t:"Reverse (FX 15)", c:"effets", d:"Joue le motif à l'envers." },
+  { t:"TONE", c:"son", d:"Paire de paramètres : hauteur (pitch) + volume. Réglée par A/B après fx." },
+  { t:"FILTER", c:"son", d:"Filtre passe-haut/passe-bas + résonance. Une des 3 paires de paramètres." },
+  { t:"TRIM", c:"son", d:"Début (A) + longueur (B) d'une tranche. Pour nettoyer un sample." },
+  { t:"Section drum", c:"modes", d:"Slots où chaque touche = une tranche du son (boîte à rythmes)." },
+  { t:"Section mélodique", c:"modes", d:"Slots où les touches = une gamme ; le son entier joué à différentes hauteurs." },
+  { t:"Chaîne (chain)", c:"morceau", d:"Suite ordonnée de patterns (jusqu'à 128) = le mode morceau du KO!." },
+  { t:"Sync (SY0–SY5)", c:"sync", d:"Modes de synchronisation entre Pocket Operators. Master : record + bpm." },
+  { t:"Line in / out", c:"sync", d:"Entrée/sortie jack 3,5 mm : sampler une source, sortir le son, sauvegarder, sync." },
+  { t:"Knob A / B", c:"base", d:"Les deux potentiomètres ; règlent le paramètre affiché à l'écran (contexte)." },
+  { t:"Master volume", c:"base", d:"Volume général : bpm + touche 1–16. Prudence > 5 au casque." },
+  { t:"Auto power off (a.p.o)", c:"base", d:"Extinction automatique après inactivité ; n'affiche plus que l'heure." },
+  { t:"Lock tab", c:"matériel", d:"Languette à casser pour figer les patterns ; retirée = sampling impossible." },
+  { t:"Reset usine", c:"matériel", d:"pattern + write en insérant les piles : tout revient au défaut." },
+  { t:"Micro intégré", c:"sampling", d:"Source d'enregistrement par défaut (sans câble dans line in)." },
+  { t:"40 secondes", c:"sampling", d:"Mémoire totale d'échantillonnage, partagée entre les 16 slots." },
+  { t:"Four-on-the-floor", c:"rythme", d:"Kick sur chaque temps (pas 1,5,9,13) : la pulsation house/disco." },
+  { t:"Boom-bap", c:"rythme", d:"Groove hip-hop : kick syncopé + snare bien marqué sur 2 et 4." },
+  { t:"Pentatonique mineure", c:"mélodie", d:"Gamme de 5 notes très consonante, idéale pour débuter une mélodie." },
+];
+
+/* ============================================================
+   MOTEUR — stockage (progression + SRS), audio WebAudio, séquenceur.
+   Tout best-effort : si localStorage/WebAudio absent, dégradation douce.
+   ============================================================ */
+
+/* ---------- util ---------- */
+const $  = (s, r=document)=> r.querySelector(s);
+const $$ = (s, r=document)=> Array.from(r.querySelectorAll(s));
+const clamp = (v,a,b)=> Math.max(a, Math.min(b, v));
+function todayStr(d=new Date()){
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), da=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${da}`;
+}
+function addDays(dateStr, n){
+  const [y,m,d] = String(dateStr).split('-').map(x=>parseInt(x,10));
+  const dt = new Date(y,(m||1)-1,d||1); dt.setDate(dt.getDate()+n); return todayStr(dt);
+}
+const ALL_LESSONS = MODULES.flatMap(m=> m.lessons.map(l=> ({...l, mid:m.id, mtitle:m.title})));
+const lessonById = id => ALL_LESSONS.find(l=> l.id===id);
+
+/* ---------- storage ---------- */
+const LS = {
+  get(k, fb){ try{ const r=localStorage.getItem(k); return r? JSON.parse(r): fb; }catch{ return fb; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} }
+};
+const PKEY='kolab:progress', SKEY='kolab:srs', CKEY='kolab:settings';
+
+const Progress = {
+  data: LS.get(PKEY, { seen:{}, done:{} }),
+  save(){ LS.set(PKEY, this.data); },
+  seeLesson(id){ if(!this.data.seen[id]){ this.data.seen[id]=todayStr(); this.save(); } },
+  isSeen(id){ return !!this.data.seen[id]; },
+  seenCount(){ return Object.keys(this.data.seen).length; },
+  moduleSeen(mid){ const m=MODULES.find(x=>x.id===mid); if(!m) return 0; return m.lessons.filter(l=> this.isSeen(l.id)).length; },
+};
+
+/* ---- SRS : Leitner 3 boîtes (J+1 / J+3 / J+7), file plafonnée à 5 (TDA-friendly) ---- */
+const BOX_DAYS = {1:1, 2:3, 3:7};
+const REVIEW_LIMIT = 5;
+const SRS = {
+  data: LS.get(SKEY, { cards:{}, mastered:{} }),
+  save(){ LS.set(SKEY, this.data); },
+  has(id){ return !!this.data.cards[id]; },
+  add(id){ if(!this.data.cards[id]){ this.data.cards[id]={ box:1, due:todayStr(), last:0 }; this.save(); } },
+  // résultat de révision : connu → boîte sup ; raté → boîte 1
+  grade(id, known){
+    const c = this.data.cards[id] || { box:0 };
+    const box = known ? Math.min(3, Math.max(2, (c.box||0)+1)) : 1;
+    this.data.cards[id] = { box, due: addDays(todayStr(), BOX_DAYS[box]), last: Date.now() };
+    if(known && box>=3) this.data.mastered[id]=true; else if(!known) delete this.data.mastered[id];
+    this.save();
+  },
+  dueList(limit=REVIEW_LIMIT){
+    const t=todayStr(), out=[];
+    for(const id of Object.keys(this.data.cards)){
+      const c=this.data.cards[id];
+      if(c && c.due<=t) out.push({ id, box:c.box||1, due:c.due });
+    }
+    out.sort((a,b)=> a.due<b.due?-1: a.due>b.due?1: a.box-b.box);
+    return limit>0? out.slice(0,limit): out;
+  },
+  dueCount(){ return this.dueList(0).length; },
+  counts(){
+    let learning=0, mature=0;
+    for(const id of Object.keys(this.data.cards)){ (this.data.cards[id].box>=3? mature++ : learning++); }
+    return { total:Object.keys(this.data.cards).length, learning, mature };
+  }
+};
+
+const Settings = {
+  data: LS.get(CKEY, { theme:'void', fontScale:1, sound:true }),
+  save(){ LS.set(CKEY, this.data); },
+  apply(){
+    document.documentElement.setAttribute('data-theme', this.data.theme);
+    document.documentElement.style.setProperty('--fs-scale', this.data.fontScale);
+  }
+};
+
+/* ============================================================
+   AUDIO — synthèse du kit + séquenceur lookahead + FX
+   ============================================================ */
+const Audio = {
+  ctx:null, master:null, started:false,
+  bpm:90, playing:false, step:0, mode:'drum',
+  swing:0.18,
+  patterns:[], curPattern:0, selSound:0, // selSound index 0..15
+  scale:[0,3,5,7,10,12,15,17,19,22,24,27,29,31,34,36], // pentatonique mineure étendue (semis)
+  fx:null, fxStep:0,
+  sampleBuf:null, trimStart:0, trimLen:1,
+  _timer:null, _next:0, _lookahead:0.1, _onStep:null,
+
+  init(){
+    if(this.ctx) return true;
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      this.ctx = new AC();
+      this.master = this.ctx.createGain(); this.master.gain.value=0.9; this.master.connect(this.ctx.destination);
+      for(let p=0;p<16;p++) this.patterns.push(this.emptyPattern());
+      return true;
+    }catch(e){ return false; }
+  },
+  resume(){ if(this.ctx && this.ctx.state==='suspended') this.ctx.resume(); },
+  emptyPattern(){
+    const drum=[]; for(let s=0;s<16;s++){ drum.push(new Array(16).fill(false)); }
+    return { drum, mel:new Array(16).fill(null) };
+  },
+  pat(){ return this.patterns[this.curPattern]; },
+
+  /* --- synthèse : un instrument par type --- */
+  voice(type, t, opt={}){
+    if(!this.ctx) return;
+    const ctx=this.ctx, out=this.master, semis=opt.semis||0, gain=(opt.gain==null?1:opt.gain);
+    const r = Math.pow(2, semis/12);
+    const env=(g, a, d, peak=1)=>{ g.gain.setValueAtTime(0.0001,t); g.gain.linearRampToValueAtTime(peak,t+a); g.gain.exponentialRampToValueAtTime(0.0001,t+a+d); };
+    const noise=(dur)=>{ const n=ctx.createBufferSource(); const b=ctx.createBuffer(1, Math.max(1,Math.floor(ctx.sampleRate*dur)), ctx.sampleRate); const ch=b.getChannelData(0); for(let i=0;i<ch.length;i++) ch[i]=Math.random()*2-1; n.buffer=b; return n; };
+    const G=()=> ctx.createGain();
+    try{
+    switch(type){
+      case 'kick':{ const o=ctx.createOscillator(), g=G(); o.type='sine'; o.frequency.setValueAtTime(150*r,t); o.frequency.exponentialRampToValueAtTime(48*r,t+0.12); env(g,0.001,0.32,gain); o.connect(g).connect(out); o.start(t); o.stop(t+0.42); break; }
+      case 'snare':{ const n=noise(0.2), g=G(), hp=ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=1400; env(g,0.001,0.18,0.7*gain); n.connect(hp).connect(g).connect(out); const o=ctx.createOscillator(), g2=G(); o.type='triangle'; o.frequency.setValueAtTime(190*r,t); env(g2,0.001,0.12,0.5*gain); o.connect(g2).connect(out); n.start(t); n.stop(t+0.2); o.start(t); o.stop(t+0.16); break; }
+      case 'hatC':{ const n=noise(0.05), g=G(), hp=ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=7000; env(g,0.001,0.04,0.5*gain); n.connect(hp).connect(g).connect(out); n.start(t); n.stop(t+0.07); break; }
+      case 'hatO':{ const n=noise(0.3), g=G(), hp=ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=6500; env(g,0.001,0.26,0.42*gain); n.connect(hp).connect(g).connect(out); n.start(t); n.stop(t+0.33); break; }
+      case 'clap':{ for(let k=0;k<3;k++){ const n=noise(0.05), g=G(), bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1500; const tt=t+k*0.012; g.gain.setValueAtTime(0.0001,tt); g.gain.linearRampToValueAtTime(0.5*gain,tt+0.002); g.gain.exponentialRampToValueAtTime(0.0001,tt+0.08); n.connect(bp).connect(g).connect(out); n.start(tt); n.stop(tt+0.1);} break; }
+      case 'rim':{ const o=ctx.createOscillator(), g=G(); o.type='square'; o.frequency.value=420*r; env(g,0.001,0.05,0.4*gain); o.connect(g).connect(out); o.start(t); o.stop(t+0.07); break; }
+      case 'tom':{ const o=ctx.createOscillator(), g=G(); o.type='sine'; o.frequency.setValueAtTime(180*r,t); o.frequency.exponentialRampToValueAtTime(90*r,t+0.18); env(g,0.001,0.24,0.7*gain); o.connect(g).connect(out); o.start(t); o.stop(t+0.32); break; }
+      case 'cow':{ const o=ctx.createOscillator(), o2=ctx.createOscillator(), g=G(); o.type='square'; o2.type='square'; o.frequency.value=560*r; o2.frequency.value=845*r; env(g,0.001,0.12,0.32*gain); o.connect(g); o2.connect(g); g.connect(out); o.start(t); o2.start(t); o.stop(t+0.14); o2.stop(t+0.14); break; }
+      case 'bass':{ const o=ctx.createOscillator(), g=G(), lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=600; o.type='sawtooth'; o.frequency.value=55*r; env(g,0.005,0.34,0.8*gain); o.connect(lp).connect(g).connect(out); o.start(t); o.stop(t+0.42); break; }
+      case 'blip':{ const o=ctx.createOscillator(), g=G(); o.type='square'; o.frequency.setValueAtTime(880*r,t); o.frequency.exponentialRampToValueAtTime(1320*r,t+0.05); env(g,0.001,0.1,0.4*gain); o.connect(g).connect(out); o.start(t); o.stop(t+0.13); break; }
+      case 'stab':{ [0,4,7].forEach(iv=>{ const o=ctx.createOscillator(), g=G(); o.type='sawtooth'; o.frequency.value=220*r*Math.pow(2,iv/12); env(g,0.004,0.22,0.22*gain); const lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=2200; o.connect(lp).connect(g).connect(out); o.start(t); o.stop(t+0.3); }); break; }
+      case 'noise':{ const n=noise(0.4), g=G(), lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.setValueAtTime(8000,t); lp.frequency.exponentialRampToValueAtTime(400,t+0.35); env(g,0.01,0.34,0.4*gain); n.connect(lp).connect(g).connect(out); n.start(t); n.stop(t+0.43); break; }
+      case 'vox':{ const o=ctx.createOscillator(), g=G(), bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=900*r; bp.Q.value=6; o.type='sawtooth'; o.frequency.value=160*r; env(g,0.02,0.3,0.5*gain); o.connect(bp).connect(g).connect(out); o.start(t); o.stop(t+0.36); break; }
+      case 'perc':{ const o=ctx.createOscillator(), g=G(); o.type='triangle'; o.frequency.setValueAtTime(900*r,t); o.frequency.exponentialRampToValueAtTime(300*r,t+0.08); env(g,0.001,0.1,0.4*gain); o.connect(g).connect(out); o.start(t); o.stop(t+0.13); break; }
+      case 'shaker':{ const n=noise(0.08), g=G(), hp=ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=5000; env(g,0.005,0.06,0.34*gain); n.connect(hp).connect(g).connect(out); n.start(t); n.stop(t+0.1); break; }
+      case 'crash':{ const n=noise(0.8), g=G(), hp=ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=5000; env(g,0.001,0.7,0.34*gain); n.connect(hp).connect(g).connect(out); n.start(t); n.stop(t+0.82); break; }
+      case 'mel':{ const o=ctx.createOscillator(), o2=ctx.createOscillator(), g=G(), lp=ctx.createBiquadFilter();
+        lp.type='lowpass'; lp.frequency.value=2600; o.type='sawtooth'; o2.type='square'; o2.detune.value=-8;
+        const f=220*r; o.frequency.value=f; o2.frequency.value=f;
+        env(g,0.006,0.34,0.32*gain); o.connect(lp); o2.connect(lp); lp.connect(g).connect(out); o.start(t); o2.start(t); o.stop(t+0.46); o2.stop(t+0.46); break; }
+      case 'sample':{ if(this.sampleBuf){ const s=ctx.createBufferSource(); s.buffer=this.sampleBuf; s.playbackRate.value=r; const g=G(); const dur=this.sampleBuf.duration; const st=clamp(this.trimStart,0,1)*dur; const ln=clamp(this.trimLen,0.02,1)*dur; g.gain.value=gain; s.connect(g).connect(out); s.start(t, Math.min(st,dur-0.01), Math.min(ln,Math.max(0.02,dur-st))); } break; }
+    }
+    }catch(e){}
+  },
+
+  playSlice(idx){ if(!this.init()) return; this.resume(); const k=KIT[this.selSound]; this.voice(k.type, this.ctx.currentTime, {semis: (k.type==='bass'||k.type==='mel'||k.type==='stab'||k.type==='blip')? (idx-1) : 0, gain:1}); },
+  playKit(i, t, semis=0, gain=1){ this.voice(KIT[i].type, t, {semis, gain}); },
+  playMel(noteIdx, t){ if(!this.init()) return; this.resume(); this.voice('mel', (t||this.ctx.currentTime), {semis:this.scale[clamp(noteIdx,0,15)]}); },
+
+  /* --- séquenceur --- */
+  stepDur(){ return 60/this.bpm/4; },
+  scheduleStep(step, t){
+    const fx=this.fx;
+    let semis=0, stutter=0;
+    if(fx){ if(fx.impl==='octave') semis += (fx.n===7?12:-12);
+      if(fx.impl==='stutter') stutter=(fx.n===9?4:3); if(fx.impl==='scratch') semis += (Math.random()<0.5?7:-7); }
+    const pat=this.pat();
+    const hit=(fn)=>{ if(stutter>1){ const sd=this.stepDur()/stutter; for(let k=0;k<stutter;k++) fn(t+k*sd, 0.9); } else fn(t,1); };
+    if(this.mode==='drum' || this.mode==='sample'){
+      for(let s=0;s<16;s++){ if(pat.drum[s][step]){ hit((tt,g)=> this.playKit(s, tt, semis, g)); if(fx&&fx.impl==='detune'){ this.playKit(s, t, semis + (fx.n===6?-5:0) - 0.1, 0.55);} } }
+    } else if(this.mode==='mel'){
+      const nv=pat.mel[step]; if(nv!=null){ hit((tt)=> this.voice('mel', tt, {semis:this.scale[nv]+semis})); }
+    }
+  },
+  mapStep(raw){
+    const fx=this.fx; if(!fx) return raw % 16;
+    if(fx.impl==='retrig') return this.fxStep % 16;
+    if(fx.impl==='reverse') return (15 - (raw%16) + 16) % 16;
+    if(fx.impl==='loop'){ const len={1:16,2:12,3:4,4:2}[fx.n]||16; const base=this.fxStep - (this.fxStep%len); return (base + (raw % len)) % 16; }
+    return raw % 16;
+  },
+  tick(){
+    if(!this.ctx) return;
+    while(this._next < this.ctx.currentTime + this._lookahead){
+      const raw=this.step;
+      const playStep=this.mapStep(raw);
+      const sw = (raw%2===1) ? this.stepDur()*this.swing*(this.fx&&this.fx.impl==='feel'?1.6:1) : 0;
+      this.scheduleStep(playStep, this._next + sw);
+      if(this._onStep) this._onStep(playStep, this._next + sw);
+      this._next += this.stepDur();
+      this.step = (raw+1) % 16;
+    }
+  },
+  play(){
+    if(!this.init()) return false; this.resume();
+    if(this.playing) return true;
+    this.playing=true; this.step=0; this._next=this.ctx.currentTime + 0.06;
+    this._timer=setInterval(()=> this.tick(), 25);
+    return true;
+  },
+  stop(){ this.playing=false; if(this._timer){ clearInterval(this._timer); this._timer=null; } this.step=0; },
+  toggle(){ this.playing? this.stop(): this.play(); return this.playing; },
+  setFx(fxObj){ this.fx=fxObj; this.fxStep=this.step; },
+  clearFx(){ this.fx=null; },
+
+  /* --- sampler : buffer de démo (offline) --- */
+  makeDemoBuffer(kind='loop'){
+    if(!this.init()) return;
+    const ctx=this.ctx, dur=1.6, len=Math.floor(ctx.sampleRate*dur), b=ctx.createBuffer(1,len,ctx.sampleRate), ch=b.getChannelData(0);
+    if(kind==='loop'){
+      for(let i=0;i<len;i++){ const tt=i/ctx.sampleRate; let v=0;
+        const beat=(tt*4)%1; if(beat<0.04) v+=Math.sin(2*Math.PI*70*beat)*Math.exp(-beat*30);
+        const sn=(tt*2)%1; if(sn>0.5 && sn<0.54) v+=(Math.random()*2-1)*0.5;
+        v+=(Math.random()*2-1)*0.06*Math.max(0,Math.sin(2*Math.PI*8*tt));
+        ch[i]=clamp(v,-1,1); }
+    } else {
+      for(let i=0;i<len;i++){ const tt=i/ctx.sampleRate; ch[i]=Math.sin(2*Math.PI*(180+40*Math.sin(tt*6))*tt)*Math.exp(-tt*0.8)*0.7; }
+    }
+    this.sampleBuf=b; this.trimStart=0; this.trimLen=1; return b;
+  },
+  async recordMic(seconds=2){
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('no-mic');
+    this.init(); this.resume();
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    const src=this.ctx.createMediaStreamSource(stream);
+    const len=Math.floor(this.ctx.sampleRate*seconds), buf=this.ctx.createBuffer(1,len,this.ctx.sampleRate);
+    const proc=this.ctx.createScriptProcessor(2048,1,1); let off=0;
+    return await new Promise((resolve)=>{
+      proc.onaudioprocess=(e)=>{ const inp=e.inputBuffer.getChannelData(0); const ch=buf.getChannelData(0);
+        for(let i=0;i<inp.length && off<len;i++,off++) ch[off]=inp[i];
+        if(off>=len){ try{proc.disconnect(); src.disconnect();}catch(_){}
+          stream.getTracks().forEach(t=>t.stop()); this.sampleBuf=buf; this.trimStart=0; this.trimLen=1; resolve(buf); } };
+      src.connect(proc); proc.connect(this.ctx.destination);
+    });
+  }
+};
+
+/* ============================================================
+   SIMULATEUR — construction du device + interaction + démo combo
+   Interaction : les boutons modificateurs (sound/pattern/fx/record/bpm)
+   s'« arment » au clic (= maintien), la touche suivante complète le combo.
+   write = bascule. play = lecture/stop. → enseigne les vrais combos.
+   ============================================================ */
+
+const FN_BTNS = [
+  { id:'sound',   nm:'sound',   sub:'+1-16' },
+  { id:'pattern', nm:'pattern', sub:'+1-16' },
+  { id:'bpm',     nm:'bpm',     sub:'tempo' },
+  { id:'fx',      nm:'fx',      sub:'+1-15' },
+  { id:'write',   nm:'write',   sub:'écrire' },
+  { id:'record',  nm:'record',  sub:'sample' },
+  { id:'play',    nm:'play',    sub:'▶ / ■' },
+  { id:'clear',   nm:'clear',   sub:'effacer' },
+];
+
+function buildDevice(opts={}){
+  const wrap=document.createElement('div'); wrap.className='po'; if(opts.compact) wrap.classList.add('compact');
+  wrap.innerHTML = `
+    <div class="po-shell">
+      <div class="po-top">
+        <div class="lcd">
+          <div class="row1"><span class="mode" data-lcd="mode">DRUM</span><span class="bpm" data-lcd="bpm">90</span></div>
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px">
+            <span class="big" data-lcd="big">S1</span>
+            <span class="wr" data-lcd="wr">WRITE</span>
+          </div>
+          <div class="lcd-steps" data-lcd="steps">${Array.from({length:16}).map(()=>'<i></i>').join('')}</div>
+          <div class="msg" data-lcd="msg">prêt</div>
+        </div>
+        <div class="knobs">
+          <div class="knob"><div class="dial" data-knob="A"></div><span class="lab">A</span></div>
+          <div class="knob"><div class="dial" data-knob="B"></div><span class="lab">B</span></div>
+        </div>
+      </div>
+      <div class="fnrow">
+        ${FN_BTNS.map(b=> `<button class="fnbtn ${b.id}" data-fn="${b.id}"><span class="nm">${b.nm}</span><span class="sub">${b.sub}</span></button>`).join('')}
+      </div>
+      <div class="keys">
+        ${Array.from({length:16}).map((_,i)=> `<button class="key" data-k="${i+1}"><span class="kn">${i+1}</span><span class="dot"></span></button>`).join('')}
+      </div>
+    </div>`;
+
+  // refs
+  wrap._keys = $$('.key', wrap);
+  wrap._fns = {}; $$('.fnbtn', wrap).forEach(b=> wrap._fns[b.dataset.fn]=b);
+  wrap._lcd = {
+    mode:$('[data-lcd="mode"]',wrap), bpm:$('[data-lcd="bpm"]',wrap), big:$('[data-lcd="big"]',wrap),
+    wr:$('[data-lcd="wr"]',wrap), msg:$('[data-lcd="msg"]',wrap), steps:$$('[data-lcd="steps"] i',wrap)
+  };
+  wrap._knobA=$('[data-knob="A"]',wrap); wrap._knobB=$('[data-knob="B"]',wrap);
+  return wrap;
+}
+
+/* état d'interaction local à un device monté */
+function attachDevice(el, opts={}){
+  const st = { armed:null, write:false, melCursor:0, masterVol:0.9 };
+  const lcd=el._lcd;
+  const setMsg=(m)=> lcd.msg.textContent=m;
+  const labelMode=()=> ({drum:'DRUM', mel:'MELODIC', sample:'SAMPLE'})[Audio.mode]||'DRUM';
+
+  function refreshLCD(){
+    lcd.mode.textContent=labelMode();
+    lcd.bpm.textContent = Audio.bpm + (Audio.fx? ' '+'fx'+Audio.fx.n : '');
+    lcd.big.textContent = Audio.mode==='mel' ? 'MEL' : ('S'+(Audio.selSound+1));
+    lcd.wr.classList.toggle('on', st.write);
+    paintSteps(Audio.step);
+    // knob angles (TONE/TRIM feel)
+    el._knobA.style.setProperty('--rot', (Audio.trimStart*270-135)+'deg');
+    el._knobB.style.setProperty('--rot', (Audio.trimLen*270-135)+'deg');
+  }
+  function paintSteps(head){
+    const pat=Audio.pat();
+    for(let i=0;i<16;i++){
+      const key=el._keys[i];
+      let on=false;
+      if(Audio.mode==='mel') on = pat.mel[i]!=null;
+      else on = pat.drum[Audio.selSound][i];
+      key.classList.toggle('step-on', !!on && st.write);
+      key.classList.toggle('head', i===head && Audio.playing);
+      const li=lcd.steps[i]; if(li){ li.classList.toggle('on', !!on); li.classList.toggle('head', i===head && Audio.playing); }
+    }
+  }
+  // playhead animé via callback audio
+  Audio._onStep = (step, t)=>{
+    if(!Audio.ctx) return;
+    const delay=Math.max(0,(t - Audio.ctx.currentTime)*1000);
+    setTimeout(()=>{ if(el.isConnected) paintSteps(step); }, delay);
+  };
+
+  function disarm(){ if(st.armed){ el._fns[st.armed] && el._fns[st.armed].classList.remove('held'); st.armed=null; } }
+  function arm(id){
+    if(st.armed===id){ disarm(); setMsg('prêt'); return; }
+    disarm(); st.armed=id; el._fns[id].classList.add('held');
+    const hints={ sound:'sound armé → presse 1-16 pour choisir le son', pattern:'pattern armé → presse 1-16',
+      fx:'fx armé → MAINTIENS une touche 1-15', record:'record armé → presse un slot (sample)', bpm:'bpm armé → 1-16 = volume' };
+    setMsg(hints[id]||'…');
+  }
+
+  // FN buttons
+  $$('.fnbtn', el).forEach(btn=>{
+    const id=btn.dataset.fn;
+    btn.addEventListener('click', ()=>{
+      Audio.init(); Audio.resume(); flash(btn);
+      if(id==='write'){ st.write=!st.write; btn.classList.toggle('toggled', st.write); disarm(); setMsg(st.write?'WRITE on — pose des pas':'WRITE off'); refreshLCD(); return; }
+      if(id==='play'){ const p=Audio.toggle(); btn.classList.toggle('on', p); el._fns.play.querySelector('.nm').textContent = p?'stop':'play'; setMsg(p?'lecture…':'arrêt'); if(!p) paintSteps(-1); return; }
+      if(id==='bpm'){
+        if(st.armed==='bpm'){ disarm(); setMsg('prêt'); }
+        else { // clic simple bpm = défile les presets ; double rôle : arme pour volume
+          const presets=[80,90,120,140]; const i=(presets.indexOf(Audio.bpm)+1)%presets.length; Audio.bpm=presets[i]; setMsg('tempo '+Audio.bpm+' bpm'); arm('bpm'); }
+        refreshLCD(); return;
+      }
+      if(id==='clear'){ const p=Audio.pat(); if(Audio.mode==='mel') p.mel.fill(null); else p.drum[Audio.selSound].fill(false); st.melCursor=0; setMsg('effacé'); refreshLCD(); return; }
+      // modificateurs
+      arm(id);
+    });
+  });
+
+  // keys
+  el._keys.forEach((key,i)=>{
+    const idx=i+1;
+    const press=()=>{
+      Audio.init(); Audio.resume(); flash(key);
+      const a=st.armed;
+      if(a==='sound'){ Audio.selSound=i; Audio.mode = (Audio.mode==='sample'?'sample':'drum'); disarm(); setMsg('son '+idx+' — '+KIT[i].name); Audio.playSlice(1); refreshLCD(); return; }
+      if(a==='pattern'){ Audio.curPattern=i; disarm(); setMsg('pattern '+idx); refreshLCD(); return; }
+      if(a==='record'){ disarm(); setMsg('• sample slot '+idx+' (démo) — onglet SAMPLE pour le vrai'); Audio.makeDemoBuffer('loop'); return; }
+      if(a==='bpm'){ st.masterVol=idx/16; if(Audio.master) Audio.master.gain.value=0.25+st.masterVol*0.75; disarm(); setMsg('volume '+idx+'/16'); return; }
+      if(a==='fx'){ const fx=FX[i]; Audio.setFx({n:fx.n, impl:fx.impl}); key.classList.add('lit'); setMsg('fx '+fx.n+' · '+fx.name); refreshLCD(); return; }
+      // pas de modificateur :
+      if(st.write){
+        if(Audio.mode==='mel'){
+          if(Audio.playing){ Audio.pat().mel[Audio.step]= i; setMsg('note écrite (live) pas '+(Audio.step+1)); }
+          else { Audio.pat().mel[st.melCursor]= i; setMsg('note '+idx+' → pas '+(st.melCursor+1)); st.melCursor=(st.melCursor+1)%16; }
+          Audio.playMel(i); refreshLCD(); return;
+        } else {
+          const lane=Audio.pat().drum[Audio.selSound]; lane[idx-1]=!lane[idx-1];
+          if(lane[idx-1]) Audio.playKit(Audio.selSound, Audio.ctx.currentTime);
+          setMsg((lane[idx-1]?'pas posé ':'pas enlevé ')+idx); refreshLCD(); return;
+        }
+      }
+      // lecture / audition
+      if(Audio.mode==='mel'){ Audio.playMel(i); setMsg('note '+idx); }
+      else if(Audio.mode==='sample'){ playSampleSlice(idx); setMsg('tranche '+idx); }
+      else { Audio.playSlice(idx); setMsg(KIT[Audio.selSound].name+' · tranche '+idx); }
+    };
+    // fx = maintien : pointerdown active, pointerup relâche
+    key.addEventListener('pointerdown', (e)=>{
+      if(st.armed==='fx'){ e.preventDefault(); press();
+        const release=()=>{ Audio.clearFx(); key.classList.remove('lit'); disarm(); setMsg('fx relâché'); refreshLCD(); window.removeEventListener('pointerup',release); };
+        window.addEventListener('pointerup', release);
+      }
+    });
+    key.addEventListener('click', ()=>{ if(st.armed==='fx') return; press(); });
+  });
+
+  function playSampleSlice(idx){
+    if(!Audio.sampleBuf){ Audio.makeDemoBuffer('loop'); }
+    if(!Audio.sampleBuf) return;
+    const ctx=Audio.ctx, s=ctx.createBufferSource(); s.buffer=Audio.sampleBuf;
+    const g=ctx.createGain(); g.gain.value=0.9; s.connect(g).connect(Audio.master);
+    const dur=Audio.sampleBuf.duration, st=(idx-1)/16*dur, ln=dur/16*1.4;
+    try{ s.start(ctx.currentTime, st, ln); }catch(e){}
+  }
+
+  // knobs : drag vertical
+  function knobDrag(dial, get, set){
+    let y0=0, v0=0, dragging=false;
+    const down=(e)=>{ dragging=true; y0=(e.touches?e.touches[0].clientY:e.clientY); v0=get(); dial.style.cursor='grabbing'; e.preventDefault(); };
+    const move=(e)=>{ if(!dragging) return; const y=(e.touches?e.touches[0].clientY:e.clientY); set(clamp(v0+(y0-y)/160,0,1)); refreshLCD(); };
+    const up=()=>{ dragging=false; dial.style.cursor='grab'; };
+    dial.addEventListener('mousedown',down); dial.addEventListener('touchstart',down,{passive:false});
+    window.addEventListener('mousemove',move); window.addEventListener('touchmove',move,{passive:false});
+    window.addEventListener('mouseup',up); window.addEventListener('touchend',up);
+  }
+  knobDrag(el._knobA, ()=>Audio.trimStart, v=>{ Audio.trimStart=v; setMsg('A · début '+Math.round(v*100)+'%'); });
+  knobDrag(el._knobB, ()=>Audio.trimLen, v=>{ Audio.trimLen=Math.max(0.05,v); setMsg('B · longueur '+Math.round(v*100)+'%'); });
+
+  el._refresh=refreshLCD; el._setMsg=setMsg; el._state=st;
+  refreshLCD();
+  return el;
+}
+
+function flash(node){ node.classList.add('press'); setTimeout(()=> node.classList.remove('press'), 110); }
+
+/* --- animation « Montre-moi » d'un combo dans un device (non destructif) --- */
+function demoCombo(el, demo, opts={}){
+  if(!el || !demo || !demo.length) return;
+  let i=0;
+  const clearAll=()=>{ $$('.fnbtn',el).forEach(b=>b.classList.remove('hl','held')); el._keys.forEach(k=>k.classList.remove('hl')); };
+  function stepIt(){
+    clearAll();
+    if(i>=demo.length){ el._setMsg && el._setMsg('à toi de jouer'); return; }
+    const d=demo[i];
+    (d.hold||[]).forEach(h=>{ const b=el._fns[h]; if(b){ b.classList.add('held','hl'); } });
+    if(d.tap){
+      if(d.tap.startsWith('k')){ const n=parseInt(d.tap.slice(1),10); const k=el._keys[n-1]; if(k){ k.classList.add('hl'); flash(k); } }
+      else { const b=el._fns[d.tap]; if(b){ b.classList.add('hl'); flash(b); } }
+    }
+    if(d.knob){ const kb=(d.knob==='A'?el._knobA:el._knobB); if(kb){ kb.style.transition='transform .4s'; kb.style.setProperty('--rot', (Math.random()*200-100)+'deg'); } }
+    el._setMsg && el._setMsg(opts.cap||'…');
+    i++; setTimeout(stepIt, 820);
+  }
+  stepIt();
+}
+
+/* ============================================================
+   UI — routeur + vues (Accueil, Apprendre/Leçon, Pocket, Réviser, Glossaire)
+   ============================================================ */
+const app = $('#app');
+let View = { name:'home', mid:1, lid:null, glos:{q:'',cat:'tous'} };
+let _sampleTimer=null;
+
+/* ---------- helpers ---------- */
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1900); }
+function openSheet(html){ const s=$('#sheet'), bg=$('#sheetBg'); s.innerHTML=html; s.classList.add('show'); bg.classList.add('show'); bg.onclick=closeSheet; }
+function closeSheet(){ $('#sheet').classList.remove('show'); $('#sheetBg').classList.remove('show'); }
+function comboHTML(tokens){
+  if(!tokens) return '';
+  return `<span class="combo">`+tokens.map(t=>{
+    if(t==='+'||t==='→'||t==='/') return `<span class="plus">${t==='+'?'+':t}</span>`;
+    if(t.startsWith('(')) return `<span class="chip" style="opacity:.7">${t.replace(/[()]/g,'')}</span>`;
+    if(t.startsWith('*')) return `<span class="kbd accent">${t.slice(1)}</span>`;
+    return `<span class="kbd">${t}</span>`;
+  }).join('')+`</span>`;
+}
+function icon(name){
+  const p={
+    home:'M3 11l9-8 9 8M5 10v10h14V10',
+    learn:'M4 5h16v14H4zM8 5v14',
+    pocket:'M7 3h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2zM9 7h6M9 11h6M9 15h3',
+    review:'M21 12a9 9 0 11-3-6.7M21 4v4h-4',
+    glos:'M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3zM8 4v13',
+    gear:'M12 9a3 3 0 100 6 3 3 0 000-6zM19 12l2 1-2 4-2-1a7 7 0 01-2 1l-1 2h-4l-1-2a7 7 0 01-2-1l-2 1-2-4 2-1a7 7 0 010-2l-2-1 2-4 2 1a7 7 0 012-1l1-2h4l1 2a7 7 0 012 1l2-1 2 4-2 1a7 7 0 010 2z'
+  }[name]||'';
+  return `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${p.split('M').filter(Boolean).map(d=>`<path d="M${d}"/>`).join('')}</svg>`;
+}
+function observeReveals(root){
+  const els=$$('.reveal',root); if(!('IntersectionObserver' in window)){ els.forEach(e=>e.classList.add('in')); return; }
+  const io=new IntersectionObserver((ents)=>{ ents.forEach((e,k)=>{ if(e.isIntersecting){ setTimeout(()=>e.target.classList.add('in'), k*60); io.unobserve(e.target);} }); },{threshold:0.08});
+  els.forEach(e=>io.observe(e));
+}
+
+/* ---------- topbar ---------- */
+function topbar(){
+  const tabs=[['home','Accueil','home'],['learn','Apprendre','learn'],['pocket','Le Pocket','pocket'],['review','Réviser','review'],['glos','Glossaire','glos']];
+  const due=SRS.dueCount();
+  return `<div class="topbar">
+    <div class="brand" onclick="go('home')">
+      <div class="mark">K.O</div>
+      <div><span class="name"><b>KO</b> LAB</span><span class="sub">PO-33 trainer</span></div>
+    </div>
+    <div class="nav">
+      ${tabs.map(([v,l,ic])=>`<button class="${View.name===v?'active':''}" onclick="go('${v}')">${icon(ic)}<span>${l}</span>${v==='review'&&due?`<span class="chip live" style="margin-left:2px">${due}</span>`:''}</button>`).join('')}
+      <button class="iconbtn" title="Réglages" onclick="settingsSheet()" style="margin-left:4px">${icon('gear')}</button>
+    </div>
+  </div>`;
+}
+
+/* ---------- routeur ---------- */
+function go(name, params={}){
+  Audio.stop(); Audio._onStep=null; if(_sampleTimer){ clearInterval(_sampleTimer); _sampleTimer=null; }
+  View={...View, ...params, name};
+  render();
+  window.scrollTo({top:0, behavior:'instant'});
+}
+function render(){
+  let body='';
+  if(View.name==='home') body=viewHome();
+  else if(View.name==='learn') body=viewLearn();
+  else if(View.name==='lesson') body=viewLesson();
+  else if(View.name==='pocket') body=viewPocket();
+  else if(View.name==='review') body=viewReview();
+  else if(View.name==='glos') body=viewGlossary();
+  app.innerHTML = topbar()+`<div class="stage">${body}</div>`+footer();
+  if(View.name==='home') mountHome();
+  if(View.name==='lesson') mountLesson();
+  if(View.name==='pocket') mountPocket();
+  if(View.name==='review') mountReview();
+  if(View.name==='glos') mountGlossary();
+  observeReveals(app);
+}
+function footer(){ return `<div class="footer">KO LAB — trainer autonome pour le <b>PO-33 K.O!</b> · combos d'après le guide officiel Teenage Engineering · sœur de Keymaker</div>`; }
+
+/* ============================================================ HOME */
+function firstUnseen(){ return ALL_LESSONS.find(l=>!Progress.isSeen(l.id)) || ALL_LESSONS[0]; }
+function viewHome(){
+  const seen=Progress.seenCount(), total=ALL_LESSONS.length;
+  const due=SRS.dueCount(), c=SRS.counts();
+  const cont=firstUnseen();
+  const pct=Math.round(seen/total*100);
+  return `
+  <div class="reveal"><span class="eyebrow">${icon('pocket')} micro-sampler · 16 pas · 40 s</span></div>
+  <div class="hero">
+    <div class="reveal">
+      <h1 class="title">Apprends le <span style="color:var(--accent)">PO-33 K.O!</span><br>les mains sur la machine.</h1>
+      <p class="lede">Un cours progressif + un <b>simulateur jouable</b> pour intégrer les combos de touches, le sampling, le séquenceur et les effets — sans avoir peur de tout casser.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn primary" onclick="openLesson('${cont.id}')">${seen?'Continuer':'Commencer'} <span class="pill">→</span></button>
+        <button class="btn" onclick="go('pocket')">Ouvrir le Pocket</button>
+      </div>
+    </div>
+    <div class="reveal" id="homeDevice"></div>
+  </div>
+
+  <div class="stat-row" style="margin-top:34px">
+    <div class="tray reveal"><div class="card stat"><div class="n accent">${seen}<span style="font-size:15px;color:var(--muted)">/${total}</span></div><div class="l">leçons vues</div></div></div>
+    <div class="tray reveal"><div class="card stat"><div class="n">${due}</div><div class="l">à réviser</div></div></div>
+    <div class="tray reveal"><div class="card stat"><div class="n">${c.mature}</div><div class="l">maîtrisées</div></div></div>
+    <div class="tray reveal"><div class="card stat"><div class="n">${pct}%</div><div class="l">progression</div></div></div>
+  </div>
+
+  <div class="section-head"><h2>Les 9 modules</h2><span class="hint">${total} leçons · ~5 min chacune</span></div>
+  <div class="modgrid">
+    ${MODULES.map((m,i)=>{ const s=Progress.moduleSeen(m.id), n=m.lessons.length, done=s>=n;
+      return `<div class="tray reveal modcard ${done?'done':''}" style="--mtint:${MTINTS[i]}" onclick="go('lesson',{mid:${m.id},lid:'${m.lessons[0].id}'})">
+        <div class="card" style="position:relative;overflow:hidden">
+          <div class="mtint"></div>
+          <div class="topline"><span class="mnum">MODULE ${m.id}</span><span class="badge-done mono" style="font-size:12px">${done?'✓ complet':s+'/'+n}</span></div>
+          <h3>${m.title}</h3><p>${m.blurb}</p>
+          <div class="bar"><i style="width:${Math.round(s/n*100)}%"></i></div>
+        </div></div>`; }).join('')}
+  </div>
+
+  <div class="section-head"><h2>Comment ça marche</h2></div>
+  <div class="modgrid">
+    <div class="tray reveal"><div class="card"><span class="eyebrow tone-muted">01 lire</span><p style="margin:8px 0 0">Des leçons courtes, le <b>pourquoi</b> derrière chaque combo, des étapes concrètes « sur le device ».</p></div></div>
+    <div class="tray reveal"><div class="card"><span class="eyebrow tone-muted">02 essayer</span><p style="margin:8px 0 0">Le bouton <b>Montre-moi</b> anime le combo sur le simulateur ; tu le rejoues toi-même dans la foulée.</p></div></div>
+    <div class="tray reveal"><div class="card"><span class="eyebrow tone-muted">03 retenir</span><p style="margin:8px 0 0">Une carte par leçon entre en <b>révision espacée</b> (max 5/jour) pour ancrer durablement.</p></div></div>
+  </div>`;
+}
+
+/* ============================================================ LEARN (modules) */
+function viewLearn(){
+  return `<div class="reveal"><span class="eyebrow">${icon('learn')} parcours</span><h1 class="title">Apprendre</h1>
+    <p class="lede">9 modules, du premier allumage à la performance live. Avance dans l'ordre, ou pioche ce qui t'intéresse.</p></div>
+  <div class="modgrid">
+    ${MODULES.map((m,i)=>{ const s=Progress.moduleSeen(m.id), n=m.lessons.length;
+      return `<div class="tray reveal modcard" style="--mtint:${MTINTS[i]}" onclick="go('lesson',{mid:${m.id},lid:'${m.lessons[0].id}'})">
+        <div class="card"><div class="mtint"></div>
+          <div class="topline"><span class="mnum">MODULE ${m.id}</span><span class="mono" style="font-size:12px;color:var(--muted)">${s}/${n}</span></div>
+          <h3>${m.title}</h3><p>${m.blurb}</p>
+          <div class="dots">${m.lessons.map(l=>`<i class="${Progress.isSeen(l.id)?'on':''}"></i>`).join('')}</div>
+        </div></div>`; }).join('')}
+  </div>`;
+}
+
+/* ============================================================ LESSON */
+function openLesson(id){ const l=lessonById(id); go('lesson',{mid:l.mid, lid:id}); }
+function lessonNav(id){ const i=ALL_LESSONS.findIndex(l=>l.id===id); return { prev:ALL_LESSONS[i-1], next:ALL_LESSONS[i+1], i }; }
+function viewLesson(){
+  const l=lessonById(View.lid)||ALL_LESSONS[0];
+  Progress.seeLesson(l.id);
+  const mod=MODULES.find(m=>m.id===l.mid), tint=MTINTS[MODULES.indexOf(mod)];
+  const {prev,next}=lessonNav(l.id);
+  const sib=mod.lessons;
+  const comboBox = l.combo ? `<div class="combo-box">
+      <div class="lab">le combo</div>
+      ${comboHTML(l.combo.tokens)}
+      <div class="cap">${l.combo.cap||''}</div>
+      <div style="margin-top:14px"><button class="btn sm" onclick="runDemo()">▶ Montre-moi sur le Pocket</button></div>
+    </div>` : '';
+  const steps = l.steps&&l.steps.length ? `<ol class="steps">${l.steps.map(s=>`<li>${s}</li>`).join('')}</ol>` : '';
+  const why = l.why ? `<div class="note"><span class="lab">pourquoi</span>${l.why}</div>` : '';
+  return `
+  <div class="reveal" style="--mtint:${tint}"><span class="eyebrow" style="color:${tint};border-color:${tint}55;background:${tint}14">module ${l.mid} · ${mod.title}</span></div>
+  <div class="lesson-wrap">
+    <div class="lesson-body reveal">
+      <div class="crumbtrail">leçon ${l.id}</div>
+      <h2>${l.title}</h2>
+      <p class="lesson-goal">🎯 ${l.goal||''}</p>
+      <div class="prose">${(l.prose||[]).map(p=>`<p>${p}</p>`).join('')}</div>
+      ${comboBox}
+      ${steps}
+      ${why}
+
+      <div class="tray flash" id="flashCard"><div class="card">
+        <div class="mono" style="font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">flashcard</div>
+        <div class="q">${l.flash? l.flash.q : ''}</div>
+        <div class="a" id="flashA">${l.flash? l.flash.a : ''}</div>
+        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap" id="flashBtns">
+          <button class="btn sm primary" onclick="revealFlash()">Révéler la réponse</button>
+        </div>
+      </div></div>
+
+      <div class="lesson-foot">
+        <button class="btn sm ghost" ${prev?`onclick="openLesson('${prev.id}')"`:'disabled'}>← ${prev?prev.title:'début'}</button>
+        <button class="btn sm primary" ${next?`onclick="openLesson('${next.id}')"`:`onclick="go('review')"`}>${next?'Suivant : '+next.title:'Réviser →'} </button>
+      </div>
+    </div>
+
+    <div class="lesson-side">
+      <div class="reveal" id="lessonDevice"></div>
+      <div class="tray reveal" style="margin-top:14px"><div class="card">
+        <div class="mono" style="font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">module ${mod.id} · ${mod.title}</div>
+        <div class="lessonlist">
+          ${sib.map(s=>{ const seen=Progress.isSeen(s.id), mast=SRS.data.mastered[s.id];
+            return `<div class="li ${s.id===l.id?'active':''} ${mast?'master':seen?'seen':''}" onclick="openLesson('${s.id}')">
+              <span class="tick">${mast?'★':seen?'✓':''}</span><span>${s.title}</span></div>`; }).join('')}
+        </div>
+      </div></div>
+    </div>
+  </div>`;
+}
+function mountLesson(){
+  const host=$('#lessonDevice'); if(host){ const dev=buildDevice({compact:true}); host.appendChild(dev); attachDevice(dev); host._dev=dev;
+    const l=lessonById(View.lid);
+    if(l && l.sim){ Audio.mode = l.sim==='melodic'?'mel' : l.sim==='sample'?'sample' : 'drum'; dev._refresh(); }
+  }
+}
+function mountHome(){
+  const hd=$('#homeDevice'); if(hd){ Audio.mode='drum'; const dev=buildDevice({compact:true}); hd.appendChild(dev); attachDevice(dev);
+    // pré-charge un petit beat pour que ça soit vivant au clic sur play
+    Audio.init(); const p=Audio.pat&&Audio.patterns.length?Audio.pat():null;
+    if(p){ p.drum[0][0]=p.drum[0][8]=true; p.drum[2][0]=p.drum[2][2]=p.drum[2][4]=p.drum[2][6]=p.drum[2][8]=p.drum[2][10]=p.drum[2][12]=p.drum[2][14]=true; p.drum[1][4]=p.drum[1][12]=true; dev._refresh(); }
+  }
+}
+function runDemo(){ const l=lessonById(View.lid); const host=$('#lessonDevice'); if(host&&host._dev&&l&&l.combo){ Audio.init();Audio.resume(); demoCombo(host._dev, l.combo.demo, {cap:l.combo.cap}); } }
+function revealFlash(){
+  const l=lessonById(View.lid); $('#flashCard').classList.add('open');
+  $('#flashBtns').innerHTML = `<button class="btn sm" onclick="gradeFlash(true)">✓ Je le savais</button>
+    <button class="btn sm" onclick="gradeFlash(false)">↻ À revoir</button>`;
+}
+function gradeFlash(known){
+  const l=lessonById(View.lid); if(l&&l.flash){ SRS.add(l.id); SRS.grade(l.id, known); }
+  toast(known?'Ajouté en révision (espacée) ✓':'On la reverra bientôt ↻');
+  const {next}=lessonNav(View.lid); if(next) openLesson(next.id); else go('review');
+}
+
+/* ============================================================ POCKET (playground) */
+function viewPocket(){
+  return `<div class="reveal"><span class="eyebrow">${icon('pocket')} bac à sable</span>
+    <h1 class="title">Le Pocket</h1>
+    <p class="lede">Le simulateur complet. Arme un bouton (il s'allume), puis presse une touche — exactement comme sur la vraie machine. Construis un beat, joue une mélodie, déclenche des effets.</p></div>
+
+  <div class="sim-toolbar reveal">
+    <div class="seg" id="modeSeg">
+      <button data-mode="drum" class="on">DRUM</button>
+      <button data-mode="mel">MÉLODIQUE</button>
+      <button data-mode="sample">SAMPLE</button>
+    </div>
+    <div class="seg"><button id="bpmDown">– bpm</button><button id="bpmVal" style="min-width:64px">90</button><button id="bpmUp">bpm +</button></div>
+    <div class="seg"><button id="swingBtn">swing 18%</button></div>
+  </div>
+
+  <div class="reveal" id="pocketDevice"></div>
+  <div class="sim-hint reveal" id="pocketHint"><b>Astuce :</b> presse <b>play</b>, puis <b>sound</b> → une touche pour choisir un son, active <b>write</b> et pose des pas.</div>
+
+  <div id="kitStrip" class="reveal" style="max-width:560px;margin:18px auto 0"></div>
+
+  <div id="samplerPanel" class="sampler-panel reveal hide" style="margin-top:18px"></div>
+
+  <div class="section-head reveal"><h2>Grooves prêts à jouer</h2><span class="hint">module 9 · reproduis-les, puis modifie</span></div>
+  <div class="reveal" style="display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn sm" onclick="loadGroove('four')">Four-on-the-floor</button>
+    <button class="btn sm" onclick="loadGroove('boombap')">Boom-bap</button>
+    <button class="btn sm" onclick="loadGroove('trap')">Trap</button>
+    <button class="btn sm ghost" onclick="loadGroove('clear')">Tout effacer</button>
+  </div>`;
+}
+function mountPocket(){
+  const host=$('#pocketDevice'); const dev=buildDevice(); host.appendChild(dev); attachDevice(dev); host._dev=dev;
+  Audio.mode='drum';
+  // mode seg
+  $$('#modeSeg button').forEach(b=> b.addEventListener('click', ()=>{
+    $$('#modeSeg button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+    Audio.mode = b.dataset.mode==='mel'?'mel':b.dataset.mode==='sample'?'sample':'drum';
+    if(Audio.mode==='sample' && !Audio.sampleBuf) Audio.makeDemoBuffer('loop');
+    $('#samplerPanel').classList.toggle('hide', Audio.mode!=='sample');
+    if(Audio.mode==='sample') buildSampler();
+    setHint();
+    dev._refresh();
+  }));
+  // bpm
+  const setB=(v)=>{ Audio.bpm=clamp(v,40,200); $('#bpmVal').textContent=Audio.bpm; dev._refresh(); };
+  $('#bpmDown').onclick=()=>setB(Audio.bpm-2); $('#bpmUp').onclick=()=>setB(Audio.bpm+2); $('#bpmVal').textContent=Audio.bpm;
+  // swing
+  const sw=$('#swingBtn'); sw.onclick=()=>{ const steps=[0,0.12,0.18,0.28,0.36]; const i=(steps.indexOf(Audio.swing)+1)%steps.length; Audio.swing=steps[i]; sw.textContent='swing '+Math.round(Audio.swing*100)+'%'; };
+  buildKitStrip();
+  setHint();
+}
+function setHint(){ const h=$('#pocketHint'); if(!h) return;
+  const t={ drum:'<b>DRUM</b> — arme <b>sound</b> + touche pour choisir l\'instrument, <b>write</b> on, pose des pas, <b>play</b>.',
+    mel:'<b>MÉLODIQUE</b> — les 16 touches forment une gamme (pentatonique mineure). <b>write</b> on + joue pour écrire la mélodie.',
+    sample:'<b>SAMPLE</b> — charge/enregistre un son, règle le <b>trim</b> avec A/B, puis joue les <b>tranches</b> sur les touches.' }[Audio.mode];
+  h.innerHTML=t;
+}
+function buildKitStrip(){
+  const host=$('#kitStrip'); if(!host) return;
+  host.innerHTML=`<div class="mono" style="font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">sons (slots 1-16)</div>
+  <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:6px">${KIT.map((k,i)=>`<button class="chip" data-slot="${i}" style="justify-content:center;cursor:pointer;${i===Audio.selSound?'border-color:var(--accent);color:var(--accent)':''}">${k.short}</button>`).join('')}</div>`;
+  $$('[data-slot]',host).forEach(b=> b.onclick=()=>{ Audio.selSound=+b.dataset.slot; Audio.mode = Audio.mode==='mel'?'mel':Audio.mode==='sample'?'sample':'drum'; buildKitStrip(); const d=$('#pocketDevice')._dev; d._refresh(); d._setMsg('son '+(Audio.selSound+1)+' — '+KIT[Audio.selSound].name); Audio.playSlice(1); });
+}
+function loadGroove(name){
+  Audio.init();
+  const p=Audio.pat(); p.drum.forEach(l=>l.fill(false));
+  const set=(slot,steps)=> steps.forEach(s=> p.drum[slot][s]=true);
+  if(name==='four'){ set(0,[0,4,8,12]); set(2,[0,2,4,6,8,10,12,14]); set(4,[4,12]); }
+  else if(name==='boombap'){ set(0,[0,3,10]); set(1,[4,12]); set(2,[0,2,4,6,8,10,12,14]); set(3,[14]); }
+  else if(name==='trap'){ set(0,[0,6,9]); set(1,[4,12]); set(2,[0,1,2,3,4,5,6,7,8,9,10,12,13,14,15]); set(15,[0]); }
+  else if(name==='clear'){ toast('Pattern effacé'); }
+  Audio.mode='drum'; $$('#modeSeg button').forEach(x=>x.classList.toggle('on',x.dataset.mode==='drum'));
+  $('#samplerPanel').classList.add('hide');
+  const d=$('#pocketDevice'); if(d&&d._dev) d._dev._refresh();
+  if(name!=='clear'){ toast('Groove chargé — presse play ▶'); if(!Audio.playing){ Audio.play(); const pb=$('#pocketDevice')._dev._fns.play; pb.classList.add('on'); pb.querySelector('.nm').textContent='stop'; } }
+}
+function buildSampler(){
+  const host=$('#samplerPanel'); if(!host) return;
+  host.innerHTML=`<div class="tray"><div class="card">
+    <div class="mono" style="font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">sampler · 16 tranches</div>
+    <canvas class="wave" id="waveCanvas" width="520" height="90"></canvas>
+    <div class="sampler-row">
+      <button class="btn sm" id="micBtn">● Enregistrer (micro 2s)</button>
+      <button class="btn sm" id="demoBtn">Charger une boucle démo</button>
+      <button class="btn sm" id="voxBtn">Charger un son tenu</button>
+    </div>
+    <div class="sim-hint" style="margin-top:12px">Tourne <b>A</b> (début) et <b>B</b> (longueur) sur le device pour trimmer. Joue les <b>16 tranches</b> sur les touches.</div>
+  </div></div>`;
+  if(!Audio.sampleBuf) Audio.makeDemoBuffer('loop');
+  drawWave();
+  $('#demoBtn').onclick=()=>{ Audio.makeDemoBuffer('loop'); drawWave(); toast('Boucle démo chargée'); };
+  $('#voxBtn').onclick=()=>{ Audio.makeDemoBuffer('vox'); drawWave(); toast('Son tenu chargé'); };
+  $('#micBtn').onclick=async ()=>{ const b=$('#micBtn'); b.innerHTML='<span class="spin"></span> écoute…';
+    try{ await Audio.recordMic(2); toast('Sample enregistré ✓'); }
+    catch(e){ Audio.makeDemoBuffer('loop'); toast('Micro indisponible (ouvre via http) — boucle démo chargée'); }
+    b.textContent='● Enregistrer (micro 2s)'; drawWave(); };
+  if(_sampleTimer) clearInterval(_sampleTimer);
+  _sampleTimer=setInterval(()=>{ if($('#waveCanvas')) drawWave(); else { clearInterval(_sampleTimer); _sampleTimer=null; } }, 400);
+}
+function drawWave(){
+  const cv=$('#waveCanvas'); if(!cv||!Audio.sampleBuf) return;
+  const ctx=cv.getContext('2d'), W=cv.width, H=cv.height, ch=Audio.sampleBuf.getChannelData(0), N=ch.length;
+  ctx.clearRect(0,0,W,H);
+  // trim region
+  const st=Audio.trimStart*W, ln=Audio.trimLen*W;
+  ctx.fillStyle='rgba(125,255,155,0.10)'; ctx.fillRect(st,0,Math.min(ln,W-st),H);
+  ctx.strokeStyle='rgba(125,255,155,0.85)'; ctx.beginPath();
+  const step=Math.floor(N/W);
+  for(let x=0;x<W;x++){ let min=1,max=-1; for(let i=0;i<step;i++){ const v=ch[x*step+i]||0; if(v<min)min=v; if(v>max)max=v; } ctx.moveTo(x,(1-(min*0.5+0.5))*H); ctx.lineTo(x,(1-(max*0.5+0.5))*H); }
+  ctx.stroke();
+  // slice ticks
+  ctx.strokeStyle='rgba(255,255,255,0.10)'; for(let s=1;s<16;s++){ ctx.beginPath(); ctx.moveTo(s/16*W,0); ctx.lineTo(s/16*W,H); ctx.stroke(); }
+}
+
+/* ============================================================ REVIEW (SRS) */
+let _rev={ queue:[], idx:0, revealed:false };
+function viewReview(){
+  const due=SRS.dueList();
+  if(!due.length){
+    const seenFlashes=ALL_LESSONS.filter(l=>Progress.isSeen(l.id)&&l.flash);
+    return `<div class="reveal"><span class="eyebrow">${icon('review')} révision espacée</span>
+      <h1 class="title">Rien à réviser… bravo 🎉</h1>
+      <p class="lede">Ta file du jour est vide. La répétition espacée te ramènera les cartes au bon moment (J+1, J+3, J+7).</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        ${seenFlashes.length?`<button class="btn primary" onclick="startReview(true)">Réviser librement (${Math.min(8,seenFlashes.length)})</button>`:''}
+        <button class="btn" onclick="go('learn')">Continuer à apprendre</button>
+      </div></div>`;
+  }
+  return `<div class="reveal"><span class="eyebrow">${icon('review')} révision espacée · ${due.length} carte${due.length>1?'s':''}</span>
+    <h1 class="title">Révision du jour</h1>
+    <p class="lede">Cap à 5 cartes/jour : petit, régulier, sans pression. Lis, réponds dans ta tête, puis révèle.</p></div>
+  <div id="reviewHost"></div>`;
+}
+function mountReview(){ const due=SRS.dueList(); if(due.length) startReview(false); }
+function startReview(free){
+  if(free){ const pool=ALL_LESSONS.filter(l=>Progress.isSeen(l.id)&&l.flash).slice(0,8).map(l=>({id:l.id})); _rev={queue:pool, idx:0, revealed:false}; }
+  else { _rev={ queue:SRS.dueList(), idx:0, revealed:false }; }
+  if(View.name!=='review'){ go('review'); return; }
+  renderReviewCard();
+}
+function renderReviewCard(){
+  const host=$('#reviewHost')||$('.stage'); const q=_rev.queue;
+  if(_rev.idx>=q.length){
+    host.innerHTML=`<div class="tray reveal in"><div class="card review-card">
+      <div style="font-size:40px">✓</div><h2 style="margin:6px 0">Session terminée</h2>
+      <p class="muted">${q.length} carte${q.length>1?'s':''} revue${q.length>1?'s':''}. Reviens demain pour la suite.</p>
+      <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn primary" onclick="go('home')">Accueil</button>
+        <button class="btn" onclick="go('learn')">Apprendre</button></div></div></div>`;
+    return;
+  }
+  const l=lessonById(q[_rev.idx].id); if(!l||!l.flash){ _rev.idx++; return renderReviewCard(); }
+  const dots=q.map((_,i)=>`<i class="${i<_rev.idx?'on':''}"></i>`).join('');
+  host.innerHTML=`<div class="progress-line">${dots}</div>
+    <div class="tray reveal in"><div class="card review-card">
+      <div class="mono" style="font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">leçon ${l.id} · ${l.mtitle}</div>
+      <div class="q">${l.flash.q}</div>
+      <div class="a ${_rev.revealed?'':'hide'}" id="rA">${l.flash.a}</div>
+      <div id="rBtns">${_rev.revealed?
+        `<div class="review-grade"><button class="btn" onclick="reviewGrade(false)">↻ À revoir</button><button class="btn primary" onclick="reviewGrade(true)">✓ Je savais</button></div>`
+        :`<button class="btn primary" onclick="reviewReveal()">Révéler</button>`}</div>
+      <div style="margin-top:14px"><button class="btn sm ghost" onclick="openLesson('${l.id}')">Revoir la leçon</button></div>
+    </div></div>`;
+}
+function reviewReveal(){ _rev.revealed=true; renderReviewCard(); }
+function reviewGrade(known){ const l=q0(); if(l){ SRS.add(l.id); SRS.grade(l.id, known); } _rev.idx++; _rev.revealed=false; renderReviewCard(); }
+function q0(){ const item=_rev.queue[_rev.idx]; return item? lessonById(item.id): null; }
+
+/* ============================================================ GLOSSARY */
+function viewGlossary(){
+  const cats=['tous',...Array.from(new Set(GLOSSARY.map(g=>g.c)))];
+  return `<div class="reveal"><span class="eyebrow">${icon('glos')} ${GLOSSARY.length} termes</span>
+    <h1 class="title">Glossaire</h1>
+    <p class="lede">Le vocabulaire du KO! et du beatmaking, en une phrase chacun. Cherche, filtre, mémorise.</p></div>
+  <div class="glos-controls reveal">
+    <div class="search">${icon('glos')}<input id="glosSearch" placeholder="Chercher un terme…" value="${View.glos.q||''}"></div>
+  </div>
+  <div class="filterbar reveal" id="glosFilters" style="margin-bottom:16px">
+    ${cats.map(c=>`<button class="${(View.glos.cat||'tous')===c?'on':''}" data-cat="${c}">${c}</button>`).join('')}
+  </div>
+  <div class="glos-grid" id="glosGrid"></div>`;
+}
+function mountGlossary(){
+  const inp=$('#glosSearch'); if(inp){ inp.oninput=()=>{ View.glos.q=inp.value; paintGlossary(); }; }
+  $$('#glosFilters button').forEach(b=> b.onclick=()=>{ View.glos.cat=b.dataset.cat; $$('#glosFilters button').forEach(x=>x.classList.toggle('on',x===b)); paintGlossary(); });
+  paintGlossary();
+}
+function paintGlossary(){
+  const q=(View.glos.q||'').toLowerCase().trim(), cat=View.glos.cat||'tous';
+  const list=GLOSSARY.filter(g=> (cat==='tous'||g.c===cat) && (!q || g.t.toLowerCase().includes(q) || g.d.toLowerCase().includes(q)));
+  const grid=$('#glosGrid'); if(!grid) return;
+  grid.innerHTML = list.length? list.map(g=>`<div class="tray"><div class="card term"><div class="cat">${g.c}</div><h4>${g.t}</h4><p>${g.d}</p></div></div>`).join('')
+    : `<p class="muted">Aucun terme pour « ${q} ».</p>`;
+}
+
+/* ============================================================ SETTINGS */
+function settingsSheet(){
+  const s=Settings.data;
+  openSheet(`<h2 style="margin:0 0 4px">Réglages</h2><p class="muted" style="margin:0 0 18px;font-size:14px">Tes préférences sont gardées sur cet appareil.</p>
+    <div class="mono" style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Thème</div>
+    <div class="filterbar" style="margin-bottom:18px">
+      ${['void','light','matrix'].map(t=>`<button class="${s.theme===t?'on':''}" onclick="setTheme('${t}')">${t}</button>`).join('')}
+    </div>
+    <div class="mono" style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Taille du texte</div>
+    <div class="filterbar" style="margin-bottom:18px">
+      ${[['0.92','petit'],['1','normal'],['1.12','grand'],['1.25','XL']].map(([v,l])=>`<button class="${String(s.fontScale)===v?'on':''}" onclick="setFont(${v})">${l}</button>`).join('')}
+    </div>
+    <div class="mono" style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Données</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn sm ghost" onclick="resetProgress()">Réinitialiser ma progression</button>
+      <button class="btn sm" onclick="closeSheet()">Fermer</button>
+    </div>`);
+}
+function setTheme(t){ Settings.data.theme=t; Settings.save(); Settings.apply(); settingsSheet(); }
+function setFont(v){ Settings.data.fontScale=v; Settings.save(); Settings.apply(); settingsSheet(); }
+function resetProgress(){ if(confirm('Effacer progression + révisions ? (irréversible)')){ try{ localStorage.removeItem(PKEY); localStorage.removeItem(SKEY); }catch{} Progress.data={seen:{},done:{}}; SRS.data={cards:{},mastered:{}}; closeSheet(); go('home'); toast('Progression réinitialisée'); } }
+
+/* expose pour onclick inline */
+Object.assign(window,{ go, openLesson, runDemo, revealFlash, gradeFlash, loadGroove, startReview, reviewReveal, reviewGrade, settingsSheet, setTheme, setFont, resetProgress, closeSheet });
+
+
+/* ============================================================ BOOT */
+try{
+  Settings.apply();
+  go('home');
+}catch(e){
+  document.getElementById('app').innerHTML =
+    '<div style="max-width:600px;margin:80px auto;padding:24px;font-family:system-ui">'
+    + '<h2>Oups — un souci au démarrage</h2><p style="color:#888">'+(e&&e.message||e)+'</p></div>';
+  console.error(e);
+}
+</script>
+</body>
+</html>
