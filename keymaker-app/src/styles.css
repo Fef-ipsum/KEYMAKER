@@ -3464,6 +3464,58 @@ code, pre, .editor-frame, .quiz-code code {
   font-size: 13px;
 }
 .studio-import-input:focus { outline: none; border-color: rgba(var(--accent-rgb), 0.55); }
+
+/* ============================================================
+   C57 — Mode FOCUS du Studio : éditeur + lecture seuls.
+   Felix : le Studio était « très chargé visuellement ». Ici on ne garde que
+   l'éditeur, le transport (Run/Stop/tempo) et le visualiseur. On cache le reste
+   (démarrage rapide, aide-mémoire, partage/export, import, oscilloscope).
+   Même esprit que le Mode Focus des leçons (.app.focus-mode).
+   ============================================================ */
+
+/* Le bouton bascule, dans la barre du haut */
+.studio-focus-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-radius: 11px;
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.studio-focus-btn:hover { background: var(--surface); border-color: var(--border); color: var(--text); }
+.studio-focus-btn.on {
+  color: var(--accent);
+  border-color: rgba(var(--accent-rgb), 0.55);
+  background: rgba(var(--accent-rgb), 0.10);
+}
+
+/* On cache les à-côtés */
+.studio.studio-focus .studio-side,
+.studio.studio-focus .studio-share,
+.studio.studio-focus .studio-import,
+.studio.studio-focus .osc-wrap,
+.studio.studio-focus .studio-brand { display: none; }
+
+/* Une seule colonne, centrée et un peu plus large : l'éditeur respire */
+.studio.studio-focus .studio-body {
+  grid-template-columns: minmax(0, 1fr);
+  width: min(900px, 100%);
+}
+.studio.studio-focus .studio-controls { justify-content: center; }
+/* Éditeur agrandi : on est venu pour écrire du son */
+.studio.studio-focus .editor-host { min-height: clamp(320px, 56vh, 640px); }
+/* Liseré d'accent autour de l'éditeur, comme le focus des leçons */
+.studio.studio-focus .editor-frame {
+  box-shadow: inset 0 1px 0 var(--sheen-strong), 0 0 0 1px rgba(0,0,0,0.35), 0 0 60px -16px var(--lume), var(--amb);
+}
+
 .share-btn.on { color: var(--accent); border-color: rgba(var(--accent-rgb), 0.5); background: rgba(var(--accent-rgb), 0.08); }
 
 /* ============================================================
@@ -3501,7 +3553,10 @@ code, pre, .editor-frame, .quiz-code code {
 }
 
 /* C56 — glossaire refait (thèmes + recherche + annotations). Réutilise .learn-overlay/.learn-panel/.learn-head. */
-.glossary-panel { max-width: 760px; display: flex; flex-direction: column; max-height: min(86vh, 920px); }
+/* C57 — fix scroll : le panneau était coincé à 440px (width du .learn-panel de base),
+   donc les 11 chips de thème débordaient sur ~6 lignes et écrasaient la liste à ~17-160px.
+   On lui donne SA vraie largeur (760px) + une hauteur définie + overflow:hidden (seul .glossary-scroll défile). */
+.glossary-panel { width: min(760px, 94vw); display: flex; flex-direction: column; height: min(86vh, 920px); overflow: hidden; }
 .glossary-search {
   width: 100%;
   margin: 14px 0 10px;
@@ -3617,3 +3672,126 @@ code, pre, .editor-frame, .quiz-code code {
 
 .gloss-count { flex: 0 0 auto; margin: 8px 0 0; font-size: 12px; color: var(--muted); text-align: right; }
 .glossary-empty { padding: 16px 4px; color: var(--muted); font-style: italic; }
+
+
+/* ============================================================
+   Chantier 57 (suite) — Barre sous l'éditeur épurée + menu « ⋯ Outils »
+   Felix : « trop de boutons sous l'éditeur, c'est un frein à l'apprentissage ».
+   Hiérarchie : Run = action primaire, Stop = secondaire, le reste recule dans
+   un seul menu. Polish haut de gamme : popover soigné, focus net, transitions
+   douces (coupées si reduce-motion). Append en fin de feuille → gagne la cascade.
+   ============================================================ */
+
+/* La barre respire un peu plus ; le menu Outils est repoussé à droite, séparé
+   visuellement du groupe transport (Run / Stop / statut). */
+.controls { gap: 12px; margin-top: 20px; }
+.tools-menu { position: relative; display: inline-flex; margin-left: auto; }
+.app.focus-mode .tools-menu { margin-left: 0; }
+
+/* Déclencheur « ⋯ Outils » — bouton tertiaire compact, nettement plus léger que
+   Run / Stop pour qu'il ne rivalise pas avec l'action principale. */
+.btn.tools-trigger {
+  flex-direction: row;
+  gap: 9px;
+  min-width: 0;
+  padding: 13px 18px;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border-soft);
+  border-radius: 13px;
+  font-size: 15px;
+  font-weight: 700;
+  transition: transform 0.35s var(--ease-out), background 0.3s var(--ease), border-color 0.3s var(--ease);
+}
+.btn.tools-trigger:not(:disabled):hover { background: var(--surface); border-color: var(--border); transform: translateY(-1px); }
+.btn.tools-trigger.on { background: var(--surface); border-color: var(--border); }
+.tools-trigger-ico { font-size: 22px; line-height: 1; letter-spacing: 1px; margin-top: -2px; }
+.tools-trigger-label { font-size: 15px; }
+/* Pastille d'accent quand un outil (viz / sync) est actif : on ne l'oublie pas. */
+.btn.tools-trigger.active { border-color: var(--border); color: var(--text); }
+.btn.tools-trigger.active::after {
+  content: '';
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--lume, rgba(var(--accent-rgb), 0.8));
+}
+
+/* Popover : carte flottante ancrée sous le déclencheur, à droite. */
+.tools-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  min-width: 252px;
+  padding: 7px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 22px 60px -24px rgba(0,0,0,0.72), var(--glow);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transform-origin: top right;
+  animation: tools-pop-in 0.18s var(--ease-out, ease) both;
+}
+@keyframes tools-pop-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Items : pleine largeur, cible tactile ≥ 44px, icône + libellé + état. */
+.tools-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s var(--ease, ease), color 0.18s var(--ease, ease);
+}
+.tools-item:hover { background: var(--surface-2); }
+.tools-item-ico {
+  display: inline-flex;
+  width: 22px;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 16px;
+  transition: color 0.18s var(--ease, ease);
+}
+.tools-item:hover .tools-item-ico { color: var(--accent); }
+.tools-item-label { flex: 1; }
+.tools-item-state { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: lowercase; }
+.tools-item.checked { color: var(--accent); }
+.tools-item.checked .tools-item-ico { color: var(--accent); }
+.tools-sep { height: 1px; margin: 5px 8px; background: var(--border-soft); }
+
+/* Petit retour « ✓ Gardé dans ta bibliothèque » sous la barre, discret. */
+.tools-msg { font-size: 13px; color: var(--accent); font-weight: 600; align-self: center; }
+
+/* Focus clavier net : accessibilité + sensation premium. */
+.btn.tools-trigger:focus-visible,
+.tools-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Reduce-motion : pas d'animation d'ouverture. */
+.app.reduce-motion .tools-pop { animation: none; }
+@media (prefers-reduced-motion: reduce) { .tools-pop { animation: none; } }
+
+/* Mobile : le menu reste à droite mais le popover s'ancre à gauche pour ne pas
+   déborder, et s'élargit raisonnablement. */
+@media (max-width: 560px) {
+  .tools-pop { left: 0; right: auto; min-width: min(264px, 86vw); }
+}

@@ -133,6 +133,7 @@ export default function Studio({
   const [tempo, setTempo] = useState(() => readBpm(initialCode) || 120);
   const [vizOn, setVizOn] = useState(false);
   const [toast, setToast] = useState('');
+  const [focus, setFocus] = useState(false); // C57 : mode focus du Studio (éditeur seul, sans distraction)
 
   const startCode = useRef(initialCode || STUDIO_DEFAULT);
 
@@ -254,6 +255,18 @@ export default function Studio({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // C57 — Mode focus : Échap sort d'abord du focus (écouteur en CAPTURE qui coupe la
+  // propagation) AVANT que le gestionnaire d'App ne ferme tout le Studio. Sans focus,
+  // l'écouteur n'est pas monté → Échap ferme le Studio comme avant.
+  useEffect(() => {
+    if (!focus) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') { e.stopImmediatePropagation(); setFocus(false); }
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [focus]);
+
   const save = useCallback(async () => {
     try {
       const ok = await (onSaveSnippet ? onSaveSnippet(readLiveCode()) : false);
@@ -266,7 +279,7 @@ export default function Studio({
   const piState = (piStatus && piStatus.state) || 'unknown';
 
   return (
-    <div className="studio" role="region" aria-label="Studio — bac à sable Strudel">
+    <div className={'studio' + (focus ? ' studio-focus' : '')} role="region" aria-label="Studio — bac à sable Strudel">
       <header className="studio-top">
         <div className="studio-brand">
           <span className="studio-glyph" aria-hidden="true">◉</span>
@@ -277,6 +290,14 @@ export default function Studio({
         </div>
 
         <div className="studio-top-actions">
+          <button
+            className={'studio-focus-btn' + (focus ? ' on' : '')}
+            onClick={() => setFocus((f) => !f)}
+            aria-pressed={focus}
+            title={focus ? 'Quitter le mode focus (Échap)' : 'Mode focus : éditeur seul, sans distraction'}
+          >
+            {focus ? '⤢ Quitter le focus' : '⤢ Focus'}
+          </button>
           <button
             className={'sati-btn status-' + piState}
             onClick={onOpenSati}

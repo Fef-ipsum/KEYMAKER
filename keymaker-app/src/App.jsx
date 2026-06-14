@@ -458,6 +458,18 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, settings.editorTheme, settings.lineNumbers, settings.textScale, settings.autocomplete]);
 
+  // Chantier 57 — à chaque changement de flash ou de module, remonter en haut de
+  // la page (sinon on arrive au milieu de la leçon suivante). Respecte
+  // « réduire les animations » : saut instantané plutôt que défilement animé.
+  useEffect(() => {
+    try {
+      window.scrollTo({ top: 0, left: 0, behavior: settings.reduceMotion ? 'auto' : 'smooth' });
+    } catch {
+      try { window.scrollTo(0, 0); } catch { /* ignore */ }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pos, mod]);
+
   // Reprendre la progression à zéro : efface les clés de reprise et revient au 1er flash.
   const resetProgress = useCallback(() => {
     try {
@@ -1085,6 +1097,79 @@ const ENGINE_TIPS = [
    <Flash> — un écran de flash, piloté par un objet `flash`.
    L'éditeur Strudel arrive en `children` (slot) pour rester monté entre les flashs.
    --------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------
+   <ToolsMenu> — Chantier 57 : un seul bouton « ⋯ Outils » regroupe les actions
+   secondaires (Visualiseur, Sauvegarder, Ouvrir, Télécharger, + Sync PO-33 au
+   Module 8). Désencombre la barre sous l'éditeur : Run / Stop restent les seules
+   actions de premier plan. Popover non modal : clic dehors ou Échap pour fermer.
+   --------------------------------------------------------------------------- */
+function ToolsMenu({ vizOpen, onToggleViz, posyncOpen, onTogglePosync, showPosync, onSaveSnippet, onOpenInStrudel, onDownloadJs }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('pointerdown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('pointerdown', onDown); document.removeEventListener('keydown', onKey); };
+  }, [open]);
+
+  // Action one-shot : exécute puis referme le menu.
+  const fire = (fn) => () => { try { if (fn) fn(); } finally { setOpen(false); } };
+  const toolActive = vizOpen || (showPosync && posyncOpen);
+
+  return (
+    <div className={'tools-menu' + (open ? ' open' : '')} ref={wrapRef}>
+      <button
+        type="button"
+        className={'btn tools-trigger' + (open ? ' on' : '') + (toolActive ? ' active' : '')}
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        title="Outils du pattern (visualiseur, sauvegarde, export…)"
+      >
+        <span className="tools-trigger-ico" aria-hidden="true">⋯</span>
+        <span className="tools-trigger-label">Outils</span>
+      </button>
+
+      {open && (
+        <div className="tools-pop" role="menu" aria-label="Outils du pattern">
+          <button type="button" role="menuitemcheckbox" aria-checked={vizOpen} className={'tools-item' + (vizOpen ? ' checked' : '')} onClick={fire(onToggleViz)}>
+            <span className="tools-item-ico" aria-hidden="true">◫</span>
+            <span className="tools-item-label">Visualiseur de rythme</span>
+            {vizOpen && <span className="tools-item-state">activé</span>}
+          </button>
+
+          {showPosync && (
+            <button type="button" role="menuitemcheckbox" aria-checked={posyncOpen} className={'tools-item' + (posyncOpen ? ' checked' : '')} onClick={fire(onTogglePosync)}>
+              <span className="tools-item-ico" aria-hidden="true">◧</span>
+              <span className="tools-item-label">Sync PO-33</span>
+              {posyncOpen && <span className="tools-item-state">activé</span>}
+            </button>
+          )}
+
+          <div className="tools-sep" role="separator" />
+
+          <button type="button" role="menuitem" className="tools-item" onClick={fire(onSaveSnippet)}>
+            <span className="tools-item-ico" aria-hidden="true"><IcoSave /></span>
+            <span className="tools-item-label">Sauvegarder</span>
+          </button>
+          <button type="button" role="menuitem" className="tools-item" onClick={fire(onOpenInStrudel)}>
+            <span className="tools-item-ico" aria-hidden="true"><IcoExternal /></span>
+            <span className="tools-item-label">Ouvrir dans Strudel</span>
+          </button>
+          <button type="button" role="menuitem" className="tools-item" onClick={fire(onDownloadJs)}>
+            <span className="tools-item-ico" aria-hidden="true"><IcoDownload /></span>
+            <span className="tools-item-label">Télécharger .js</span>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Flash({
   flash,
   moduleId,
@@ -1166,22 +1251,17 @@ function Flash({
             <span className="dot" aria-hidden="true" />
             {playing ? 'en cours' : 'arrêté'}
           </span>
-          <button
-            className={'btn viz-toggle' + (vizOpen ? ' on' : '')}
-            onClick={onToggleViz}
-            aria-pressed={vizOpen}
-            title="Afficher/masquer la grille rythmique animée"
-          >
-            ◫ Visualiseur
-          </button>
-          <button
-            className={'btn posync-toggle' + (posyncOpen ? ' on' : '')}
-            onClick={onTogglePosync}
-            aria-pressed={posyncOpen}
-            title="Activer/masquer le générateur de sync PO-33"
-          >
-            ◧ Sync PO-33
-          </button>
+          <ToolsMenu
+            vizOpen={vizOpen}
+            onToggleViz={onToggleViz}
+            posyncOpen={posyncOpen}
+            onTogglePosync={onTogglePosync}
+            showPosync={moduleId === 8}
+            onSaveSnippet={onSaveSnippet}
+            onOpenInStrudel={onOpenInStrudel}
+            onDownloadJs={onDownloadJs}
+          />
+          {snipMsg && <span className="tools-msg" role="status">{snipMsg}</span>}
         </div>
 
         {/* Visualiseur de pattern (Chantier 26) : grille rythmique animée, lit le REPL. */}
@@ -1196,7 +1276,7 @@ function Flash({
         )}
 
         {/* Générateur de sync PO-33 (Chantier 31) : clics 2 PPQN sur le canal gauche. */}
-        {posyncOpen && (
+        {posyncOpen && moduleId === 8 && (
           <PoSync
             editorRef={editorRef}
             playing={playing}
@@ -1225,22 +1305,6 @@ function Flash({
           </div>
         )}
 
-        {/* Partage & export (Chantier 20) — masqué en Mode Focus via .focus-mode. */}
-        <div className="share-row">
-          <button className="share-btn" onClick={onSaveSnippet} title="Sauvegarder ce pattern dans ta bibliothèque">
-            <IcoSave />
-            Sauvegarder
-          </button>
-          <button className="share-btn" onClick={onOpenInStrudel} title="Ouvrir ce code dans le REPL officiel strudel.cc (nouvel onglet)">
-            <IcoExternal />
-            Ouvrir dans Strudel
-          </button>
-          <button className="share-btn" onClick={onDownloadJs} title="Télécharger ce code en fichier .js">
-            <IcoDownload />
-            Télécharger .js
-          </button>
-          {snipMsg && <span className="share-msg" role="status">{snipMsg}</span>}
-        </div>
       </section>
 
       {flash.decode && (
