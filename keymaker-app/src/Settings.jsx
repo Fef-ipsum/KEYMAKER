@@ -353,6 +353,18 @@ export default function Settings({
               label="Auto-complétion"
             />
           </div>
+
+          <div className="set-row">
+            <div className="set-row-label">
+              <span className="set-name">Visualiseur en accès direct</span>
+              <span className="set-desc">Affiche le bouton Visualiseur directement sous l'éditeur, au lieu de le ranger dans le menu ⋯ Outils (leçon et Studio).</span>
+            </div>
+            <Toggle
+              on={settings.vizDirect === true}
+              onToggle={(v) => onChange({ vizDirect: v })}
+              label="Visualiseur en accès direct"
+            />
+          </div>
         </section>
 
         {/* ---- Connexion à Sati (partagé avec le tiroir Sati) ---- */}

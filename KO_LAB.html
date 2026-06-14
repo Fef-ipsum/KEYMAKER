@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>KO LAB — apprendre le PO-33 K.O!</title>
 <meta name="description" content="Apprendre le sampler Teenage Engineering PO-33 K.O! — leçons, simulateur jouable, révision espacée.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b0e17">
+<meta name="color-scheme" content="dark light">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KO LAB">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
 /* ============================================================
    KO LAB — trainer pour le Teenage Engineering PO-33 K.O!
@@ -368,6 +376,36 @@ h1.title{ font-size:var(--fs-title); line-height:1.08; letter-spacing:-0.02em; m
 .footer{ text-align:center; color:var(--muted); font-family:var(--font-mono); font-size:11.5px; letter-spacing:.5px; padding:30px 0 10px; }
 .footer b{ color:var(--accent); }
 
+.key:focus-visible, .fnbtn:focus-visible, .btn:focus-visible, .nav button:focus-visible, .seg button:focus-visible, .iconbtn:focus-visible, .dial:focus-visible, .filterbar button:focus-visible{ outline:2px solid var(--accent-2); outline-offset:2px; }
+.key, .fnbtn, .btn, .seg button, .nav button, .iconbtn{ touch-action:manipulation; }
+
+/* ---------- Téléphone ---------- */
+@media (max-width:560px){
+  .stage{ padding:16px 11px 96px; }
+  .topbar{ padding:11px 12px; gap:8px; }
+  .brand .sub{ display:none; }
+  .brand .mark{ width:34px; height:34px; }
+  .nav{ gap:2px; }
+  .nav button > span:not(.chip){ display:none; }   /* nav en icônes seules */
+  .nav button{ padding:8px 9px; min-height:42px; }
+  h1.title{ font-size:25px; }
+  .lede{ font-size:15.5px; }
+  .hero{ gap:16px; }
+  .po-shell{ padding:12px; border-radius:18px; }
+  .keys{ gap:6px; }
+  .fnrow{ gap:7px; }
+  .key{ border-radius:10px; }
+  .stat-row{ grid-template-columns:repeat(2,1fr); }
+  .lesson-foot{ gap:8px; }
+  .lesson-foot .btn{ flex:1 1 auto; justify-content:center; text-align:center; }
+  .sim-toolbar{ gap:6px; }
+  .review-card{ padding:26px 18px; }
+}
+@media (max-width:380px){
+  .keys{ gap:4px; }
+  .po-shell{ padding:10px; }
+  .fnbtn .sub{ display:none; }
+}
 .hide{ display:none !important; }
 .center{ text-align:center; }
 .mono{ font-family:var(--font-mono); }
@@ -1013,7 +1051,7 @@ const Audio = {
       const AC = window.AudioContext || window.webkitAudioContext;
       this.ctx = new AC();
       this.master = this.ctx.createGain(); this.master.gain.value=0.9; this.master.connect(this.ctx.destination);
-      for(let p=0;p<16;p++) this.patterns.push(this.emptyPattern());
+      this.ensurePatterns();
       return true;
     }catch(e){ return false; }
   },
@@ -1022,7 +1060,8 @@ const Audio = {
     const drum=[]; for(let s=0;s<16;s++){ drum.push(new Array(16).fill(false)); }
     return { drum, mel:new Array(16).fill(null) };
   },
-  pat(){ return this.patterns[this.curPattern]; },
+  ensurePatterns(){ if(this.patterns && this.patterns.length) return; this.patterns=this.patterns||[]; for(let p=0;p<16;p++) this.patterns.push(this.emptyPattern()); },
+  pat(){ this.ensurePatterns(); return this.patterns[this.curPattern]; },
 
   /* --- synthèse : un instrument par type --- */
   voice(type, t, opt={}){
@@ -1072,7 +1111,10 @@ const Audio = {
       if(fx.impl==='stutter') stutter=(fx.n===9?4:3); if(fx.impl==='scratch') semis += (Math.random()<0.5?7:-7); }
     const pat=this.pat();
     const hit=(fn)=>{ if(stutter>1){ const sd=this.stepDur()/stutter; for(let k=0;k<stutter;k++) fn(t+k*sd, 0.9); } else fn(t,1); };
-    if(this.mode==='drum' || this.mode==='sample'){
+    if(this.mode==='sample'){
+      const dur=this.sampleBuf?this.sampleBuf.duration:0;
+      for(let s=0;s<16;s++){ if(pat.drum[s][step]){ hit((tt)=>{ if(this.sampleBuf){ try{ const src=this.ctx.createBufferSource(); src.buffer=this.sampleBuf; src.playbackRate.value=Math.pow(2,semis/12); const g=this.ctx.createGain(); g.gain.value=0.9; src.connect(g).connect(this.master); src.start(tt, s/16*dur, dur/16*1.4); }catch(e){} } else { this.playKit(s, tt, semis, 1); } }); } }
+    } else if(this.mode==='drum'){
       for(let s=0;s<16;s++){ if(pat.drum[s][step]){ hit((tt,g)=> this.playKit(s, tt, semis, g)); if(fx&&fx.impl==='detune'){ this.playKit(s, t, semis + (fx.n===6?-5:0) - 0.1, 0.55);} } }
     } else if(this.mode==='mel'){
       const nv=pat.mel[step]; if(nv!=null){ hit((tt)=> this.voice('mel', tt, {semis:this.scale[nv]+semis})); }
@@ -1156,7 +1198,7 @@ const FN_BTNS = [
   { id:'write',   nm:'write',   sub:'écrire' },
   { id:'record',  nm:'record',  sub:'sample' },
   { id:'play',    nm:'play',    sub:'▶ / ■' },
-  { id:'clear',   nm:'clear',   sub:'effacer' },
+  { id:'clear',   nm:'clear',   sub:'aide sim', sim:true },
 ];
 
 function buildDevice(opts={}){
@@ -1174,15 +1216,15 @@ function buildDevice(opts={}){
           <div class="msg" data-lcd="msg">prêt</div>
         </div>
         <div class="knobs">
-          <div class="knob"><div class="dial" data-knob="A"></div><span class="lab">A</span></div>
-          <div class="knob"><div class="dial" data-knob="B"></div><span class="lab">B</span></div>
+          <div class="knob"><div class="dial" data-knob="A" role="slider" tabindex="0" aria-label="knob A — début / réglage"></div><span class="lab">A</span></div>
+          <div class="knob"><div class="dial" data-knob="B" role="slider" tabindex="0" aria-label="knob B — longueur / réglage"></div><span class="lab">B</span></div>
         </div>
       </div>
       <div class="fnrow">
-        ${FN_BTNS.map(b=> `<button class="fnbtn ${b.id}" data-fn="${b.id}"><span class="nm">${b.nm}</span><span class="sub">${b.sub}</span></button>`).join('')}
+        ${FN_BTNS.map(b=> `<button class="fnbtn ${b.id}" data-fn="${b.id}" aria-label="${b.nm}"${b.sim?' title="Aide du simulateur — pas une touche du vrai PO-33"':''}><span class="nm">${b.nm}</span><span class="sub">${b.sub}</span></button>`).join('')}
       </div>
       <div class="keys">
-        ${Array.from({length:16}).map((_,i)=> `<button class="key" data-k="${i+1}"><span class="kn">${i+1}</span><span class="dot"></span></button>`).join('')}
+        ${Array.from({length:16}).map((_,i)=> `<button class="key" data-k="${i+1}" aria-label="touche ${i+1}"><span class="kn">${i+1}</span><span class="dot"></span></button>`).join('')}
       </div>
     </div>`;
 
@@ -1291,12 +1333,12 @@ function attachDevice(el, opts={}){
     };
     // fx = maintien : pointerdown active, pointerup relâche
     key.addEventListener('pointerdown', (e)=>{
-      if(st.armed==='fx'){ e.preventDefault(); press();
-        const release=()=>{ Audio.clearFx(); key.classList.remove('lit'); disarm(); setMsg('fx relâché'); refreshLCD(); window.removeEventListener('pointerup',release); };
+      if(st.armed==='fx'){ e.preventDefault(); st._fxBusy=true; press();
+        const release=()=>{ Audio.clearFx(); key.classList.remove('lit'); disarm(); setMsg('fx relâché'); refreshLCD(); window.removeEventListener('pointerup',release); setTimeout(()=>{ st._fxBusy=false; }, 60); };
         window.addEventListener('pointerup', release);
       }
     });
-    key.addEventListener('click', ()=>{ if(st.armed==='fx') return; press(); });
+    key.addEventListener('click', ()=>{ if(st.armed==='fx' || st._fxBusy){ st._fxBusy=false; return; } press(); });
   });
 
   function playSampleSlice(idx){
@@ -1321,7 +1363,7 @@ function attachDevice(el, opts={}){
   knobDrag(el._knobA, ()=>Audio.trimStart, v=>{ Audio.trimStart=v; setMsg('A · début '+Math.round(v*100)+'%'); });
   knobDrag(el._knobB, ()=>Audio.trimLen, v=>{ Audio.trimLen=Math.max(0.05,v); setMsg('B · longueur '+Math.round(v*100)+'%'); });
 
-  el._refresh=refreshLCD; el._setMsg=setMsg; el._state=st;
+  el._refresh=refreshLCD; el._setMsg=setMsg; el._state=st; el._disarm=disarm;
   refreshLCD();
   return el;
 }
@@ -1407,7 +1449,7 @@ function go(name, params={}){
   Audio.stop(); Audio._onStep=null; if(_sampleTimer){ clearInterval(_sampleTimer); _sampleTimer=null; }
   View={...View, ...params, name};
   render();
-  window.scrollTo({top:0, behavior:'instant'});
+  try{ window.scrollTo(0,0); }catch(e){}
 }
 function render(){
   let body='';
@@ -1560,7 +1602,7 @@ function mountHome(){
     if(p){ p.drum[0][0]=p.drum[0][8]=true; p.drum[2][0]=p.drum[2][2]=p.drum[2][4]=p.drum[2][6]=p.drum[2][8]=p.drum[2][10]=p.drum[2][12]=p.drum[2][14]=true; p.drum[1][4]=p.drum[1][12]=true; dev._refresh(); }
   }
 }
-function runDemo(){ const l=lessonById(View.lid); const host=$('#lessonDevice'); if(host&&host._dev&&l&&l.combo){ Audio.init();Audio.resume(); demoCombo(host._dev, l.combo.demo, {cap:l.combo.cap}); } }
+function runDemo(){ const l=lessonById(View.lid); const host=$('#lessonDevice'); if(host&&host._dev&&l&&l.combo){ Audio.init();Audio.resume(); if(host._dev._disarm) host._dev._disarm(); demoCombo(host._dev, l.combo.demo, {cap:l.combo.cap}); } }
 function revealFlash(){
   const l=lessonById(View.lid); $('#flashCard').classList.add('open');
   $('#flashBtns').innerHTML = `<button class="btn sm" onclick="gradeFlash(true)">✓ Je le savais</button>
@@ -1608,8 +1650,10 @@ function mountPocket(){
   Audio.mode='drum';
   // mode seg
   $$('#modeSeg button').forEach(b=> b.addEventListener('click', ()=>{
+    if(Audio.playing){ Audio.stop(); const pb=dev._fns.play; pb.classList.remove('on'); pb.querySelector('.nm').textContent='play'; dev._refresh(); }
     $$('#modeSeg button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
     Audio.mode = b.dataset.mode==='mel'?'mel':b.dataset.mode==='sample'?'sample':'drum';
+    if(Audio.mode!=='sample'){ if(_sampleTimer){ clearInterval(_sampleTimer); _sampleTimer=null; } }
     if(Audio.mode==='sample' && !Audio.sampleBuf) Audio.makeDemoBuffer('loop');
     $('#samplerPanel').classList.toggle('hide', Audio.mode!=='sample');
     if(Audio.mode==='sample') buildSampler();
@@ -1803,6 +1847,10 @@ try{
     '<div style="max-width:600px;margin:80px auto;padding:24px;font-family:system-ui">'
     + '<h2>Oups — un souci au démarrage</h2><p style="color:#888">'+(e&&e.message||e)+'</p></div>';
   console.error(e);
+}
+/* PWA service worker — inactif en file://, actif en https (Pi) */
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js', {scope:'./'}).catch(function(){}); });
 }
 </script>
 </body>

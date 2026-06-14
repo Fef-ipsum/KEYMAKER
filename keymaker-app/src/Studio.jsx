@@ -25,6 +25,7 @@ export function hash2code(urlOrHash) {
 }
 import StrudelEditor from './StrudelEditor.jsx';
 import PatternViz from './PatternViz.jsx';
+import ToolsMenu from './ToolsMenu.jsx';
 
 // Code d'accueil : jouable IMMÉDIATEMENT (▶ Run / Ctrl+Entrée) → gratification directe.
 export const STUDIO_DEFAULT = `// 🎛️ Studio — ton bac a sable. Edite puis ▶ Run (Ctrl+Entree).
@@ -121,6 +122,7 @@ export default function Studio({
   onClose,
   theme,
   reduceMotion,
+  vizDirect,
 }) {
   const edRef = useRef(null);
   const persistRef = useRef(onPersist);
@@ -278,6 +280,19 @@ export default function Studio({
 
   const piState = (piStatus && piStatus.state) || 'unknown';
 
+  // Chantier 58 — items du menu « ⋯ Outils » du Studio (même grammaire que la leçon).
+  const studioToggles = [];
+  if (!vizDirect) studioToggles.push({ kind: 'toggle', icon: '◫', label: 'Visualiseur de rythme', on: vizOn, onClick: () => setVizOn((v) => !v) });
+  studioToggles.push({ kind: 'toggle', icon: '〰', label: 'Oscilloscope', on: oscOpen, onClick: () => setOscOpen((o) => !o) });
+  const studioItems = [
+    ...studioToggles,
+    { kind: 'sep' },
+    { kind: 'action', icon: '☆', label: 'Sauvegarder', onClick: save },
+    { kind: 'action', icon: '↗', label: 'Ouvrir dans Strudel', onClick: () => onOpenInStrudel && onOpenInStrudel(readLiveCode()) },
+    { kind: 'action', icon: '⤓', label: 'Télécharger .js', onClick: () => onDownload && onDownload(readLiveCode()) },
+    { kind: 'action', icon: '⟲', label: 'Vider', onClick: clearCode },
+  ];
+
   return (
     <div className={'studio' + (focus ? ' studio-focus' : '')} role="region" aria-label="Studio — bac à sable Strudel">
       <header className="studio-top">
@@ -347,14 +362,18 @@ export default function Studio({
               <button className="studio-tempo-btn" onClick={() => applyTempo(tempo + 5)} disabled={!ready} aria-label="Accélérer">+</button>
             </div>
 
-            <button
-              className={'btn viz-toggle' + (vizOn ? ' on' : '')}
-              onClick={() => setVizOn((v) => !v)}
-              aria-pressed={vizOn}
-              title="Afficher/masquer la grille rythmique animée"
-            >
-              ◫ Visualiseur
-            </button>
+            {vizDirect && (
+              <button
+                className={'btn viz-toggle' + (vizOn ? ' on' : '')}
+                onClick={() => setVizOn((v) => !v)}
+                aria-pressed={vizOn}
+                title="Afficher/masquer la grille rythmique animée"
+              >
+                ◫ Visualiseur
+              </button>
+            )}
+            <ToolsMenu items={studioItems} />
+            {toast && <span className="tools-msg" role="status">{toast}</span>}
           </div>
 
           {vizOn && (
@@ -377,29 +396,6 @@ export default function Studio({
             </div>
           )}
 
-          <div className="share-row studio-share">
-            <button className="share-btn" onClick={save} title="Garder ce pattern dans ta bibliothèque">
-              ☆ Sauvegarder
-            </button>
-            <button className="share-btn" onClick={() => onOpenInStrudel && onOpenInStrudel(readLiveCode())} title="Ouvrir dans le REPL officiel strudel.cc">
-              ↗ Ouvrir dans Strudel
-            </button>
-            <button className="share-btn" onClick={() => onDownload && onDownload(readLiveCode())} title="Télécharger ce code en .js">
-              ⤓ Télécharger .js
-            </button>
-            <button className="share-btn" onClick={clearCode} title="Repartir d'une page vierge">
-              ⟲ Vider
-            </button>
-            <button
-              className={'share-btn' + (oscOpen ? ' on' : '')}
-              onClick={() => setOscOpen((o) => !o)}
-              aria-pressed={oscOpen}
-              title="Voir la forme d'onde du son (oscilloscope)"
-            >
-              〰 Oscillo
-            </button>
-            {toast && <span className="share-msg" role="status">{toast}</span>}
-          </div>
 
           {/* Chantier 46 : oscilloscope (le tap audio vit dans index.html). */}
           {oscOpen && <Oscilloscope />}

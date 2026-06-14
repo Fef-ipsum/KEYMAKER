@@ -5,6 +5,7 @@ import { useRef, useState, useCallback, useEffect, useMemo } from 'react';
 import StrudelEditor from './StrudelEditor.jsx';
 import SatiChat from './SatiChat.jsx';
 import Settings from './Settings.jsx';
+import ToolsMenu from './ToolsMenu.jsx';
 import { modules } from './lessons.js';
 import { countMemory, loadDifficulties, clearAllMemory } from './memory.js';
 import Dashboard from './Dashboard.jsx';
@@ -107,7 +108,7 @@ function readStudioCode() {
 // Réglages (Chantier 6) — persistés sur l'appareil.
 const SETTINGS_KEY = 'keymaker:settings';
 const TEXT_SCALE = { m: 1, l: 1.12, xl: 1.26 }; // facteur appliqué à --fs-scale + police éditeur
-const DEFAULT_SETTINGS = { font: 'nunito', textScale: 'm', reduceMotion: false, editorTheme: 'strudelTheme', lineNumbers: true, theme: 'void', autocomplete: true, viz: false, posync: false, accent: 'auto', accentCustom: '#22d3ee', halo: 'balanced', backdrop: 'auto', grain: false, spotlight: false };
+const DEFAULT_SETTINGS = { font: 'nunito', textScale: 'm', reduceMotion: false, editorTheme: 'strudelTheme', lineNumbers: true, theme: 'void', autocomplete: true, viz: false, posync: false, vizDirect: false, accent: 'auto', accentCustom: '#22d3ee', halo: 'balanced', backdrop: 'auto', grain: false, spotlight: false };
 
 function readSettings() {
   let base = { ...DEFAULT_SETTINGS };
@@ -927,6 +928,7 @@ export default function App() {
         dotLevels={chap.flashs.map((f) => levels[f.id] || 'new')}
         editorHidden={editorHidden}
         onToggleEditor={() => setEditorHidden((h) => !h)}
+        vizDirect={settings.vizDirect}
       >
         {/* Éditeur UNIQUE : monté une fois ici, jamais remonté au changement de flash. */}
         <StrudelEditor
@@ -1024,6 +1026,7 @@ export default function App() {
           onOpenInStrudel={(code) => { try { window.open(strudelUrl(code), '_blank', 'noopener'); } catch { /* ignore */ } }}
           onDownload={(code) => downloadText('keymaker-studio.js', '// Keymaker — Studio (bac a sable)\n\n' + code + '\n')}
           onEditorReady={(ed) => { studioEditorRef.current = ed; applyEditorSettings(ed, settings); }}
+          vizDirect={settings.vizDirect}
           onPersist={persistStudio}
           onClose={() => setStudioOpen(false)}
         />
@@ -1097,79 +1100,6 @@ const ENGINE_TIPS = [
    <Flash> — un écran de flash, piloté par un objet `flash`.
    L'éditeur Strudel arrive en `children` (slot) pour rester monté entre les flashs.
    --------------------------------------------------------------------------- */
-/* ---------------------------------------------------------------------------
-   <ToolsMenu> — Chantier 57 : un seul bouton « ⋯ Outils » regroupe les actions
-   secondaires (Visualiseur, Sauvegarder, Ouvrir, Télécharger, + Sync PO-33 au
-   Module 8). Désencombre la barre sous l'éditeur : Run / Stop restent les seules
-   actions de premier plan. Popover non modal : clic dehors ou Échap pour fermer.
-   --------------------------------------------------------------------------- */
-function ToolsMenu({ vizOpen, onToggleViz, posyncOpen, onTogglePosync, showPosync, onSaveSnippet, onOpenInStrudel, onDownloadJs }) {
-  const [open, setOpen] = useState(false);
-  const wrapRef = useRef(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
-    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
-    document.addEventListener('pointerdown', onDown);
-    document.addEventListener('keydown', onKey);
-    return () => { document.removeEventListener('pointerdown', onDown); document.removeEventListener('keydown', onKey); };
-  }, [open]);
-
-  // Action one-shot : exécute puis referme le menu.
-  const fire = (fn) => () => { try { if (fn) fn(); } finally { setOpen(false); } };
-  const toolActive = vizOpen || (showPosync && posyncOpen);
-
-  return (
-    <div className={'tools-menu' + (open ? ' open' : '')} ref={wrapRef}>
-      <button
-        type="button"
-        className={'btn tools-trigger' + (open ? ' on' : '') + (toolActive ? ' active' : '')}
-        onClick={() => setOpen((o) => !o)}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        title="Outils du pattern (visualiseur, sauvegarde, export…)"
-      >
-        <span className="tools-trigger-ico" aria-hidden="true">⋯</span>
-        <span className="tools-trigger-label">Outils</span>
-      </button>
-
-      {open && (
-        <div className="tools-pop" role="menu" aria-label="Outils du pattern">
-          <button type="button" role="menuitemcheckbox" aria-checked={vizOpen} className={'tools-item' + (vizOpen ? ' checked' : '')} onClick={fire(onToggleViz)}>
-            <span className="tools-item-ico" aria-hidden="true">◫</span>
-            <span className="tools-item-label">Visualiseur de rythme</span>
-            {vizOpen && <span className="tools-item-state">activé</span>}
-          </button>
-
-          {showPosync && (
-            <button type="button" role="menuitemcheckbox" aria-checked={posyncOpen} className={'tools-item' + (posyncOpen ? ' checked' : '')} onClick={fire(onTogglePosync)}>
-              <span className="tools-item-ico" aria-hidden="true">◧</span>
-              <span className="tools-item-label">Sync PO-33</span>
-              {posyncOpen && <span className="tools-item-state">activé</span>}
-            </button>
-          )}
-
-          <div className="tools-sep" role="separator" />
-
-          <button type="button" role="menuitem" className="tools-item" onClick={fire(onSaveSnippet)}>
-            <span className="tools-item-ico" aria-hidden="true"><IcoSave /></span>
-            <span className="tools-item-label">Sauvegarder</span>
-          </button>
-          <button type="button" role="menuitem" className="tools-item" onClick={fire(onOpenInStrudel)}>
-            <span className="tools-item-ico" aria-hidden="true"><IcoExternal /></span>
-            <span className="tools-item-label">Ouvrir dans Strudel</span>
-          </button>
-          <button type="button" role="menuitem" className="tools-item" onClick={fire(onDownloadJs)}>
-            <span className="tools-item-ico" aria-hidden="true"><IcoDownload /></span>
-            <span className="tools-item-label">Télécharger .js</span>
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
 function Flash({
   flash,
   moduleId,
@@ -1210,10 +1140,24 @@ function Flash({
   dotLevels,
   editorHidden,
   onToggleEditor,
+  vizDirect,
   children,
 }) {
   // Astuce du loader : choisie une fois (stable tant que le moteur charge).
   const [engineTip] = useState(() => ENGINE_TIPS[Math.floor(Math.random() * ENGINE_TIPS.length)]);
+
+  // Chantier 58/59 — items du menu « ⋯ Outils ». Le Visualiseur sort du menu
+  // (bouton direct) si le réglage « accès direct » est activé.
+  const toolToggles = [];
+  if (!vizDirect) toolToggles.push({ kind: 'toggle', icon: '◫', label: 'Visualiseur de rythme', on: vizOpen, onClick: onToggleViz });
+  if (moduleId === 8) toolToggles.push({ kind: 'toggle', icon: '◧', label: 'Sync PO-33', on: posyncOpen, onClick: onTogglePosync });
+  const toolsItems = [
+    ...toolToggles,
+    ...(toolToggles.length ? [{ kind: 'sep' }] : []),
+    { kind: 'action', icon: <IcoSave />, label: 'Sauvegarder', onClick: onSaveSnippet },
+    { kind: 'action', icon: <IcoExternal />, label: 'Ouvrir dans Strudel', onClick: onOpenInStrudel },
+    { kind: 'action', icon: <IcoDownload />, label: 'Télécharger .js', onClick: onDownloadJs },
+  ];
   return (
     <main className="stage" style={{ '--mtint': MODULE_TINTS[moduleId] }}>
       <p className="kicker">{flash.kicker}</p>
@@ -1251,16 +1195,17 @@ function Flash({
             <span className="dot" aria-hidden="true" />
             {playing ? 'en cours' : 'arrêté'}
           </span>
-          <ToolsMenu
-            vizOpen={vizOpen}
-            onToggleViz={onToggleViz}
-            posyncOpen={posyncOpen}
-            onTogglePosync={onTogglePosync}
-            showPosync={moduleId === 8}
-            onSaveSnippet={onSaveSnippet}
-            onOpenInStrudel={onOpenInStrudel}
-            onDownloadJs={onDownloadJs}
-          />
+          {vizDirect && (
+            <button
+              className={'btn viz-toggle' + (vizOpen ? ' on' : '')}
+              onClick={onToggleViz}
+              aria-pressed={vizOpen}
+              title="Afficher/masquer la grille rythmique animée"
+            >
+              ◫ Visualiseur
+            </button>
+          )}
+          <ToolsMenu items={toolsItems} />
           {snipMsg && <span className="tools-msg" role="status">{snipMsg}</span>}
         </div>
 
