@@ -25,6 +25,7 @@ import PatternViz from './PatternViz.jsx';
 import PoSync from './PoSync.jsx';
 import { resolveAccent, HALO_STRENGTH, BG_PRESETS, MODULE_TINTS } from './design.js';
 import Studio, { STUDIO_DEFAULT } from './Studio.jsx';
+import { canInstall, onInstallable, promptInstall, isStandalone, subscribeOnline } from './pwa.js';
 
 /* ---------------------------------------------------------------------------
    Navigation multi-chapitres (Chantier 3).
@@ -336,6 +337,32 @@ export default function App() {
   });
   const [piStatus, setPiStatus] = useState({ state: 'unknown', detail: '' });
 
+  // Chantier 61 — réseau : « TU es hors ligne » ≠ « le Pi est injoignable ».
+  // Tout le local (leçons, Studio, révisions, notes) marche hors ligne ; seuls
+  // Sati / quiz / défis IA attendent le réseau. L'état alimente la pastille
+  // topbar, l'Accueil, les Réglages et le bandeau de Sati.
+  const [online, setOnline] = useState(() => { try { return navigator.onLine !== false; } catch { return true; } });
+  useEffect(() => subscribeOnline(setOnline), []);
+
+  // Chantier 61 — installation PWA : beforeinstallprompt capturé dans main.jsx
+  // (il n'arrive qu'une fois, tôt), rejoué quand Felix clique « Installer ».
+  const [installable, setInstallable] = useState(() => canInstall());
+  useEffect(() => onInstallable(setInstallable), []);
+  const standaloneRef = useRef(isStandalone());
+  const [installMsg, setInstallMsg] = useState('');
+  const doInstall = useCallback(async () => {
+    const r = await promptInstall();
+    if (r === 'accepted') setInstallMsg("✓ Keymaker s'installe — retrouve l'icône sur ton écran d'accueil.");
+    else if (r === 'dismissed') setInstallMsg("Installation annulée — le bouton reste là si tu changes d'avis.");
+    else setInstallMsg('Ici, passe par le menu du navigateur : ⋮ → « Ajouter à l\'écran d\'accueil ».');
+  }, []);
+  const install = {
+    available: installable && !standaloneRef.current,
+    standalone: standaloneRef.current,
+    msg: installMsg,
+    onInstall: doInstall,
+  };
+
   const savePiUrl = useCallback((url) => {
     setPiUrl(url);
     try { localStorage.setItem(PI_URL_KEY, url); } catch { /* non bloquant */ }
@@ -346,6 +373,12 @@ export default function App() {
     let base = (url || '').trim();
     while (base.endsWith('/')) base = base.slice(0, -1);
     if (!base) { setPiStatus({ state: 'ko', detail: 'URL vide' }); return; }
+    // Chantier 61 : appareil hors ligne → inutile de fetch, et le message doit
+    // dire « hors ligne » (le Pi n'y est pour rien).
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      setPiStatus({ state: 'ko', detail: 'hors ligne' });
+      return;
+    }
     setPiStatus({ state: 'checking', detail: '' });
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 5000);
@@ -361,8 +394,35 @@ export default function App() {
     }
   }, []);
 
-  // Ping auto au démarrage.
-  useEffect(() => { checkPi(piUrl); }, [checkPi]);
+  // Ping au démarrage + à CHAQUE retour du réseau (avant : un seul ping au
+  // boot ; démarrée hors ligne, l'app restait « injoignable » jusqu'au test
+  // manuel — Chantier 61).
+  useEffect(() => {
+    if (online) checkPi(piUrl);
+    else setPiStatus({ state: 'ko', detail: 'hors ligne' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [online]);
+
+  // Retour sur l'app (onglet redevenu visible) sans statut vert → re-test discret.
+  const piRef = useRef({ piUrl, state: piStatus.state });
+  piRef.current = { piUrl, state: piStatus.state };
+  useEffect(() => {
+    const onVis = () => {
+      if (document.visibilityState === 'visible' && piRef.current.state !== 'ok') checkPi(piRef.current.piUrl);
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // URL du Pi modifiée (Réglages / tiroir Sati) → re-ping débouncé.
+  const urlPingFirst = useRef(true);
+  useEffect(() => {
+    if (urlPingFirst.current) { urlPingFirst.current = false; return; }
+    const t = setTimeout(() => checkPi(piUrl), 800);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [piUrl]);
 
   // Tableau de bord (Chantier 16) : on enregistre l'ouverture du jour et, à la
   // PREMIÈRE visite du jour, on ouvre l'accueil (dismissable, éditeur monté dessous).
@@ -838,6 +898,16 @@ export default function App() {
           Module {curModule.id} · {chap.chapter} · <strong>Flash {flash.id}</strong>
         </nav>
 
+        {!online && (
+          <span
+            className="net-pill"
+            role="status"
+            title="Tu es hors ligne — leçons, Studio, révisions et notes fonctionnent. Sati reviendra avec le réseau."
+          >
+            ⚡ hors ligne
+          </span>
+        )}
+
         <div className="topbar-actions">
           <button
             className="tb-btn"
@@ -967,6 +1037,7 @@ export default function App() {
           onTest={() => checkPi(piUrl)}
           getContext={studioOpen ? getStudioContext : getContext}
           studio={studioOpen}
+          online={online}
           onClose={() => setSatiOpen(false)}
         />
       )}
@@ -982,6 +1053,8 @@ export default function App() {
           onResetProgress={resetProgress}
           loadMemoryInfo={loadMemoryInfo}
           onClearMemory={clearAllMemory}
+          online={online}
+          install={install}
           onClose={() => setSettingsOpen(false)}
         />
       )}
@@ -1001,6 +1074,8 @@ export default function App() {
           onPickModule={(mi) => { goToModule(mi); setDashOpen(false); }}
           onOpenLibrary={() => { setDashOpen(false); setLibraryOpen(true); }}
           onOpenGlossary={() => { setDashOpen(false); setGlossaryOpen(true); }}
+          online={online}
+          install={install}
           onClose={() => setDashOpen(false)}
         />
       )}

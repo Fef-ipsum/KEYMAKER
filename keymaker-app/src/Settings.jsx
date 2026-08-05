@@ -59,6 +59,8 @@ export default function Settings({
   onResetProgress,
   loadMemoryInfo,
   onClearMemory,
+  online = true,
+  install,
   onClose,
 }) {
   const [confirmReset, setConfirmReset] = useState(false);
@@ -364,6 +366,42 @@ export default function Settings({
               onToggle={(v) => onChange({ vizDirect: v })}
               label="Visualiseur en accès direct"
             />
+          </div>
+        </section>
+
+        {/* ---- Application (Chantier 61 : PWA & hors-ligne) ---- */}
+        <section className="set-section">
+          <h3 className="set-h">Application</h3>
+
+          <div className="set-row">
+            <div className="set-row-label">
+              <span className="set-name">Installer sur cet appareil</span>
+              <span className="set-desc">
+                {install && install.standalone
+                  ? "Déjà installée — tu es dans l'app. Elle s'ouvre même sans réseau."
+                  : install && install.available
+                    ? "Ajoute l'icône Keymaker : plein écran, démarrage rapide, et l'app s'ouvre même hors ligne."
+                    : "Si aucun bouton n'apparaît : menu du navigateur (⋮) → « Ajouter à l'écran d'accueil » (ou « Installer l'application »)."}
+              </span>
+              {install && install.msg && <span className="set-desc">{install.msg}</span>}
+            </div>
+            {install && install.standalone ? (
+              <span className="set-net on">✓ installée</span>
+            ) : install && install.available ? (
+              <button className="btn run set-test" onClick={install.onInstall}>📲 Installer</button>
+            ) : null}
+          </div>
+
+          <div className="set-row">
+            <div className="set-row-label">
+              <span className="set-name">Hors ligne</span>
+              <span className="set-desc">
+                Leçons, Studio, révisions, notes et snippets : 100 % local, toujours
+                disponibles. Sati, quiz et défis IA demandent le Pi. Un son distant déjà
+                joué une fois reste disponible hors ligne (cache automatique).
+              </span>
+            </div>
+            <span className={'set-net ' + (online ? 'on' : 'off')}>{online ? 'en ligne' : 'hors ligne'}</span>
           </div>
         </section>
 

@@ -25,6 +25,10 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
+        // Chantier 61 : `id` relatif → identité stable de la PWA quel que soit
+        // le build (local base=/ ou Pi base=/keymaker/app/). Sans id, Chrome
+        // prend start_url — ok, mais autant être explicite.
+        id: './',
         name: 'Keymaker',
         short_name: 'Keymaker',
         description: 'Apprendre Strudel CC & le solfège',
@@ -46,6 +50,10 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
         // Les SAMPLES distants (banques strudel chargées à la demande) passent en
         // cache-first à l'usage : joués une fois = disponibles hors-ligne.
+        // Chantier 61 : plafond 600 → 1200 (les leçons M4-M8 puisent large) et
+        // 2e règle pour les SOUNDFONTS (webaudiofontdata sert des .js, que la
+        // 1re règle wav/mp3/ogg/flac/json ne couvrait pas → sons gm_ muets hors
+        // ligne même déjà joués).
         runtimeCaching: [
           {
             urlPattern: ({ url }) =>
@@ -54,7 +62,17 @@ export default defineConfig({
             handler: 'CacheFirst',
             options: {
               cacheName: 'keymaker-samples',
-              expiration: { maxEntries: 600, maxAgeSeconds: 60 * 60 * 24 * 60 },
+              expiration: { maxEntries: 1200, maxAgeSeconds: 60 * 60 * 24 * 60 },
+              cacheableResponse: { statuses: [0, 200] }
+            }
+          },
+          {
+            urlPattern: ({ url }) =>
+              url.host === 'felixroos.github.io' && url.pathname.startsWith('/webaudiofontdata/'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'keymaker-soundfonts',
+              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 60 },
               cacheableResponse: { statuses: [0, 200] }
             }
           }

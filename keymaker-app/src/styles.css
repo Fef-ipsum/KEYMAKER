@@ -3797,3 +3797,86 @@ code, pre, .editor-frame, .quiz-code code {
 @media (max-width: 560px) {
   .tools-pop { left: 0; right: auto; min-width: min(264px, 86vw); }
 }
+
+/* =====================================================================
+   Chantier 61 — PWA installable + hors-ligne lisible
+   Pastille réseau (topbar), cartes Accueil (hors ligne / installer),
+   badges Réglages. Tout s'appuie sur les variables des 3 thèmes.
+   ===================================================================== */
+
+/* Pastille « hors ligne » dans la topbar — informative, pas anxiogène. */
+.net-pill {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px dashed var(--border-soft);
+  border-radius: 999px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+/* Accueil : bandeau « hors ligne — l'essentiel fonctionne ». */
+.dash-offline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface-2);
+  border: 1px dashed var(--border-soft);
+  border-radius: var(--r-md, 12px);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+
+/* Accueil : carte « Installer Keymaker ». */
+.dash-install {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: rgba(var(--accent-rgb), 0.07);
+  border: 1px solid rgba(var(--accent-rgb), 0.30);
+  border-radius: var(--r-md, 12px);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.dash-install .dash-review-txt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.dash-install-msg {
+  font-size: 13px;
+  color: var(--muted);
+  margin: -4px 2px 12px;
+}
+
+/* Réglages : badge réseau / installée. */
+.set-net {
+  flex: none;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  padding: 5px 12px;
+  white-space: nowrap;
+}
+.set-net.on {
+  color: var(--accent);
+  border-color: rgba(var(--accent-rgb), 0.45);
+  background: rgba(var(--accent-rgb), 0.10);
+}
+.set-net.off {
+  border-style: dashed;
+}

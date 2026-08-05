@@ -101,7 +101,7 @@ function inlineRich(text) {
   return nodes;
 }
 
-export default function SatiChat({ piUrl, status, onChangeUrl, onTest, getContext, onClose, studio = false }) {
+export default function SatiChat({ piUrl, status, onChangeUrl, onTest, getContext, onClose, studio = false, online = true }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
@@ -350,8 +350,11 @@ export default function SatiChat({ piUrl, status, onChangeUrl, onTest, getContex
         {offline && (
           <div className="sati-banner" role="status">
             <span>
-              Sati vit sur ton Pi — statut : <strong>{statusLabel}</strong>
-              {status?.detail ? ' (' + status.detail + ')' : ''}.
+              {!online ? (
+                <>Tu es <strong>hors ligne</strong> — Sati a besoin du réseau. Tout le reste de l'app fonctionne.</>
+              ) : (
+                <>Sati vit sur ton Pi — statut : <strong>{statusLabel}</strong>{status?.detail ? ' (' + status.detail + ')' : ''}.</>
+              )}
             </span>
             <button className="sati-banner-test" onClick={onTest}>
               ↻ Tester

@@ -20,7 +20,7 @@ const IcoBookmark = () => (
 // 100 % présentationnel : App calcule le `summary` (depuis progress.js) et passe les
 // actions. Données lues à l'ouverture, donc toujours fraîches.
 
-export default function Dashboard({ summary, modules, currentModuleIndex, resumeLabel, reviewCount, onOpenReview, onStartFlow, daily, onDaily, onResume, onPickModule, onOpenLibrary, onOpenGlossary, onClose }) {
+export default function Dashboard({ summary, modules, currentModuleIndex, resumeLabel, reviewCount, onOpenReview, onStartFlow, daily, onDaily, onResume, onPickModule, onOpenLibrary, onOpenGlossary, online = true, install, onClose }) {
   const s = summary || { perModule: [], totalSeen: 0, totalFlashs: 0, days: 0, streak: 0, pct: 0 };
   const streakWord = s.streak <= 1 ? 'jour' : 'jours';
   const daysWord = s.days <= 1 ? 'jour' : 'jours';
@@ -54,6 +54,34 @@ export default function Dashboard({ summary, modules, currentModuleIndex, resume
             {resumeLabel && <span className="dash-resume-sub">{resumeLabel}</span>}
           </button>
         </section>
+
+        {/* ---- Chantier 61 : hors ligne — rassurer, pas alarmer ---- */}
+        {!online && (
+          <section className="dash-offline" role="status">
+            <span className="dash-daily-glyph" aria-hidden="true">⚡</span>
+            <span className="dash-review-label">
+              Hors ligne — l'essentiel fonctionne
+              <span className="dash-review-sub">Leçons, Studio, révisions, notes : 100 % local. Sati, quiz et défis IA reviendront avec le réseau.</span>
+            </span>
+          </section>
+        )}
+
+        {/* ---- Chantier 61 : installer la PWA (le navigateur le propose rarement seul) ---- */}
+        {install && install.available && (
+          <section className="dash-install">
+            <div className="dash-review-txt">
+              <span className="dash-daily-glyph" aria-hidden="true">📲</span>
+              <span className="dash-review-label">
+                Installe Keymaker sur cet appareil
+                <span className="dash-review-sub">Une icône, plein écran — et l'app s'ouvre même sans réseau.</span>
+              </span>
+            </div>
+            <button className="dash-review-btn" onClick={install.onInstall}>Installer</button>
+          </section>
+        )}
+        {install && install.msg && (
+          <p className="dash-install-msg" role="status">{install.msg}</p>
+        )}
 
         {/* ---- Défi du jour (Chantier 43) : anti-page-blanche, un par date ---- */}
         {daily && (
