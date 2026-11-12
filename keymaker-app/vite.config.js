@@ -1,83 +1,75 @@
+import { existsSync } from 'node:fs';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// Keymaker — Chantier 1 (prototype, slice vertical).
-// PWA standalone + React. Le moteur Strudel est vendorisé dans public/vendor
-// (chargé au runtime, jamais bundlé par Vite) pour rester 100% local.
+// Garde-fou : sans le pack de sons, l'app construite serait muette hors ligne.
+// Le pack n'est pas versionné (36 Mo de sons tiers) : `npm run samples` le reconstruit.
+const requireSamplePack = {
+  name: 'keymaker-sample-pack',
+  apply: 'build',
+  buildStart() {
+    if (!existsSync(new URL('./public/samples/manifest.json', import.meta.url))) {
+      throw new Error('Pack de sons hors ligne absent (public/samples/). Lance d’abord « npm run samples » (réseau requis).');
+    }
+  },
+};
+
+// Keymaker 2 — React + Vite, PWA installable et entièrement hors ligne.
+//
+//  - Le moteur Strudel est vendorisé dans public/vendor (chargé tel quel, jamais
+//    retraité par Vite).
+//  - Le service worker est ÉCRIT À LA MAIN (src/sw.js) ; le plugin y injecte
+//    seulement la liste des fichiers de la coquille (__WB_MANIFEST).
+//  - Les sons (public/samples/gh, public/samples/wafd) ne sont pas dans cette
+//    liste : ils sont rangés dans leur propre cache par src/lib/offline.js.
+//
+// Build pour le Pi :  npm run build:pi   (base /keymaker/app/)
 export default defineConfig({
   base: '/',
   build: {
+    chunkSizeWarningLimit: 1200,
     rollupOptions: {
       output: {
-        // Chantier D2/perf (11 juin 2026) : les leçons (~200 KB de données) dans
-        // leur PROPRE chunk → corriger une leçon n'invalide plus le cache du code
-        // de l'app (et inversement). Toujours chargé au boot (FLATS/SRS en ont
-        // besoin), mais en parallèle et mieux caché.
+        // Le contenu (leçons, wiki, genres) dans son propre fichier : corriger une
+        // leçon n'invalide pas le cache du code de l'app, et inversement.
         manualChunks(id) {
-          if (/src\/(lessons|module7|module8)\.js$/.test(id)) return 'lessons';
+          if (/src[\\/]content[\\/]/.test(id)) return 'contenu';
         },
       },
     },
   },
   plugins: [
+    requireSamplePack,
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
+      injectRegister: false,
+      injectManifest: {
+        globPatterns: ['**/*.{css,html,js,mjs,svg,png,webmanifest,woff2,json}'],
+        globIgnores: ['samples/gh/**', 'samples/wafd/**', 'sw.js'],
+        maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
+      },
       manifest: {
-        // Chantier 61 : `id` relatif → identité stable de la PWA quel que soit
-        // le build (local base=/ ou Pi base=/keymaker/app/). Sans id, Chrome
-        // prend start_url — ok, mais autant être explicite.
         id: './',
         name: 'Keymaker',
         short_name: 'Keymaker',
-        description: 'Apprendre Strudel CC & le solfège',
+        description: 'Apprendre Strudel et le solfège',
         lang: 'fr',
+        start_url: './',
+        scope: './',
         display: 'standalone',
         orientation: 'any',
-        background_color: '#0d1120',
-        theme_color: '#0d1120',
+        background_color: '#090b10',
+        theme_color: '#090b10',
         icons: [
           { src: 'icons/pwa-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/pwa-512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'icons/pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
-        ]
+          { src: 'icons/pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
       },
-      workbox: {
-        // Chantier 47 : PRÉCACHE COMPLET — coquille + moteur vendorisé (~5 MB) +
-        // fonts + sons locaux → l'app démarre et joue dans le train, sans réseau.
-        globPatterns: ['**/*.{css,html,js,mjs,svg,png,webmanifest,woff2,wav,mp3,ogg,json}'],
-        maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
-        // Les SAMPLES distants (banques strudel chargées à la demande) passent en
-        // cache-first à l'usage : joués une fois = disponibles hors-ligne.
-        // Chantier 61 : plafond 600 → 1200 (les leçons M4-M8 puisent large) et
-        // 2e règle pour les SOUNDFONTS (webaudiofontdata sert des .js, que la
-        // 1re règle wav/mp3/ogg/flac/json ne couvrait pas → sons gm_ muets hors
-        // ligne même déjà joués).
-        runtimeCaching: [
-          {
-            urlPattern: ({ url }) =>
-              url.origin !== self.location.origin &&
-              /\.(wav|mp3|ogg|flac|json)$/i.test(url.pathname),
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'keymaker-samples',
-              expiration: { maxEntries: 1200, maxAgeSeconds: 60 * 60 * 24 * 60 },
-              cacheableResponse: { statuses: [0, 200] }
-            }
-          },
-          {
-            urlPattern: ({ url }) =>
-              url.host === 'felixroos.github.io' && url.pathname.startsWith('/webaudiofontdata/'),
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'keymaker-soundfonts',
-              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 60 },
-              cacheableResponse: { statuses: [0, 200] }
-            }
-          }
-        ]
-      }
-    })
-  ]
+    }),
+  ],
 });

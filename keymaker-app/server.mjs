@@ -22,6 +22,9 @@ const TYPES = {
   '.ico': 'image/x-icon',
   '.wasm': 'application/wasm',
   '.woff2': 'font/woff2',
+  '.wav': 'audio/wav',
+  '.mp3': 'audio/mpeg',
+  '.ogg': 'audio/ogg',
   '.map': 'application/json',
 };
 

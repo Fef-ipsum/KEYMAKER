@@ -1,164 +1,83 @@
-# ꩜ Keymaker — l'app d'apprentissage Strudel CC + solfège
+# Keymaker 2
 
-PWA en français pour apprendre **le live coding (Strudel CC)** et **le solfège** en même temps.
-État actuel : **8 modules complets et jouables**, **181 flashs**, un écran **🏠 Accueil** (progression + streak), un **carnet de notes** et une **bibliothèque de snippets** par flash, un **visualiseur de rythme** (grille animée sous l'éditeur), le **partage vers strudel.cc**, un **🎛️ Studio** (bac à sable libre, hors leçon), un guide IA (**Sati**) et un écran **Réglages**. Tout tourne 100 % en local ; Sati se branche sur ton Pi.
+Application en français pour apprendre **Strudel** (la musique par le code) et le **solfège** en même temps. Elle s'installe comme une app sur téléphone, tablette et PC, et fonctionne **entièrement hors ligne** ; seule l'assistante Sati a besoin du réseau.
 
----
+## Ouvrir l'app
 
-## ▶️ Lancer l'app (le plus simple)
+- **Depuis n'importe quel appareil connecté à Tailscale** : `https://personal-os.tailac998e.ts.net/keymaker/app/`
+- **En local sur le PC** : double-clic sur `start.bat` (ouvre `http://localhost:4321`). Au premier lancement, le script construit l'app ; il faut Node.js.
 
-### 🌐 Depuis n'importe quel appareil (nouveau — Chantier 34)
+Pour l'installer : sur Android (Chrome), menu ⋮ puis « Installer l'application » ; sur iPhone et iPad (Safari), bouton Partager puis « Sur l'écran d'accueil » ; sur PC (Chrome ou Edge), icône d'installation à droite de la barre d'adresse. À la première ouverture en ligne, l'app télécharge ses sons (environ 35 Mo) ; l'avancement est visible dans Réglages → Hors ligne.
 
-L'app est **servie par le Pi** : ouvre **`https://personal-os.tailac998e.ts.net/keymaker/app/`** depuis tout appareil connecté à Tailscale (PC, tablette, téléphone). Installable en PWA (« Ajouter à l'écran d'accueil »). Zéro config : Sati se branche toute seule (même origine). Toujours à jour du dernier build livré sur le Pi.
+## Ce qu'il y a dedans
 
-> ⚠️ L'interface n'est pas encore optimisée pour petit écran (< 880 px) — confortable sur PC et tablette paysage, étroit sur téléphone (Chantier 40 prévu).
+| Lieu | À quoi il sert |
+|---|---|
+| **Aujourd'hui** | Un seul bouton pour reprendre, et « J'ai 10 / 20 / 40 minutes ». |
+| **Parcours** | Les fondations (8 chapitres), puis les approfondissements facultatifs (leçons de l'app d'origine). |
+| **Genres** | Techno, Acid, Trance, Progressive, Synth-pop : huit traits par genre, à entendre, comprendre et reconstruire ; un comparateur. |
+| **Wiki** | Chaque fonction, signe et notion. L'essentiel d'abord, le détail sur demande. Inclut la documentation officielle de Strudel 1.3.0. |
+| **Studio** | Bac à sable libre, codes gardés, défis. |
 
-### 💻 En local sur le PC (sans réseau)
+## Organisation du code
 
-**Double-clique sur `start.bat`.**
+```
+src/
+  main.jsx, App.jsx        démarrage, navigation, éditeur unique
+  ui.jsx                   composants partagés
+  views/                   un fichier par écran
+  components/              l'éditeur (EditorDock) et Sati
+  lib/                     moteur, validation des exercices, progression, hors ligne, migration
+  content/
+    fondations/            les 8 chapitres (ch1.js … ch8.js) et les solutions des exercices
+    genres/                un fichier par genre + index.js (le registre)
+    wiki/                  entrées rédigées + reference.json (doc officielle extraite du moteur)
+    legacy/                leçons et glossaire de l'app d'origine, conservés
+    registry.js            l'index de tout le contenu (utilisé par l'app et par les tests)
+  sw.js                    service worker (écrit à la main)
+public/
+  vendor/strudel-repl/     le moteur Strudel 1.3.0, embarqué
+  samples/                 les sons nécessaires au contenu (pack hors ligne)
+scripts/                   vérifications et fabrication (voir ci-dessous)
+```
 
-Une fenêtre noire s'ouvre (le serveur local) et ton navigateur ouvre l'app tout seul sur `http://localhost:4321`.
+**Ajouter un genre** : créer `src/content/genres/<nom>.js` sur le modèle de `techno.js`, l'ajouter à la liste dans `src/content/genres/index.js`, puis lancer `npm run samples` (si le genre utilise de nouveaux sons) et `npm run check`.
 
-- Garde la fenêtre noire **ouverte** tant que tu utilises l'app. Pour arrêter : **ferme-la**.
-- Tu arrives sur ton **dernier flash** (l'app retient le module **et** la position).
-- **▶ Run** (ou `Ctrl+Enter`) joue le son · **Stop** (ou `Ctrl+.`) l'arrête.
-- **⤢ Focus** (barre du haut) ouvre le **Mode Focus** : tout disparaît sauf l'éditeur et Run/Stop, pour une session de pratique pure. On en sort par **Échap** ou le bouton **✕** en coin (le son ne s'interrompt pas).
-- L'éditeur **complète les fonctions Strudel** pendant la frappe (Ctrl+Espace pour forcer) et **affiche les erreurs de code en clair** juste en dessous.
-- **◫ Visualiseur** (à côté de Run/Stop) ouvre une **grille rythmique animée** : un curseur balaie le cycle et les blocs s'allument au passage du son — pour *voir* le rythme, pas seulement l'entendre. Optionnel, retenu dans les Réglages.
+## Commandes
 
-> 💡 Le tout premier son d'un échantillon met une seconde à charger. Internet utile **au premier usage** ; ensuite c'est en cache.
+| Commande | Effet |
+|---|---|
+| `npm run dev` | Développement (rechargement à chaud ; pas de service worker). |
+| `npm run build` | Build local (`dist/`, servi par `start.bat`). |
+| `npm run build:pi` | Build pour le Pi (`dist-pi/`, adresse de base `/keymaker/app/`). |
+| `npm run check` | Vérifie les liens, puis **exécute chaque exemple de code** dans le moteur réel et vérifie chaque exercice (le code de départ ne valide pas, la solution valide). |
+| `npm run smoke` | Parcourt le build du Pi dans un navigateur : 3 tailles d'écran × 2 thèmes, parcours d'un débutant, reprise des anciennes données, hors ligne. |
+| `npm run samples` | Reconstruit le pack de sons hors ligne (`public/samples/`) en jouant chaque exemple du contenu (réseau requis). À relancer quand un contenu utilise un nouveau son. |
+| `npm run reference` | Ré-extrait la documentation officielle du moteur embarqué. |
 
----
+Sous Git Bash, `npm run build:pi` doit être lancé tel quel (ne pas passer `--base=/keymaker/app/` à la main : le shell transformerait le chemin).
 
-## 🧭 Navigation
+**Après un clonage neuf**, le pack de sons n'est pas là (il n'est pas versionné : 35 Mo de sons tiers). Dans l'ordre : `npm install`, `npx playwright install chromium`, `npm run samples` (quelques minutes, réseau requis). La build refuse de se faire sans le pack, pour ne jamais produire une app muette hors ligne.
 
-- **Précédent / Suivant** parcourent les flashs et **traversent les chapitres**.
-- Indicateur **Ch.N · n/m** + points du chapitre courant.
-- **☰ Parcours** ouvre la carte : sélecteur **Module 1 à 8** (barre **scrollable** — les Modules 7 & 8 ne sont plus coupés), chapitres repliables, clic pour aller à n'importe quel flash. Circulation **libre**.
-- À la fin d'un module : bouton **« Module suivant ▶ »**.
+## Déployer sur le Pi
 
----
-
-## 🏠 Accueil, carnet & partage
-
-- **🏠 Accueil** (barre du haut, et à la 1ʳᵉ ouverture du jour) : ta **progression** d'un coup d'œil — **streak** (jours d'affilée), % par module, gros bouton **Reprendre**, accès rapide à chaque module, et **📌 Mes snippets**.
-- **✎ Ma note** sous le concept de chaque flash : une note libre, **enregistrée toute seule**, hors-ligne — pour externaliser un truc à retenir.
-- **📌 Bibliothèque de snippets** : sous l'éditeur, **☆ Sauvegarder** garde le pattern courant ; rouvre-le d'un clic depuis l'Accueil → il se charge dans l'éditeur.
-- **↗ Ouvrir dans Strudel** ouvre ton code dans le REPL officiel strudel.cc · **⤓ Télécharger .js** l'enregistre en fichier propre.
-
-Tout est **100 % local** (rien n'est envoyé) et **masqué en Mode Focus**.
-
----
-
-## 🎛️ Studio — faire du son (hors leçon)
-
-Bouton **🎛️ Studio** dans la barre du haut : un **bac à sable indépendant des leçons**. Pas de flash, pas de progression — juste un éditeur Strudel à toi pour **improviser et faire du son**.
-
-- **Démarrage rapide** : une grille de *starters* (House, Breakbeat, Acid, Mélodie, Ambient, Techno). **Un clic = ça charge et ça joue.** Édite ensuite à ta guise.
-- **🎲 Surprends-moi** : charge un pattern au hasard et le lance.
-- **Tempo** : −/+ ajuste le BPM (réécrit la ligne `setcpm` en tête).
-- **Run / Stop** (`Ctrl+Entrée` / `Ctrl+.`), **visualiseur** de rythme, **aide-mémoire** intégré.
-- **☆ Sauvegarder** (dans ta bibliothèque) · **↗ Ouvrir dans Strudel** · **⤓ Télécharger .js** · **⟲ Vider**.
-- **Sati à portée de clic** : elle voit ton code du Studio et propose des idées jouables (actions adaptées : *Donne-moi une idée*, *Améliore mon code*, *Surprends-moi*).
-
-Ton code du Studio est **retenu d'une session à l'autre** (local). Le son de la leçon s'arrête quand tu entres dans le Studio (un seul moteur joue à la fois). On en sort par **✕ Fermer** ou **Échap**.
-
----
-
-## 📚 Le contenu
-
-**Module 1 — Strudel & Live Coding** (26 flashs, 5 chapitres)
-1. Premier contact (5) · 2. Le rythme (7) · 3. Le pouls (3) · 4. La hauteur (7) · 5. L'assemblage (4).
-Le live coding : `sound()`, batterie, mini-notation, tempo/BPM, notes & gammes, `stack()` / `$:`.
-
-**Module 2 — Solfège & Théorie musicale** (25 flashs, 5 chapitres)
-1. Les 12 notes (5) · 2. Les intervalles (5) · 3. Les gammes (5) · 4. Les accords (5) · 5. La tonalité (5).
-Le solfège **entendu dans Strudel** (chaque concept est audible), avec un pont permanent vers la guitare.
-
-**Module 3 — Connexion Guitare** (25 flashs, 5 chapitres)
-1. Le manche & l'accordage · 2. Lire le manche · 3. Les accords ouverts · 4. Power chords & barrés · 5. Le jeu.
-Relie la théorie (Modules 1-2) à ta guitare : le manche, les positions, les accords, le jeu.
-
-**Module 4 — Son & Effets** (25 flashs, 5 chapitres)
-1. La source (ondes & bruit) · 2. Le filtre · 3. L'enveloppe (ADSR) · 4. L'espace (réverb & délai) · 5. La couleur & le mix.
-Le son lui-même : fabriquer un timbre depuis l'onde brute, le filtrer, lui donner une forme (ADSR), un espace et de la couleur — chaque effet **audible**, ponts permanents vers M1/M2/M3.
-
-**Module 5 — Informatique Musicale** (25 flashs, 5 chapitres)
-1. Le pattern est une fonction · 2. Manipuler le temps · 3. Le hasard maîtrisé · 4. Accumulation & calques · 5. L'héritage & le grand tableau.
-Le code comme instrument — fil rouge **« un pattern est une fonction du temps »** : fabriques (`stack`/`seq`/`cat`/`run`), transformations du temps (`slow`/`fast`/`rev`/`iter`/`ply`), hasard reproductible (`irand`/`degrade`/`sometimes`/`ribbon`), accumulation (`superimpose`/`off`/`echo`/`jux`), arrangement (`firstOf`/`chunk`), sortie **MIDI** — et un **morceau génératif final qui réunit les 5 modules**.
-
-**Module 6 — Composition & Projets** (25 flashs, 5 chapitres)
-1. Le studio dans le navigateur (le stack live) · 2. Réutiliser : variables & fonctions · 3. Arranger dans le temps · 4. La matière d'un track · 5. Finir, jouer, partager.
-De la boucle au **morceau complet** — fil rouge **« d'une boucle à un morceau »** : le stack live (`$:`, pistes nommées, mute `_`, `all()`), la réutilisation (`const`, `register`, `color`), l'arrangement (`arrange`/`mask`/`pick`), la matière sonore (`samples`/`chop`/`slice`/`layer`), le mix (`gain`/`pan`/`orbit`), le live set, l'**export** (onglet export, OBS, MIDI/OSC) et la PWA — clôturé par un **projet final qui réunit les six modules**.
-
-Chaque flash suit le même moule : **Concept → éditeur Strudel → Décodage → Théorie (solfège) → Exercice**, avec une **table récap** en fin de chapitre et un **exercice libre** en clôture.
-
----
-
-## 🤖 Sati — le guide IA
-
-Tiroir de chat (bouton **Sati** dans la barre du haut). Elle **voit ton flash et ton code live** et répond en français, en streaming.
-
-- Actions rapides : *Explique ce flash* · *Corrige mon code* · *Un indice* · **✏️ Crée une leçon** (mini-leçon sur mesure : concept + code jouable + exercice). Modes **Normal** (Sonnet) / **Rapide** (Haiku).
-- **⟲ Nouvelle conversation** (en-tête, confirm 2 temps) : repart d'un fil vierge — **garde** les difficultés repérées et la mémoire du Pi.
-- **Mémoire locale** (IndexedDB, hors-ligne) : le fil et les difficultés repérées survivent au rechargement.
-- Sati vit sur **ton Pi** (la clé API n'est jamais dans le navigateur). Sans Pi, l'app reste 100 % utilisable, simplement sans Sati.
-
----
-
-## ⚙ Réglages
-
-Bouton **⚙ Réglages** : **thème (Void sombre / Clair / Matrix)**, taille de texte, réduire les animations, couleurs du code, numéros de ligne, **auto-complétion** (ON par défaut), URL du Pi + test, mémoire de Sati (voir / effacer), reprendre la progression à zéro.
-
----
-
-## 🧩 Sous le capot
-
-- **React + Vite + PWA** (`display: standalone`), thèmes **Void** (sombre, défaut, accent cyan), **Light** (clair, accent indigo) et **Matrix** (vert phosphore) — bascule dans les Réglages, posée sur `<html>`.
-- **Une seule** instance d'éditeur **Strudel** (CodeMirror 6 + moteur), vendorisée dans `public/vendor/strudel-repl/` → **aucune dépendance CDN au runtime**. Jamais recréée en changeant de flash (on pousse juste le nouveau code). L'**auto-complétion** et les **erreurs inline** passent par l'API du moteur (`setAutocompletionEnabled`, événement `update.detail.error`) ; le **Mode Focus** est une simple classe CSS sur `.app` (l'éditeur n'est jamais recréé en entrant/sortant).
-- Reprise du dernier flash + **suivi de progression** (flashs vus, streak) en `localStorage` ; mémoire de Sati, **carnet de notes** et **bibliothèque de snippets** en `IndexedDB` (base `keymaker`, **v2** — la migration préserve les données existantes).
-- Backend de Sati = module Docker `keymaker` sur le Pi (Fastify + Postgres, Tailscale-only).
-
----
-
-## 🛠️ Pour développer (optionnel)
+Depuis Git Bash, dans `keymaker-app/` :
 
 ```bash
-npm install      # une seule fois
-npm run dev       # http://localhost:5173, se recharge à chaque modif
-npm run build     # régénère le dossier dist/ servi par start.bat
+npm run build:pi && bash scripts/deploy-pi.sh
 ```
 
-`start.bat` sert le dossier **`dist/`** déjà construit — pas besoin de `npm install` juste pour utiliser l'app.
+Le script sauvegarde d'abord l'app en place dans `modules/keymaker/backups/webapp-<date>-<heure>.tar.gz` sur le Pi (dossier ignoré par git), vide `modules/keymaker/webapp/` sans supprimer le dossier (il est monté dans le conteneur), y extrait la nouvelle build (dossiers 755, fichiers 644), puis vérifie que le conteneur la sert. Aucun redémarrage n'est nécessaire quand le dossier n'était pas vide.
 
----
+**Revenir en arrière** : sur le Pi, vider `modules/keymaker/webapp/` (sauf `.gitkeep`) et y extraire l'archive voulue de `modules/keymaker/backups/`.
 
-## 📁 Structure
+## Données de l'utilisateur
 
-```
-keymaker-app/
-├─ start.bat            ← double-clic pour lancer
-├─ server.mjs           ← petit serveur local (zéro dépendance)
-├─ index.html · vite.config.js
-├─ src/
-│  ├─ App.jsx           ← navigation multi-modules + overlays (Accueil / Parcours / Sati / Réglages / Bibliothèque)
-│  ├─ Dashboard.jsx     ← écran Accueil : progression, streak, % par module (Chantier 16)
-│  ├─ progress.js       ← suivi local : flashs vus + jours/streak (localStorage)
-│  ├─ FlashNote.jsx     ← carnet de notes par flash (Chantier 24)
-│  ├─ SnippetLibrary.jsx← bibliothèque de snippets (Chantier 27)
-│  ├─ notebook.js       ← opérations notes + snippets (IndexedDB v2)
-│  ├─ StrudelEditor.jsx ← wrapper React du moteur Strudel
-│  ├─ SatiChat.jsx · sati.js   ← guide IA : tiroir de chat + client SSE du Pi
-│  ├─ Settings.jsx      ← écran Réglages
-│  ├─ memory.js         ← mémoire locale de Sati + schéma IndexedDB v2 (stores notes/snippets)
-│  ├─ lessons.js        ← contenu : modules = [module1...module8], 181 flashs (M7/M8 dans module7.js/module8.js)
-│  └─ styles.css        ← thème Void + cartes + nav + table récap + overlays
-├─ public/
-│  ├─ icons/            ← icônes PWA
-│  └─ vendor/strudel-repl/  ← moteur Strudel (local)
-└─ dist/                ← build prêt à servir (généré)
-```
+Tout est enregistré dans le navigateur, sur l'appareil. Les clés de l'app d'origine (`keymaker:*`) sont lues et jamais supprimées ; Keymaker 2 ajoute les siennes (`km2:*`). Réglages → « Exporter une copie de sauvegarde » produit un fichier contenant tout.
 
----
+## Documents
 
-*Keymaker — Modules 1 à 8 complets (181 flashs) + **Studio (bac à sable)** + Sati (**⟲ reset de conversation** + **✏️ leçons à la demande**) + Réglages (thèmes Void / Light / Matrix) + **Mode Focus** + **auto-complétion & erreurs inline** + **Accueil/progression**, **carnet de notes**, **bibliothèque de snippets**, **partage/export** et **visualiseur de rythme**. Navigation modules **scrollable** (Modules 7 & 8 accessibles). Strudel v1.3.0. Mis à jour le 9 juin 2026 (Chantier 33 — UX Sati & navigation, en autonomie).*
+- `../docs/AUDIT.md` — l'état de l'app d'origine et les décisions prises.
+- `../docs/PEDAGOGIE.md` — le parcours et les choix pédagogiques.
+- `../docs/CONCEPTION_REFAIRE_UN_MORCEAU.md` — la prochaine fonction prévue et où elle se branche.
+- `../docs/NOTES_FABLE.md` — notes de travail (faits vérifiés, pièges).

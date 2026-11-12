@@ -1,4 +1,16 @@
 node_modules/
+
+# Builds (reconstructibles : npm run build / npm run build:pi)
+dist/
+dist-pi/
+dist-debug/
+
+# Pack de sons hors ligne : sons tiers (36 Mo), reconstruit par « npm run samples ».
+public/samples/
+
+# Sorties des scripts de verification (captures, extractions)
+scripts/out/*
+!scripts/out/engine-facts.json
 *.log
 .DS_Store
 .vite/

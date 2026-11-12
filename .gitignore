@@ -12,7 +12,8 @@ node_modules/
 .DS_Store
 Thumbs.db
 
-# Remarque : dist/ EST suivi volontairement (c'est l'app que start.bat sert).
+# Remarque : depuis Keymaker 2, dist/ n'est plus suivi (il contient 36 Mo de sons
+# copies de public/samples). start.bat le construit s'il est absent.
 
 # Build Pi (artefact transitoire livré par scp vers le Pi, cf. Chantier 34/57)
 keymaker-app/dist-pi*/

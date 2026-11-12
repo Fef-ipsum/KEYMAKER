@@ -1,13 +1,20 @@
 {
   "name": "keymaker",
   "private": true,
-  "version": "0.1.0",
+  "version": "2.0.0",
   "type": "module",
-  "description": "Keymaker — apprendre Strudel CC & le solfège",
+  "description": "Keymaker 2 — apprendre Strudel et le solfège",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "build:pi": "vite build --base=/keymaker/app/ --outDir dist-pi",
+    "preview": "vite preview",
+    "check": "node scripts/check-links.mjs && node scripts/check-content.mjs",
+    "check:links": "node scripts/check-links.mjs",
+    "check:content": "node scripts/check-content.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "samples": "node scripts/build-sample-pack.mjs",
+    "reference": "node scripts/build-reference.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",
