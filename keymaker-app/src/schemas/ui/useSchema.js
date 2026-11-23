@@ -54,8 +54,8 @@ export function useSchema(def, spec, { ear = null, context = 'lecon' } = {}) {
     const p = def.params[k];
     const q = p.q(clamp(v, p));
     setSt((s) => {
-      if (s.p[k] === q && (s.written || def.id !== 'adsr')) return s;
-      return { ...s, p: { ...s.p, [k]: q }, written: def.id === 'adsr' ? true : s.written, implicit: (s.implicit || []).filter((x) => x !== k) };
+      if (s.p[k] === q && (s.written || !(def.writes ? def.writes.includes(k) : def.id === 'adsr'))) return s;
+      return { ...s, p: { ...s.p, [k]: q }, written: (def.writes ? def.writes.includes(k) : def.id === 'adsr') ? true : s.written, implicit: (s.implicit || []).filter((x) => x !== k) };
     });
     setGlow((g) => ({ k, n: g.n + 1 }));
   }, [def]);

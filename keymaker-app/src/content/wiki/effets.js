@@ -145,6 +145,7 @@ export default [
   },
   {
     id: 'fx.lpenv', t: 'lpenv', sub: 'enveloppe de filtre', kind: 'fx', tokens: ['lpenv', 'lpe', 'lpa', 'lpd', 'lps', 'lpr', 'lpattack', 'lpdecay'], doc: 'lpenv',
+    schema: { type: 'enveloppe-filtre', reglages: { lpf: 300, lpq: 8, lpenv: 2 }, source: 'basse' },
     ess: 'Fait s’ouvrir puis se refermer le filtre à CHAQUE note. C’est le « ouah » d’une basse acid.',
     code: 'note("c2 c2 eb2 c2").sound("sawtooth").lpf(300).lpenv(4).lpd(.15)',
     use: [

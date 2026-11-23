@@ -31,6 +31,8 @@ const def = {
     source: { label: 'Ce qui joue', values: ['basse', 'tenue'], labels: { basse: 'Ligne de basse', tenue: 'Note tenue' }, def: 'basse' },
   },
   paramCode: (st, k) => ({ f: 'lpf', q: 'lpq', env: 'lpenv' }[k] || k),
+  // Toucher l'un de ces réglages les écrit tous les quatre dans le code (comme pour l'ADSR).
+  writes: ENV_KEYS,
 
   // { reglages: { lpf, lpq, lpenv, lpa, lpd, lps, lpr } } — lpa…lpr absents : valeurs par défaut.
   fromSpec(spec = {}) {

@@ -41,7 +41,7 @@ const text = (page, sel) => page.locator(sel).first().innerText().catch(() => ''
 
 /* ---------- 1. Captures : tailles × thèmes ---------- */
 const SIZES = { pc: { width: 1440, height: 900 }, tablette: { width: 834, height: 1112 }, telephone: { width: 390, height: 844 } };
-const ROUTES = [['accueil', '#/'], ['parcours', '#/parcours'], ['etape', '#/etape/f.crochets'], ['genre', '#/genre/techno/kick'], ['comparer', '#/comparer?a=techno&b=trance'], ['wiki', '#/wiki/fx.lpf'], ['wiki-adsr', '#/wiki/fx.adsr'], ['schemas', '#/schemas'], ['studio', '#/studio'], ['reglages', '#/reglages']];
+const ROUTES = [['accueil', '#/'], ['parcours', '#/parcours'], ['etape', '#/etape/f.crochets'], ['genre', '#/genre/techno/kick'], ['comparer', '#/comparer?a=techno&b=trance'], ['wiki', '#/wiki/fx.lpf'], ['wiki-adsr', '#/wiki/fx.adsr'], ['wiki-ondes', '#/wiki/son.ondes'], ['wiki-lpenv', '#/wiki/fx.lpenv'], ['schemas', '#/schemas'], ['studio', '#/studio'], ['reglages', '#/reglages']];
 for (const [size, viewport] of Object.entries(SIZES)) {
   for (const scheme of ['light', 'dark']) {
     if (onlyOffline) continue;
@@ -269,6 +269,27 @@ if (!onlyOffline) {
     check((await page.locator('.chat-schema .schema-filtre').count()) === 1 && /99999/.test(await text(page, '.msg-sati')), `${label} · bloc valide → schéma vivant ; bloc invalide → reste du texte`);
     await page.screenshot({ path: join(SHOTS, `schemas-${label}-${scheme}-sati.png`) });
     await page.unroute('**/keymaker/ai/chat');
+    // Vague 2 : ondes, passe-haut, enveloppe de filtre.
+    await page.evaluate(() => { window.location.hash = '#/wiki/son.ondes'; });
+    await page.waitForSelector('.schema-onde');
+    await page.click('.schema-onde .sch-play');
+    await page.click('.schema-onde .sch-wavebtn:has-text("Sinusoïde")');
+    await page.waitForTimeout(300);
+    check(/sound\("sine"\)/.test(await text(page, '.schema-onde .sch-code code')) && (await page.locator('.schema-onde .sch-mission.is-done').count()) >= 1, `${label} · ondes : toucher la sinusoïde change le code et valide « pure »`);
+    check((await page.locator('.schema-onde .sch-bar:not(.is-empty)').count()) === 1, `${label} · ondes : la sinusoïde n’a qu’une barre`);
+    await page.click('.schema-onde .sch-play');
+    await page.evaluate(() => { window.location.hash = '#/wiki/fx.hpf'; });
+    await page.waitForSelector('.schema-filtre');
+    check(/hpf\(200\)\.hpq\(0\)/.test(await text(page, '.schema-filtre .sch-code code')), `${label} · passe-haut : le code dit hpf(200).hpq(0)`);
+    await page.click('.schema-filtre .sch-choice-b:has-text("Passe-bas")');
+    check(/lpf\(200\)\.lpq\(0\)/.test(await text(page, '.schema-filtre .sch-code code')), `${label} · changer de genre de filtre change les noms dans le code`);
+    await page.evaluate(() => { window.location.hash = '#/wiki/fx.lpenv'; });
+    await page.waitForSelector('.schema-fenv');
+    await page.click('.schema-fenv .sch-play');
+    await page.waitForTimeout(900);
+    check((await page.locator('.schema-fenv .sch-trace path').count()) === 1 && (await page.locator('.schema-fenv .sch-curve-live').count()) === 1, `${label} · enveloppe de filtre : la trace et la courbe du filtre bougent pendant la lecture`);
+    await page.screenshot({ path: join(SHOTS, `schemas-${label}-${scheme}-fenv.png`) });
+    await page.click('.schema-fenv .sch-play');
     check(!errors.length, `${label} · aucune erreur de page` + (errors.length ? ' → ' + errors.slice(0, 3).join(' | ') : ''));
     await ctx.close();
   }

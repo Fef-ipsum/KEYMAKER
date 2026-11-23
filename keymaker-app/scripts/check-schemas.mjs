@@ -70,6 +70,11 @@ const SCRIPTS = {
     creuse: [{ playing: true }, { playing: true, onde: 'square' }],
     brillante: [{ playing: true }, { playing: true, onde: 'sawtooth' }],
   },
+  'enveloppe-filtre': {
+    balaye: [{ playing: true, env: 4 }],
+    eveil: [{ playing: true, lpa: 0.3 }],
+    pique: [{ playing: true, env: 3, lpd: 0.08, lps: 0 }],
+  },
   adsr: {
     lente: [{ attack: 0.5 }, { holding: true, heldFor: 0.2, event: 'press' }, { holding: true, heldFor: 0.6, event: 'tick' }],
     pince: [{ sustain: 0 }, { holding: true, heldFor: 1.2, event: 'tick' }],
@@ -83,7 +88,7 @@ for (const [type, def] of Object.entries(TYPES)) {
       fail(`mission ${type}/${m.id} : pas de parcours scripté`);
       continue;
     }
-    const st = stateFromSpec(type === 'filtre' ? { type, reglages: { lpf: 1000, lpq: 0 } } : type === 'onde' ? { type, onde: 'triangle' } : { type, reglages: {}, mode: 'tenir' });
+    const st = stateFromSpec(type === 'filtre' ? { type, reglages: { lpf: 1000, lpq: 0 } } : type === 'onde' ? { type, onde: 'triangle' } : type === 'enveloppe-filtre' ? { type, reglages: { lpf: 300, lpenv: 1 } } : { type, reglages: {}, mode: 'tenir' });
     const runner = createMissionRunner([m]);
     let done = false;
     for (const stepSnap of script) {
@@ -93,7 +98,7 @@ for (const [type, def] of Object.entries(TYPES)) {
       if (mode) st.o.mode = mode;
       for (const [k, v] of Object.entries(params)) {
         st.p[k] = def.params[k].q(v);
-        if (type === 'adsr') st.written = true;
+        if (def.writes ? def.writes.includes(k) : type === 'adsr') st.written = true;
       }
       if (runner.update({ p: st.p, o: st.o, written: st.written, playing, holding, heldFor, event }).length) done = true;
     }
@@ -181,6 +186,12 @@ function randomSpec(type) {
     const src = ['basse', 'repetee', 'tenue'][Math.floor(rnd() * 3)];
     return { type, reglages: { lpf: f, lpq: q }, source: src };
   }
+  if (type === 'enveloppe-filtre') {
+    const d = TYPES[type];
+    const r = { lpf: d.params.f.q(fromPos(d.params.f, rnd() * 0.6)), lpq: d.params.q.q(fromPos(d.params.q, rnd() * 0.5)), lpenv: d.params.env.q(fromPos(d.params.env, rnd())) };
+    if (rnd() < 0.6) for (const k of ['lpa', 'lpd', 'lps', 'lpr']) r[k] = d.params[k].q(fromPos(d.params[k], rnd()));
+    return { type, reglages: r, source: rnd() < 0.5 ? 'basse' : 'tenue' };
+  }
   if (type === 'onde') return { type, onde: ['sine', 'triangle', 'square', 'sawtooth'][Math.floor(rnd() * 4)], note: ['c2', 'c3', 'c4'][Math.floor(rnd() * 3)] };
   const r = {};
   for (const k of ['attack', 'decay', 'sustain', 'release']) if (rnd() < 0.8) r[k] = def.params[k].q(fromPos(def.params[k], rnd()));
@@ -223,6 +234,16 @@ for (const [vals, rel, label] of [
 for (const w of ['sine', 'triangle', 'square', 'sawtooth']) {
   const r = await bench('waveDrawingVsOscillator', w);
   check(r.barsDiff < 0.01 && r.shapeDiff < 0.02 && r.rms < 0.03, `onde ${w} : forme et barres dessinées = oscillateur réel`, `barres ${r.barsDiff.toExponential(1)} ; forme (échelle ×${r.scale.toFixed(3)}) : écart max ${r.shapeDiff.toExponential(1)} hors des ${r.jumps} saut(s) vertical(aux), ${r.jumpDiff.toExponential(1)} tout près des sauts, écart moyen (RMS) ${r.rms.toExponential(1)}`);
+}
+
+for (const [vals, hold, f, env] of [
+  [[0.005, 0.14, 0, 0.1], 0.25, 300, 2],
+  [[0.3, 0.2, 0.5, 0.4], 1, 200, 5],
+  [[0.5, 0.2, 0.6, 0.3], 0.25, 600, -3],
+  [[0.05, 0.1, 1, 0.1], 2, 100, 7],
+]) {
+  const r = await bench('filterEnvVsEngine', vals, hold, f, env);
+  check(r.vsDrawn < 1e-3 && r.vsEngine < 1e-4, `enveloppe de filtre lpf ${f}, lpenv ${env}, [${vals.join(', ')}] sur ${hold} s : courbe dessinée = coupure programmée = getParamADSR`, `de ${Math.round(r.min)} à ${Math.round(r.max)} Hz ; écarts relatifs ${r.vsDrawn.toExponential(1)} / ${r.vsEngine.toExponential(1)}`);
 }
 
 section('[B2] le son correspond à Strudel (superdough vs schéma, hors temps réel)');

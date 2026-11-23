@@ -14,8 +14,9 @@
 import filtre from './types/filtre.js';
 import adsr from './types/adsr.js';
 import onde from './types/onde.js';
+import enveloppeFiltre from './types/enveloppeFiltre.js';
 
-export const TYPES = { filtre, adsr, onde };
+export const TYPES = { filtre, adsr, onde, 'enveloppe-filtre': enveloppeFiltre };
 export const typeIds = () => Object.keys(TYPES);
 
 const isNum = (v) => typeof v === 'number' && Number.isFinite(v);

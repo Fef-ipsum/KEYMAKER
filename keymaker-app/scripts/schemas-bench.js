@@ -7,7 +7,8 @@
 // Puis on compare : échantillons, enveloppe de volume (RMS sur 10 ms), spectre.
 import { TYPES, stateFromSpec, codeText } from '/src/schemas/catalog.js';
 import { adsrValues, adsrPlan, planValue, SYNTH_DEFAULTS } from '/src/schemas/core/adsr.js';
-import { createFiltreSound, adsrNote, heldVoice, ondeNote, CPS } from '/src/schemas/ui/sounds.js';
+import { createFiltreSound, adsrNote, heldVoice, ondeNote, fenvNote, CPS } from '/src/schemas/ui/sounds.js';
+import { envPlan, FILTER_ENV_DEFAULTS, filterEnvRange } from '/src/schemas/core/adsr.js';
 import { NOTES as ONDE_NOTES, period, harmonics } from '/src/schemas/types/onde.js';
 import { filterResponse } from '/src/schemas/ui/response.js';
 import { SOURCES } from '/src/schemas/types/filtre.js';
@@ -107,7 +108,7 @@ export function teardownZones(spec, seconds) {
   const st = stateFromSpec(spec);
   let n;
   let tail;
-  if (spec.type === 'filtre') {
+  if (spec.type === 'filtre' || spec.type === 'enveloppe-filtre') {
     n = SOURCES[st.o.source].midi.length;
     tail = SYNTH_DEFAULTS[3];
   } else if (spec.type === 'onde') {
@@ -117,9 +118,17 @@ export function teardownZones(spec, seconds) {
     n = st.o.mode === 'motif' ? MOTIF.midi.length : 1;
     tail = TYPES.adsr.values(st)[3];
   }
+  // Après le rangement, un filtre résonant continue de « sonner » : constante de temps
+  // τ = Q / (π·f) (Q linéaire = 10^(lpq/20)). La zone couvre 7 τ (−60 dB), 80 ms au moins.
+  let ring = 0;
+  if (spec.type === 'filtre' || spec.type === 'enveloppe-filtre') {
+    const f = spec.type === 'filtre' ? st.p.f : Math.min(...Object.values(TYPES[spec.type].range(st)));
+    ring = (7 * Math.pow(10, st.p.q / 20)) / (Math.PI * Math.max(f, 20));
+  }
+  const len = Math.max(0.08, ring);
   const step = 1 / (n * CPS);
   const out = [];
-  for (let k = 0; k * step < seconds; k++) out.push([(k + 1) * step + tail, (k + 1) * step + tail + 0.08]);
+  for (let k = 0; k * step < seconds; k++) out.push([(k + 1) * step + tail, (k + 1) * step + tail + len]);
   return out;
 }
 
@@ -128,9 +137,10 @@ export async function evalPattern(code) {
   const ed = window.__ed;
   ed.setCode(code);
   if (!/\bsetcp[ms]\s*\(/.test(code)) ed.repl.setCps(0.5);
-  await ed.evaluate();
+  // Sans démarrer la lecture (autostart = false) : sinon le moteur jouerait quelques notes
+  // dans le contexte audio de la page, et ses nœuds recyclés fuiraient dans les rendus.
+  await ed.repl.evaluate(code, false);
   const st = ed.repl.state;
-  ed.stop();
   if (st.evalError) throw new Error(String(st.evalError.message || st.evalError));
   return st.pattern;
 }
@@ -197,7 +207,11 @@ export async function renderSchema(spec, seconds, stOverride) {
     const step = 1 / (slots.length * CPS);
     for (let i = 0; i * step < seconds; i++) adsrNote(ac, ac.destination, slots[i % slots.length], i * step, step, vals);
   }
-  else if (spec.type === 'onde') {
+  else if (spec.type === 'enveloppe-filtre') {
+    const slots = SOURCES[st.o.source].midi;
+    const step = 1 / (slots.length * CPS);
+    for (let i = 0; i * step < seconds; i++) fenvNote(ac, ac.destination, slots[i % slots.length], i * step, step, st, TYPES['enveloppe-filtre']);
+  } else if (spec.type === 'onde') {
     for (let i = 0; i * 2 < seconds; i++) ondeNote(ac, ac.destination, st.o.onde, ONDE_NOTES[st.o.note], i * 2, 2);
   }
   const buf = await ac.startRendering();
@@ -225,6 +239,9 @@ export const FACT_RENDERS = [
   { key: 'fact:hpq1', code: 'note("c2*4").sound("sawtooth").hpf(600).hpq(1)', seconds: 1.2 },
   { key: 'fact:sans-bpq', code: 'note("c2*4").sound("sawtooth").bpf(600)', seconds: 1.2 },
   { key: 'fact:bpq1', code: 'note("c2*4").sound("sawtooth").bpf(600).bpq(1)', seconds: 1.2 },
+  { key: 'fact:lpa-seul', code: 'note("c2*4").sound("sawtooth").lpf(300).lpa(.1)', seconds: 1.2 },
+  { key: 'fact:lpa-env1', code: 'note("c2*4").sound("sawtooth").lpf(300).lpa(.1).lpenv(1)', seconds: 1.2 },
+  { key: 'fact:fenv-defauts', code: 'note("c2*4").sound("sawtooth").lpf(300).lpenv(3)', seconds: 1.2 },
   { key: 'fact:12db', code: 'note("c2").sound("sawtooth").lpf(500)', seconds: 0.4 },
   { key: 'fact:24db', code: 'note("c2").sound("sawtooth").lpf(500).ftype("24db")', seconds: 0.4 },
 ];
@@ -370,6 +387,35 @@ export async function waveDrawingVsOscillator(wave) {
   const shapeDiff = Math.max(...diffs.filter((_, i) => !near(i)));
   const jumpDiff = Math.max(0, ...diffs.filter((_, i) => near(i)));
   return { barsDiff, shapeDiff, rms, jumpDiff, jumps: jumps.length, scale };
+}
+
+// Enveloppe de filtre : la courbe dessinée (envPlan, exponentielle) contre getParamADSR
+// du moteur en mode exponentiel, rendu hors temps réel (valeurs en hertz).
+export async function filterEnvVsEngine(vals, hold, f, env) {
+  const { min, max } = filterEnvRange(f, env, 0);
+  const len = Math.round((hold + vals[3] + 0.2) * SR);
+  const begin = 0.01;
+  const render = async (apply) => {
+    const ac = new OfflineAudioContext(1, len, SR);
+    const src = new ConstantSourceNode(ac, { offset: 1 });
+    const g = ac.createGain();
+    g.gain.value = 0;
+    src.connect(g).connect(ac.destination);
+    apply(g.gain);
+    src.start(0);
+    return (await ac.startRendering()).getChannelData(0);
+  };
+  const plan = envPlan(vals, begin, hold, { min, max, curve: 'exponential' });
+  const mine = await render((p) => plan.forEach((e) => (e.kind === 'set' ? p.setValueAtTime(e.v, e.t) : e.kind === 'exp' ? p.exponentialRampToValueAtTime(e.v, e.t) : p.linearRampToValueAtTime(e.v, e.t))));
+  const theirs = await render((p) => window.getParamADSR(p, vals[0], vals[1], vals[2], vals[3], min, max, begin, begin + hold, 'exponential'));
+  let vsDrawn = 0;
+  let vsEngine = 0;
+  for (let i = Math.round(begin * SR); i < len; i++) {
+    const ref = Math.max(theirs[i], 1);
+    vsDrawn = Math.max(vsDrawn, Math.abs(mine[i] - planValue(plan, i / SR)) / ref);
+    vsEngine = Math.max(vsEngine, Math.abs(mine[i] - theirs[i]) / ref);
+  }
+  return { vsDrawn, vsEngine, min, max };
 }
 
 /* --- 5. Les faits du « Creuser » -------------------------------------------------------- */
@@ -521,6 +567,39 @@ export const FACTS = {
     const m = await measureWave('sawtooth');
     const r = m.levels.map((l, i) => l * (i + 1));
     return { ok: r.every((x) => Math.abs(x - 1) < 0.02), detail: 'niveau × n, n = 1 à 16 : ' + r.map((x) => x.toFixed(3)).join(' ') };
+  },
+  async 'fenv.octaves'() {
+    const rows = [];
+    for (const env of [1, 2, 4, -2]) {
+      const { min, max } = filterEnvRange(400, env, 0);
+      rows.push([env, min, max]);
+    }
+    // Et le moteur, sur la vraie coupure : getParamADSR exponentiel entre ces bornes.
+    const r = await filterEnvVsEngine([0.05, 0.1, 0, 0.1], 0.5, 400, 4);
+    const ok = rows[0][2] === 800 && rows[1][2] === 1600 && rows[2][2] === 6400 && rows[3][1] === 1600 && rows[3][2] === 400 && r.vsEngine < 1e-4;
+    return { ok, detail: rows.map(([e, a, b]) => `lpf 400, lpenv ${e} : de ${a} à ${b} Hz`).join(' · ') + ` ; courbe = getParamADSR (écart relatif ${r.vsEngine.toExponential(1)})` };
+  },
+  async 'fenv.defauts'() {
+    const v = window.getADSRValues([undefined, undefined, undefined, undefined], 'exponential', [0.005, 0.14, 0, 0.1]);
+    // note("c2*4") : 4 notes de 0,5 s ; le schéma rend les mêmes notes avec ses fonctions.
+    const ac = new OfflineAudioContext(2, Math.round(1.2 * SR), SR);
+    const st = stateFromSpec({ type: 'enveloppe-filtre', reglages: { lpf: 300, lpenv: 3 } });
+    for (let i = 0; i * 0.5 < 1.2; i++) fenvNote(ac, ac.destination, 36, i * 0.5, 0.5, st, TYPES['enveloppe-filtre']);
+    const mine = Array.from((await ac.startRendering()).getChannelData(0));
+    const zones = [0.5, 1].map((e) => [e + 0.01, e + 0.09]);
+    const c = compare(rendered('fact:fenv-defauts'), mine, zones);
+    return { ok: v.join() === FILTER_ENV_DEFAULTS.join() && c.maxAbs < 1e-4, detail: `getADSRValues sans réglage → [${v.join(', ')}] ; rendu superdough de lpf(300).lpenv(3) = schéma avec ces valeurs (écart ${c.maxAbs.toExponential(1)})` };
+  },
+  async 'fenv.exponentielle'() {
+    const r = await filterEnvVsEngine([0.4, 0.1, 0.5, 0.2], 1, 200, 5);
+    // À mi-attaque, une rampe exponentielle de 200 à 6 400 Hz passe par la moyenne géométrique (1 131 Hz).
+    const plan = envPlan([0.4, 0.1, 0.5, 0.2], 0, 1, { min: 200, max: 6400, curve: 'exponential' });
+    const mid = planValue(plan, 0.2);
+    return { ok: Math.abs(mid - Math.sqrt(200 * 6400)) < 1 && r.vsEngine < 1e-4, detail: `mi-attaque : ${mid.toFixed(1)} Hz (moyenne géométrique ${Math.sqrt(200 * 6400).toFixed(1)}) ; écart relatif avec getParamADSR ${r.vsEngine.toExponential(1)}` };
+  },
+  async 'fenv.un-seul'() {
+    const d = compare(rendered('fact:lpa-seul'), rendered('fact:lpa-env1')).maxAbs;
+    return { ok: d < 1e-4, detail: `lpf(300).lpa(.1) vs lpf(300).lpa(.1).lpenv(1) : écart ${d.toExponential(1)}` };
   },
   async 'adsr.defauts'() {
     const r = await soundVsStrudel({ type: 'adsr', reglages: {}, mode: 'motif' });

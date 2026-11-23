@@ -11,9 +11,10 @@ export { parseSchemaBlock };
 import FiltreSchema from './FiltreSchema.jsx';
 import AdsrSchema from './AdsrSchema.jsx';
 import OndeSchema from './OndeSchema.jsx';
+import FenvSchema from './FenvSchema.jsx';
 import { Icon, Rich } from '../../ui.jsx';
 
-export const VIEWS = { filtre: FiltreSchema, adsr: AdsrSchema, onde: OndeSchema };
+export const VIEWS = { filtre: FiltreSchema, adsr: AdsrSchema, onde: OndeSchema, 'enveloppe-filtre': FenvSchema };
 
 // Un schéma qui plante ne fait pas tomber l'écran qui l'accueille.
 class Guard extends Component {

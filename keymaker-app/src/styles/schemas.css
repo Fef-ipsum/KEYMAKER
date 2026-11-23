@@ -121,3 +121,7 @@
 .sch-wavebtn { min-height: 64px; display: grid; justify-items: center; gap: 2px; padding: 6px; border-radius: var(--r-s); border: 1px solid var(--line-2); background: var(--glass-2); font-weight: 600; color: var(--ink-2); }
 .sch-wavebtn .sch-curve { stroke-width: 2; }
 .sch-wavebtn.is-on { border-color: var(--blue); background: var(--blue-soft); color: var(--ink); box-shadow: 0 0 0 1px var(--blue) inset; }
+
+/* Enveloppe de filtre */
+.sch-fenv-resp { border-top: 1px solid var(--line); cursor: default; touch-action: auto; }
+.sch-curve-live { stroke: var(--gold); }

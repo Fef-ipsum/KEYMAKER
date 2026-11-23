@@ -10,8 +10,8 @@
 
 | Vague | Contenu | État |
 |---|---|---|
-| 1 | Socle (catalogue, son, intégration leçons/wiki, missions, question « à l'oreille », Sati, tests, page de revue) · filtre passe-bas · enveloppe ADSR | **Construite et vérifiée.** Poussée sur la branche `ccr-b6c29ca3-4wolq4`. **Pas encore déployée sur le Pi** (voir ci-dessous). |
-| 2 | Ondes et harmoniques, passe-haut / passe-bande, enveloppe de filtre | À faire |
+| 1 | Socle (catalogue, son, intégration leçons/wiki, missions, question « à l'oreille », Sati, tests, page de revue) · filtre passe-bas · enveloppe ADSR | **Construite et vérifiée.** Poussée sur la branche `ccr-b6c29ca3-4wolq4` (PR #1). **Pas encore déployée sur le Pi** (voir ci-dessous). |
+| 2 | Ondes et harmoniques (les 4 ondes natives), passe-haut / passe-bande, enveloppe de filtre | **Construite et vérifiée.** `pulse` et `supersaw` : pas de schéma (voir §2.4). |
 | 3 | Le cycle, le tempo | À faire |
 | 4 | Clavier, intervalles, gammes, accords | À faire |
 | 5 | Signaux, écho, réverbération, sidechain, distorsion | À faire |
@@ -55,7 +55,8 @@
 | **Sources** | Ligne de basse `note("c2 c2 eb2 c2 g2 c2 bb1 c2")` · Note répétée `note("c2*8")` · Note tenue `note("c2")` (un cycle = 2 s). Toujours `.sound("sawtooth")`, enveloppe par défaut. |
 | **Avant / après** | « Maintiens : sans filtre » : la courbe devient un pointillé à 0 dB, l'or rejoint le gris, la partie filtre du code est barrée. |
 | **Missions** | `ferme` (sous 300 Hz) · `ouvre` (au-dessus de 5 000 Hz) · `siffle` (résonance ≥ 15) · `acid` (résonance ≥ 15, coupure de < 400 à > 2 000 Hz) |
-| **Prévu (vague 2)** | Passe-haut (`hpf`/`hpq`) et passe-bande (`bpf`/`bpq`) : déjà acceptés par le moteur du schéma, pas encore utilisés dans le contenu ni vérifiés. |
+| **Genres de filtre** | Passe-bas (`lpf`/`lpq`), passe-haut (`hpf`/`hpq`), passe-bande (`bpf`/`bpq`). La déclaration choisit le genre par ses réglages ; `filtres: [...]` affiche un choix entre plusieurs. En passe-bande, la poignée reste sur le sommet (0 dB) et glisser vers le haut resserre la bande. |
+| **Missions (suite)** | `allege` (passe-haut au-dessus de 400 Hz) · `etroit` (passe-bande, `bpq` ≥ 8) |
 
 ### 2.2 `adsr` — l'enveloppe de volume
 
@@ -69,7 +70,29 @@
 | **Avant / après** | « Tiens : sans réglage » (mode Tenir) ou « Maintiens : sans réglage » (mode Motif) : le son et la forme reviennent aux valeurs par défaut de Strudel. |
 | **Missions** | `lente` (attaque ≥ 0,4 s, tenir jusqu'au sommet) · `pince` (maintien 0, tenir plus d'1 s) · `traine` (extinction ≥ 1 s, puis lâcher) |
 
-### 2.3 Où ils vivent
+### 2.3 `onde` — la forme d'une onde et ses harmoniques
+
+| | |
+|---|---|
+| **Ce qu'on voit** | Deux périodes de l'onde, et ses 16 premières harmoniques en barres (niveau par rapport à la 1ʳᵉ). Le dessin vient des coefficients de la norme Web Audio, **mesurés** sur l'oscillateur réel (§6). |
+| **Ce qu'on attrape** | Le dessin de chaque onde (quatre vignettes) ; la hauteur (c2, c3, c4). Changer d'onde change aussi la note en cours. |
+| **Code** | `note("c3").sound("sawtooth")` — une note par cycle (2 s), enveloppe par défaut. |
+| **Avant / après** | « Maintiens : sinusoïde » : la même note sans harmoniques. |
+| **Missions** | `pure`, `creuse`, `brillante` : passer à la sinusoïde, au carré, à la dent de scie **en venant d'une autre onde** (sinon la mission serait gagnée sans geste, ce que le test refuse). |
+| **Pas de `pulse` ni de `supersaw`** | Dans le moteur, ce sont des AudioWorklets : `pulse` est une approximation par modulation de fréquence (pas une impulsion idéale), et `supersaw` tire au hasard la phase de chaque voix. Aucun des deux n'a une forme qu'on puisse dessiner à partir du code sans la mesurer sur le son réel. Plutôt qu'un dessin « à peu près », pas de schéma ; à reprendre avec une mesure en direct (analyseur) si besoin. |
+| **Niveau des ondes** | Le niveau absolu des ondes intégrées dépend du navigateur (Chrome : carré et dent de scie ×0,848, triangle ×1, mesuré). Le dessin montre la **forme** de chaque onde à sa propre crête, et aucun texte ne compare leurs volumes. |
+
+### 2.4 `enveloppe-filtre` — la coupure qui bouge pendant la note
+
+| | |
+|---|---|
+| **Ce qu'on voit** | La coupure dans le temps (échelle en octaves), calculée par `envPlan` — la fonction qui programme aussi le filtre de chaque note, réplique de `getParamADSR` en mode exponentiel. Les montées exponentielles y sont des droites. Une ligne pointillée à `lpf`. En dessous, la courbe du filtre : fermée et ouverte au repos, celle de l'instant pendant la lecture. |
+| **Ce qu'on attrape** | Trois poignées A, D, R (comme l'ADSR) ; curseurs `lpenv`, `lpf`, `lpq` ; les quatre temps `lpa`, `lpd`, `lps`, `lpr` dans un repli. |
+| **Règles du moteur** | Bornes : de `lpf` à `lpf·2^lpenv` (ancre `fanchor` 0 : `setVersionDefaults` existe mais n'est pas appelé dans ce moteur), limitées à 20 000 Hz, inversées si `lpenv` est négatif. Valeurs par défaut .005, .14, 0, .1. |
+| **Sources** | Ligne de basse (notes de 0,25 s) · Note tenue (2 s). |
+| **Missions** | `balaye` (`lpenv` ≥ 4) · `eveil` (`lpa` ≥ 0,2 s) · `pique` (`lpd` ≤ 0,1, `lps` 0, `lpenv` ≥ 2) |
+
+### 2.5 Où ils vivent
 
 | Lieu | Schéma | Missions |
 |---|---|---|
@@ -80,6 +103,10 @@
 | Wiki `fx.lpf` · `fx.lpq` | filtre | ferme, ouvre · siffle, acid |
 | Wiki `fx.attack` · `fx.decay` · `fx.sustain` · `fx.release` · `fx.adsr` · `sol.enveloppe` | adsr | une mission chacun (toutes pour `fx.adsr`, `sol.enveloppe`) |
 | Point d'étape du chapitre 6 | `oreille.filtre-coupure`, `oreille.adsr-pince` | — |
+| Étape `f.ondes` | onde, dent de scie | pure, creuse, brillante |
+| Wiki `son.ondes` · `sol.timbre` | onde | toutes · pure, brillante |
+| Wiki `fx.hpf` · `fx.bpf` | filtre passe-haut (choix bas/haut) · passe-bande (choix des trois) | allege · etroit |
+| Wiki `fx.lpenv` | enveloppe-filtre, `lpf(300).lpq(8).lpenv(2)` | balaye, eveil, pique |
 | Page de revue `#/schemas` | tout, d'un coup | — |
 
 ---
@@ -162,7 +189,8 @@ Chaque type fournit `code(état)` (des morceaux, dont ceux qui brillent) et `exp
 ### 5.1 Deux limites rencontrées, et la meilleure comparaison suivante
 
 - **Superdough range ses notes de façon asynchrone.** Il déconnecte la chaîne d'une note sur un événement `onended` (`webAudioTimeout`). Juste après la fin d'une note, le rendu varie donc **d'une fois à l'autre** : deux rendus superdough du même code `lpf(138).lpq(27)` diffèrent de 0,25 dans ces zones, et de 0,00002 ailleurs (mesuré). La comparaison est donc exacte partout **sauf** dans les 80 ms qui suivent la fin + extinction de chaque note ; l'écart dans ces zones est rapporté à part, pour information. Il n'est audible qu'avec une résonance extrême sur des fréquences très basses.
-- **La réserve de nœuds de superdough est commune à tous les contextes audio** (`getNodeFromPool`, non exportée). Un deuxième `OfflineAudioContext` reçoit des nœuds du premier et plante (« cannot connect to an AudioNode belonging to a different audio context »). `renderPatternAudio` n'est pas concerné parce qu'il ne sert qu'une fois. Le banc fait donc **tous** ses rendus superdough dans un seul contexte, chacun à son propre moment, séparés par 5,5 s de silence.
+- **Combien de temps mettre à part ?** Au moins 80 ms ; davantage quand un filtre résonne : 7 constantes de temps τ = Q / (π·f), avec Q = 10^(lpq/20) (une baisse de 60 dB). Pour `lpf(138).lpq(27)`, cela fait 0,36 s. Mesuré : superdough contre lui-même, hors de ces zones, diffère de 1,8·10⁻⁵ ; dedans, de 0,22.
+- **La réserve de nœuds de superdough est commune à tous les contextes audio** (`getNodeFromPool`, non exportée). Un deuxième `OfflineAudioContext` reçoit des nœuds du premier et plante (« cannot connect to an AudioNode belonging to a different audio context »). `renderPatternAudio` n'est pas concerné parce qu'il ne sert qu'une fois. Le banc fait donc **tous** ses rendus superdough dans un seul contexte, chacun à son propre moment, séparés par 5,5 s de silence. Et il évalue le code **sans démarrer la lecture** (`repl.evaluate(code, false)`) : sinon quelques notes partent dans le contexte de la page et leurs nœuds recyclés fuient dans le rendu.
 
 ---
 
@@ -174,10 +202,28 @@ Chaque fait affiché dans un « Creuser » a son identifiant, sa preuve dans le 
 
 - **`filtre.q-db`** — À la coupure, le gain vaut exactement `lpq` dB. *Code* : `createFilter` règle `Q` = `resonance`. *Mesure* : `getFrequencyResponse` à 600 Hz : lpq 0, 1, 6, 12, 15, 20, 30 → 0,0000 ; 1,0000 ; 6,0000 ; 12,0000 ; 15,0000 ; 20,0000 ; 30,0000 dB.
 - **`filtre.pente`** — Au moins 12 dB par octave au-dessus de la coupure. *Mesure* : entre 2 et 8 fois la coupure, pour 300, 600 et 1 000 Hz : −12,94 ; −12,41 ; −13,04 ; −12,81 ; −13,27 ; −13,84 dB par octave. *Correction de l'annexe B* : elle disait « environ −12,5 dB entre la 2ᵉ et la 3ᵉ octave » ; la valeur dépend de la coupure, d'où la formulation « au moins 12 ».
-- **`filtre.q-defaut`** — Sans `.lpq()`, la résonance vaut 1. *Code* : `createFilter(…){ let { q: tn = 1 } }`. *Mesure* : rendu superdough de `lpf(600)` vs `lpf(600).lpq(1)` : écart 3,4·10⁻⁶ (bruit de calcul) ; vs `lpq(0)` : 0,0202.
+- **`filtre.q-defaut`** — Sans `.lpq()` (ou `.hpq()`, `.bpq()`), la résonance vaut 1. *Code* : `createFilter(…){ let { q: tn = 1 } }`, commun aux trois filtres. *Mesure* : rendus superdough, sans vs avec la valeur 1 : `lpf` 3,6·10⁻⁶, `hpf` 5,3·10⁻⁵, `bpf` 5,4·10⁻⁶ (bruit de calcul) ; `lpf` sans vs `lpq(0)` : 0,0202.
+- **`filtre.hpq-db`** — À la coupure, un passe-haut ajoute exactement `hpq` dB. *Mesure* : hpq 0, 1, 6, 12, 20, 30 → 0,0000 ; 1,0000 ; 6,0000 ; 12,0000 ; 20,0000 ; 30,0000 dB.
+- **`filtre.bpf-centre`** — Un passe-bande laisse passer son centre à 0 dB ; `bpq` plus grand = bande plus étroite. *Mesure* (centre 800 Hz) : bpq 1, 3, 8, 20 → centre 0,000 dB à chaque fois ; largeur à −3 dB 1,38 ; 0,47 ; 0,17 ; 0,06 octave.
 - **`filtre.scie`** — Une dent de scie contient toutes les harmoniques, la n-ième n fois plus faible. *Mesure* : `OscillatorNode` sawtooth de période entière (675 échantillons), amplitude × n / amplitude de la 1ʳᵉ, n = 2 à 128 : 1,000 partout (0,999 pour n = 128). C'est aussi ce qui garantit que les traits gris du peigne disent vrai.
 - **`filtre.raccourci`** — `lpf("800:12")` règle coupure et résonance. *Mesure* : `queryArc` → `cutoff: 800, resonance: 12`.
 - **`filtre.24db`** — `.ftype("24db")` met deux filtres à la suite. *Code* : `superdough` crée un second `createFilter` quand `ftype` vaut `24db`. *Mesure* : atténuation à ~2,1 kHz d'une basse `lpf(500)` : 24,9 dB → 49,7 dB (rapport 2,00).
+
+### Ondes
+
+Mesures sur un `OscillatorNode` de période entière (675 échantillons), sur 60 périodes exactes. Le test compare aussi la forme dessinée à l'onde rendue, à un facteur d'échelle près (§2.3) : écart max hors des sauts verticaux 4·10⁻⁶ (sinusoïde), 3·10⁻⁴ (triangle), 1,8·10⁻² (carré), 1,3·10⁻² (dent de scie) ; tout près des sauts, une poignée d'échantillons diffèrent de 0,12 (le nombre d'harmoniques que garde l'oscillateur).
+
+- **`onde.sinus`** — Une seule harmonique. *Mesure* : harmoniques 2 à 16 au plus 10⁻⁶ de la première.
+- **`onde.carre`** — Impaires seulement, la n-ième n fois plus faible. *Mesure* : paires ≤ 1,2·10⁻⁶ ; impaires, niveau × n = 1,000 (n = 1 à 15).
+- **`onde.triangle`** — Impaires seulement, n² fois plus faibles. *Mesure* : paires ≤ 1,2·10⁻⁶ ; impaires, niveau × n² = 1,000.
+- **`onde.scie`** — Toutes, n fois plus faibles. *Mesure* : niveau × n = 1,000 pour n = 1 à 16.
+
+### Enveloppe de filtre
+
+- **`fenv.octaves`** — `lpenv(n)` : jusqu'à 2ⁿ fois la coupure ; négatif, inversée. *Code* : `createFilter` (bornes `2^-ns·R` et `2^(qn-ns)·R`, échange si négatif). *Mesure* : lpf 400 → lpenv 1 : 400 à 800 Hz ; 2 : 400 à 1 600 ; 4 : 400 à 6 400 ; −2 : de 1 600 à 400 Hz. Courbe = `getParamADSR` exponentiel du moteur (écart relatif 0).
+- **`fenv.defauts`** — Valeurs .005, .14, 0, .1. *Code* : `getADSRValues(…, "exponential", [.005, .14, 0, .1])`. *Mesure* : rendu superdough de `lpf(300).lpenv(3)` = rendu du schéma avec ces valeurs (écart 1,3·10⁻⁶).
+- **`fenv.exponentielle`** — Courbes exponentielles. *Mesure* : à mi-attaque d'une montée de 200 à 6 400 Hz, la coupure vaut 1 131,4 Hz, la moyenne géométrique (une montée linéaire donnerait 3 300 Hz).
+- **`fenv.un-seul`** — `lpa(…)` seul active l'enveloppe avec `lpenv` = 1. *Code* : `z = nanFallback(z, 1, true)`. *Mesure* : `lpf(300).lpa(.1)` vs `lpf(300).lpa(.1).lpenv(1)` : écart 2,7·10⁻⁶.
 
 ### Enveloppe
 
