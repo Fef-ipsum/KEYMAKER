@@ -89,7 +89,12 @@ export function useSchema(def, spec, { ear = null, context = 'lecon' } = {}) {
 
   // Le son suit chaque changement de réglage, même sur une note tenue.
   useEffect(() => {
-    if (soundRef.current && soundRef.current.update) soundRef.current.update(soundState());
+    // Une erreur du son ne doit jamais casser l'affichage : le son continue, le dessin aussi.
+    try {
+      if (soundRef.current && soundRef.current.update) soundRef.current.update(soundState());
+    } catch (e) {
+      if (typeof console !== 'undefined') console.warn('[schéma] réglage non appliqué au son :', e && e.message);
+    }
     check();
   }, [st]);
   useEffect(() => {

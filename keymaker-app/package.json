@@ -15,7 +15,8 @@
     "smoke": "node scripts/smoke.mjs",
     "samples": "node scripts/build-sample-pack.mjs",
     "reference": "node scripts/build-reference.mjs",
-    "check:schemas": "node scripts/check-schemas.mjs"
+    "check:schemas": "node scripts/check-schemas.mjs",
+    "fuzz:schemas": "node scripts/fuzz-schemas.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",

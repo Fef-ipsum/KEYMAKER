@@ -435,15 +435,27 @@ export function fenvNote(ac, dest, midi, t, dur, st, def) {
     retune(next) {
       const now = ac.currentTime;
       if (now > t + dur + 0.02) return;
+      const np = envPlan(def.values(next), t, dur, { ...def.range(next), curve: 'exponential' });
+      filt.Q.setTargetAtTime(next.p.q, now, SMOOTH);
+      // Note programmée mais pas encore commencée : elle reçoit simplement la nouvelle
+      // courbe entière. (Partir de sa valeur « actuelle », 0 avant le début, donnait une
+      // rampe exponentielle depuis 0 : un nombre invalide, et le schéma plantait.)
+      if (now < t) {
+        filt.frequency.cancelScheduledValues(0);
+        applyPlan(filt.frequency, np);
+        pieces.length = 0;
+        pieces.push({ from: -Infinity, fn: (x) => planValue(np, x) });
+        return;
+      }
       const T = now + 0.02;
       const from = valueAt(now);
-      const np = envPlan(def.values(next), t, dur, { ...def.range(next), curve: 'exponential' });
-      const to = planValue(np, T);
+      if (!(from > 0) || !Number.isFinite(from)) return;
+      const to = Math.max(planValue(np, T), 0.001);
+      if (!Number.isFinite(to)) return;
       freezeAt(filt.frequency, now, from);
-      filt.frequency.exponentialRampToValueAtTime(Math.max(to, 0.001), T);
+      filt.frequency.exponentialRampToValueAtTime(to, T);
       const rest = np.filter((e) => e.t > T);
       applyPlan(filt.frequency, rest);
-      filt.Q.setTargetAtTime(next.p.q, now, SMOOTH);
       const restPlan = [{ kind: 'set', t: T, v: to }, ...rest];
       pieces.push({ from: now, fn: (x) => (x < T ? from * Math.pow(to / from, (x - now) / 0.02) : planValue(restPlan, x)) });
     },
