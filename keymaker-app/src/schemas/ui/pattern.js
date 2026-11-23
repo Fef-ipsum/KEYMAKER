@@ -97,3 +97,18 @@ export function createPatternSound(ac, getPattern, getCps) {
     },
   };
 }
+
+/* --- Signaux (schéma « signal ») --------------------------------------------------- */
+// Construits avec les fonctions du moteur, comme la ligne de code (vérifié par le banc).
+export function signalPattern(st) {
+  return window[st.o.forme].range(st.p.lo, st.p.hi).slow(st.p.slow);
+}
+export function fullSignalPattern(st) {
+  return window.note(window.mini('c2*8')).s(window.mini('sawtooth')).lpf(signalPattern(st));
+}
+// Valeur du signal à l'instant t (en cycles).
+export const signalAt = (sig, t) => {
+  const h = sig.queryArc(t, t + 1e-6)[0];
+  return h ? Number(h.value) : null;
+};
+

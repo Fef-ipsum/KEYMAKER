@@ -18,8 +18,9 @@ import enveloppeFiltre from './types/enveloppeFiltre.js';
 import cycle from './types/cycle.js';
 import tempo from './types/tempo.js';
 import clavier from './types/clavier.js';
+import signal from './types/signal.js';
 
-export const TYPES = { filtre, adsr, onde, 'enveloppe-filtre': enveloppeFiltre, cycle, tempo, clavier };
+export const TYPES = { filtre, adsr, onde, 'enveloppe-filtre': enveloppeFiltre, cycle, tempo, clavier, signal };
 export const typeIds = () => Object.keys(TYPES);
 
 const isNum = (v) => typeof v === 'number' && Number.isFinite(v);

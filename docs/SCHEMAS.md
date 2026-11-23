@@ -14,7 +14,7 @@
 | 2 | Ondes et harmoniques (les 4 ondes natives), passe-haut / passe-bande, enveloppe de filtre | **Construite et vérifiée.** `pulse` et `supersaw` : pas de schéma (voir §2.4). |
 | 3 | Le cycle, le tempo | **Construite et vérifiée.** |
 | 4 | Clavier, intervalles, gammes, accords | **Construite et vérifiée** (un seul type, quatre modes). |
-| 5 | Signaux, écho, réverbération, sidechain, distorsion | À faire |
+| 5 | Signaux, écho, réverbération, sidechain, distorsion | **Signaux : construit et vérifié.** Écho, réverbération, sidechain, distorsion : **pas encore**, voir §2.10. |
 
 **Déploiement.** Cette session de travail tournait dans un conteneur cloud qui n'atteint ni le Pi (Tailscale, réseau local) ni ton laptop. Le code est sur GitHub ; le déploiement se fait depuis le laptop avec `scripts/deploy-pi.sh` (commandes exactes dans le rapport de session et en §9).
 
@@ -125,7 +125,25 @@
 | **Écriture** | Touches noires : dièses en mode notes (comme le chapitre 3 : `c#`), bémols ailleurs (`eb`, `bb`, comme les chapitres 4 et 5). Les deux désignent la même touche (vérifié). |
 | **Accords et `voicing()`** | Le schéma joue les notes de l'accord empilées en tierces. `chord("D7").voicing()` de Strudel omet la quinte (mesuré : fa♯, do, ré) : c'est un choix de « voicing », pas une erreur ; le test vérifie que chaque note de Strudel appartient bien à l'accord du schéma. |
 
-### 2.8 Où ils vivent
+### 2.8 `signal` — un signal qui bouge un réglage
+
+| | |
+|---|---|
+| **Ce qu'on voit** | La courbe du signal (`sine`, `tri`, `saw` ou `square` `.range(bas, haut).slow(n)`), sur 4 à 16 cycles, calculée par le moteur ; et en doré, la coupure que **chaque note reçoit vraiment** : la valeur du signal au début de la note, gardée toute la note. On voit (et on entend) que le mouvement se fait par marches. |
+| **Code** | `note("c2*8").sound("sawtooth").lpf(sine.range(300, 2000).slow(4))` |
+| **Ce qu'on attrape** | Valeur basse, valeur haute, lenteur, forme. Avant / après : « sans mouvement » (la coupure reste à la valeur basse). |
+| **Missions** | `lent` (slow ≥ 8), `large` (haute ≥ 8 × basse), `forme` — après un changement. |
+
+### 2.9 Ce qui reste (vague 5)
+
+Pour chacun, la règle reste la même : pas de dessin tant qu'il n'est pas calculé depuis ce qui sonne et vérifié.
+
+- **Écho** (`delay`, `delaytime`, `delayfeedback`, `delaysync`) : les répétitions sont produites par le nœud de retard de l'orbite (`Orbit.getDelay` → `createFeedbackDelay`). À faire : mesurer, sur un rendu superdough d'une note courte, le niveau de chaque répétition (hypothèse à vérifier : la première vaut `delay`, chacune suivante × `delayfeedback`, plafonné à 0,98) et le dessiner sur une ligne de temps.
+- **Réverbération** (`room`, `size`) : la queue est générée par `reverbGen` (bruit filtré, durée liée à `roomsize`, `roomfade`, `roomlp`). À faire : mesurer l'enveloppe de la réponse impulsionnelle pour plusieurs `size` et dessiner la traîne mesurée.
+- **Sidechain** (`duck`, `orbit`) : `Orbit.duck(t, onset, attack, depth)` programme le volume de l'orbite visée. À faire : relire la fonction, rendre basse + kick hors temps réel et dessiner le volume mesuré de la basse sur un cycle.
+- **Distorsion** (`distort`, `crush`, `clip`) : `getDistortion` construit une courbe de `WaveShaper`, `crush` et `coarse` sont des AudioWorklets. À faire : passer une sinusoïde dans la même chaîne (rendu hors temps réel) et dessiner l'onde avant / après mesurée.
+
+### 2.10 Où ils vivent
 
 | Lieu | Schéma | Missions |
 |---|---|---|
@@ -143,6 +161,7 @@
 | Étapes `f.cycle`, `f.silence`, `f.etoile`, `f.crochets`, `f.chevrons`, `f.virgule`, `f.durees`, `f.euclide`, `f.hasard` | cycle, avec le motif de l'étape | une mission liée au signe de l'étape (aucune pour `@`, `( , )`, `?`) |
 | Étape `f.groove` · wiki `sol.tempo`, `fn.setcpm` | tempo, 120 BPM | lent, rapide · toutes |
 | Wiki `mini.*` (12 signes), `sol.cycle`, `sol.temps`, `sol.mesure`, `sol.croche`, `sol.contretemps` | cycle, motif de l'entrée | au plus une |
+| Wiki `fn.signaux` · `fn.range` | signal | toutes · large |
 | Étapes `f.do-re-mi`, `f.octave`, `f.demi-ton`, `f.melodie` · `f.gamme`, `f.majeur-mineur`, `f.tonique`, `f.pentatonique` · `f.intervalle`, `f.tierce`, `f.accord`, `f.arpege` | clavier (notes · gamme · intervalle · accord) | celle de la notion |
 | Wiki `sol.hauteur`, `sol.noms-des-notes`, `sol.octave`, `sol.demi-ton`, `sol.ton`, `sol.diese-bemol`, `sol.intervalle`, `sol.tierce`, `sol.quinte`, `sol.gamme`, `sol.majeur`, `sol.mineur`, `sol.pentatonique`, `sol.degre`, `sol.tonique`, `fn.scale`, `sol.accord`, `sol.arpege` | clavier | 0 à 2 |
 | Page de revue `#/schemas` | tout, d'un coup | — |
@@ -298,6 +317,14 @@ Le banc compare d'abord, pour 34 claviers (contenu + cas difficiles : `Eb4:minor
 - **`gamme.penta`** — *Mesure* : `A:minor:pentatonic` → 5 notes par octave, écarts 3 2 2 3 2… ; `C:major:pentatonic` → 5 notes, écarts 2 2 3 2 3… ; aucun demi-ton.
 - **`accord.majeur-mineur`** — *Mesure* : `chord("C").voicing()` → classes 0, 4, 7 ; `"Cm"` → 0, 3, 7 ; 12 accords (do, ré, la × 4 qualités) comparés au moteur.
 - **`accord.septieme`** — *Mesure* : `"C7"` → 0, 4, 7, 10 ; `"C^7"` → 0, 4, 7, 11 ; `"Cmaj7"` → rien ne joue (déjà noté dans NOTES_FABLE).
+
+### Signaux
+
+Le banc compare, pour 5 signaux (dont `saw` de 80 à 9 000 Hz, `square`, `tri` inversé de 2 000 à 200 Hz sur 16 cycles), les coupures des 64 notes de 8 cycles : schéma = ligne de code évaluée par Strudel = valeur du signal au début de chaque note (écarts 0).
+
+- **`signal.echantillon`** — *Mesure* : `lpf(sine.range(300, 2000).slow(4))` sur `note("c2*8")` : 64 notes, chacune avec la valeur du signal à son début, une seule valeur par note.
+- **`signal.range`** — *Mesure* : `sine.range(300, 2000)` va de 300,00 à 2 000,00 ; `sine` seul de 0,0000 à 1,0000.
+- **`signal.slow`** — *Mesure* : avec `slow(4)`, la valeur à 0,25 cycle se retrouve à 4,25 (période 4) mais pas à 1,25 ; sans `slow`, 0,25 et 1,25 donnent la même (période 1).
 
 ### Annexe B, revérifiée
 

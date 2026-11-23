@@ -168,3 +168,6 @@
 .review > *, .review-item > *, .schema-wrap > * { min-width: 0; }
 .schema { grid-template-columns: minmax(0, 1fr); }
 .sch-choice { flex-wrap: wrap; max-width: 100%; border-radius: 22px; }
+
+/* Signal */
+.sch-step { stroke: var(--gold); stroke-width: 3; stroke-linecap: round; }

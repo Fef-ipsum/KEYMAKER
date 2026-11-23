@@ -443,6 +443,7 @@ $: sound("hh*8").gain(.5)`,
   /* ----------------------------- signaux ----------------------------- */
   {
     id: 'fn.signaux', t: 'sine, saw, tri, square, rand, perlin', sub: 'les signaux', kind: 'fn',
+    schema: { type: 'signal', reglages: { bas: 300, haut: 2000, slow: 4 }, forme: 'sine' },
     tokens: ['sine', 'saw', 'tri', 'square', 'rand', 'perlin', 'isaw', 'cosine'], doc: 'sine',
     ess: 'Des valeurs qui changent en continu entre 0 et 1. On les branche sur un réglage pour qu’il bouge tout seul.',
     code: 'note("c2*8").sound("sawtooth").lpf(sine.range(300, 2500).slow(4))',
@@ -464,6 +465,7 @@ $: sound("hh*8").gain(.5)`,
   },
   {
     id: 'fn.range', t: 'range', sub: 'fixer les bornes', kind: 'fn', tokens: ['range', 'rangex'], doc: 'range',
+    schema: { type: 'signal', reglages: { bas: 300, haut: 2000, slow: 2 }, forme: 'sine', missions: ['large'] },
     ess: 'Met un signal à l’échelle : `.range(bas, haut)`.',
     code: 'note("c2*8").sound("sawtooth").lpf(sine.range(400, 2000))',
     traps: ['Pour une fréquence de filtre, `rangex` (échelle exponentielle) donne un balayage plus naturel à l’oreille que `range`.'],

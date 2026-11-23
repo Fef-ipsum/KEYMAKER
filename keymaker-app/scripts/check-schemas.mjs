@@ -84,6 +84,11 @@ const SCRIPTS = {
     septieme: [{ taps: 1, o: { mode: 'accord', quality: '7' } }],
     arpege: [{ taps: 1, o: { mode: 'accord', arp: true } }],
   },
+  signal: {
+    lent: [{ playing: true, changed: true, slow: 8 }],
+    large: [{ playing: true, changed: true, lo: 200, hi: 2000 }],
+    forme: [{ playing: true, changed: true, forme: 'saw' }],
+  },
   tempo: {
     lent: [{ playing: true, bpm: 70 }],
     rapide: [{ playing: true, bpm: 150 }],
@@ -108,11 +113,12 @@ for (const [type, def] of Object.entries(TYPES)) {
       fail(`mission ${type}/${m.id} : pas de parcours scripté`);
       continue;
     }
-    const st = stateFromSpec(type === 'filtre' ? { type, reglages: { lpf: 1000, lpq: 0 } } : type === 'onde' ? { type, onde: 'triangle' } : type === 'enveloppe-filtre' ? { type, reglages: { lpf: 300, lpenv: 1 } } : type === 'tempo' ? { type, reglages: { bpm: 100 }, temps: 4 } : type === 'clavier' ? { type, mode: 'notes', notes: 'c3' } : { type, reglages: {}, mode: 'tenir' });
+    const st = stateFromSpec(type === 'filtre' ? { type, reglages: { lpf: 1000, lpq: 0 } } : type === 'onde' ? { type, onde: 'triangle' } : type === 'enveloppe-filtre' ? { type, reglages: { lpf: 300, lpenv: 1 } } : type === 'tempo' ? { type, reglages: { bpm: 100 }, temps: 4 } : type === 'clavier' ? { type, mode: 'notes', notes: 'c3' } : type === 'signal' ? { type, reglages: { bas: 300, haut: 600, slow: 2 }, forme: 'sine' } : { type, reglages: {}, mode: 'tenir' });
     const runner = createMissionRunner([m]);
     let done = false;
     for (const stepSnap of script) {
-      const { playing = false, holding = false, heldFor = 0, event, kind, mode, onde, temps, taps = 0, o: oo, ...params } = stepSnap;
+      const { playing = false, holding = false, heldFor = 0, event, kind, mode, onde, temps, taps = 0, o: oo, changed = false, forme, ...params } = stepSnap;
+      if (forme) st.o.forme = forme;
       if (oo) Object.assign(st.o, oo);
       if (temps) st.o.temps = temps;
       if (onde) st.o.onde = onde;
@@ -122,7 +128,7 @@ for (const [type, def] of Object.entries(TYPES)) {
         st.p[k] = def.params[k].q(v);
         if (def.writes ? def.writes.includes(k) : type === 'adsr') st.written = true;
       }
-      if (runner.update({ p: st.p, o: st.o, written: st.written, playing, holding, heldFor, event, taps, root0: 48 }).length) done = true;
+      if (runner.update({ p: st.p, o: st.o, written: st.written, playing, holding, heldFor, event, taps, root0: 48, changed }).length) done = true;
     }
     check(done, `mission ${type}/${m.id} atteignable`);
   }
@@ -269,7 +275,7 @@ for (const [vals, hold, f, env] of [
 }
 
 section('[B2] le son correspond à Strudel (superdough vs schéma, hors temps réel)');
-const RHYTHM = new Set(['cycle', 'tempo', 'clavier']);
+const RHYTHM = new Set(['cycle', 'tempo', 'clavier', 'signal']);
 const soundCases = [...all.filter((x) => !RHYTHM.has(x.spec.type)).map((x) => ({ where: x.where, spec: x.spec }))];
 soundCases.push({ where: 'sans réglage d’enveloppe (motif)', spec: { type: 'adsr', reglages: {}, mode: 'motif' } });
 for (const t of Object.keys(TYPES).filter((x) => !RHYTHM.has(x))) for (let i = 0; i < (quick ? 2 : 5); i++) soundCases.push({ where: 'au hasard ' + t + ' ' + (i + 1), spec: randomSpec(t) });
@@ -355,6 +361,11 @@ section('[B4] rythme : événements, tempo, métronome, missions');
     }
   }
   check(!bad, `${specs.length} claviers : touches allumées = notes de la ligne de code évaluée par Strudel`);
+}
+
+for (const sp of [...all.filter((x) => x.spec.type === 'signal').map((x) => x.spec), { type: 'signal', reglages: { bas: 80, haut: 9000, slow: 3 }, forme: 'saw' }, { type: 'signal', reglages: { bas: 500, haut: 700, slow: 1 }, forme: 'square' }, { type: 'signal', reglages: { bas: 2000, haut: 200, slow: 16 }, forme: 'tri' }]) {
+  const r = await bench('signalVsCode', sp);
+  check(r.ok, 'signal : ' + r.code, `coupures par note = ligne de code (écart ${r.maxDiff}) = signal au début de la note (${r.maxStep})`);
 }
 
 section('[B5] les faits du « Creuser », mesurés');

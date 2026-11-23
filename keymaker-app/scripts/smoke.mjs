@@ -41,7 +41,7 @@ const text = (page, sel) => page.locator(sel).first().innerText().catch(() => ''
 
 /* ---------- 1. Captures : tailles × thèmes ---------- */
 const SIZES = { pc: { width: 1440, height: 900 }, tablette: { width: 834, height: 1112 }, telephone: { width: 390, height: 844 } };
-const ROUTES = [['accueil', '#/'], ['parcours', '#/parcours'], ['etape', '#/etape/f.crochets'], ['genre', '#/genre/techno/kick'], ['comparer', '#/comparer?a=techno&b=trance'], ['wiki', '#/wiki/fx.lpf'], ['wiki-adsr', '#/wiki/fx.adsr'], ['wiki-ondes', '#/wiki/son.ondes'], ['wiki-lpenv', '#/wiki/fx.lpenv'], ['wiki-crochets', '#/wiki/mini.crochets'], ['wiki-tempo', '#/wiki/sol.tempo'], ['wiki-accord', '#/wiki/sol.accord'], ['wiki-gamme', '#/wiki/sol.gamme'], ['schemas', '#/schemas'], ['studio', '#/studio'], ['reglages', '#/reglages']];
+const ROUTES = [['accueil', '#/'], ['parcours', '#/parcours'], ['etape', '#/etape/f.crochets'], ['genre', '#/genre/techno/kick'], ['comparer', '#/comparer?a=techno&b=trance'], ['wiki', '#/wiki/fx.lpf'], ['wiki-adsr', '#/wiki/fx.adsr'], ['wiki-ondes', '#/wiki/son.ondes'], ['wiki-lpenv', '#/wiki/fx.lpenv'], ['wiki-crochets', '#/wiki/mini.crochets'], ['wiki-tempo', '#/wiki/sol.tempo'], ['wiki-accord', '#/wiki/sol.accord'], ['wiki-gamme', '#/wiki/sol.gamme'], ['wiki-signal', '#/wiki/fn.signaux'], ['schemas', '#/schemas'], ['studio', '#/studio'], ['reglages', '#/reglages']];
 for (const [size, viewport] of Object.entries(SIZES)) {
   for (const scheme of ['light', 'dark']) {
     if (onlyOffline) continue;
@@ -332,6 +332,15 @@ if (!onlyOffline) {
     await page.waitForTimeout(150);
     check(/scale\("C3:minor"\)/.test(await text(page, '.schema-clavier .sch-code code')), `${label} · gamme : le choix « mineure » change le code`);
     await page.screenshot({ path: join(SHOTS, `schemas-${label}-${scheme}-gamme.png`) });
+    // Vague 5 : un signal.
+    await page.evaluate(() => { window.location.hash = '#/wiki/fn.signaux'; });
+    await page.waitForSelector('.schema-signal');
+    check((await page.locator('.schema-signal .sch-step').count()) >= 32 && /lpf\(sine\.range\(300, 2000\)\.slow\(4\)\)/.test(await text(page, '.schema-signal .sch-code code')), `${label} · signal : la courbe et la coupure de chaque note sont dessinées`);
+    await page.click('.schema-signal .sch-choice-b:has-text("carré")');
+    await page.click('.schema-signal .sch-play');
+    await page.waitForTimeout(400);
+    check(/square\.range/.test(await text(page, '.schema-signal .sch-code code')) && (await page.locator('.schema-signal .sch-mission.is-done').count()) === 1, `${label} · signal : changer la forme change le code et valide la mission`);
+    await page.click('.schema-signal .sch-play');
     check(!errors.length, `${label} · aucune erreur de page` + (errors.length ? ' → ' + errors.slice(0, 3).join(' | ') : ''));
     await ctx.close();
   }

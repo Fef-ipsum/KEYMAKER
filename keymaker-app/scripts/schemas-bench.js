@@ -10,7 +10,7 @@ import { adsrValues, adsrPlan, planValue, SYNTH_DEFAULTS } from '/src/schemas/co
 import { createFiltreSound, adsrNote, heldVoice, ondeNote, fenvNote, CPS } from '/src/schemas/ui/sounds.js';
 import { envPlan, FILTER_ENV_DEFAULTS, filterEnvRange } from '/src/schemas/core/adsr.js';
 import { NOTES as ONDE_NOTES, period, harmonics } from '/src/schemas/types/onde.js';
-import { motifEvents, createPatternSound } from '/src/schemas/ui/pattern.js';
+import { motifEvents, createPatternSound, signalPattern, fullSignalPattern, signalAt } from '/src/schemas/ui/pattern.js';
 import { patternFromCode, notesOf } from '/src/schemas/ui/keys.js';
 import { CHORDS, INTERVALS, chordSymbol } from '/src/schemas/types/clavier.js';
 import { createMissionRunner, pickMissions } from '/src/schemas/core/missions.js';
@@ -521,6 +521,22 @@ export async function chordQualities() {
   return { ok: rows.every((r) => r.ok), bad: rows.filter((r) => !r.ok).map((r) => r.sym + '→' + r.eng.join(',')), omitted: rows.filter((r) => r.omitted.length).map((r) => r.sym) };
 }
 
+export async function signalVsCode(spec) {
+  const st = stateFromSpec(spec);
+  const code = TYPES.signal.codeText(st);
+  const pat = await evalPattern(code);
+  const theirs = pat.queryArc(0, 8).filter((h) => h.hasOnset()).map((h) => [Number(h.whole.begin.valueOf()), Number(h.value.cutoff)]);
+  const mine = fullSignalPattern(st).queryArc(0, 8).filter((h) => h.hasOnset()).map((h) => [Number(h.whole.begin.valueOf()), Number(h.value.cutoff)]);
+  const sig = signalPattern(st);
+  let maxDiff = 0;
+  let maxStep = 0;
+  theirs.forEach(([b, v], i) => {
+    maxDiff = Math.max(maxDiff, Math.abs(v - (mine[i] ? mine[i][1] : Infinity)));
+    maxStep = Math.max(maxStep, Math.abs(v - signalAt(sig, b)));
+  });
+  return { ok: theirs.length === 64 && mine.length === 64 && maxDiff < 1e-9 && maxStep < 1e-9, code, maxDiff, maxStep };
+}
+
 export function cycleMission(id, motifs) {
   const def = TYPES.cycle;
   const m = def.missions.find((x) => x.id === id);
@@ -819,6 +835,25 @@ export const FACTS = {
     const m7 = await engineChord('C^7');
     const bad = await engineChord('Cmaj7');
     return { ok: pcs(s7) === '0,4,7,10' && pcs(m7) === '0,4,7,11' && bad.length === 0, detail: `"C7" → ${pcs(s7)} ; "C^7" → ${pcs(m7)} ; "Cmaj7" → ${bad.length} note (rien ne joue)` };
+  },
+  async 'signal.echantillon'() {
+    const r = await signalVsCode({ type: 'signal', reglages: { bas: 300, haut: 2000, slow: 4 }, forme: 'sine' });
+    return { ok: r.ok, detail: `${r.code} : 64 notes sur 8 cycles, chacune avec la valeur du signal à son début (écart ${r.maxStep.toExponential(1)}), une seule valeur par note` };
+  },
+  async 'signal.range'() {
+    const sig = window.sine.range(300, 2000);
+    const vals = Array.from({ length: 1001 }, (_, i) => signalAt(sig, i / 1000));
+    const raw = Array.from({ length: 1001 }, (_, i) => signalAt(window.sine, i / 1000));
+    return { ok: Math.abs(Math.min(...vals) - 300) < 0.01 && Math.abs(Math.max(...vals) - 2000) < 0.01 && Math.abs(Math.min(...raw)) < 1e-4 && Math.abs(Math.max(...raw) - 1) < 1e-4, detail: `sine.range(300, 2000) : de ${Math.min(...vals).toFixed(2)} à ${Math.max(...vals).toFixed(2)} ; sine : de ${Math.min(...raw).toFixed(4)} à ${Math.max(...raw).toFixed(4)}` };
+  },
+  async 'signal.slow'() {
+    const sig = window.sine.range(300, 2000).slow(4);
+    // Points non symétriques (0,5 et 1,5 donneraient la même valeur sur un sinus de période 4).
+    const a = signalAt(sig, 0.25);
+    const b = signalAt(sig, 4.25);
+    const c = signalAt(sig, 1.25);
+    const d = signalAt(window.sine.range(300, 2000), 0.25);
+    return { ok: Math.abs(a - b) < 1e-9 && Math.abs(a - c) > 1 && Math.abs(signalAt(window.sine.range(300, 2000), 1.25) - d) < 1e-9, detail: `slow(4) : valeur à 0,25 cycle ${a.toFixed(2)}, à 4,25 ${b.toFixed(2)} (identique : période 4 cycles), à 1,25 ${c.toFixed(2)} ; sans slow, 0,25 et 1,25 donnent la même valeur (période 1)` };
   },
   async 'adsr.defauts'() {
     const r = await soundVsStrudel({ type: 'adsr', reglages: {}, mode: 'motif' });
