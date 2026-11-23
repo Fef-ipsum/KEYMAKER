@@ -10,6 +10,7 @@ export default {
   steps: [
     {
       id: 'f.cycle',
+      schema: { type: 'cycle', motif: 'bd hh sd hh', missions: ['ajoute'] },
       title: 'Le cycle',
       listen: 'Quatre sons dans un cycle. Écoute la vitesse.',
       code: 'sound("bd hh sd hh")',
@@ -44,6 +45,7 @@ export default {
 
     {
       id: 'f.silence',
+      schema: { type: 'cycle', motif: 'bd hh sd hh bd hh sd hh', missions: ['silence'] },
       title: 'Le silence : ~',
       listen: 'Huit pas, tous remplis. Écoute, c’est chargé.',
       code: 'sound("bd hh sd hh bd hh sd hh")',
@@ -82,6 +84,7 @@ export default {
 
     {
       id: 'f.etoile',
+      schema: { type: 'cycle', motif: 'bd*4', missions: ['plus8'] },
       title: 'Répéter : *',
       listen: 'Une seule grosse caisse est écrite. Écoute combien tu en entends.',
       code: 'sound("bd*4")',
@@ -120,6 +123,7 @@ export default {
 
     {
       id: 'f.crochets',
+      schema: { type: 'cycle', motif: 'bd hh sd hh', missions: ['crochets'] },
       title: 'Regrouper : [ ]',
       listen: 'Quatre pas réguliers. Écoute bien le dernier.',
       code: 'sound("bd hh sd hh")',
@@ -158,6 +162,7 @@ export default {
 
     {
       id: 'f.chevrons',
+      schema: { type: 'cycle', motif: 'bd hh sd <hh oh>', cycles: 4, missions: ['alterne'] },
       title: 'Alterner : < >',
       listen: 'Écoute au moins deux tours de boucle. Le dernier son change.',
       code: 'sound("bd hh sd <hh oh>")',
@@ -195,6 +200,7 @@ export default {
 
     {
       id: 'f.virgule',
+      schema: { type: 'cycle', motif: 'bd*4, hh*8', missions: ['ajoute'] },
       title: 'Superposer : ,',
       listen: 'Une seule ligne, mais deux rythmes à la fois.',
       code: 'sound("bd*4, hh*8")',
@@ -231,6 +237,7 @@ export default {
 
     {
       id: 'f.durees',
+      schema: { type: 'cycle', motif: 'bd@3 sd', missions: [] },
       title: 'Allonger et recopier : @ et !',
       listen: 'Deux sons, mais pas la même place : écoute quand arrive la caisse claire.',
       code: 'sound("bd@3 sd")',
@@ -269,6 +276,7 @@ export default {
 
     {
       id: 'f.euclide',
+      schema: { type: 'cycle', motif: 'bd(3,8)', missions: [] },
       title: 'Répartir : (3,8)',
       listen: 'Trois coups, mais pas réguliers. Écoute ce balancement.',
       code: 'sound("bd(3,8)")',
@@ -304,6 +312,7 @@ export default {
 
     {
       id: 'f.hasard',
+      schema: { type: 'cycle', motif: 'hh*8?', cycles: 4, missions: [] },
       title: 'Peut-être : ?',
       listen: 'Huit charlestons sont écrits. Écoute : ils ne jouent pas tous.',
       code: 'sound("hh*8?")',
@@ -340,6 +349,7 @@ export default {
 
     {
       id: 'f.groove',
+      schema: { type: 'tempo', reglages: { bpm: 120 }, temps: 4, missions: ['lent', 'rapide'] },
       title: 'Ton rythme, avec tous les signes',
       listen: 'Un rythme complet, écrit avec ce que tu viens d’apprendre. Lis-le en l’écoutant.',
       code: `setcpm(120/4)

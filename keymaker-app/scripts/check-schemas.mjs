@@ -70,6 +70,11 @@ const SCRIPTS = {
     creuse: [{ playing: true }, { playing: true, onde: 'square' }],
     brillante: [{ playing: true }, { playing: true, onde: 'sawtooth' }],
   },
+  tempo: {
+    lent: [{ playing: true, bpm: 70 }],
+    rapide: [{ playing: true, bpm: 150 }],
+    trois: [{ playing: true, temps: 3 }],
+  },
   'enveloppe-filtre': {
     balaye: [{ playing: true, env: 4 }],
     eveil: [{ playing: true, lpa: 0.3 }],
@@ -83,16 +88,18 @@ const SCRIPTS = {
 };
 for (const [type, def] of Object.entries(TYPES)) {
   for (const m of def.missions) {
+    if (type === 'cycle') continue; // missions sur des événements réels : vérifiées dans le navigateur
     const script = SCRIPTS[type] && SCRIPTS[type][m.id];
     if (!script) {
       fail(`mission ${type}/${m.id} : pas de parcours scripté`);
       continue;
     }
-    const st = stateFromSpec(type === 'filtre' ? { type, reglages: { lpf: 1000, lpq: 0 } } : type === 'onde' ? { type, onde: 'triangle' } : type === 'enveloppe-filtre' ? { type, reglages: { lpf: 300, lpenv: 1 } } : { type, reglages: {}, mode: 'tenir' });
+    const st = stateFromSpec(type === 'filtre' ? { type, reglages: { lpf: 1000, lpq: 0 } } : type === 'onde' ? { type, onde: 'triangle' } : type === 'enveloppe-filtre' ? { type, reglages: { lpf: 300, lpenv: 1 } } : type === 'tempo' ? { type, reglages: { bpm: 100 }, temps: 4 } : { type, reglages: {}, mode: 'tenir' });
     const runner = createMissionRunner([m]);
     let done = false;
     for (const stepSnap of script) {
-      const { playing = false, holding = false, heldFor = 0, event, kind, mode, onde, ...params } = stepSnap;
+      const { playing = false, holding = false, heldFor = 0, event, kind, mode, onde, temps, ...params } = stepSnap;
+      if (temps) st.o.temps = temps;
       if (onde) st.o.onde = onde;
       if (kind) st.o.kind = kind;
       if (mode) st.o.mode = mode;
@@ -247,9 +254,10 @@ for (const [vals, hold, f, env] of [
 }
 
 section('[B2] le son correspond à Strudel (superdough vs schéma, hors temps réel)');
-const soundCases = [...all.map((x) => ({ where: x.where, spec: x.spec }))];
+const RHYTHM = new Set(['cycle', 'tempo']);
+const soundCases = [...all.filter((x) => !RHYTHM.has(x.spec.type)).map((x) => ({ where: x.where, spec: x.spec }))];
 soundCases.push({ where: 'sans réglage d’enveloppe (motif)', spec: { type: 'adsr', reglages: {}, mode: 'motif' } });
-for (const t of Object.keys(TYPES)) for (let i = 0; i < (quick ? 2 : 5); i++) soundCases.push({ where: 'au hasard ' + t + ' ' + (i + 1), spec: randomSpec(t) });
+for (const t of Object.keys(TYPES).filter((x) => !RHYTHM.has(x))) for (let i = 0; i < (quick ? 2 : 5); i++) soundCases.push({ where: 'au hasard ' + t + ' ' + (i + 1), spec: randomSpec(t) });
 // Tous les rendus superdough d'un coup (voir renderStrudelAll).
 const items = await page.evaluate((specs) => [...specs.map((sp) => window.__bench.strudelItem(sp)), ...window.__bench.FACT_RENDERS, { ...window.__bench.strudelItem({ type: 'filtre', reglages: { lpf: 138, lpq: 27 }, source: 'repetee' }), key: 'self:resonance' }], soundCases.map((c) => c.spec));
 const uniq = [...new Map(items.map((it) => [it.key, it])).values()];
@@ -272,8 +280,8 @@ for (const c of soundCases) {
 }
 
 section('[B3] la ligne de code s’exécute et produit les valeurs attendues');
-const codeCases = [...all.map((x) => x.spec)];
-for (const t of Object.keys(TYPES)) for (let i = 0; i < (quick ? 5 : 25); i++) codeCases.push(randomSpec(t));
+const codeCases = [...all.map((x) => x.spec).filter((sp) => !RHYTHM.has(sp.type))];
+for (const t of Object.keys(TYPES).filter((x) => !RHYTHM.has(x))) for (let i = 0; i < (quick ? 5 : 25); i++) codeCases.push(randomSpec(t));
 let codeBad = 0;
 for (const spec of codeCases) {
   const r = await bench('codeProduces', spec);
@@ -283,6 +291,43 @@ for (const spec of codeCases) {
   }
 }
 check(!codeBad, `${codeCases.length} lignes de code évaluées par Strudel, valeurs conformes`);
+
+section('[B4] rythme : événements, tempo, métronome, missions');
+{
+  const motifs = [...new Set([...all.filter((x) => x.spec.type === 'cycle').map((x) => x.spec.motif), 'bd [hh hh] sd <hh oh>', 'bd*2 [~ sd] hh*2 sd', 'bd(5,8,2), hh*4?', 'bd . hh hh . sd', '<bd sd>*2 hh', 'bd sd:2 [hh oh]!2', 'bd _ sd@2 ~'])];
+  let bad = 0;
+  for (const m of motifs) {
+    const r = await bench('cycleVsCode', m);
+    if (!r.ok) {
+      bad++;
+      fail('cycle : ' + m, r.why || 'événements différents de sound("…") évalué par Strudel');
+    }
+  }
+  check(!bad, `${motifs.length} motifs : événements dessinés et joués = ceux de sound("…") évalué par Strudel (4 cycles)`);
+  for (const sp of [...all.filter((x) => x.spec.type === 'tempo').map((x) => x.spec), { type: 'tempo', reglages: { bpm: 87 }, temps: 3 }, { type: 'tempo', reglages: { bpm: 174 }, temps: 4 }]) {
+    const r = await bench('tempoVsCode', sp);
+    check(r.ok, 'tempo : ' + r.code.replace(/\n/g, ' ⏎ '), `cps ${r.cps}, par cycle ${JSON.stringify(r.per)}`);
+  }
+  const sch = await bench('patternScheduling');
+  check(sch.ok, 'métronome des schémas de rythme', sch.detail);
+  const CYCLE_SCRIPTS = {
+    ajoute: ['bd hh sd hh', 'bd hh sd hh cp'],
+    silence: ['bd hh sd hh', 'bd ~ sd hh'],
+    plus8: ['bd*4', 'bd*8'],
+    crochets: ['bd hh sd hh', 'bd [hh hh] sd hh'],
+    alterne: ['bd hh sd hh', 'bd hh sd <hh oh>'],
+    couches: ['bd*4', 'bd*4, hh*8'],
+  };
+  for (const m of TYPES.cycle.missions) {
+    const script = CYCLE_SCRIPTS[m.id];
+    if (!script) {
+      fail(`mission cycle/${m.id} : pas de parcours scripté`);
+      continue;
+    }
+    check(await bench('cycleMission', m.id, script), `mission cycle/${m.id} atteignable (${script.join(' → ')})`);
+    check(!(await bench('cycleMission', m.id, [script[0], script[0]])), `mission cycle/${m.id} : pas gagnée sans changer le motif`);
+  }
+}
 
 section('[B5] les faits du « Creuser », mesurés');
 const factFns = await page.evaluate(() => Object.keys(window.__bench.FACTS));

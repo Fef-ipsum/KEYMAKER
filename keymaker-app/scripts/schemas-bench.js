@@ -10,6 +10,8 @@ import { adsrValues, adsrPlan, planValue, SYNTH_DEFAULTS } from '/src/schemas/co
 import { createFiltreSound, adsrNote, heldVoice, ondeNote, fenvNote, CPS } from '/src/schemas/ui/sounds.js';
 import { envPlan, FILTER_ENV_DEFAULTS, filterEnvRange } from '/src/schemas/core/adsr.js';
 import { NOTES as ONDE_NOTES, period, harmonics } from '/src/schemas/types/onde.js';
+import { motifEvents, createPatternSound } from '/src/schemas/ui/pattern.js';
+import { createMissionRunner, pickMissions } from '/src/schemas/core/missions.js';
 import { filterResponse } from '/src/schemas/ui/response.js';
 import { SOURCES } from '/src/schemas/types/filtre.js';
 import { MOTIF, HOLD_NOTE } from '/src/schemas/types/adsr.js';
@@ -418,6 +420,80 @@ export async function filterEnvVsEngine(vals, hold, f, env) {
   return { vsDrawn, vsEngine, min, max };
 }
 
+/* --- Rythme : cycle et tempo -------------------------------------------------------- */
+const evSig = (list) => list.map((x) => x.b.toFixed(5) + '-' + x.e.toFixed(5) + '-' + x.s).sort().join(' ');
+// Les événements dessinés (et joués) = ceux de la ligne de code sound("…") évaluée par Strudel.
+export async function cycleVsCode(motif) {
+  const mine = motifEvents(motif, 0, 4);
+  if (!mine.ok) return { ok: false, why: 'illisible : ' + mine.error };
+  const pat = await evalPattern('sound("' + motif + '")');
+  const theirs = pat.queryArc(0, 4).filter((h) => h.hasOnset()).map((h) => ({ b: Number(h.whole.begin.valueOf()), e: Number(h.whole.end.valueOf()), s: String(h.value.s) }));
+  return { ok: evSig(mine.ev) === evSig(theirs), n: mine.ev.length };
+}
+// Tempo : le tempo que Strudel règle en évaluant la ligne de code, et les sons par cycle.
+export async function tempoVsCode(spec) {
+  const def = TYPES.tempo;
+  const st = stateFromSpec(spec);
+  const code = codeText(def, st);
+  const ed = window.__ed;
+  ed.setCode(code);
+  await ed.repl.evaluate(code, false);
+  const cps = ed.repl.scheduler.cps;
+  const per = {};
+  for (const h of ed.repl.state.pattern.queryArc(0, 1).filter((x) => x.hasOnset())) per[h.value.s] = (per[h.value.s] || 0) + 1;
+  const ex = def.expect(st);
+  return { ok: Math.abs(cps - ex.cps) < 1e-12 && per.bd === ex.perCycle.bd && per.hh === ex.perCycle.hh, code, cps, per };
+}
+// Le « scheduler » des schémas de rythme : chaque son part à l'instant début/cps, et un
+// changement de tempo en route ne fait ni trou ni doublon.
+export async function patternScheduling() {
+  const calls = [];
+  const fake = { currentTime: 10 };
+  const saved = window.superdough;
+  const realSetInterval = window.setInterval;
+  window.superdough = (v, t, dur, cps, cyc) => calls.push({ s: v.s, t, dur, cps, cyc });
+  window.setInterval = () => 0;
+  let cps = 0.5;
+  const pat = window.sound(window.mini('bd hh sd hh'));
+  const snd = createPatternSound(fake, () => pat, () => cps);
+  try {
+    snd.start();
+    for (let i = 0; i < 120; i++) {
+      fake.currentTime += 0.04;
+      if (i === 60) cps = 1; // le tempo double en route
+      snd.step();
+    }
+  } finally {
+    window.setInterval = realSetInterval;
+    window.superdough = saved;
+    snd.stop();
+  }
+  const keys = calls.map((c) => c.cyc.toFixed(5));
+  const unique = new Set(keys).size === keys.length;
+  const regular = calls.every((c) => Math.abs(c.cyc * 4 - Math.round(c.cyc * 4)) < 1e-9);
+  let steady = true;
+  for (let i = 1; i < calls.length; i++) {
+    const p = calls[i - 1];
+    const c = calls[i];
+    if (p.cps === c.cps && Math.abs(c.t - p.t - (c.cyc - p.cyc) / c.cps) > 1e-9) steady = false;
+    if (c.t <= p.t) steady = false;
+  }
+  const missing = [];
+  for (let k = 0; k < calls.length; k++) if (Math.abs(calls[k].cyc - k * 0.25) > 1e-9) missing.push(k);
+  return { ok: unique && regular && steady && !missing.length && calls.some((c) => c.cps === 1), n: calls.length, detail: `${calls.length} sons, chaque quart de cycle une seule fois, écarts réguliers à chaque tempo, tempo doublé en route sans trou ni doublon` };
+}
+export function cycleMission(id, motifs) {
+  const def = TYPES.cycle;
+  const m = def.missions.find((x) => x.id === id);
+  const runner = createMissionRunner([m]);
+  let done = false;
+  for (const motif of motifs) {
+    const r = motifEvents(motif, 0, 4);
+    if (runner.update({ p: {}, o: { motif }, playing: true, ev: r.ok ? r.ev : [] }).length) done = true;
+  }
+  return done;
+}
+
 /* --- 5. Les faits du « Creuser » -------------------------------------------------------- */
 export const FACTS = {
   async 'filtre.q-db'() {
@@ -600,6 +676,63 @@ export const FACTS = {
   async 'fenv.un-seul'() {
     const d = compare(rendered('fact:lpa-seul'), rendered('fact:lpa-env1')).maxAbs;
     return { ok: d < 1e-4, detail: `lpf(300).lpa(.1) vs lpf(300).lpa(.1).lpenv(1) : écart ${d.toExponential(1)}` };
+  },
+  async 'cycle.duree'() {
+    const src = await (await fetch('/src/lib/engine.js')).text();
+    const rule = /if \(!\/\\bsetcp\[ms\]\\s\*\\\(\/\.test\(code\)\) ed\.repl\.setCps\(0\.5\)/.test(src);
+    const ev = motifEvents('bd hh sd hh cp', 0, 1).ev;
+    const last = ev[ev.length - 1];
+    return { ok: rule && Math.abs(last.e / 0.5 - 2) < 1e-9, detail: `règle de l’app (src/lib/engine.js : sans setcpm/setcps → setCps(0.5)) ${rule ? 'présente' : 'ABSENTE'} ; 5 sons : le dernier finit à ${last.e} cycle = ${last.e / 0.5} s` };
+  },
+  async 'cycle.partage'() {
+    const d4 = [...new Set(motifEvents('bd hh sd hh', 0, 1).ev.map((x) => +(x.e - x.b).toFixed(6)))];
+    const d5 = [...new Set(motifEvents('bd hh sd hh cp', 0, 1).ev.map((x) => +(x.e - x.b).toFixed(6)))];
+    return { ok: d4.length === 1 && d4[0] === 0.25 && d5.length === 1 && d5[0] === 0.2, detail: `4 sons : durées ${d4.join(', ')} cycle ; 5 sons : ${d5.join(', ')}` };
+  },
+  async 'cycle.crochets'() {
+    const ev = motifEvents('bd [hh hh] sd hh', 0, 1).ev;
+    const grp = ev.filter((x) => x.s === 'hh' && x.b < 0.5).map((x) => [x.b, +(x.e - x.b).toFixed(6)]);
+    return { ok: grp.length === 2 && grp.every((g) => g[1] === 0.125), detail: 'hh du groupe : ' + grp.map(([b, d]) => `à ${b}, durée ${d}`).join(' ; ') };
+  },
+  async 'cycle.chevrons'() {
+    const ev = motifEvents('bd hh sd <hh oh>', 0, 4).ev;
+    const last = [0, 1, 2, 3].map((c) => ev.filter((x) => x.c === c).sort((a, b) => a.b - b.b).pop().s);
+    return { ok: last.join() === 'hh,oh,hh,oh', detail: 'dernier son des cycles 1 à 4 : ' + last.join(', ') };
+  },
+  async 'cycle.virgule'() {
+    const ev = motifEvents('bd*4, hh*8', 0, 1).ev;
+    const n = (s) => ev.filter((x) => x.s === s).length;
+    return { ok: n('bd') === 4 && n('hh') === 8, detail: `cycle 1 : ${n('bd')} bd et ${n('hh')} hh` };
+  },
+  async 'cycle.silence'() {
+    const a = motifEvents('bd ~ sd ~', 0, 1).ev.map((x) => x.s + '@' + x.b);
+    const b = motifEvents('bd hh sd hh', 0, 1).ev.filter((x) => x.s !== 'hh').map((x) => x.s + '@' + x.b);
+    return { ok: a.join() === b.join() && a.length === 2, detail: `bd ~ sd ~ → ${a.join(', ')} ; bd hh sd hh sans les hh → ${b.join(', ')}` };
+  },
+  async 'tempo.cpm'() {
+    const r = await tempoVsCode({ type: 'tempo', reglages: { bpm: 120 }, temps: 4 });
+    const ed = window.__ed;
+    await ed.repl.evaluate('setcpm(30)\nsound("bd")', false);
+    const cps = ed.repl.scheduler.cps;
+    return { ok: Math.abs(cps - 0.5) < 1e-12 && r.ok, detail: `setcpm(30) → ${cps} cycle par seconde → un cycle toutes les ${1 / cps} s` };
+  },
+  async 'tempo.bpm'() {
+    const ed = window.__ed;
+    await ed.repl.evaluate('setcpm(120/4)\nsound("bd*4")', false);
+    const cps = ed.repl.scheduler.cps;
+    const n = ed.repl.state.pattern.queryArc(0, 1).filter((h) => h.hasOnset()).length;
+    const perMin = n * cps * 60;
+    return { ok: Math.abs(perMin - 120) < 1e-9, detail: `setcpm(120/4) : ${cps} cycle/s × ${n} sons par cycle × 60 = ${perMin} par minute` };
+  },
+  async 'tempo.defaut'() {
+    const src = await (await fetch('/src/lib/engine.js')).text();
+    const ed = window.__ed;
+    await ed.repl.evaluate('setcpm(90)\nsound("bd")', false);
+    // Le moteur seul (sans la règle de l'app) : le tempo d'avant reste.
+    await ed.repl.evaluate('sound("bd")', false);
+    const kept = ed.repl.scheduler.cps;
+    const rule = src.includes('ed.repl.setCps(0.5)');
+    return { ok: rule && Math.abs(kept - 1.5) < 1e-12, detail: `moteur seul : après setcpm(90) puis un code sans setcpm, cps = ${kept} (le tempo reste) ; règle de l’app qui remet 0,5 : ${rule ? 'présente dans src/lib/engine.js' : 'ABSENTE'}` };
   },
   async 'adsr.defauts'() {
     const r = await soundVsStrudel({ type: 'adsr', reglages: {}, mode: 'motif' });

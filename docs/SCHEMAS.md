@@ -12,7 +12,7 @@
 |---|---|---|
 | 1 | Socle (catalogue, son, intégration leçons/wiki, missions, question « à l'oreille », Sati, tests, page de revue) · filtre passe-bas · enveloppe ADSR | **Construite et vérifiée.** Poussée sur la branche `ccr-b6c29ca3-4wolq4` (PR #1). **Pas encore déployée sur le Pi** (voir ci-dessous). |
 | 2 | Ondes et harmoniques (les 4 ondes natives), passe-haut / passe-bande, enveloppe de filtre | **Construite et vérifiée.** `pulse` et `supersaw` : pas de schéma (voir §2.4). |
-| 3 | Le cycle, le tempo | À faire |
+| 3 | Le cycle, le tempo | **Construite et vérifiée.** |
 | 4 | Clavier, intervalles, gammes, accords | À faire |
 | 5 | Signaux, écho, réverbération, sidechain, distorsion | À faire |
 
@@ -92,7 +92,28 @@
 | **Sources** | Ligne de basse (notes de 0,25 s) · Note tenue (2 s). |
 | **Missions** | `balaye` (`lpenv` ≥ 4) · `eveil` (`lpa` ≥ 0,2 s) · `pique` (`lpd` ≤ 0,1, `lps` 0, `lpenv` ≥ 2) |
 
-### 2.5 Où ils vivent
+### 2.5 `cycle` — les événements réels d'un motif
+
+| | |
+|---|---|
+| **Ce qu'on voit** | Une ligne par cycle (2 ou 4 lignes quand le motif change d'un cycle à l'autre : `< >`, `?`, `\|`, `/`). Chaque son est un bloc, à sa place et avec sa durée, tels que le moteur les produit : `sound(mini(motif))`, **exactement** les événements de la ligne `sound("…")` (vérifié sur 4 cycles). Les sons qui se chevauchent passent dans un couloir en dessous. Pointillés : les quarts du cycle. Une tête de lecture dorée pendant la lecture. |
+| **Ce qu'on attrape** | Le motif s'écrit dans un champ (chaque texte lisible joue tout de suite ; un texte illisible le dit, et le dessin garde le dernier lisible). **Toucher un bloc** le remplace par `~` (grâce à la position de chaque son dans le texte, fournie par le moteur). |
+| **Son** | Celui de **superdough lui-même** : les événements du motif sont envoyés à `window.superdough` avec 150 ms d'avance, au tempo de l'app (0,5 cycle/s). Sortie : celle de Strudel (le limiteur des schémas n'est pas sur ce chemin ; des sons de batterie à `gain` 0,8 n'en ont pas besoin). |
+| **Avant / après** | « Maintiens : motif de départ ». Un bouton « Remettre ». |
+| **Missions** | Toutes portent sur **ton** changement (le motif doit différer du départ) : `ajoute`, `silence`, `plus8`, `crochets`, `alterne`, `couches`. |
+| **Pas de cadran** | Le cadran sous l'éditeur n'a pas été repris : une ligne par cycle se lit mieux (on compare les cycles l'un sous l'autre) et ne porte aucun vocabulaire horloger. |
+
+### 2.6 `tempo` — setcpm, cycles par minute, BPM
+
+| | |
+|---|---|
+| **Ce qu'on voit** | 4 secondes de temps réel ; les limites des cycles (pointillés bleus) ; chaque kick et chaque charleston à son instant (événements du motif, au tempo réglé). Une phrase : `setcpm(120/4)` = 30 cycles par minute · 1 cycle = 2 s · 4 temps par cycle → 120 BPM. |
+| **Ce qu'on attrape** | La fin du premier cycle : l'étirer ralentit (BPM = 60 × temps ÷ durée du cycle). Curseur BPM, choix 3 ou 4 temps par cycle. |
+| **Code** | `setcpm(120/4)` puis `sound("bd*4, hh*8")` (3 temps : `bd*3, hh*6`). |
+| **Avant / après** | « Maintiens : sans setcpm » (30 cycles par minute). |
+| **Missions** | `lent` (≤ 80 BPM), `rapide` (≥ 140), `trois` (3 temps par cycle). |
+
+### 2.7 Où ils vivent
 
 | Lieu | Schéma | Missions |
 |---|---|---|
@@ -107,6 +128,9 @@
 | Wiki `son.ondes` · `sol.timbre` | onde | toutes · pure, brillante |
 | Wiki `fx.hpf` · `fx.bpf` | filtre passe-haut (choix bas/haut) · passe-bande (choix des trois) | allege · etroit |
 | Wiki `fx.lpenv` | enveloppe-filtre, `lpf(300).lpq(8).lpenv(2)` | balaye, eveil, pique |
+| Étapes `f.cycle`, `f.silence`, `f.etoile`, `f.crochets`, `f.chevrons`, `f.virgule`, `f.durees`, `f.euclide`, `f.hasard` | cycle, avec le motif de l'étape | une mission liée au signe de l'étape (aucune pour `@`, `( , )`, `?`) |
+| Étape `f.groove` · wiki `sol.tempo`, `fn.setcpm` | tempo, 120 BPM | lent, rapide · toutes |
+| Wiki `mini.*` (12 signes), `sol.cycle`, `sol.temps`, `sol.mesure`, `sol.croche`, `sol.contretemps` | cycle, motif de l'entrée | au plus une |
 | Page de revue `#/schemas` | tout, d'un coup | — |
 
 ---
@@ -232,6 +256,20 @@ Mesures sur un `OscillatorNode` de période entière (675 échantillons), sur 60
 - **`adsr.lineaire`** — Montées et descentes en lignes droites. *Code* : `getParamADSR(…, 'linear')` pour ces ondes. *Mesure* : à mi-attaque (0,2 s sur 0,4 s), le volume vaut 0,5000.
 - **`adsr.troncature`** — Note plus courte que l'attaque : sommet jamais atteint ; extinction depuis le niveau atteint. *Mesure* : attaque 0,5 s, note de 0,2 s → sommet 0,400 ; écart avec `getParamADSR` : 0.
 - **`adsr.raccourci`** — `.adsr(".01:.2:.5:.3")` règle les quatre. *Mesure* : `queryArc` → `attack .01, decay .2, sustain .5, release .3`.
+
+### Rythme
+
+Le banc compare d'abord, pour 29 motifs (ceux du contenu et des motifs difficiles : `< >`, `?`, `(5,8,2)`, `.`, `!`, `_`, `@`), les événements du schéma à ceux de `sound("…")` évalué par Strudel, sur 4 cycles : identiques. Le métronome des schémas est testé avec une horloge simulée : chaque quart de cycle joué une fois, écarts réguliers, tempo doublé en route sans trou ni doublon. Les missions du cycle sont rejouées sur les vrais événements, et refusées si le motif n'a pas changé.
+
+- **`cycle.duree`** — 2 s par cycle sans `setcpm`. *Code* : règle de l'app (`src/lib/engine.js` : sans `setcpm`/`setcps`, `setCps(0.5)`), vérifiée présente ; et `npm run smoke` mesure cps = 0,5. *Mesure* : avec 5 sons, le dernier finit à 1 cycle = 2 s.
+- **`cycle.partage`** — Parts égales. *Mesure* : 4 sons → 0,25 cycle chacun ; 5 sons → 0,2.
+- **`cycle.crochets`** — *Mesure* : dans `bd [hh hh] sd hh`, les deux `hh` du groupe à 0,25 et 0,375, durée 0,125 chacun.
+- **`cycle.chevrons`** — *Mesure* : dernier son des cycles 1 à 4 de `bd hh sd <hh oh>` : hh, oh, hh, oh.
+- **`cycle.virgule`** — *Mesure* : `bd*4, hh*8` → 4 `bd` et 8 `hh` dans le cycle 1.
+- **`cycle.silence`** — *Mesure* : `bd ~ sd ~` → bd à 0, sd à 0,5 ; mêmes places que dans `bd hh sd hh`.
+- **`tempo.cpm`** — *Mesure* : `setcpm(30)` → le moteur règle 0,5 cycle par seconde (un cycle toutes les 2 s).
+- **`tempo.bpm`** — *Mesure* : `setcpm(120/4)` + `bd*4` → 0,5 cycle/s × 4 × 60 = 120 par minute ; `setcpm(87/3)` → 0,4833 cycle/s ; `setcpm(174/4)` → 0,725.
+- **`tempo.defaut`** — *Mesure* : moteur seul, `setcpm(90)` puis un code sans `setcpm` : 1,5 cycle/s, le tempo reste (comme strudel.cc) ; la règle de l'app qui remet 0,5 est présente dans `src/lib/engine.js`.
 
 ### Annexe B, revérifiée
 

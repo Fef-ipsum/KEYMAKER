@@ -5,6 +5,7 @@ export default [
   /* ------------------------------ rythme ------------------------------ */
   {
     id: 'sol.cycle', t: 'cycle', sub: 'la boucle de Strudel', en: 'cycle', kind: 'sol',
+    schema: { type: 'cycle', motif: 'bd hh sd hh', missions: [] },
     ess: 'L’unité de temps de Strudel : une boucle qui se répète. Tout ce qu’on écrit entre guillemets tient dans un cycle.',
     code: 'sound("bd hh sd hh")',
     use: [['Plus d’éléments = chacun plus court', 'sound("bd hh sd hh bd hh sd hh")']],
@@ -14,6 +15,7 @@ export default [
   },
   {
     id: 'sol.tempo', t: 'tempo', sub: 'la vitesse du morceau', en: 'tempo, BPM', kind: 'sol',
+    schema: { type: 'tempo', reglages: { bpm: 120 }, temps: 4 },
     ess: 'La vitesse de la pulsation, en battements par minute (BPM). 60 BPM = un battement par seconde.',
     code: `setcpm(120/4)
 sound("bd*4")`,
@@ -27,6 +29,7 @@ sound("bd*4")`,
   },
   {
     id: 'sol.temps', t: 'temps', sub: 'la pulsation', en: 'beat', kind: 'sol',
+    schema: { type: 'cycle', motif: 'bd*4', missions: [] },
     ess: 'Les battements réguliers d’un morceau : ce qu’on tape du pied. Une note qui dure un temps s’appelle une noire.',
     code: 'sound("bd bd bd bd")',
     see: ['sol.mesure', 'sol.croche', 'sol.contretemps'],
@@ -34,6 +37,7 @@ sound("bd*4")`,
   },
   {
     id: 'sol.mesure', t: 'mesure', sub: 'un groupe de temps', en: 'bar, measure', kind: 'sol',
+    schema: { type: 'cycle', motif: 'bd hh sd hh', missions: [] },
     ess: 'Un petit groupe de temps qui se répète. La plus courante compte 4 temps : on la note 4/4.',
     code: `sound("bd bd bd bd, ~ cp ~ cp")`,
     use: [['Une mesure à 3 temps (valse)', 'sound("bd hh hh")']],
@@ -43,6 +47,7 @@ sound("bd*4")`,
   },
   {
     id: 'sol.croche', t: 'noire, croche, double-croche', sub: 'les durées', en: 'quarter, eighth, sixteenth note', kind: 'sol',
+    schema: { type: 'cycle', motif: 'bd*4, hh*8', missions: [] },
     ess: 'Une noire dure un temps. Une croche, un demi-temps. Une double-croche, un quart de temps.',
     code: 'sound("bd*4, hh*8")',
     use: [
@@ -56,6 +61,7 @@ sound("bd*4")`,
   },
   {
     id: 'sol.contretemps', t: 'contretemps', sub: 'entre les temps', en: 'offbeat, backbeat', kind: 'sol',
+    schema: { type: 'cycle', motif: 'bd*4, [~ hh]*4', missions: [] },
     ess: 'Ce qui tombe ENTRE les temps (*offbeat*). On appelle *backbeat* l’accent sur les temps 2 et 4.',
     code: 'sound("bd*4, [~ hh]*4")',
     use: [

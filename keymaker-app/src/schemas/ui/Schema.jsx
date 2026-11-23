@@ -12,9 +12,11 @@ import FiltreSchema from './FiltreSchema.jsx';
 import AdsrSchema from './AdsrSchema.jsx';
 import OndeSchema from './OndeSchema.jsx';
 import FenvSchema from './FenvSchema.jsx';
+import CycleSchema from './CycleSchema.jsx';
+import TempoSchema from './TempoSchema.jsx';
 import { Icon, Rich } from '../../ui.jsx';
 
-export const VIEWS = { filtre: FiltreSchema, adsr: AdsrSchema, onde: OndeSchema, 'enveloppe-filtre': FenvSchema };
+export const VIEWS = { filtre: FiltreSchema, adsr: AdsrSchema, onde: OndeSchema, 'enveloppe-filtre': FenvSchema, cycle: CycleSchema, tempo: TempoSchema };
 
 // Un schéma qui plante ne fait pas tomber l'écran qui l'accueille.
 class Guard extends Component {

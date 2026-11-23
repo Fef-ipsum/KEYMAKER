@@ -41,7 +41,7 @@ const text = (page, sel) => page.locator(sel).first().innerText().catch(() => ''
 
 /* ---------- 1. Captures : tailles × thèmes ---------- */
 const SIZES = { pc: { width: 1440, height: 900 }, tablette: { width: 834, height: 1112 }, telephone: { width: 390, height: 844 } };
-const ROUTES = [['accueil', '#/'], ['parcours', '#/parcours'], ['etape', '#/etape/f.crochets'], ['genre', '#/genre/techno/kick'], ['comparer', '#/comparer?a=techno&b=trance'], ['wiki', '#/wiki/fx.lpf'], ['wiki-adsr', '#/wiki/fx.adsr'], ['wiki-ondes', '#/wiki/son.ondes'], ['wiki-lpenv', '#/wiki/fx.lpenv'], ['schemas', '#/schemas'], ['studio', '#/studio'], ['reglages', '#/reglages']];
+const ROUTES = [['accueil', '#/'], ['parcours', '#/parcours'], ['etape', '#/etape/f.crochets'], ['genre', '#/genre/techno/kick'], ['comparer', '#/comparer?a=techno&b=trance'], ['wiki', '#/wiki/fx.lpf'], ['wiki-adsr', '#/wiki/fx.adsr'], ['wiki-ondes', '#/wiki/son.ondes'], ['wiki-lpenv', '#/wiki/fx.lpenv'], ['wiki-crochets', '#/wiki/mini.crochets'], ['wiki-tempo', '#/wiki/sol.tempo'], ['schemas', '#/schemas'], ['studio', '#/studio'], ['reglages', '#/reglages']];
 for (const [size, viewport] of Object.entries(SIZES)) {
   for (const scheme of ['light', 'dark']) {
     if (onlyOffline) continue;
@@ -290,6 +290,30 @@ if (!onlyOffline) {
     check((await page.locator('.schema-fenv .sch-trace path').count()) === 1 && (await page.locator('.schema-fenv .sch-curve-live').count()) === 1, `${label} · enveloppe de filtre : la trace et la courbe du filtre bougent pendant la lecture`);
     await page.screenshot({ path: join(SHOTS, `schemas-${label}-${scheme}-fenv.png`) });
     await page.click('.schema-fenv .sch-play');
+    // Vague 3 : le cycle et le tempo.
+    await page.evaluate(() => { window.location.hash = '#/wiki/mini.crochets'; });
+    await page.waitForSelector('.schema-cycle');
+    const blocks0 = await page.locator('.schema-cycle .sch-ev').count();
+    await page.fill('.schema-cycle .sch-motif input', 'bd [hh hh] sd [hh hh hh]');
+    await page.waitForTimeout(200);
+    check((await page.locator('.schema-cycle .sch-ev').count()) > blocks0 && /\[hh hh hh\]/.test(await text(page, '.schema-cycle .sch-code code')), `${label} · cycle : écrire le motif redessine les blocs et la ligne de code`);
+    await page.click('.schema-cycle .sch-play');
+    await page.waitForTimeout(700);
+    check((await page.locator('.schema-cycle .sch-head').count()) === 1, `${label} · cycle : la tête de lecture avance pendant la lecture`);
+    await page.locator('.schema-cycle .sch-ev.is-tap').first().click();
+    await page.waitForTimeout(200);
+    check(/^~/.test((await text(page, '.schema-cycle .sch-code code')).replace(/^sound\("/, '')), `${label} · cycle : toucher un bloc le remplace par ~`);
+    await page.fill('.schema-cycle .sch-motif input', 'bd [hh');
+    await page.waitForTimeout(200);
+    check((await page.locator('.schema-cycle .sch-warn').count()) === 1, `${label} · cycle : un motif illisible est signalé sans rien casser`);
+    await page.click('.schema-cycle .sch-play');
+    await page.evaluate(() => { window.location.hash = '#/wiki/sol.tempo'; });
+    await page.waitForSelector('.schema-tempo');
+    await page.locator('.schema-tempo .sch-handle').focus();
+    await page.keyboard.press('ArrowLeft');
+    await page.waitForTimeout(150);
+    check(/setcpm\(121\/4\)/.test(await text(page, '.schema-tempo .sch-code code')), `${label} · tempo : la fin du cycle se règle au clavier (setcpm(121/4))`);
+    await page.screenshot({ path: join(SHOTS, `schemas-${label}-${scheme}-tempo.png`) });
     check(!errors.length, `${label} · aucune erreur de page` + (errors.length ? ' → ' + errors.slice(0, 3).join(' | ') : ''));
     await ctx.close();
   }

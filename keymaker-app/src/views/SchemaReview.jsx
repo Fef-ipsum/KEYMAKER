@@ -13,6 +13,8 @@ const BASE = {
   filtre: { type: 'filtre', reglages: { lpf: 600, lpq: 0 }, source: 'basse' },
   adsr: { type: 'adsr', reglages: {}, mode: 'tenir' },
   onde: { type: 'onde', onde: 'sawtooth', note: 'c3' },
+  cycle: { type: 'cycle', motif: 'bd [hh hh] sd <hh oh>', cycles: 4 },
+  tempo: { type: 'tempo', reglages: { bpm: 120 }, temps: 4 },
   'enveloppe-filtre': { type: 'enveloppe-filtre', reglages: { lpf: 300, lpq: 8, lpenv: 2 }, source: 'basse' },
 };
 

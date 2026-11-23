@@ -16,6 +16,7 @@
 export default [
   {
     id: 'mini.espace', t: 'espace', sub: 'la séquence', kind: 'mini', tokens: [' '],
+    schema: { type: 'cycle', motif: 'bd hh sd hh', missions: ['ajoute'] },
     ess: 'L’espace sépare des éléments joués l’un après l’autre. Tous se partagent le cycle à parts égales.',
     code: 'sound("bd hh sd hh")',
     use: [
@@ -32,6 +33,7 @@ export default [
   },
   {
     id: 'mini.silence', t: '~  ou  -', sub: 'le silence', kind: 'mini', tokens: ['~', '-'],
+    schema: { type: 'cycle', motif: 'bd ~ sd ~', missions: ['silence'] },
     ess: 'Un pas qui garde sa place dans le cycle, mais où rien ne joue.',
     code: 'sound("bd ~ sd ~")',
     use: [
@@ -50,6 +52,7 @@ export default [
   },
   {
     id: 'mini.crochets', t: '[ ]', sub: 'le groupe', kind: 'mini', tokens: ['[', ']'],
+    schema: { type: 'cycle', motif: 'bd [hh hh] sd hh', missions: [] },
     ess: 'Les crochets rangent plusieurs éléments dans un seul pas. Ils s’y partagent la durée, donc vont plus vite.',
     code: 'sound("bd [hh hh] sd [hh hh]")',
     use: [
@@ -68,6 +71,7 @@ export default [
   },
   {
     id: 'mini.etoile', t: '*', sub: 'répéter, accélérer', kind: 'mini', tokens: ['*'],
+    schema: { type: 'cycle', motif: 'bd*4', missions: ['plus8'] },
     ess: '`x*n` joue l’élément n fois dans la durée de son pas.',
     code: 'sound("bd*4")',
     use: [
@@ -86,6 +90,7 @@ export default [
   },
   {
     id: 'mini.slash', t: '/', sub: 'ralentir, étaler', kind: 'mini', tokens: ['/'],
+    schema: { type: 'cycle', motif: 'bd sd/2', cycles: 2, missions: [] },
     ess: '`x/n` étale l’élément sur n cycles.',
     code: 'note("[c3 e3 g3 b3]/2").sound("piano")',
     use: [
@@ -102,6 +107,7 @@ export default [
   },
   {
     id: 'mini.chevrons', t: '< >', sub: 'un par cycle', kind: 'mini', tokens: ['<', '>'],
+    schema: { type: 'cycle', motif: 'bd <sd cp>', cycles: 4, missions: ['alterne'] },
     ess: 'Les chevrons donnent un élément par cycle, à tour de rôle.',
     code: 'sound("bd hh sd <hh oh>")',
     use: [
@@ -119,6 +125,7 @@ export default [
   },
   {
     id: 'mini.virgule', t: ',', sub: 'en même temps', kind: 'mini', tokens: [','],
+    schema: { type: 'cycle', motif: 'bd*4, hh*8', missions: ['ajoute'] },
     ess: 'La virgule superpose : les séquences qu’elle sépare jouent en même temps.',
     code: 'sound("bd*4, hh*8")',
     use: [
@@ -135,6 +142,7 @@ export default [
   },
   {
     id: 'mini.exclamation', t: '!', sub: 'recopier', kind: 'mini', tokens: ['!'],
+    schema: { type: 'cycle', motif: 'bd ! sd', missions: [] },
     ess: '`x!n` recopie le pas n fois, sans l’accélérer. `"hh!3 sd"` vaut `"hh hh hh sd"`.',
     code: 'sound("hh!3 sd")',
     use: [
@@ -148,6 +156,7 @@ export default [
   },
   {
     id: 'mini.arobase', t: '@', sub: 'allonger', kind: 'mini', tokens: ['@'],
+    schema: { type: 'cycle', motif: 'bd@3 sd', missions: [] },
     ess: '`x@n` donne au pas un poids de n : il dure n fois plus que ses voisins.',
     code: 'note("c3@3 e3").sound("piano")',
     use: [
@@ -160,6 +169,7 @@ export default [
   },
   {
     id: 'mini.souligne', t: '_', sub: 'prolonger', kind: 'mini', tokens: ['_'],
+    schema: { type: 'cycle', motif: 'bd _ _ sd', missions: [] },
     ess: 'Le souligné prolonge le pas précédent d’un pas. `"c3 _ _ e3"` vaut `"c3@3 e3"`.',
     code: 'note("c3 _ _ e3").sound("piano")',
     use: [['Écrire les durées « à vue »', 'note("c3 _ e3 g3 _ _ e3 _").sound("piano")']],
@@ -171,6 +181,7 @@ export default [
   },
   {
     id: 'mini.interrogation', t: '?', sub: 'peut-être', kind: 'mini', tokens: ['?'],
+    schema: { type: 'cycle', motif: 'hh*8?', cycles: 4, missions: [] },
     ess: '`x?` donne à chaque son une chance sur deux d’être retiré.',
     code: 'sound("hh*8?")',
     use: [
@@ -189,6 +200,7 @@ export default [
   },
   {
     id: 'mini.euclide', t: '(3,8)', sub: 'rythme euclidien', kind: 'mini', tokens: ['('],
+    schema: { type: 'cycle', motif: 'bd(3,8)', missions: [] },
     ess: '`x(k,n)` répartit k coups sur n pas, le plus régulièrement possible.',
     code: 'sound("bd(3,8)")',
     use: [

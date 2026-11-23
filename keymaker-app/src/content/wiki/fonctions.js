@@ -81,6 +81,7 @@ export default [
   },
   {
     id: 'fn.setcpm', t: 'setcpm', sub: 'le tempo', kind: 'fn', tokens: ['setcpm', 'setcps'], doc: 'setcpm',
+    schema: { type: 'tempo', reglages: { bpm: 120 }, temps: 4 },
     ess: 'Règle le tempo, en cycles par minute. Avec 4 temps par cycle : `setcpm(BPM/4)`.',
     code: `setcpm(128/4)
 sound("bd*4, hh*8")`,

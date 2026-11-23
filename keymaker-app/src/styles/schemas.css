@@ -125,3 +125,25 @@
 /* Enveloppe de filtre */
 .sch-fenv-resp { border-top: 1px solid var(--line); cursor: default; touch-action: auto; }
 .sch-curve-live { stroke: var(--gold); }
+
+/* Cycle et tempo */
+.sch-cycle-svg { touch-action: manipulation; cursor: default; }
+.sch-row { fill: var(--glass-2); stroke: var(--line); }
+.sch-quarter { stroke: var(--line-2); stroke-dasharray: 2 4; }
+.sch-ev rect { fill: var(--blue-fill); opacity: .85; }
+.sch-ev-1 rect { fill: var(--gold); }
+.sch-ev-2 rect { fill: var(--ok); }
+.sch-ev-3 rect { fill: var(--brass-fill); }
+.sch-ev text { fill: var(--on-blue); font: 650 11px var(--mono); pointer-events: none; }
+.sch-ev-1 text, .sch-ev-3 text { fill: #1b1405; }
+.sch-ev.is-tap { cursor: pointer; }
+.sch-ev.is-tap:hover rect { opacity: 1; }
+.sch-head { stroke: var(--gold); stroke-width: 2.5; }
+.sch-motif { display: grid; gap: 6px; }
+.sch-motif input { min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--bg-hi); font: 600 1.02em var(--mono); color: var(--ink); width: 100%; }
+.sch-motif input[aria-invalid='true'] { border-color: var(--hint); }
+.sch-cycle-line { stroke: var(--blue); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.sch-hit-bd { fill: var(--blue-fill); }
+.sch-hit-hh { fill: var(--gold); }
+.sch-tempo-line { font-size: .95em; color: var(--ink-2); }
+.sch-tempo-line strong { color: var(--ink); font-variant-numeric: tabular-nums; }
