@@ -16,6 +16,7 @@ import { go, neighbours, stepRoute, readFlow, advanceFlow, refreshProgress } fro
 import { stepIndex, solutions } from '../content/registry.js';
 import { loadNote, saveNote } from '../lib/notebook.js';
 import { Icon, Rich, Fold, WikiChip, chime, useDockSlot, revealOnNarrow } from '../ui.jsx';
+import { Schema } from '../schemas/ui/Schema.jsx';
 
 // Où mène « la suite » depuis cette étape (session en cours, étape suivante, point d'étape…).
 function useForward(stepId, chapter) {
@@ -176,6 +177,9 @@ function FondationStep({ entry, settings, reduceMotion }) {
           <>
             <div className="moment moment-name">
               <div className="moment-label">Ce que tu entends</div>
+              {/* Le schéma d'abord (le son, le geste), le nom ensuite. Aucun de ses boutons
+                  n'écrit dans l'éditeur : l'exercice « À toi » reste à faire dans le code. */}
+              {step.schema ? <Schema spec={step.schema} context="lecon" title="Joue avec avant de lire" /> : null}
               <Rich as="p" text={step.name} />
             </div>
             {step.task ? (

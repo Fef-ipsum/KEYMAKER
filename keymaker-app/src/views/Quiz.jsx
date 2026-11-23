@@ -8,8 +8,40 @@ import { recordQuizResult } from '../lib/srs.js';
 import { go, chapterQuestions, dueQuestions, shuffled, readFlow, advanceFlow, refreshProgress } from '../lib/app.js';
 import { chapterById, fondations } from '../content/registry.js';
 import { Icon, Rich, PlayMini, PageHead } from '../ui.jsx';
+import { EarQuestion } from '../schemas/ui/Schema.jsx';
+
+// « Retrouve le réglage à l'oreille » : un son mystère, un schéma à régler.
+function EarItem({ item, onAnswer }) {
+  const q = item.question;
+  const [answered, setAnswered] = useState(false);
+  useEffect(() => () => engine.endPreview(), [q]);
+  return (
+    <div className="question">
+      <Rich as="h1" text={q.q} className="question-q" />
+      <p className="question-sub">Écoute le son mystère, puis règle le schéma jusqu’à l’entendre pareil. Tu peux passer de l’un à l’autre autant que tu veux.</p>
+      <EarQuestion
+        question={q}
+        onAnswer={(ok) => {
+          if (answered) return;
+          setAnswered(true);
+          onAnswer(ok);
+        }}
+      />
+      {answered ? (
+        <p className="explain-more">
+          <button type="button" className="linkbtn" onClick={() => go(item.route)}>Revoir « {item.title} »</button>
+        </p>
+      ) : null}
+    </div>
+  );
+}
 
 function Question({ item, seed, onAnswer }) {
+  if (item.question.type === 'oreille') return <EarItem item={item} onAnswer={onAnswer} />;
+  return <ChoiceQuestion item={item} seed={seed} onAnswer={onAnswer} />;
+}
+
+function ChoiceQuestion({ item, seed, onAnswer }) {
   const q = item.question;
   const order = useMemo(() => shuffled(q.choices, seed), [q, seed]);
   const [picked, setPicked] = useState(null); // indice d'origine

@@ -32,6 +32,14 @@ export const quizIndex = (() => {
       if (st.quiz && st.quiz.length) m.set(st.id, { questions: st.quiz, title: st.title, route: '#/etape/' + st.id });
     }
   }
+  // Questions « retrouve le réglage à l'oreille » : une carte de révision chacune,
+  // avec un identifiant stable (oreille.…), rattachée à l'étape où vit son schéma.
+  for (const ch of fondations) {
+    for (const q of ch.ear || []) {
+      const st = ch.steps.find((x) => x.id === q.step);
+      m.set(q.id, { questions: [q], title: 'À l’oreille · ' + (st ? st.title : ch.title), route: '#/etape/' + (st ? st.id : ch.steps[0].id), ear: true, chapter: ch.id });
+    }
+  }
   for (const g of genres) {
     for (const t of g.traits) {
       if (t.quiz && t.quiz.length) {
@@ -97,6 +105,17 @@ export function allExamples() {
     (e.use || []).forEach((u, i) => add('wiki', 'wiki ' + e.id + ' (usage ' + (i + 1) + ')', u[1]));
   }
   for (const ch of legacyChapters) for (const st of ch.steps) add('legacy', st.id + ' ' + st.title, st.code);
+  return out;
+}
+
+// Tous les schémas déclarés par le contenu : { where, spec } (leçons, wiki, questions).
+export function allSchemas() {
+  const out = [];
+  for (const ch of fondations) {
+    for (const st of ch.steps) if (st.schema) out.push({ where: st.id, spec: st.schema });
+    for (const q of ch.ear || []) out.push({ where: q.id, spec: q.schema, ear: q });
+  }
+  for (const e of wikiEntries) if (e.schema) out.push({ where: 'wiki ' + e.id, spec: e.schema });
   return out;
 }
 

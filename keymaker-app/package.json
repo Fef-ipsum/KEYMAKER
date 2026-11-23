@@ -9,12 +9,13 @@
     "build": "vite build",
     "build:pi": "vite build --base=/keymaker/app/ --outDir dist-pi",
     "preview": "vite preview",
-    "check": "node scripts/check-links.mjs && node scripts/check-content.mjs",
+    "check": "node scripts/check-links.mjs && node scripts/check-content.mjs && node scripts/check-schemas.mjs",
     "check:links": "node scripts/check-links.mjs",
     "check:content": "node scripts/check-content.mjs",
     "smoke": "node scripts/smoke.mjs",
     "samples": "node scripts/build-sample-pack.mjs",
-    "reference": "node scripts/build-reference.mjs"
+    "reference": "node scripts/build-reference.mjs",
+    "check:schemas": "node scripts/check-schemas.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",

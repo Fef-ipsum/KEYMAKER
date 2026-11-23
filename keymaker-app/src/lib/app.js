@@ -112,7 +112,10 @@ export function chapterQuestions(chapterId) {
     const q = quizIndex.get(st.id);
     if (q) out.push({ cardId: st.id, title: q.title, route: q.route, question: q.questions[0] });
   }
-  return out.slice(0, 6);
+  // Puis les questions « à l'oreille » du chapitre (deux au plus) : elles entraînent
+  // l'oreille avec les schémas, pas seulement l'œil.
+  const ear = (ch.ear || []).slice(0, 2).map((q) => ({ cardId: q.id, title: quizIndex.get(q.id).title, route: quizIndex.get(q.id).route, question: q }));
+  return [...out.slice(0, 6), ...ear];
 }
 
 // Révisions prêtes aujourd'hui (cinq au plus), limitées aux cartes qui ont une question écrite.

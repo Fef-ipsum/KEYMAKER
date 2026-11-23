@@ -39,6 +39,14 @@ Toutes les étapes ont la même forme, dans le même ordre. On n'a qu'un seul mo
 4. **Creuser** (replié) — le code décortiqué morceau par morceau, chaque morceau menant à son entrée du wiki ; le pourquoi ; le lien avec le solfège.
 5. **Suivant.**
 
+### Les schémas vivants
+
+Certaines étapes déclarent un **schéma vivant** (le filtre, l'enveloppe… voir `docs/SCHEMAS.md`). Il s'affiche dans « Ce que tu entends », **avant** le texte qui nomme la notion : on joue avec le dessin, on entend, puis on lit le mot. C'est le principe 1 appliqué jusqu'au bout : le son, puis le nom.
+
+- Le schéma fait **comprendre** la notion (on voit la bosse grandir en l'entendant siffler) ; le code fait **apprendre** la syntaxe. Aucun bouton du schéma n'écrit dans l'éditeur : l'exercice « À toi » reste à faire.
+- Ses deux ou trois **missions** se valident toutes seules pendant que ça joue, et chaque réussite fait apparaître une phrase de compréhension. Elles ne bloquent rien : l'étape se valide toujours par le code.
+- Un seul son à la fois : toucher ▶ arrête le schéma, et inversement.
+
 ### Les deux vitesses
 
 - **Vite** : Écoute → À toi → Suivant. Trois gestes, moins de deux minutes par étape.
@@ -92,6 +100,7 @@ Exemple de la démarche pour les intervalles (chapitre 5) :
 ## 5. Points d'étape et révision espacée
 
 - **Fin de chapitre : un point d'étape.** Quatre à six questions écrites à la main, tirées des étapes du chapitre. Trois formes : question à choix, **question d'écoute** (« lequel des deux est une tierce mineure ? » — l'app joue, on choisit), et lecture de code (« que joue ce motif ? »).
+- **Une quatrième forme : « retrouve le réglage à l'oreille ».** L'app joue un son mystère ; on règle un schéma jusqu'à l'entendre pareil ; l'app compare les valeurs avec une tolérance. Elle entraîne l'oreille, pas seulement l'œil. Un point d'étape en contient au plus deux, en plus des questions des étapes (le chapitre 6 en a donc huit). Chacune a un identifiant stable (`oreille.…`) et devient une carte de révision comme les autres.
 - **Révision espacée.** Chaque question réussie revient après 3 jours, puis 7 ; une question ratée revient le lendemain. Cinq cartes au plus par session. C'est l'algorithme de l'app précédente, conservé.
 - **Tout est local.** Aucune question n'est générée à la volée. Un quiz faux est pire que pas de quiz.
 

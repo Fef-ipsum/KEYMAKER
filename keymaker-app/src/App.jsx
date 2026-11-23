@@ -22,6 +22,7 @@ import Studio from './views/Studio.jsx';
 import { GenreList, GenreOverview, Trait, Assemble, CaseStudy, Compare } from './views/Genres.jsx';
 import { WikiHome, WikiEntryPage, WikiSheet, Annotations } from './views/Wiki.jsx';
 import { Settings, Session } from './views/Settings.jsx';
+import SchemaReview from './views/SchemaReview.jsx';
 import { byId } from './content/wiki/index.js';
 
 // Chaque route : { tab (onglet allumé), dock (utilise l'éditeur), where (pour Sati), view }.
@@ -43,6 +44,7 @@ function resolve(route, ctx) {
     case 'annotations': return { tab: 'wiki', where: 'ses annotations', view: <Annotations /> };
     case 'studio': return { tab: 'studio', dock: true, where: 'le Studio (bac à sable libre)', view: <Studio defi={route.params.defi} /> };
     case 'reglages': return { tab: '', where: 'les réglages', view: <Settings settings={ctx.settings} setSettings={ctx.setSettings} /> };
+    case 'schemas': return { tab: '', where: 'la page de revue des schémas vivants', view: <SchemaReview /> };
     case 'session': return { tab: 'aujourdhui', where: 'le récapitulatif de session', view: <Session /> };
     default: return { tab: 'aujourdhui', where: 'l’accueil', view: <Today /> };
   }

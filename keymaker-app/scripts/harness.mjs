@@ -2,7 +2,7 @@
 // openEngine() → { evalCode(code, opts), requests, close() }
 //   evalCode renvoie { error, logs, haps, cps } — error = erreur d'évaluation,
 //   logs = messages d'erreur du moteur pendant la lecture (son introuvable…).
-import { chromium } from 'playwright';
+import { launchBrowser } from './browser.mjs';
 import { serve } from './static-server.mjs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -13,7 +13,7 @@ const PAGE = `<!doctype html><html><head><meta charset="utf-8">
 
 export async function openEngine({ offline = false } = {}) {
   const srv = await serve(join(here, '..', 'public'));
-  const browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
+  const browser = await launchBrowser();
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
   const requests = new Set();

@@ -29,6 +29,7 @@ export default [
   },
   {
     id: 'son.ondes', t: 'sine, triangle, square, sawtooth', sub: 'les ondes de base', kind: 'son',
+    schema: { type: 'onde', onde: 'sawtooth', note: 'c3' },
     tokens: ['sawtooth', 'triangle', 'pulse'],
     ess: 'Les quatre formes d’onde d’un synthétiseur, de la plus douce à la plus brillante : `sine`, `triangle`, `square`, `sawtooth`.',
     code: 'note("c3 e3 g3 e3").sound("sawtooth")',
@@ -87,6 +88,7 @@ export default [
   /* ----------------------------- filtres ----------------------------- */
   {
     id: 'fx.lpf', t: 'lpf', sub: 'filtre passe-bas', kind: 'fx', tokens: ['lpf', 'cutoff', 'lp', 'ctf'], doc: 'lpf',
+    schema: { type: 'filtre', reglages: { lpf: 600, lpq: 0 }, source: 'basse', missions: ['ferme', 'ouvre'] },
     ess: 'Coupe les aigus au-dessus d’une fréquence. Plus le nombre est petit, plus le son est sombre.',
     code: 'note("c2*8").sound("sawtooth").lpf(600)',
     use: [
@@ -106,6 +108,7 @@ export default [
   },
   {
     id: 'fx.lpq', t: 'lpq', sub: 'résonance du filtre', kind: 'fx', tokens: ['lpq', 'resonance'], doc: 'lpq',
+    schema: { type: 'filtre', reglages: { lpf: 700, lpq: 0 }, source: 'basse', missions: ['siffle', 'acid'] },
     ess: 'Accentue les fréquences situées juste à la coupure du filtre. À forte dose, le filtre « chante ».',
     code: 'note("c2 c2 eb2 c2").sound("sawtooth").lpf(700).lpq(15)',
     use: [['Résonance + filtre qui bouge = acid', 'note("c2*8").sound("sawtooth").lpf(sine.range(300, 2000).slow(4)).lpq(18)']],
@@ -120,6 +123,7 @@ export default [
   },
   {
     id: 'fx.hpf', t: 'hpf', sub: 'filtre passe-haut', kind: 'fx', tokens: ['hpf', 'hcutoff', 'hp', 'hpq'], doc: 'hpf',
+    schema: { type: 'filtre', reglages: { hpf: 200, hpq: 0 }, source: 'basse', filtres: ['passe-bas', 'passe-haut'], missions: ['allege'] },
     ess: 'Coupe les graves en dessous d’une fréquence. Sert à alléger un son, ou à faire de la place à la basse.',
     code: 'sound("bd*4, hh*8").hpf(800)',
     use: [
@@ -132,6 +136,7 @@ export default [
   },
   {
     id: 'fx.bpf', t: 'bpf', sub: 'filtre passe-bande', kind: 'fx', tokens: ['bpf', 'bandf', 'bp', 'bpq'], doc: 'bpf',
+    schema: { type: 'filtre', reglages: { bpf: 800, bpq: 1 }, source: 'basse', filtres: ['passe-bas', 'passe-haut', 'passe-bande'], missions: ['etroit'] },
     ess: 'Ne garde qu’une bande de fréquences autour d’une valeur : son étroit, nasal, « téléphone ».',
     code: 'note("c3 e3 g3 e3").sound("sawtooth").bpf(1200)',
     evo: ['Le nom complet du réglage est `bandf` ; `bp` est un autre raccourci. La largeur de la bande se règle avec `bpq`.'],
@@ -159,6 +164,7 @@ export default [
   /* ---------------------------- enveloppe ---------------------------- */
   {
     id: 'fx.attack', t: 'attack', sub: 'temps de montée', kind: 'fx', tokens: ['attack', 'att'], doc: 'attack',
+    schema: { type: 'adsr', reglages: { attack: 0.4 }, mode: 'tenir', missions: ['lente'] },
     ess: 'Le temps que met le son à atteindre son volume, en secondes. Court : la note claque. Long : elle arrive en fondu.',
     code: 'note("c3 e3 g3").sound("sawtooth").lpf(1500).attack(.3)',
     args: [['temps', 'en secondes. `.01` net · `.1` doux · `.5` nappe.']],
@@ -168,6 +174,7 @@ export default [
   },
   {
     id: 'fx.decay', t: 'decay', sub: 'temps de retombée', kind: 'fx', tokens: ['decay', 'dec'], doc: 'decay',
+    schema: { type: 'adsr', reglages: { decay: 0.2, sustain: 0 }, mode: 'tenir', missions: ['pince'] },
     ess: 'Le temps que met le son à retomber, après l’attaque, vers son niveau de maintien (`sustain`).',
     code: 'note("c3 e3 g3 e3").sound("sawtooth").lpf(1200).decay(.15).sustain(0)',
     args: [['temps', 'en secondes. `.05` très sec · `.15` pincé · `.4` rond.']],
@@ -178,6 +185,7 @@ export default [
   },
   {
     id: 'fx.sustain', t: 'sustain', sub: 'niveau tenu', kind: 'fx', tokens: ['sustain', 'sus'], doc: 'sustain',
+    schema: { type: 'adsr', reglages: { decay: 0.3, sustain: 0.3 }, mode: 'tenir', missions: ['pince'] },
     ess: 'Le niveau auquel le son se stabilise tant que la note dure, de 0 à 1.',
     code: 'note("c3 e3").sound("sawtooth").lpf(1200).decay(.2).sustain(.3)',
     traps: ['C’est le seul des quatre réglages ADSR qui est un NIVEAU et non un temps.'],
@@ -186,6 +194,7 @@ export default [
   },
   {
     id: 'fx.release', t: 'release', sub: 'temps d’extinction', kind: 'fx', tokens: ['release', 'rel'], doc: 'release',
+    schema: { type: 'adsr', reglages: { release: 1 }, mode: 'tenir', missions: ['traine'] },
     ess: 'Le temps que met le son à s’éteindre après la fin de la note, en secondes.',
     code: 'note("c3 ~ g3 ~").sound("sawtooth").lpf(1500).release(.8)',
     traps: ['Un release long fait se chevaucher les notes : beau pour une nappe, brouillon pour une basse.'],
@@ -194,7 +203,8 @@ export default [
   },
   {
     id: 'fx.adsr', t: 'adsr', sub: 'l’enveloppe en une fois', kind: 'fx', tokens: ['adsr'], doc: 'adsr',
-    ess: 'Les quatre réglages d’enveloppe d’un coup : `"attaque:retombée:maintien:extinction"`.',
+    schema: { type: 'adsr', reglages: { attack: 0.4, decay: 0.3, sustain: 0.8, release: 1.2 }, mode: 'motif' },
+    ess: 'Les quatre réglages d’enveloppe d’un coup, dans l’ordre attaque, retombée, maintien, extinction : `.adsr(".01:.2:.5:.3")`.',
     code: 'note("c3 e3 g3 e3").sound("sawtooth").lpf(1500).adsr(".01:.15:0:.1")',
     use: [
       ['Une nappe', 'note("[c3,eb3,g3]").sound("sawtooth").lpf(1200).adsr(".5:.2:.8:1")'],

@@ -1,14 +1,14 @@
 // Extrait du moteur Strudel vendorisé les FAITS vérifiables : fonctions globales,
 // méthodes de Pattern, contrôles et leurs alias, sons enregistrés, thèmes.
 // Sortie : scripts/out/engine-facts.json (sert aux tests d'exactitude du wiki).
-import { chromium } from 'playwright';
+import { launchBrowser } from './browser.mjs';
 import { serve } from './static-server.mjs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { mkdirSync, writeFileSync } from 'node:fs';
 const here = dirname(fileURLToPath(import.meta.url));
 const srv = await serve(join(here, '..', 'public'));
-const browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
+const browser = await launchBrowser();
 const page = await browser.newPage();
 await page.goto(srv.url + '__probe.html');
 await page.waitForFunction(() => customElements.get('strudel-editor'));

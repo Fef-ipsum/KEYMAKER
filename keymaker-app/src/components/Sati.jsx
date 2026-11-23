@@ -7,6 +7,9 @@ import { streamSati, historyFromMessages } from '../lib/sati.js';
 import { loadThread, appendExchange } from '../lib/memory.js';
 import { readPiUrl } from '../lib/store.js';
 import { Icon, useOnline } from '../ui.jsx';
+import { visibleSchemas } from '../schemas/core/visible.js';
+import { describeCatalog } from '../schemas/catalog.js';
+import { Schema, EarQuestion, parseSchemaBlock } from '../schemas/ui/Schema.jsx';
 
 function contextBlock(where) {
   const code = (engine.getCode() || '').trim();
@@ -17,9 +20,44 @@ function contextBlock(where) {
     'Écran en cours : ' + (where || 'accueil') + '.',
     'Code actuellement dans l’éditeur :\n```\n' + (code || '(vide)') + '\n```',
     err ? 'Dernière erreur affichée : ' + err : '',
+    ...schemaContext(),
     'Réponds en français, brièvement, avec un exemple de code jouable quand c’est utile. Rappel : une note sans chiffre est à l’octave 3 (c = c3).',
     '</contexte_app>',
   ].filter(Boolean).join('\n');
+}
+
+// Les schémas à l'écran (type, réglages, code) et le catalogue, généré depuis le code.
+export function schemaContext() {
+  const shown = visibleSchemas();
+  return [
+    shown.length ? 'Schémas vivants à l’écran (Felix peut les manipuler et les écouter) :\n- ' + shown.join('\n- ') : '',
+    describeCatalog(),
+  ].filter(Boolean);
+}
+
+// Un message de Sati : texte, blocs de code, et blocs ```schema rendus vivants.
+// Un bloc invalide (type inconnu, valeur hors limites, JSON cassé) reste du texte.
+function MessageBody({ text }) {
+  const parts = text.split(/```/);
+  return parts.map((part, j) => {
+    if (j % 2 === 0) return part.trim() ? <p key={j}>{part.trim()}</p> : null;
+    const lang = (part.match(/^([a-z]*)\n/) || [])[1] || '';
+    const body = part.replace(/^[a-z]*\n/, '');
+    if (lang === 'schema') {
+      const spec = parseSchemaBlock(body);
+      if (spec && spec.defi) {
+        const { defi, ...base } = spec;
+        return (
+          <div key={j} className="chat-schema">
+            <p className="chat-schema-t">Défi d’écoute : retrouve le réglage.</p>
+            <EarQuestion question={{ schema: base, cible: defi.cible, regler: defi.regler }} context="chat" />
+          </div>
+        );
+      }
+      if (spec) return <div key={j} className="chat-schema"><Schema spec={spec} context="chat" title="Schéma de Sati" /></div>;
+    }
+    return <pre key={j} className="code code-small"><code>{body.trim()}</code></pre>;
+  });
 }
 
 const QUICK = ['Explique-moi ce code, simplement', 'Pourquoi ça ne marche pas ?', 'Donne-moi une idée pour continuer'];
@@ -90,7 +128,7 @@ export default function Sati({ where, onClose }) {
           {!msgs.length ? <p className="empty">Sati voit l’écran où tu es et le code de l’éditeur. Pose ta question comme elle te vient.</p> : null}
           {msgs.map((m, i) => (
             <div key={i} className={'msg msg-' + m.role}>
-              {m.text ? m.text.split(/```/).map((part, j) => (j % 2 ? <pre key={j} className="code code-small"><code>{part.replace(/^[a-z]*\n/, '').trim()}</code></pre> : <p key={j}>{part.trim()}</p>)) : <p className="msg-wait">…</p>}
+              {m.text ? (busy && i === msgs.length - 1 ? <p>{m.text}</p> : <MessageBody text={m.text} />) : <p className="msg-wait">…</p>}
             </div>
           ))}
           <div ref={end} />

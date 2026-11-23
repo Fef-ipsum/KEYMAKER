@@ -7,9 +7,34 @@ export default {
   id: 'timbre',
   title: 'Le timbre',
   goal: 'Fabriquer un son de synthé et le sculpter : onde, filtre, enveloppe, espace.',
+  // Points d'étape et révisions : « retrouve le réglage à l'oreille ». Identifiants stables
+  // (cartes de révision) : ne jamais les renommer.
+  ear: [
+    {
+      type: 'oreille',
+      id: 'oreille.filtre-coupure',
+      step: 'f.filtre',
+      q: 'Retrouve la coupure : le son mystère est la même basse, avec un filtre plus fermé.',
+      schema: { type: 'filtre', reglages: { lpf: 3000, lpq: 0 }, source: 'basse' },
+      cible: { lpf: 400 },
+      regler: ['lpf'],
+      explain: 'Le son mystère était à `lpf(400)` : seules les premières harmoniques passent, d’où ce son rond et étouffé.',
+    },
+    {
+      type: 'oreille',
+      id: 'oreille.adsr-pince',
+      step: 'f.pluck',
+      q: 'Retrouve l’enveloppe : le son mystère est une note pincée.',
+      schema: { type: 'adsr', reglages: { attack: 0.005, decay: 0.15, sustain: 1, release: 0.1 }, mode: 'motif' },
+      cible: { sustain: 0 },
+      regler: ['sustain'],
+      explain: 'Le son mystère avait `sustain(0)` : après la retombée de 0,15 s, la note tombe au silence au lieu de rester tenue.',
+    },
+  ],
   steps: [
     {
       id: 'f.ondes',
+      schema: { type: 'onde', onde: 'sawtooth', note: 'c3', missions: ['pure', 'creuse', 'brillante'] },
       title: 'Quatre ondes de base',
       listen: 'Une mélodie jouée par un synthétiseur : le son n’est pas enregistré, il est calculé.',
       code: 'note("c3 e3 g3 e3").sound("sawtooth")',
@@ -51,6 +76,7 @@ export default {
 
     {
       id: 'f.filtre',
+      schema: { type: 'filtre', reglages: { lpf: 400 }, source: 'repetee', regler: ['lpf'], missions: ['ferme', 'ouvre'] },
       title: 'Le filtre : assombrir ou éclaircir',
       listen: 'Une basse en dent de scie, mais étouffée.',
       code: 'note("c2*8").sound("sawtooth").lpf(400)',
@@ -90,6 +116,7 @@ export default {
 
     {
       id: 'f.resonance',
+      schema: { type: 'filtre', reglages: { lpf: 600, lpq: 0 }, source: 'basse', missions: ['ferme', 'siffle', 'acid'] },
       title: 'La résonance : le filtre qui chante',
       listen: 'Une ligne de basse filtrée, assez sage.',
       code: 'note("c2 c2 eb2 c2 g2 c2 bb1 c2").sound("sawtooth").lpf(600).lpq(0)',
@@ -128,6 +155,7 @@ export default {
 
     {
       id: 'f.enveloppe',
+      schema: { type: 'adsr', reglages: { attack: 0.01, release: 0.1 }, mode: 'tenir', missions: ['lente', 'traine'] },
       title: 'L’enveloppe : comment le son arrive et repart',
       listen: 'Des notes qui démarrent net et s’arrêtent net.',
       code: 'note("c3 e3 g3 b3").sound("sawtooth").lpf(1500).attack(.01).release(.1)',
@@ -168,6 +196,7 @@ export default {
 
     {
       id: 'f.pluck',
+      schema: { type: 'adsr', reglages: {}, mode: 'tenir', missions: ['pince', 'lente', 'traine'] },
       title: 'La note pincée : decay et sustain',
       listen: 'Les mêmes notes, tenues jusqu’au bout de leur pas.',
       code: 'note("c3 eb3 g3 bb3 c4 bb3 g3 eb3").sound("sawtooth").lpf(1200)',
@@ -269,7 +298,7 @@ export default {
       deep: {
         why:
           'On peut aller à la ligne avant chaque point : Strudel lit la chaîne comme si tout était sur une seule ligne. C’est plus lisible quand les réglages s’accumulent. ' +
-          'L’ordre des réglages n’a pas d’importance pour le son : le moteur applique toujours onde, filtre, enveloppe puis effets d’espace.',
+          'L’ordre des réglages dans le code n’a pas d’importance pour le son : le moteur fabrique toujours la note dans le même ordre (l’onde, son enveloppe de volume, puis le filtre, puis les effets d’espace).',
         decode: [
           ['.lpf(900).lpq(8)', 'le filtre et sa résonance.', 'fx.lpf'],
           ['.decay(.2).sustain(0)', 'l’enveloppe : une note pincée.', 'fx.decay'],

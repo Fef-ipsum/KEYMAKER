@@ -281,6 +281,7 @@ $: n("<0 -2 -4 -3>").scale("A2:minor").sound("sawtooth").lpf(500)`,
   /* ------------------------------- son ------------------------------- */
   {
     id: 'sol.timbre', t: 'timbre', sub: 'la couleur d’un son', en: 'timbre', kind: 'sol',
+    schema: { type: 'onde', onde: 'square', note: 'c3', missions: ['pure', 'brillante'] },
     ess: 'Ce qui distingue deux instruments jouant la même note, à la même hauteur et au même volume.',
     code: 'note("c3 c3").sound("<piano sawtooth>*2")',
     see: ['son.ondes', 'fx.lpf', 'sol.enveloppe'],
@@ -288,6 +289,7 @@ $: n("<0 -2 -4 -3>").scale("A2:minor").sound("sawtooth").lpf(500)`,
   },
   {
     id: 'sol.enveloppe', t: 'enveloppe', sub: 'la forme du son dans le temps', en: 'envelope, ADSR', kind: 'sol',
+    schema: { type: 'adsr', reglages: {}, mode: 'tenir' },
     ess: 'La façon dont un son apparaît, se maintient et s’éteint. Quatre temps : attaque, retombée, maintien, extinction (ADSR).',
     code: 'note("c3 e3 g3 e3").sound("sawtooth").lpf(1500).attack(.01).decay(.15).sustain(.3).release(.2)',
     use: [

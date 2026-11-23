@@ -8,6 +8,7 @@ import { go } from '../lib/app.js';
 import { KINDS, byId, search, countByKind, primaryNoteKey, allNoteKeys, entryByNoteKey, engineVersion } from '../content/wiki/index.js';
 import { readNotes, setNote } from '../lib/glossaryNotes.js';
 import { Icon, Rich, Sample, Fold, WikiChip, PageHead, useWiki } from '../ui.jsx';
+import { Schema } from '../schemas/ui/Schema.jsx';
 
 const KIND_LABEL = Object.fromEntries(KINDS.map((k) => [k.id, k.label]));
 
@@ -58,6 +59,7 @@ export function Entry({ entry, compact = false }) {
         <div className="moment-label">L’essentiel</div>
         {entry.kind === 'ref' ? <p className="entry-refnote">Cette fonction n’a pas encore de fiche en français. Voici sa documentation officielle (Strudel {engineVersion}), en anglais.</p> : null}
         {entry.kind === 'ref' ? <p lang="en">{entry.ess}</p> : <Rich as="p" text={entry.ess} />}
+        {entry.schema ? <Schema spec={entry.schema} context="wiki" /> : null}
       </div>
       {entry.code ? <Sample code={entry.code} /> : null}
       {entry.genre ? (

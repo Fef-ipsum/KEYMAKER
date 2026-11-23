@@ -1,0 +1,599 @@
+// Banc d'essai des schémas vivants — côté NAVIGATEUR (chargé par scripts/check-schemas.mjs).
+//
+// Deux rendus hors temps réel du même code, dans un OfflineAudioContext séparé :
+//   - superdough, le moteur audio de Strudel embarqué (comme renderPatternAudio, sans
+//     fermer le contexte audio de la page) ;
+//   - la chaîne du schéma, avec les fonctions MÊMES de l'app (src/schemas/…).
+// Puis on compare : échantillons, enveloppe de volume (RMS sur 10 ms), spectre.
+import { TYPES, stateFromSpec, codeText } from '/src/schemas/catalog.js';
+import { adsrValues, adsrPlan, planValue, SYNTH_DEFAULTS } from '/src/schemas/core/adsr.js';
+import { createFiltreSound, adsrNote, heldVoice, ondeNote, CPS } from '/src/schemas/ui/sounds.js';
+import { NOTES as ONDE_NOTES, period, harmonics } from '/src/schemas/types/onde.js';
+import { filterResponse } from '/src/schemas/ui/response.js';
+import { SOURCES } from '/src/schemas/types/filtre.js';
+import { MOTIF, HOLD_NOTE } from '/src/schemas/types/adsr.js';
+
+export const SR = 44100;
+
+/* --- Outils de mesure --------------------------------------------------------------- */
+function fft(re, im) {
+  const n = re.length;
+  for (let i = 1, j = 0; i < n; i++) {
+    let bit = n >> 1;
+    for (; j & bit; bit >>= 1) j ^= bit;
+    j ^= bit;
+    if (i < j) {
+      [re[i], re[j]] = [re[j], re[i]];
+      [im[i], im[j]] = [im[j], im[i]];
+    }
+  }
+  for (let len = 2; len <= n; len <<= 1) {
+    const ang = (-2 * Math.PI) / len;
+    for (let i = 0; i < n; i += len) {
+      for (let k = 0; k < len / 2; k++) {
+        const wr = Math.cos(ang * k);
+        const wi = Math.sin(ang * k);
+        const a = i + k;
+        const b = a + len / 2;
+        const xr = re[b] * wr - im[b] * wi;
+        const xi = re[b] * wi + im[b] * wr;
+        re[b] = re[a] - xr;
+        im[b] = im[a] - xi;
+        re[a] += xr;
+        im[a] += xi;
+      }
+    }
+  }
+}
+// Spectre en dB (fenêtre de Hann) d'un morceau de signal.
+export function spectrum(x, start, n = 8192) {
+  const re = new Float64Array(n);
+  const im = new Float64Array(n);
+  for (let i = 0; i < n; i++) re[i] = (x[start + i] || 0) * (0.5 - 0.5 * Math.cos((2 * Math.PI * i) / (n - 1)));
+  fft(re, im);
+  const out = new Float64Array(n / 2);
+  for (let i = 0; i < n / 2; i++) out[i] = 20 * Math.log10(Math.hypot(re[i], im[i]) + 1e-12);
+  return out;
+}
+export function rmsEnvelope(x, win = Math.round(SR * 0.01)) {
+  const out = [];
+  for (let i = 0; i + win <= x.length; i += win) {
+    let s = 0;
+    for (let j = i; j < i + win; j++) s += x[j] * x[j];
+    out.push(Math.sqrt(s / win));
+  }
+  return out;
+}
+// Compare deux rendus. Renvoie les écarts mesurés.
+// `zones` : intervalles [t0, t1] (secondes) mis à part. Superdough range chaque note
+// (déconnexion de sa chaîne) sur un événement asynchrone : juste après la fin d'une note,
+// son rendu varie d'une fois à l'autre (mesuré : deux rendus du même code diffèrent là
+// quand la résonance est forte). On compare donc exactement partout ailleurs, et on
+// rapporte l'écart dans ces zones à part.
+export function compare(a, b, zones = []) {
+  const n = Math.min(a.length, b.length);
+  const inZone = (t) => zones.some(([z0, z1]) => t >= z0 && t < z1);
+  let maxAbs = 0;
+  let zoneAbs = 0;
+  let peak = 0;
+  for (let i = 0; i < n; i++) {
+    const d = Math.abs(a[i] - b[i]);
+    if (inZone(i / SR)) zoneAbs = Math.max(zoneAbs, d);
+    else maxAbs = Math.max(maxAbs, d);
+    peak = Math.max(peak, Math.abs(a[i]));
+  }
+  const win = Math.round(SR * 0.01);
+  const ea = rmsEnvelope(a, win);
+  const eb = rmsEnvelope(b, win);
+  const ePeak = Math.max(...ea, 1e-9);
+  let envDiff = 0;
+  for (let i = 0; i < Math.min(ea.length, eb.length); i++) {
+    const t0 = (i * win) / SR;
+    if (inZone(t0) || inZone(t0 + 0.0099)) continue;
+    envDiff = Math.max(envDiff, Math.abs(ea[i] - eb[i]) / ePeak);
+  }
+  // Spectre : sur le premier morceau où le son est installé.
+  const start = Math.round(SR * 0.03);
+  const sa = spectrum(a, start);
+  const sb = spectrum(b, start);
+  const top = Math.max(...sa);
+  let specDiff = 0;
+  for (let i = 1; i < sa.length; i++) if (sa[i] > top - 50) specDiff = Math.max(specDiff, Math.abs(sa[i] - sb[i]));
+  return { maxAbs, zoneAbs, peak, envDiff, specDiff };
+}
+
+// Zones de rangement des notes d'un schéma (voir compare).
+export function teardownZones(spec, seconds) {
+  const st = stateFromSpec(spec);
+  let n;
+  let tail;
+  if (spec.type === 'filtre') {
+    n = SOURCES[st.o.source].midi.length;
+    tail = SYNTH_DEFAULTS[3];
+  } else if (spec.type === 'onde') {
+    n = 1;
+    tail = SYNTH_DEFAULTS[3];
+  } else {
+    n = st.o.mode === 'motif' ? MOTIF.midi.length : 1;
+    tail = TYPES.adsr.values(st)[3];
+  }
+  const step = 1 / (n * CPS);
+  const out = [];
+  for (let k = 0; k * step < seconds; k++) out.push([(k + 1) * step + tail, (k + 1) * step + tail + 0.08]);
+  return out;
+}
+
+/* --- Le moteur Strudel ---------------------------------------------------------------- */
+export async function evalPattern(code) {
+  const ed = window.__ed;
+  ed.setCode(code);
+  if (!/\bsetcp[ms]\s*\(/.test(code)) ed.repl.setCps(0.5);
+  await ed.evaluate();
+  const st = ed.repl.state;
+  ed.stop();
+  if (st.evalError) throw new Error(String(st.evalError.message || st.evalError));
+  return st.pattern;
+}
+
+// Rendu par superdough, dans UN contexte hors temps réel séparé (celui de la page est
+// remis en place ensuite ; renderPatternAudio, lui, le fermerait).
+// Superdough recycle ses nœuds audio dans une réserve commune à tous les contextes : un
+// deuxième contexte hors temps réel recevrait des nœuds du premier et planterait. On fait
+// donc TOUS les rendus superdough d'une vérification dans un seul contexte, chacun à son
+// propre décalage dans le temps, séparés par assez de silence pour que rien ne déborde.
+const GAP = 5.5; // plus longue note tenue (2 s) + plus longue extinction (3 s) + marge
+window.__renders = window.__renders || {};
+export async function renderStrudelAll(items) {
+  const cps = 0.5;
+  const plans = [];
+  let offset = 0;
+  for (const it of items) {
+    const pat = await evalPattern(it.code);
+    plans.push({ ...it, pat, offset });
+    offset += it.seconds + GAP;
+  }
+  const orig = window.getAudioContext();
+  const origCtl = window.getSuperdoughAudioController();
+  const ac = new OfflineAudioContext(2, Math.round(offset * SR), SR);
+  window.setAudioContext(ac);
+  window.setSuperdoughAudioController(new origCtl.constructor(ac));
+  try {
+    for (const p of plans) {
+      const haps = p.pat
+        .queryArc(0, p.seconds * cps)
+        .filter((h) => h.hasOnset())
+        .sort((x, y) => x.whole.begin.valueOf() - y.whole.begin.valueOf());
+      for (const h of haps) {
+        const begin = h.whole.begin.valueOf();
+        await window.superdough({ ...h.value }, p.offset + begin / cps, h.duration.valueOf() / cps, cps, begin);
+      }
+    }
+    const x = (await ac.startRendering()).getChannelData(0);
+    for (const p of plans) window.__renders[p.key] = x.slice(Math.round(p.offset * SR), Math.round((p.offset + p.seconds) * SR));
+    return plans.length;
+  } finally {
+    window.setAudioContext(orig);
+    window.setSuperdoughAudioController(origCtl);
+  }
+}
+const rendered = (key) => {
+  const x = window.__renders[key];
+  if (!x) throw new Error('rendu superdough absent : ' + key);
+  return Array.from(x);
+};
+
+// Rendu par la chaîne du schéma (mêmes fonctions que l'app, mêmes notes, même grille).
+export async function renderSchema(spec, seconds, stOverride) {
+  const st = stOverride || stateFromSpec(spec);
+  const ac = new OfflineAudioContext(2, Math.round(seconds * SR), SR);
+  if (spec.type === 'filtre') {
+    const snd = createFiltreSound(ac, ac.destination, () => st);
+    const slots = SOURCES[st.o.source].midi;
+    const step = 1 / (slots.length * CPS);
+    for (let i = 0; i * step < seconds; i++) snd.note(slots[i % slots.length], i * step, step);
+  } else if (spec.type === 'adsr') {
+    const vals = TYPES.adsr.values(st);
+    const slots = st.o.mode === 'motif' ? MOTIF.midi : [HOLD_NOTE];
+    const step = 1 / (slots.length * CPS);
+    for (let i = 0; i * step < seconds; i++) adsrNote(ac, ac.destination, slots[i % slots.length], i * step, step, vals);
+  }
+  else if (spec.type === 'onde') {
+    for (let i = 0; i * 2 < seconds; i++) ondeNote(ac, ac.destination, st.o.onde, ONDE_NOTES[st.o.note], i * 2, 2);
+  }
+  const buf = await ac.startRendering();
+  return Array.from(buf.getChannelData(0));
+}
+
+// Codes à rendre par superdough pour comparer un schéma (clé = la déclaration).
+export function strudelItem(spec, seconds = 2.3) {
+  const st = stateFromSpec(spec);
+  return { key: 'spec:' + JSON.stringify(spec), code: codeText(TYPES[spec.type], st), seconds };
+}
+export async function soundVsStrudel(spec, seconds = 2.3) {
+  const it = strudelItem(spec, seconds);
+  const a = rendered(it.key);
+  const b = await renderSchema(spec, seconds);
+  return { code: it.code, ...compare(a, b, teardownZones(spec, seconds)) };
+}
+
+// Rendus superdough dont les faits ont besoin.
+export const FACT_RENDERS = [
+  { key: 'fact:sans-lpq', code: 'note("c2*4").sound("sawtooth").lpf(600)', seconds: 1.2 },
+  { key: 'fact:lpq1', code: 'note("c2*4").sound("sawtooth").lpf(600).lpq(1)', seconds: 1.2 },
+  { key: 'fact:lpq0', code: 'note("c2*4").sound("sawtooth").lpf(600).lpq(0)', seconds: 1.2 },
+  { key: 'fact:sans-hpq', code: 'note("c2*4").sound("sawtooth").hpf(600)', seconds: 1.2 },
+  { key: 'fact:hpq1', code: 'note("c2*4").sound("sawtooth").hpf(600).hpq(1)', seconds: 1.2 },
+  { key: 'fact:sans-bpq', code: 'note("c2*4").sound("sawtooth").bpf(600)', seconds: 1.2 },
+  { key: 'fact:bpq1', code: 'note("c2*4").sound("sawtooth").bpf(600).bpq(1)', seconds: 1.2 },
+  { key: 'fact:12db', code: 'note("c2").sound("sawtooth").lpf(500)', seconds: 0.4 },
+  { key: 'fact:24db', code: 'note("c2").sound("sawtooth").lpf(500).ftype("24db")', seconds: 0.4 },
+];
+
+/* --- 1. Le dessin correspond à l'objet audio ----------------------------------------------- */
+// Filtre : la courbe dessinée (filtre non branché, réglé comme celui qui joue) contre la
+// réponse du filtre qui joue réellement, après un changement de réglage pendant la lecture.
+export async function drawingVsFilter(specA, specB) {
+  const ac = window.getAudioContext();
+  await ac.resume();
+  let st = stateFromSpec(specA);
+  const sink = ac.createGain();
+  sink.gain.value = 0;
+  sink.connect(ac.destination);
+  const snd = createFiltreSound(ac, sink, () => st);
+  snd.note(36, ac.currentTime + 0.02, 1); // une note qui sonne, avec son filtre
+  st = stateFromSpec(specB);
+  snd.update(st); // lissage d'environ 12 ms, comme dans l'app
+  await new Promise((r) => setTimeout(r, 250));
+  const playing = [...snd.live][0].filt;
+  const freqs = new Float32Array(240);
+  for (let i = 0; i < 240; i++) freqs[i] = 20 * Math.pow(1000, i / 239);
+  const drawn = filterResponse(ac, st, freqs);
+  const mag = new Float32Array(240);
+  const ph = new Float32Array(240);
+  playing.getFrequencyResponse(freqs, mag, ph);
+  let maxDb = 0;
+  for (let i = 0; i < 240; i++) maxDb = Math.max(maxDb, Math.abs(drawn[i] - 20 * Math.log10(Math.max(mag[i], 1e-6))));
+  snd.dispose();
+  return { maxDb };
+}
+
+// Enveloppe : la forme dessinée (adsrPlan) contre le volume réellement programmé, rendu
+// hors temps réel ; et contre getParamADSR de superdough lui-même.
+export async function envelopeVsEngine(vals, hold) {
+  const len = Math.round((hold + vals[3] + 0.2) * SR);
+  const begin = 0.01;
+  const render = async (apply) => {
+    const ac = new OfflineAudioContext(1, len, SR);
+    const src = new ConstantSourceNode(ac, { offset: 1 });
+    const g = ac.createGain();
+    g.gain.value = 0;
+    src.connect(g).connect(ac.destination);
+    apply(g.gain);
+    src.start(0);
+    return (await ac.startRendering()).getChannelData(0);
+  };
+  const plan = adsrPlan(vals, begin, hold);
+  const mine = await render((p) => plan.forEach((e) => (e.kind === 'set' ? p.setValueAtTime(e.v, e.t) : p.linearRampToValueAtTime(e.v, e.t))));
+  const theirs = await render((p) => window.getParamADSR(p, vals[0], vals[1], vals[2], vals[3], 0, 1, begin, begin + hold, 'linear'));
+  let vsDrawn = 0;
+  let vsEngine = 0;
+  for (let i = 0; i < len; i++) {
+    vsDrawn = Math.max(vsDrawn, Math.abs(mine[i] - planValue(plan, i / SR)));
+    vsEngine = Math.max(vsEngine, Math.abs(mine[i] - theirs[i]));
+  }
+  return { vsDrawn, vsEngine };
+}
+
+// Note tenue puis lâchée (et éventuellement réglée pendant qu'on la tient) : la trace
+// dessinée (voice.valueAt) contre le volume rendu, et contre superdough pour la même durée.
+export async function heldVsEngine(vals, releaseAt, retune) {
+  const len = Math.round((releaseAt + 3.4) * SR);
+  const ac = new OfflineAudioContext(1, len, SR);
+  const v = heldVoice(ac, ac.destination, vals, 'one');
+  if (retune) ac.suspend(retune.t).then(() => {
+    v.retune(retune.vals);
+    ac.resume();
+  });
+  ac.suspend(releaseAt).then(() => {
+    v.release();
+    ac.resume();
+  });
+  const out = (await ac.startRendering()).getChannelData(0);
+  const k = 0.3 * 0.8; // gain 0,3 de l'onde × gain 0,8 par défaut
+  let vsTrace = 0;
+  for (let i = 0; i < len; i++) vsTrace = Math.max(vsTrace, Math.abs(out[i] / k - v.valueAt(i / SR)));
+  let vsEngine = null;
+  if (!retune) {
+    const ac2 = new OfflineAudioContext(1, len, SR);
+    const src = new ConstantSourceNode(ac2, { offset: 1 });
+    const g = ac2.createGain();
+    g.gain.value = 0;
+    src.connect(g).connect(ac2.destination);
+    window.getParamADSR(g.gain, vals[0], vals[1], vals[2], vals[3], 0, 1, v.begin, v.releaseAt, 'linear');
+    src.start(0);
+    const ref = (await ac2.startRendering()).getChannelData(0);
+    vsEngine = 0;
+    for (let i = 0; i < len; i++) vsEngine = Math.max(vsEngine, Math.abs(out[i] / k - ref[i]));
+  }
+  return { vsTrace, vsEngine, releasedAt: v.releaseAt };
+}
+
+// Une onde de période entière (P échantillons), mesurée sur 60 périodes exactes.
+async function measureWave(wave, P = 675) {
+  const ac = new OfflineAudioContext(1, P * 80, SR);
+  const o = ac.createOscillator();
+  o.type = wave;
+  o.frequency.value = SR / P;
+  o.connect(ac.destination);
+  o.start();
+  const x = (await ac.startRendering()).getChannelData(0);
+  const amp = (h) => {
+    let c = 0;
+    let s2 = 0;
+    const N = P * 60;
+    for (let i = 0; i < N; i++) {
+      const a = (2 * Math.PI * h * i) / P;
+      c += x[P * 10 + i] * Math.cos(a);
+      s2 += x[P * 10 + i] * Math.sin(a);
+    }
+    return (2 * Math.hypot(c, s2)) / N;
+  };
+  const a1 = amp(1);
+  const levels = Array.from({ length: 16 }, (_, i) => amp(i + 1) / a1);
+  const onePeriod = Array.from(x.slice(P * 20, P * 21));
+  return { levels, onePeriod };
+}
+// Le dessin de l'onde (forme et barres) contre l'oscillateur réel.
+export async function waveDrawingVsOscillator(wave) {
+  const P = 675;
+  const m = await measureWave(wave, P);
+  const drawnLevels = harmonics(wave, 16);
+  const barsDiff = Math.max(...drawnLevels.map((l, i) => Math.abs(l - m.levels[i])));
+  // Nombre d'harmoniques sous la moitié de la fréquence d'échantillonnage, comme l'oscillateur.
+  const drawn = period(wave, P, Math.floor(P / 2) - 1);
+  // Le niveau absolu des ondes intégrées dépend du navigateur (Chrome : carré et dent de
+  // scie ×0,848, triangle ×1) : on compare la FORME, à un facteur d'échelle près.
+  let num = 0;
+  let den = 0;
+  for (let i = 0; i < P; i++) {
+    num += drawn[i] * m.onePeriod[i];
+    den += drawn[i] * drawn[i];
+  }
+  const scale = num / den;
+  const diffs = drawn.map((v, i) => Math.abs(v * scale - m.onePeriod[i]));
+  const rms = Math.sqrt(diffs.reduce((a, d) => a + d * d, 0) / diffs.length);
+  // Loin des sauts verticaux (carré, dent de scie), où une poignée d'échantillons diffèrent
+  // selon le nombre d'harmoniques que l'oscillateur garde : on les met à part.
+  const jumps = [];
+  for (let i = 0; i < P; i++) if (Math.abs(drawn[(i + 1) % P] - drawn[i]) > 0.3) jumps.push(i);
+  const near = (i) => jumps.some((j) => Math.min(Math.abs(i - j), P - Math.abs(i - j)) <= Math.round(P * 0.02));
+  const shapeDiff = Math.max(...diffs.filter((_, i) => !near(i)));
+  const jumpDiff = Math.max(0, ...diffs.filter((_, i) => near(i)));
+  return { barsDiff, shapeDiff, rms, jumpDiff, jumps: jumps.length, scale };
+}
+
+/* --- 5. Les faits du « Creuser » -------------------------------------------------------- */
+export const FACTS = {
+  async 'filtre.q-db'() {
+    const ac = window.getAudioContext();
+    const f = ac.createBiquadFilter();
+    f.type = 'lowpass';
+    f.frequency.value = 600;
+    const out = [];
+    for (const q of [0, 1, 6, 12, 15, 20, 30]) {
+      f.Q.value = q;
+      const mag = new Float32Array(1);
+      f.getFrequencyResponse(new Float32Array([600]), mag, new Float32Array(1));
+      out.push([q, 20 * Math.log10(mag[0])]);
+    }
+    const err = Math.max(...out.map(([q, db]) => Math.abs(q - db)));
+    return { ok: err < 0.01, detail: out.map(([q, db]) => `lpq ${q} → ${db.toFixed(4)} dB`).join(' · ') };
+  },
+  async 'filtre.pente'() {
+    const ac = window.getAudioContext();
+    const f = ac.createBiquadFilter();
+    f.type = 'lowpass';
+    f.Q.value = 1;
+    const slopes = [];
+    for (const fc of [300, 600, 1000]) {
+      f.frequency.value = fc;
+      const fr = new Float32Array([2 * fc, 4 * fc, 8 * fc]);
+      const mag = new Float32Array(3);
+      f.getFrequencyResponse(fr, mag, new Float32Array(3));
+      const db = Array.from(mag, (m) => 20 * Math.log10(m));
+      slopes.push(db[1] - db[0], db[2] - db[1]);
+    }
+    return { ok: slopes.every((s) => s <= -12 && s > -14.5), detail: 'pente par octave, entre 2 et 8 fois la coupure (coupures 300, 600, 1000 Hz) : ' + slopes.map((s) => s.toFixed(2) + ' dB').join(', ') };
+  },
+  async 'filtre.q-defaut'() {
+    const a = rendered('fact:sans-lpq');
+    const b = rendered('fact:lpq1');
+    const c = rendered('fact:lpq0');
+    const d1 = compare(a, b).maxAbs;
+    const d0 = compare(a, c).maxAbs;
+    const dh = compare(rendered('fact:sans-hpq'), rendered('fact:hpq1')).maxAbs;
+    const db = compare(rendered('fact:sans-bpq'), rendered('fact:bpq1')).maxAbs;
+    return { ok: d1 < 1e-4 && d0 > 1e-3 && dh < 1e-4 && db < 1e-4, detail: `sans lpq vs lpq(1) : écart ${d1.toExponential(1)} ; vs lpq(0) : écart ${d0.toFixed(4)} ; sans hpq vs hpq(1) : ${dh.toExponential(1)} ; sans bpq vs bpq(1) : ${db.toExponential(1)}` };
+  },
+  async 'filtre.hpq-db'() {
+    const ac = window.getAudioContext();
+    const f = ac.createBiquadFilter();
+    f.type = 'highpass';
+    f.frequency.value = 600;
+    const out = [];
+    for (const q of [0, 1, 6, 12, 20, 30]) {
+      f.Q.value = q;
+      const mag = new Float32Array(1);
+      f.getFrequencyResponse(new Float32Array([600]), mag, new Float32Array(1));
+      out.push([q, 20 * Math.log10(mag[0])]);
+    }
+    const err = Math.max(...out.map(([q, db]) => Math.abs(q - db)));
+    return { ok: err < 0.01, detail: out.map(([q, db]) => `hpq ${q} → ${db.toFixed(4)} dB`).join(' · ') };
+  },
+  async 'filtre.bpf-centre'() {
+    const ac = window.getAudioContext();
+    const f = ac.createBiquadFilter();
+    f.type = 'bandpass';
+    f.frequency.value = 800;
+    const N = 2000;
+    const fr = new Float32Array(N);
+    for (let i = 0; i < N; i++) fr[i] = 20 * Math.pow(1000, i / (N - 1));
+    const rows = [];
+    for (const q of [1, 3, 8, 20]) {
+      f.Q.value = q;
+      const mag = new Float32Array(N);
+      f.getFrequencyResponse(fr, mag, new Float32Array(N));
+      const c = new Float32Array(1);
+      f.getFrequencyResponse(new Float32Array([800]), c, new Float32Array(1));
+      const above = [...mag].map((m, i) => [fr[i], 20 * Math.log10(m)]).filter(([, d]) => d >= -3);
+      const width = Math.log2(above[above.length - 1][0] / above[0][0]);
+      rows.push([q, 20 * Math.log10(c[0]), width]);
+    }
+    const ok = rows.every((r) => Math.abs(r[1]) < 0.01) && rows.every((r, i) => !i || r[2] < rows[i - 1][2]);
+    return { ok, detail: rows.map(([q, c, w]) => `bpq ${q} : centre ${c.toFixed(3)} dB, bande à −3 dB ${w.toFixed(2)} octave`).join(' · ') };
+  },
+  async 'filtre.scie'() {
+    // Une onde de période ENTIÈRE (675 échantillons ≈ 65,3 Hz, presque un do2), mesurée
+    // sur 60 périodes exactes : chaque harmonique tombe pile sur sa fréquence d'analyse.
+    const P = 675;
+    const ac = new OfflineAudioContext(1, P * 80, SR);
+    const o = ac.createOscillator();
+    o.type = 'sawtooth';
+    o.frequency.value = SR / P;
+    o.connect(ac.destination);
+    o.start();
+    const x = (await ac.startRendering()).getChannelData(0);
+    const amp = (h) => {
+      let c = 0;
+      let s2 = 0;
+      const N = P * 60;
+      for (let i = 0; i < N; i++) {
+        const a = (2 * Math.PI * h * i) / P;
+        c += x[P * 10 + i] * Math.cos(a);
+        s2 += x[P * 10 + i] * Math.sin(a);
+      }
+      return (2 * Math.hypot(c, s2)) / N;
+    };
+    const a1 = amp(1);
+    const hs = [2, 3, 4, 5, 8, 12, 16, 24, 32, 48, 64, 96, 128];
+    const ratios = hs.map((h) => (amp(h) * h) / a1);
+    return { ok: ratios.every((r) => r > 0.95 && r < 1.05), detail: 'niveau × n / niveau de la 1re harmonique, pour n = ' + hs.join(', ') + ' : ' + ratios.map((r) => r.toFixed(3)).join(' ') };
+  },
+  async 'filtre.raccourci'() {
+    const pat = await evalPattern('note("c2").sound("sawtooth").lpf("800:12")');
+    const v = pat.queryArc(0, 1)[0].value;
+    return { ok: v.cutoff === 800 && v.resonance === 12, detail: JSON.stringify(v) };
+  },
+  async 'filtre.24db'() {
+    const at = (x) => {
+      const s = spectrum(x, Math.round(SR * 0.05), 8192);
+      const bin = (f) => Math.round((f * 8192) / SR);
+      const f0 = 65.406;
+      const lvl = (h) => Math.max(...[-2, -1, 0, 1, 2].map((k) => s[bin(h * f0) + k]));
+      return lvl(1) - lvl(32); // la 32e harmonique ≈ 2 093 Hz, bien au-dessus de 500 Hz
+    };
+    const x12 = rendered('fact:12db');
+    const x24 = rendered('fact:24db');
+    const raw = 20 * Math.log10(32); // la 32e harmonique est déjà 32 fois plus faible dans l'onde
+    const a12 = at(x12) - raw;
+    const a24 = at(x24) - raw;
+    const ratio = a24 / a12;
+    return { ok: ratio > 1.8 && ratio < 2.2, detail: `atténuation à ~2,1 kHz : 12db → ${a12.toFixed(1)} dB, 24db → ${a24.toFixed(1)} dB (rapport ${ratio.toFixed(2)})` };
+  },
+  async 'onde.sinus'() {
+    const m = await measureWave('sine');
+    const rest = Math.max(...m.levels.slice(1));
+    return { ok: rest < 0.001, detail: `harmoniques 2 à 16 : au plus ${rest.toExponential(1)} de la première` };
+  },
+  async 'onde.carre'() {
+    const m = await measureWave('square');
+    const even = Math.max(...m.levels.filter((_, i) => (i + 1) % 2 === 0));
+    const odd = m.levels.map((l, i) => [i + 1, l]).filter(([n]) => n % 2).map(([n, l]) => l * n);
+    return { ok: even < 0.002 && odd.every((r) => Math.abs(r - 1) < 0.02), detail: `paires : au plus ${even.toExponential(1)} ; impaires, niveau × n : ${odd.map((r) => r.toFixed(3)).join(' ')}` };
+  },
+  async 'onde.triangle'() {
+    const m = await measureWave('triangle');
+    const even = Math.max(...m.levels.filter((_, i) => (i + 1) % 2 === 0));
+    const odd = m.levels.map((l, i) => [i + 1, l]).filter(([n]) => n % 2).map(([n, l]) => l * n * n);
+    return { ok: even < 0.002 && odd.every((r) => Math.abs(r - 1) < 0.03), detail: `paires : au plus ${even.toExponential(1)} ; impaires, niveau × n² : ${odd.map((r) => r.toFixed(3)).join(' ')}` };
+  },
+  async 'onde.scie'() {
+    const m = await measureWave('sawtooth');
+    const r = m.levels.map((l, i) => l * (i + 1));
+    return { ok: r.every((x) => Math.abs(x - 1) < 0.02), detail: 'niveau × n, n = 1 à 16 : ' + r.map((x) => x.toFixed(3)).join(' ') };
+  },
+  async 'adsr.defauts'() {
+    const r = await soundVsStrudel({ type: 'adsr', reglages: {}, mode: 'motif' });
+    const v = window.getADSRValues([undefined, undefined, undefined, undefined], 'linear', [0.001, 0.05, 0.6, 0.01]);
+    return { ok: r.maxAbs < 1e-4, detail: `rendu superdough de ${r.code} = rendu du schéma avec [${SYNTH_DEFAULTS.join(', ')}] (écart max ${r.maxAbs.toExponential(1)}) ; getADSRValues sans réglage → [${v.join(', ')}]` };
+  },
+  async 'adsr.un-seul'() {
+    const U = undefined;
+    const sample = [0.3, 0.2, 0.5, 0.7];
+    let bad = 0;
+    const lines = [];
+    for (let mask = 0; mask < 16; mask++) {
+      const arr = sample.map((x, i) => (mask & (1 << i) ? x : U));
+      const theirs = window.getADSRValues(arr, 'linear', [0.001, 0.05, 0.6, 0.01]);
+      const mine = adsrValues({ attack: arr[0], decay: arr[1], sustain: arr[2], release: arr[3] });
+      if (theirs.some((x, i) => Math.abs(x - mine[i]) > 1e-12)) bad++;
+      if (mask === 1 || mask === 2) lines.push(`[${arr.map((x) => (x == null ? '—' : x)).join(', ')}] → [${theirs.join(', ')}]`);
+    }
+    return { ok: bad === 0, detail: `16 combinaisons, ${bad} différence(s) avec getADSRValues ; ex. ${lines.join(' ; ')}` };
+  },
+  async 'adsr.lineaire'() {
+    const r = await envelopeVsEngine([0.4, 0.4, 0.5, 0.4], 1);
+    const ac = new OfflineAudioContext(1, SR, SR);
+    const src = new ConstantSourceNode(ac, { offset: 1 });
+    const g = ac.createGain();
+    src.connect(g).connect(ac.destination);
+    window.getParamADSR(g.gain, 0.4, 0.4, 0.5, 0.4, 0, 1, 0, 1, 'linear');
+    src.start();
+    const x = (await ac.startRendering()).getChannelData(0);
+    const mid = x[Math.round(0.2 * SR)];
+    return { ok: Math.abs(mid - 0.5) < 2e-3 && r.vsEngine < 1e-4, detail: `à mi-attaque (0,2 s sur 0,4 s), le volume vaut ${mid.toFixed(4)}` };
+  },
+  async 'adsr.troncature'() {
+    const vals = [0.5, 0.2, 0.6, 0.3];
+    const hold = 0.2;
+    const r = await envelopeVsEngine(vals, hold);
+    const plan = adsrPlan(vals, 0, hold);
+    const peak = Math.max(...plan.map((e) => e.v));
+    return { ok: Math.abs(peak - hold / vals[0]) < 1e-9 && r.vsEngine < 1e-4, detail: `attaque 0,5 s, note de 0,2 s : sommet à ${peak.toFixed(3)} (au lieu de 1), puis extinction depuis ce niveau ; écart avec getParamADSR ${r.vsEngine.toExponential(1)}` };
+  },
+  async 'adsr.raccourci'() {
+    const pat = await evalPattern('note("c3").sound("sawtooth").adsr(".01:.2:.5:.3")');
+    const v = pat.queryArc(0, 1)[0].value;
+    return { ok: v.attack === 0.01 && v.decay === 0.2 && v.sustain === 0.5 && v.release === 0.3, detail: JSON.stringify(v) };
+  },
+};
+
+/* --- 3. La ligne de code s'exécute et produit les valeurs attendues ------------------------ */
+export async function codeProduces(spec, st) {
+  const def = TYPES[spec.type];
+  const state = st || stateFromSpec(spec);
+  const code = codeText(def, state);
+  const expect = def.expect(state);
+  let pat;
+  try {
+    pat = await evalPattern(code);
+  } catch (e) {
+    return { ok: false, code, why: 'erreur : ' + e.message };
+  }
+  const haps = pat.queryArc(0, 1).filter((h) => h.hasOnset()).sort((a, b) => a.whole.begin.valueOf() - b.whole.begin.valueOf());
+  const notes = haps.map((h) => window.noteToMidi(String(h.value.note)));
+  const why = [];
+  if (JSON.stringify(notes) !== JSON.stringify(expect.notes)) why.push('notes ' + JSON.stringify(notes));
+  for (const [k, v] of Object.entries(expect)) {
+    if (k === 'notes') continue;
+    for (const h of haps) {
+      if (v === undefined ? k in h.value : h.value[k] !== v) {
+        why.push(`${k} = ${h.value[k]} (attendu ${v})`);
+        break;
+      }
+    }
+  }
+  return { ok: !why.length, code, why: why.join(', ') };
+}
+
+export { stateFromSpec, TYPES };

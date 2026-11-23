@@ -5,7 +5,7 @@
 //     une étape, un genre, le wiki et le Studio doivent jouer sans erreur.
 // Captures d'écran dans scripts/out/shots/.
 // Usage : node scripts/smoke.mjs [--dir dist-pi] [--quick]
-import { chromium } from 'playwright';
+import { launchBrowser } from './browser.mjs';
 import { mkdirSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,7 +22,7 @@ const SHOTS = join(here, 'out', 'shots');
 mkdirSync(SHOTS, { recursive: true });
 
 const srv = await serve(ROOT, 0, { base: BASE });
-const browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
+const browser = await launchBrowser();
 let bad = 0;
 const ok = (m) => console.log('  ✓ ' + m);
 const fail = (m) => { bad++; console.log('  ✗ ' + m); };
@@ -41,7 +41,7 @@ const text = (page, sel) => page.locator(sel).first().innerText().catch(() => ''
 
 /* ---------- 1. Captures : tailles × thèmes ---------- */
 const SIZES = { pc: { width: 1440, height: 900 }, tablette: { width: 834, height: 1112 }, telephone: { width: 390, height: 844 } };
-const ROUTES = [['accueil', '#/'], ['parcours', '#/parcours'], ['etape', '#/etape/f.crochets'], ['genre', '#/genre/techno/kick'], ['comparer', '#/comparer?a=techno&b=trance'], ['wiki', '#/wiki/fx.lpf'], ['studio', '#/studio'], ['reglages', '#/reglages']];
+const ROUTES = [['accueil', '#/'], ['parcours', '#/parcours'], ['etape', '#/etape/f.crochets'], ['genre', '#/genre/techno/kick'], ['comparer', '#/comparer?a=techno&b=trance'], ['wiki', '#/wiki/fx.lpf'], ['wiki-adsr', '#/wiki/fx.adsr'], ['schemas', '#/schemas'], ['studio', '#/studio'], ['reglages', '#/reglages']];
 for (const [size, viewport] of Object.entries(SIZES)) {
   for (const scheme of ['light', 'dark']) {
     if (onlyOffline) continue;
@@ -158,6 +158,122 @@ if (!onlyOffline) {
   await ctx.close();
 }
 
+/* ---------- 2 bis. Les schémas vivants ---------- */
+console.log('\n[schémas vivants]');
+if (!onlyOffline) {
+  for (const [label, vp, scheme] of [['téléphone', SIZES.telephone, 'light'], ['pc', SIZES.pc, 'dark']]) {
+    const { ctx, page, errors } = await newPage(vp, scheme);
+    const playing = (sel) => page.locator(sel).count().then((n) => n > 0);
+    // Complet au repos : le dessin est là avant toute lecture (wiki).
+    await page.goto(srv.url + '#/wiki/fx.lpf');
+    await page.waitForSelector('.schema-filtre .sch-curve', { timeout: 30000 });
+    const d = await page.getAttribute('.schema-filtre path.sch-curve', 'd');
+    check(d && d.length > 200, `${label} · wiki : la courbe du filtre est dessinée avant toute lecture`);
+    // Étape : le schéma apparaît dans « Ce que tu entends », avant le texte.
+    await page.evaluate(() => { window.location.hash = '#/etape/f.resonance'; });
+    await ready(page);
+    await page.click('.crown');
+    await page.waitForSelector('.moment-name .schema-filtre', { timeout: 15000 });
+    const order = await page.evaluate(() => { const m = document.querySelector('.moment-name'); const sc = m.querySelector('.schema-wrap'); const p = m.querySelector(':scope > p'); return !!(sc && p && (sc.compareDocumentPosition(p) & Node.DOCUMENT_POSITION_FOLLOWING)); });
+    check(order, `${label} · étape : le schéma vient avant le texte qui nomme la notion`);
+    // Un seul son à la fois : le schéma arrête l'éditeur…
+    check(await playing('.crown.is-playing'), `${label} · l’éditeur joue`);
+    await page.locator('.schema-filtre .sch-play').scrollIntoViewIfNeeded();
+    await page.click('.schema-filtre .sch-play');
+    await page.waitForTimeout(400);
+    check(!(await playing('.crown.is-playing')) && (await playing('.schema-filtre .sch-play.is-on')), `${label} · le schéma joue et l’éditeur s’est arrêté`);
+    // On attrape le dessin : la coupure descend, le code suit, la mission « ferme » se valide.
+    const box = await page.locator('.schema-filtre svg.sch-svg').boundingBox();
+    await page.mouse.move(box.x + box.width * 0.5, box.y + box.height * 0.4);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width * 0.25, box.y + box.height * 0.45, { steps: 6 });
+    await page.mouse.up();
+    await page.waitForTimeout(300);
+    const code = await text(page, '.schema-filtre .sch-code code');
+    const f = Number((code.match(/lpf\((\d+)\)/) || [])[1]);
+    check(f > 0 && f < 300, `${label} · glisser sur le dessin change la coupure (${code.match(/lpf\(\d+\)/)})`);
+    check((await page.locator('.schema-filtre .sch-mission.is-done .sch-learned').count()) >= 1, `${label} · mission « ferme » validée pendant la lecture, phrase de compréhension affichée`);
+    // Au clavier.
+    await page.focus('.schema-filtre .sch-handle');
+    await page.keyboard.press('ArrowUp');
+    await page.keyboard.press('ArrowUp');
+    await page.waitForTimeout(150);
+    check(/lpq\(2\)/.test(await text(page, '.schema-filtre .sch-code code')), `${label} · la poignée se règle au clavier (flèche haut → lpq(2))`);
+    // Avant / après.
+    const hb = await page.locator('.schema-filtre .sch-hold').boundingBox();
+    await page.mouse.move(hb.x + hb.width / 2, hb.y + hb.height / 2);
+    await page.mouse.down();
+    await page.waitForTimeout(250);
+    const off = await page.locator('.schema-filtre .sch-curve-off').count();
+    await page.mouse.up();
+    await page.waitForTimeout(250);
+    check(off === 1 && (await page.locator('.schema-filtre .sch-curve-off').count()) === 0, `${label} · « Maintiens : sans filtre » montre la ligne à 0 dB, puis revient`);
+    // … et l'éditeur arrête le schéma.
+    await page.click('.crown');
+    await page.waitForTimeout(400);
+    check(!(await playing('.schema-filtre .sch-play.is-on')), `${label} · ▶ dans l’éditeur arrête le schéma`);
+    await page.click('.crown');
+    // Enveloppe : « Pincé » puis tenir plus d'une seconde → mission « pince ».
+    await page.evaluate(() => { window.location.hash = '#/etape/f.pluck'; });
+    await ready(page);
+    await page.click('.crown');
+    await page.waitForSelector('.schema-adsr', { timeout: 15000 });
+    await page.click('.crown');
+    await page.locator('.schema-adsr .sch-presets').scrollIntoViewIfNeeded();
+    await page.click('.schema-adsr .sch-presets .chip:has-text("Pincé")');
+    await page.waitForTimeout(200);
+    check(/sustain\(0\)/.test(await text(page, '.schema-adsr .sch-code code')), `${label} · exemple « Pincé » : le code montre sustain(0)`);
+    const big = await page.locator('.schema-adsr .sch-hold-big').boundingBox();
+    await page.mouse.move(big.x + big.width / 2, big.y + big.height / 2);
+    await page.mouse.down();
+    await page.waitForTimeout(1300);
+    const phaseOn = await page.locator('.schema-adsr .sch-phases li.is-on').count();
+    await page.mouse.up();
+    await page.waitForTimeout(300);
+    check(phaseOn === 1, `${label} · pendant qu’on tient, une phase de l’enveloppe est allumée`);
+    check((await page.locator('.schema-adsr .sch-mission.is-done').count()) >= 1, `${label} · mission « pince » validée en tenant une note`);
+    check((await page.locator('.schema-adsr .sch-trace path').count()) === 1, `${label} · la trace dorée de la dernière note est dessinée`);
+    await page.screenshot({ path: join(SHOTS, `schemas-${label}-${scheme}-adsr.png`) });
+    // Point d'étape du chapitre 6 : jusqu'aux questions « à l'oreille ».
+    await page.evaluate(() => { window.location.hash = '#/point/timbre'; });
+    for (let i = 0; i < 12; i++) {
+      await page.waitForSelector('.question', { timeout: 15000 });
+      if (await page.locator('.ear').count()) break;
+      await page.click('.choice');
+      await page.click('.steprow .btn-primary');
+    }
+    check((await page.locator('.ear').count()) === 1, `${label} · le point d’étape du chapitre 6 contient une question « à l’oreille »`);
+    await page.click('.ear-controls .sch-play:has-text("Le son mystère")');
+    await page.waitForTimeout(400);
+    check(await playing('.ear-controls .sch-play.is-on'), `${label} · le son mystère joue`);
+    await page.click('.ear-controls .btn-primary');
+    await page.waitForSelector('.ear + .explain, .ear .explain', { timeout: 5000 });
+    check((await page.locator('.ear .sch-curve-target').count()) === 1, `${label} · après la réponse, la courbe du son mystère apparaît`);
+    await page.screenshot({ path: join(SHOTS, `schemas-${label}-${scheme}-oreille.png`) });
+    // Sati voit le schéma, et montre en réglant (bloc ```schema) ; un bloc invalide reste du texte.
+    let sent = null;
+    await page.route('**/keymaker/ai/chat', async (route) => {
+      sent = JSON.parse(route.request().postData() || '{}');
+      const textOut = 'Regarde :\n```schema\n{"type":"filtre","reglages":{"lpf":800,"lpq":18},"source":"tenue"}\n```\nEt ceci :\n```schema\n{"type":"filtre","reglages":{"lpf":99999}}\n```';
+      await route.fulfill({ status: 200, headers: { 'content-type': 'text/event-stream', 'access-control-allow-origin': '*' }, body: 'event: done\ndata: ' + JSON.stringify({ text: textOut }) + '\n\n' });
+    });
+    await page.evaluate(() => { window.location.hash = '#/wiki/fx.lpq'; });
+    await page.waitForSelector('.schema-filtre');
+    await page.locator('.topbar-tools .iconbtn:visible, .nav-extra:visible').first().click();
+    await page.waitForSelector('.chatform textarea');
+    await page.fill('.chatform textarea', 'Pourquoi ça siffle ?');
+    await page.click('.chatform button[type=submit]');
+    await page.waitForSelector('.chat-schema .schema-filtre', { timeout: 15000 });
+    check(sent && /Schéma dans le wiki : filtre passe-bas — lpf 700 Hz, lpq 0/.test(sent.context || ''), `${label} · Sati reçoit le schéma à l’écran dans son contexte`);
+    check(sent && /```schema/.test(sent.context || '') && /adsr —/.test(sent.context || ''), `${label} · Sati reçoit la description du catalogue`);
+    check((await page.locator('.chat-schema .schema-filtre').count()) === 1 && /99999/.test(await text(page, '.msg-sati')), `${label} · bloc valide → schéma vivant ; bloc invalide → reste du texte`);
+    await page.screenshot({ path: join(SHOTS, `schemas-${label}-${scheme}-sati.png`) });
+    await page.unroute('**/keymaker/ai/chat');
+    check(!errors.length, `${label} · aucune erreur de page` + (errors.length ? ' → ' + errors.slice(0, 3).join(' | ') : ''));
+    await ctx.close();
+  }
+}
+
 /* ---------- 3. Migration des données de l'ancienne app ---------- */
 console.log('\n[données de l’ancienne app]');
 if (!onlyOffline) {
@@ -225,6 +341,13 @@ console.log('\n[hors ligne]');
   await play('#/genre/trance/timbres', 'genre trance, timbres (supersaw)');
   await play('#/etape/L3.3.8', 'approfondissement guitare (police de sons gm_)');
   await play('#/studio', 'Studio');
+  // Un schéma vivant hors ligne (aucun son téléchargé : des ondes calculées).
+  await page.evaluate(() => { window.location.hash = '#/wiki/fx.lpf'; });
+  await page.waitForSelector('.schema-filtre .sch-play');
+  await page.click('.schema-filtre .sch-play');
+  await page.waitForTimeout(800);
+  check((await page.locator('.schema-filtre .sch-play.is-on').count()) === 1, 'un schéma vivant joue hors ligne');
+  await page.click('.schema-filtre .sch-play');
   await page.evaluate(() => { window.location.hash = '#/wiki/son.batterie'; });
   await page.waitForSelector('.playmini');
   await page.click('.playmini');
