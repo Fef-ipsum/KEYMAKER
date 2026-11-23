@@ -147,3 +147,24 @@
 .sch-hit-hh { fill: var(--gold); }
 .sch-tempo-line { font-size: .95em; color: var(--ink-2); }
 .sch-tempo-line strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* Clavier */
+.sch-keys { touch-action: manipulation; cursor: pointer; }
+.sch-key-w rect { fill: #fbfbfc; stroke: var(--line-2); }
+.sch-key-b rect { fill: #1a1d24; stroke: #0b0c10; }
+.sch-key.is-on.sch-key-w rect { fill: var(--blue-fill); }
+.sch-key.is-on.sch-key-b rect { fill: var(--gold); }
+.sch-key-l { fill: #2a2f3a; font: 700 12px var(--font); pointer-events: none; }
+.sch-key-fr { fill: #5a626e; font: 500 10.5px var(--font); pointer-events: none; }
+.sch-key.is-on .sch-key-l, .sch-key.is-on .sch-key-fr { fill: #fff; }
+.sch-key-n { fill: #fff; font: 750 14px var(--font); pointer-events: none; }
+.sch-key-b.is-on .sch-key-n { fill: #1b1405; }
+.sch-key:focus-visible rect { stroke: var(--blue); stroke-width: 3; }
+.sch-arc path { fill: none; stroke: var(--gold); stroke-width: 2; }
+.sch-arc text { fill: var(--ink); font: 700 12px var(--font); }
+
+/* Un dessin ne pousse jamais la page : il se mesure dans la place qu'on lui donne. */
+.sch-svg { max-width: 100%; height: auto; }
+.review > *, .review-item > *, .schema-wrap > * { min-width: 0; }
+.schema { grid-template-columns: minmax(0, 1fr); }
+.sch-choice { flex-wrap: wrap; max-width: 100%; border-radius: 22px; }

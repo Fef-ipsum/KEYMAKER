@@ -14,9 +14,14 @@ import OndeSchema from './OndeSchema.jsx';
 import FenvSchema from './FenvSchema.jsx';
 import CycleSchema from './CycleSchema.jsx';
 import TempoSchema from './TempoSchema.jsx';
+import ClavierSchema from './ClavierSchema.jsx';
 import { Icon, Rich } from '../../ui.jsx';
+import { useEngine } from '../../lib/app.js';
 
-export const VIEWS = { filtre: FiltreSchema, adsr: AdsrSchema, onde: OndeSchema, 'enveloppe-filtre': FenvSchema, cycle: CycleSchema, tempo: TempoSchema };
+// Ces types construisent leurs motifs avec le moteur Strudel : ils attendent qu'il soit chargé.
+const NEEDS_ENGINE = new Set(['cycle', 'tempo', 'clavier']);
+
+export const VIEWS = { filtre: FiltreSchema, adsr: AdsrSchema, onde: OndeSchema, 'enveloppe-filtre': FenvSchema, cycle: CycleSchema, tempo: TempoSchema, clavier: ClavierSchema };
 
 // Un schéma qui plante ne fait pas tomber l'écran qui l'accueille.
 class Guard extends Component {
@@ -34,7 +39,9 @@ class Guard extends Component {
 
 export function Schema({ spec, context = 'lecon', title }) {
   const v = useMemo(() => validateSpec(spec), [spec]);
+  const eng = useEngine();
   if (!v.ok || !VIEWS[spec.type]) return null;
+  const waiting = NEEDS_ENGINE.has(spec.type) && !(eng.ready && typeof window !== 'undefined' && window.mini);
   const View = VIEWS[spec.type];
   const def = TYPES[spec.type];
   return (
@@ -44,7 +51,7 @@ export function Schema({ spec, context = 'lecon', title }) {
         <span className="schema-cap-type">{def.label(stateFromSpec(spec))}</span>
       </figcaption>
       <Guard>
-        <View spec={spec} context={context} />
+        {waiting ? <p className="sch-failed">Le moteur se prépare…</p> : <View key={JSON.stringify(spec)} spec={spec} context={context} />}
       </Guard>
     </figure>
   );

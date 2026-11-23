@@ -137,7 +137,7 @@ export default function CycleSchema({ spec, context = 'lecon' }) {
                 {[0.25, 0.5, 0.75].map((q) => <line key={q} className="sch-quarter" x1={x(q)} x2={x(q)} y1={y0} y2={y0 + rowH} />)}
                 {list.map((e, i) => {
                   const bx = x(e.b - c);
-                  const bw = Math.max(3, x(e.e - c) - bx - 2);
+                  const bw = Math.max(3, x(Math.min(e.e - c, 1)) - bx - 2); // un son plus long que le cycle s'arrête au bord de la ligne
                   return (
                     <g key={i} className={'sch-ev sch-ev-' + (e.lane % LANE_COLORS) + (e.loc ? ' is-tap' : '')} onClick={() => silence(e)}>
                       <rect x={bx + 1} y={y0 + 2 + e.lane * lh} width={bw} height={lh - 2} rx={4} />

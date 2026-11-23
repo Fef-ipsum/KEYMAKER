@@ -11,6 +11,8 @@ import { createFiltreSound, adsrNote, heldVoice, ondeNote, fenvNote, CPS } from 
 import { envPlan, FILTER_ENV_DEFAULTS, filterEnvRange } from '/src/schemas/core/adsr.js';
 import { NOTES as ONDE_NOTES, period, harmonics } from '/src/schemas/types/onde.js';
 import { motifEvents, createPatternSound } from '/src/schemas/ui/pattern.js';
+import { patternFromCode, notesOf } from '/src/schemas/ui/keys.js';
+import { CHORDS, INTERVALS, chordSymbol } from '/src/schemas/types/clavier.js';
 import { createMissionRunner, pickMissions } from '/src/schemas/core/missions.js';
 import { filterResponse } from '/src/schemas/ui/response.js';
 import { SOURCES } from '/src/schemas/types/filtre.js';
@@ -482,6 +484,43 @@ export async function patternScheduling() {
   for (let k = 0; k < calls.length; k++) if (Math.abs(calls[k].cyc - k * 0.25) > 1e-9) missing.push(k);
   return { ok: unique && regular && steady && !missing.length && calls.some((c) => c.cps === 1), n: calls.length, detail: `${calls.length} sons, chaque quart de cycle une seule fois, écarts réguliers à chaque tempo, tempo doublé en route sans trou ni doublon` };
 }
+// Clavier : les notes allumées (motif construit par le schéma) = celles de la ligne de code
+// évaluée par l'éditeur, sur 2 cycles.
+export async function clavierVsCode(spec) {
+  const st = stateFromSpec(spec);
+  const code = TYPES.clavier.codeText(st);
+  const mine = notesOf(patternFromCode(code), 0, 2).map((x) => x.b.toFixed(5) + ':' + x.midi);
+  const pat = await evalPattern(code);
+  const theirs = pat.queryArc(0, 2).filter((h) => h.hasOnset()).sort((a, b) => a.whole.begin.valueOf() - b.whole.begin.valueOf()).map((h) => Number(h.whole.begin.valueOf()).toFixed(5) + ':' + (typeof h.value.note === 'number' ? h.value.note : window.noteToMidi(String(h.value.note))));
+  return { ok: mine.join() === theirs.join() && mine.length > 0, code, n: mine.length };
+}
+const pcs = (list) => [...new Set(list.map((m) => ((m % 12) + 12) % 12))].sort((a, b) => a - b).join(',');
+async function engineChord(sym) {
+  const pat = await evalPattern(`chord("${sym}").voicing()`);
+  return pat.queryArc(0, 1).filter((h) => h.hasOnset()).map((h) => (typeof h.value.note === 'number' ? h.value.note : window.noteToMidi(String(h.value.note))));
+}
+async function engineScale(scale) {
+  const pat = await evalPattern(`n("0 1 2 3 4 5 6 7").scale("${scale}")`);
+  return pat.queryArc(0, 1).filter((h) => h.hasOnset()).sort((a, b) => a.whole.begin.valueOf() - b.whole.begin.valueOf()).map((h) => (typeof h.value.note === 'number' ? h.value.note : window.noteToMidi(String(h.value.note))));
+}
+const steps = (ns) => ns.slice(1).map((m, i) => m - ns[i]);
+export async function chordQualities() {
+  const rows = [];
+  for (const root of [0, 2, 9]) {
+    for (const [q, c] of Object.entries(CHORDS)) {
+      const sym = chordSymbol(48 + root, q);
+      const eng = await engineChord(sym);
+      // Un « voicing » peut omettre la quinte (mesuré : D7 → fa#, do, ré) : chaque note jouée
+      // par le moteur doit appartenir à l'accord du schéma, fondamentale et tierce comprises.
+      const mine = new Set(c.st.map((x) => (root + x) % 12));
+      const theirs = new Set(eng.map((m) => m % 12));
+      const ok = eng.length > 0 && [...theirs].every((x) => mine.has(x)) && theirs.has(root % 12) && theirs.has((root + c.st[1]) % 12);
+      rows.push({ sym, ok, eng, omitted: [...mine].filter((x) => !theirs.has(x)) });
+    }
+  }
+  return { ok: rows.every((r) => r.ok), bad: rows.filter((r) => !r.ok).map((r) => r.sym + '→' + r.eng.join(',')), omitted: rows.filter((r) => r.omitted.length).map((r) => r.sym) };
+}
+
 export function cycleMission(id, motifs) {
   const def = TYPES.cycle;
   const m = def.missions.find((x) => x.id === id);
@@ -733,6 +772,53 @@ export const FACTS = {
     const kept = ed.repl.scheduler.cps;
     const rule = src.includes('ed.repl.setCps(0.5)');
     return { ok: rule && Math.abs(kept - 1.5) < 1e-12, detail: `moteur seul : après setcpm(90) puis un code sans setcpm, cps = ${kept} (le tempo reste) ; règle de l’app qui remet 0,5 : ${rule ? 'présente dans src/lib/engine.js' : 'ABSENTE'}` };
+  },
+  async 'clavier.octave'() {
+    const a = window.noteToMidi('c3');
+    const b = window.noteToMidi('c4');
+    const ratio = window.midiToFreq(b) / window.midiToFreq(a);
+    return { ok: b - a === 12 && Math.abs(ratio - 2) < 1e-12, detail: `noteToMidi : c3 = ${a}, c4 = ${b} (écart ${b - a}) ; midiToFreq(c4) / midiToFreq(c3) = ${ratio}` };
+  },
+  async 'clavier.sans-chiffre'() {
+    return { ok: window.noteToMidi('c') === 48 && window.noteToMidi('c3') === 48, detail: `noteToMidi("c") = ${window.noteToMidi('c')}, noteToMidi("c3") = ${window.noteToMidi('c3')}` };
+  },
+  async 'clavier.demi-ton'() {
+    const pairs = [['c#3', 'db3'], ['f#3', 'gb3'], ['a#3', 'bb3']].map(([x, y]) => [x, y, window.noteToMidi(x), window.noteToMidi(y)]);
+    const ok = pairs.every((p) => p[2] === p[3]) && window.noteToMidi('c#3') - window.noteToMidi('c3') === 1 && window.noteToMidi('f3') - window.noteToMidi('e3') === 1;
+    return { ok, detail: pairs.map((p) => `${p[0]} = ${p[1]} = ${p[2]}`).join(' ; ') + ' ; e3→f3 : 1 demi-ton' };
+  },
+  async 'intervalle.noms'() {
+    const rows = INTERVALS.map(([name, code], n) => {
+      const v = window.note(window.mini('c3')).transpose(code).queryArc(0, 1)[0].value.note;
+      return [name, code, n, window.noteToMidi(String(v)) - 48];
+    });
+    return { ok: rows.every((r) => r[2] === r[3]), detail: rows.filter((r) => [3, 4, 7, 12].includes(r[2])).map((r) => `${r[0]} (${r[1]}) : ${r[3]} demi-tons`).join(' ; ') + ' ; et les 13 noms, de 0 à 12, vérifiés par transpose' };
+  },
+  async 'gamme.majeure'() {
+    const st = steps(await engineScale('C:major'));
+    return { ok: st.join() === '2,2,1,2,2,2,1', detail: 'C:major, écarts : ' + st.join(' ') };
+  },
+  async 'gamme.mineure'() {
+    const st = steps(await engineScale('A:minor'));
+    return { ok: st.join() === '2,1,2,2,1,2,2', detail: 'A:minor, écarts : ' + st.join(' ') };
+  },
+  async 'gamme.penta'() {
+    const a = await engineScale('A:minor:pentatonic');
+    const b = await engineScale('C:major:pentatonic');
+    const perOct = (ns) => new Set(ns.map((m) => m % 12)).size;
+    return { ok: perOct(a) === 5 && perOct(b) === 5 && steps(a).every((d) => d >= 2) && steps(b).every((d) => d >= 2), detail: `A:minor:pentatonic : ${perOct(a)} notes, écarts ${steps(a).join(' ')} ; C:major:pentatonic : ${perOct(b)} notes, écarts ${steps(b).join(' ')}` };
+  },
+  async 'accord.majeur-mineur'() {
+    const maj = await engineChord('C');
+    const min = await engineChord('Cm');
+    const q = await chordQualities();
+    return { ok: pcs(maj) === '0,4,7' && pcs(min) === '0,3,7' && q.ok, detail: `chord("C").voicing() → classes ${pcs(maj)} (4 puis 3) ; "Cm" → ${pcs(min)} (3 puis 4) ; 12 accords comparés au moteur${q.ok ? '' : ' — écarts : ' + q.bad.join(' ')}${q.omitted.length ? ' ; voicings sans quinte : ' + q.omitted.join(', ') : ''}` };
+  },
+  async 'accord.septieme'() {
+    const s7 = await engineChord('C7');
+    const m7 = await engineChord('C^7');
+    const bad = await engineChord('Cmaj7');
+    return { ok: pcs(s7) === '0,4,7,10' && pcs(m7) === '0,4,7,11' && bad.length === 0, detail: `"C7" → ${pcs(s7)} ; "C^7" → ${pcs(m7)} ; "Cmaj7" → ${bad.length} note (rien ne joue)` };
   },
   async 'adsr.defauts'() {
     const r = await soundVsStrudel({ type: 'adsr', reglages: {}, mode: 'motif' });

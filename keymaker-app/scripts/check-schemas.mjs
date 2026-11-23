@@ -52,7 +52,7 @@ for (const x of all.filter((y) => !y.ear)) {
   const def = TYPES[x.spec.type];
   const st = stateFromSpec(x.spec);
   const runner = createMissionRunner(pickMissions(def, x.spec.missions));
-  const got = runner.update({ p: st.p, o: st.o, written: st.written, playing: true, holding: false, heldFor: 0 });
+  const got = runner.update({ p: st.p, o: st.o, written: st.written, playing: true, holding: false, heldFor: 0, taps: 0, root0: st.o.root });
   check(!got.length, 'aucune mission gagnée sans geste : ' + x.where, got.join(', '));
 }
 // Missions : atteignables par un parcours scripté (les valeurs passent par les arrondis).
@@ -69,6 +69,20 @@ const SCRIPTS = {
     pure: [{ playing: true }, { playing: true, onde: 'sine' }],
     creuse: [{ playing: true }, { playing: true, onde: 'square' }],
     brillante: [{ playing: true }, { playing: true, onde: 'sawtooth' }],
+  },
+  clavier: {
+    octave: [{ taps: 2, o: { mode: 'notes', seq: [48, 60] } }],
+    demiton: [{ taps: 2, o: { mode: 'notes', seq: [52, 53] } }],
+    melodie: [{ taps: 5, o: { mode: 'notes', seq: [48, 50, 52, 55, 57] } }],
+    quinte: [{ taps: 1, o: { mode: 'intervalle', a: 48, b: 55 } }],
+    'tierce-mineure': [{ taps: 1, o: { mode: 'intervalle', a: 48, b: 51 } }],
+    'tierce-majeure': [{ taps: 1, o: { mode: 'intervalle', a: 48, b: 52 } }],
+    mineure: [{ taps: 1, o: { mode: 'gamme', scale: 'minor' } }],
+    penta: [{ taps: 1, o: { mode: 'gamme', scale: 'minor:pentatonic' } }],
+    tonique: [{ taps: 1, o: { mode: 'gamme', root: 50 } }],
+    mineur: [{ taps: 1, o: { mode: 'accord', quality: 'm' } }],
+    septieme: [{ taps: 1, o: { mode: 'accord', quality: '7' } }],
+    arpege: [{ taps: 1, o: { mode: 'accord', arp: true } }],
   },
   tempo: {
     lent: [{ playing: true, bpm: 70 }],
@@ -94,11 +108,12 @@ for (const [type, def] of Object.entries(TYPES)) {
       fail(`mission ${type}/${m.id} : pas de parcours scripté`);
       continue;
     }
-    const st = stateFromSpec(type === 'filtre' ? { type, reglages: { lpf: 1000, lpq: 0 } } : type === 'onde' ? { type, onde: 'triangle' } : type === 'enveloppe-filtre' ? { type, reglages: { lpf: 300, lpenv: 1 } } : type === 'tempo' ? { type, reglages: { bpm: 100 }, temps: 4 } : { type, reglages: {}, mode: 'tenir' });
+    const st = stateFromSpec(type === 'filtre' ? { type, reglages: { lpf: 1000, lpq: 0 } } : type === 'onde' ? { type, onde: 'triangle' } : type === 'enveloppe-filtre' ? { type, reglages: { lpf: 300, lpenv: 1 } } : type === 'tempo' ? { type, reglages: { bpm: 100 }, temps: 4 } : type === 'clavier' ? { type, mode: 'notes', notes: 'c3' } : { type, reglages: {}, mode: 'tenir' });
     const runner = createMissionRunner([m]);
     let done = false;
     for (const stepSnap of script) {
-      const { playing = false, holding = false, heldFor = 0, event, kind, mode, onde, temps, ...params } = stepSnap;
+      const { playing = false, holding = false, heldFor = 0, event, kind, mode, onde, temps, taps = 0, o: oo, ...params } = stepSnap;
+      if (oo) Object.assign(st.o, oo);
       if (temps) st.o.temps = temps;
       if (onde) st.o.onde = onde;
       if (kind) st.o.kind = kind;
@@ -107,7 +122,7 @@ for (const [type, def] of Object.entries(TYPES)) {
         st.p[k] = def.params[k].q(v);
         if (def.writes ? def.writes.includes(k) : type === 'adsr') st.written = true;
       }
-      if (runner.update({ p: st.p, o: st.o, written: st.written, playing, holding, heldFor, event }).length) done = true;
+      if (runner.update({ p: st.p, o: st.o, written: st.written, playing, holding, heldFor, event, taps, root0: 48 }).length) done = true;
     }
     check(done, `mission ${type}/${m.id} atteignable`);
   }
@@ -254,7 +269,7 @@ for (const [vals, hold, f, env] of [
 }
 
 section('[B2] le son correspond à Strudel (superdough vs schéma, hors temps réel)');
-const RHYTHM = new Set(['cycle', 'tempo']);
+const RHYTHM = new Set(['cycle', 'tempo', 'clavier']);
 const soundCases = [...all.filter((x) => !RHYTHM.has(x.spec.type)).map((x) => ({ where: x.where, spec: x.spec }))];
 soundCases.push({ where: 'sans réglage d’enveloppe (motif)', spec: { type: 'adsr', reglages: {}, mode: 'motif' } });
 for (const t of Object.keys(TYPES).filter((x) => !RHYTHM.has(x))) for (let i = 0; i < (quick ? 2 : 5); i++) soundCases.push({ where: 'au hasard ' + t + ' ' + (i + 1), spec: randomSpec(t) });
@@ -327,6 +342,19 @@ section('[B4] rythme : événements, tempo, métronome, missions');
     check(await bench('cycleMission', m.id, script), `mission cycle/${m.id} atteignable (${script.join(' → ')})`);
     check(!(await bench('cycleMission', m.id, [script[0], script[0]])), `mission cycle/${m.id} : pas gagnée sans changer le motif`);
   }
+}
+
+{
+  const specs = [...all.filter((x) => x.spec.type === 'clavier').map((x) => x.spec), { type: 'clavier', mode: 'gamme', gamme: 'Eb4:minor' }, { type: 'clavier', mode: 'gamme', gamme: 'G3:major:pentatonic' }, { type: 'clavier', mode: 'accord', accord: 'Bb^7', arpege: true }, { type: 'clavier', mode: 'intervalle', a: 'f#3', b: 'c4' }, { type: 'clavier', mode: 'notes', notes: 'c3 c#3 bb4 b4' }];
+  let bad = 0;
+  for (const sp of specs) {
+    const r = await bench('clavierVsCode', sp);
+    if (!r.ok) {
+      bad++;
+      fail('clavier : ' + r.code, 'touches allumées ≠ notes de la ligne de code');
+    }
+  }
+  check(!bad, `${specs.length} claviers : touches allumées = notes de la ligne de code évaluée par Strudel`);
 }
 
 section('[B5] les faits du « Creuser », mesurés');

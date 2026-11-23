@@ -75,6 +75,7 @@ sound("bd*4")`,
   /* ------------------------------ notes ------------------------------ */
   {
     id: 'sol.hauteur', t: 'hauteur', sub: 'grave ou aigu', en: 'pitch', kind: 'sol',
+    schema: { type: 'clavier', mode: 'notes', notes: 'c3 c4', missions: ['octave'] },
     ess: 'Ce qui fait qu’un son est grave ou aigu. Plus la vibration est rapide, plus le son est aigu.',
     code: 'note("c2 c3 c4 c5").sound("piano")',
     see: ['sol.octave', 'sol.noms-des-notes', 'fn.note'],
@@ -82,6 +83,7 @@ sound("bd*4")`,
   },
   {
     id: 'sol.noms-des-notes', t: 'do ré mi = C D E', sub: 'les noms des notes', en: 'note names', kind: 'sol',
+    schema: { type: 'clavier', mode: 'notes', notes: 'c3 d3 e3 f3 g3 a3 b3', missions: [] },
     ess: 'C = do · D = ré · E = mi · F = fa · G = sol · A = la · B = si. Strudel utilise les lettres.',
     code: 'note("c d e f g a b c4").sound("piano")',
     use: [
@@ -97,6 +99,7 @@ sound("bd*4")`,
   },
   {
     id: 'sol.octave', t: 'octave', sub: 'la même note, plus haut', en: 'octave', kind: 'sol',
+    schema: { type: 'clavier', mode: 'notes', notes: 'c3 c4', missions: ['octave'] },
     ess: 'L’écart entre une note et la suivante du même nom : 12 demi-tons. Le chiffre après la lettre est le numéro d’octave.',
     code: 'note("c3 c4").sound("piano")',
     use: [
@@ -121,6 +124,7 @@ sound("bd*4")`,
   },
   {
     id: 'sol.demi-ton', t: 'demi-ton', sub: 'la plus petite marche', en: 'semitone, half step', kind: 'sol',
+    schema: { type: 'clavier', mode: 'notes', notes: 'c3 c#3', missions: ['demiton'] },
     ess: 'Le plus petit écart entre deux notes : d’une touche de piano à sa voisine immédiate.',
     code: 'note("e3 f3").sound("piano")',
     use: [['Les douze demi-tons d’une octave', 'note("c c# d d# e f f# g g# a a# b").sound("piano")']],
@@ -130,6 +134,7 @@ sound("bd*4")`,
   },
   {
     id: 'sol.ton', t: 'ton', sub: 'deux demi-tons', en: 'whole tone, whole step', kind: 'sol',
+    schema: { type: 'clavier', mode: 'notes', notes: 'c3 d3', missions: [] },
     ess: 'Deux demi-tons. De do à ré, il y a un ton.',
     code: 'note("c3 d3").sound("piano")',
     see: ['sol.demi-ton', 'sol.majeur'],
@@ -137,6 +142,7 @@ sound("bd*4")`,
   },
   {
     id: 'sol.diese-bemol', t: '#  et  b', sub: 'dièse et bémol', en: 'sharp, flat', kind: 'sol',
+    schema: { type: 'clavier', mode: 'notes', notes: 'c3 c#3 d3', missions: ['demiton'] },
     ess: 'Le dièse `#` monte une note d’un demi-ton. Le bémol `b` la descend d’un demi-ton.',
     code: 'note("e3 eb3 e3 f3").sound("piano")',
     use: [['Deux noms pour un même son', 'note("d#3 eb3").sound("piano")']],
@@ -151,6 +157,7 @@ sound("bd*4")`,
   /* ------------------------------ gammes ------------------------------ */
   {
     id: 'sol.gamme', t: 'gamme', sub: 'un choix de notes', en: 'scale', kind: 'sol',
+    schema: { type: 'clavier', mode: 'gamme', gamme: 'C3:major', missions: ['mineure', 'penta'] },
     ess: 'Une sélection de notes qui vont bien ensemble, rangées de la plus grave à la plus aiguë, comme un escalier.',
     code: 'n("0 1 2 3 4 5 6 7").scale("C:major").sound("piano")',
     see: ['sol.majeur', 'sol.mineur', 'sol.pentatonique', 'sol.degre', 'fn.scale'],
@@ -158,6 +165,7 @@ sound("bd*4")`,
   },
   {
     id: 'sol.majeur', t: 'gamme majeure', sub: 'claire, ouverte', en: 'major scale', kind: 'sol',
+    schema: { type: 'clavier', mode: 'gamme', gamme: 'C3:major', missions: ['tonique'] },
     ess: 'La gamme « do ré mi fa sol la si ». Couleur claire. Sa troisième note est à 4 demi-tons de la tonique.',
     code: 'n("0 1 2 3 4 5 6 7").scale("C:major").sound("piano")',
     use: [['La même à partir de sol', 'n("0 1 2 3 4 5 6 7").scale("G:major").sound("piano")']],
@@ -167,6 +175,7 @@ sound("bd*4")`,
   },
   {
     id: 'sol.mineur', t: 'gamme mineure', sub: 'sombre, mélancolique', en: 'minor scale', kind: 'sol',
+    schema: { type: 'clavier', mode: 'gamme', gamme: 'A3:minor', missions: [] },
     ess: 'La gamme la plus courante en musique électronique. Couleur sombre. Sa troisième note est à 3 demi-tons de la tonique.',
     code: 'n("0 1 2 3 4 5 6 7").scale("C:minor").sound("piano")',
     use: [['Majeur puis mineur, pour comparer', 'n("0 1 2 3 4 3 2 1").scale("<C:major C:minor>").sound("piano")']],
@@ -177,6 +186,7 @@ sound("bd*4")`,
   },
   {
     id: 'sol.pentatonique', t: 'pentatonique', sub: 'cinq notes', en: 'pentatonic scale', kind: 'sol',
+    schema: { type: 'clavier', mode: 'gamme', gamme: 'A3:minor:pentatonic', missions: [] },
     ess: 'Une gamme de cinq notes, sans les deux qui frottent le plus. Tout y sonne bien : idéale pour improviser.',
     code: 'n("0 1 2 3 4 5 4 3").scale("A:minor:pentatonic").sound("piano")',
     use: [['Version majeure', 'n("0 1 2 3 4 5 4 3").scale("C:major:pentatonic").sound("piano")']],
@@ -185,6 +195,7 @@ sound("bd*4")`,
   },
   {
     id: 'sol.degre', t: 'degré', sub: 'une marche de la gamme', en: 'scale degree', kind: 'sol',
+    schema: { type: 'clavier', mode: 'gamme', gamme: 'C3:major', missions: [] },
     ess: 'La position d’une note dans la gamme. Avec `n()`, on écrit directement les degrés.',
     code: 'n("0 2 4").scale("C:major").sound("piano")',
     traps: [
@@ -195,6 +206,7 @@ sound("bd*4")`,
   },
   {
     id: 'sol.tonique', t: 'tonique', sub: 'la note-maison', en: 'tonic, root', kind: 'sol',
+    schema: { type: 'clavier', mode: 'gamme', gamme: 'C3:major', missions: ['tonique'] },
     ess: 'La première note de la gamme, celle sur laquelle une mélodie se repose. Dans Strudel : `n("0")`.',
     code: 'n("0 2 4 7 4 2 0 ~").scale("A:minor").sound("piano")',
     use: [['Finir ailleurs laisse en suspens', 'n("0 2 4 7 4 2 1 ~").scale("A:minor").sound("piano")']],
@@ -214,6 +226,7 @@ $: n("<0 -2 -4 -3>").scale("A2:minor").sound("sawtooth").lpf(500)`,
   /* --------------------------- intervalles --------------------------- */
   {
     id: 'sol.intervalle', t: 'intervalle', sub: 'la distance entre deux notes', en: 'interval', kind: 'sol',
+    schema: { type: 'clavier', mode: 'intervalle', a: 'c3', b: 'g3', missions: ['tierce-majeure', 'tierce-mineure'] },
     ess: 'L’écart entre deux notes, compté en demi-tons. Chaque écart a un nom et une couleur.',
     code: 'note("c3 g3 [c3,g3] ~").sound("piano")',
     use: [
@@ -230,6 +243,7 @@ $: n("<0 -2 -4 -3>").scale("A2:minor").sound("sawtooth").lpf(500)`,
   },
   {
     id: 'sol.tierce', t: 'tierce', sub: 'majeure ou mineure', en: 'third', kind: 'sol',
+    schema: { type: 'clavier', mode: 'intervalle', a: 'c3', b: 'e3', missions: ['tierce-mineure'] },
     ess: 'L’intervalle qui donne sa couleur à l’harmonie. Majeure (4 demi-tons) : claire. Mineure (3 demi-tons) : sombre.',
     code: 'note("[c3,e3] ~ [c3,eb3] ~").sound("piano")',
     use: [
@@ -241,6 +255,7 @@ $: n("<0 -2 -4 -3>").scale("A2:minor").sound("sawtooth").lpf(500)`,
   },
   {
     id: 'sol.quinte', t: 'quinte', sub: '7 demi-tons', en: 'perfect fifth', kind: 'sol',
+    schema: { type: 'clavier', mode: 'intervalle', a: 'c3', b: 'e3', missions: ['quinte'] },
     ess: 'L’intervalle le plus stable après l’octave : do–sol. Deux notes à la quinte se renforcent.',
     code: 'note("[c3,g3]").sound("piano")',
     use: [['Une basse en quintes', 'note("c2 g2 c2 g2").sound("sawtooth").lpf(600)']],
@@ -251,6 +266,7 @@ $: n("<0 -2 -4 -3>").scale("A2:minor").sound("sawtooth").lpf(500)`,
   /* ------------------------------ accords ------------------------------ */
   {
     id: 'sol.accord', t: 'accord', sub: 'trois notes ou plus', en: 'chord', kind: 'sol',
+    schema: { type: 'clavier', mode: 'accord', accord: 'C', missions: ['mineur', 'septieme'] },
     ess: 'Plusieurs notes jouées ensemble. L’accord de base a trois notes : la fondamentale, sa tierce et sa quinte.',
     code: 'note("[c3,e3,g3]").sound("piano")',
     use: [
@@ -265,6 +281,7 @@ $: n("<0 -2 -4 -3>").scale("A2:minor").sound("sawtooth").lpf(500)`,
   },
   {
     id: 'sol.arpege', t: 'arpège', sub: 'un accord égrené', en: 'arpeggio', kind: 'sol',
+    schema: { type: 'clavier', mode: 'accord', accord: 'Am', arpege: true, missions: [] },
     ess: 'Un accord dont on joue les notes l’une après l’autre au lieu de toutes ensemble.',
     code: 'note("[c3,e3,g3]").arp("0 1 2 1").sound("piano")',
     use: [['Écrit à la main', 'note("c3 e3 g3 e3").sound("piano")']],

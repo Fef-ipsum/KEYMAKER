@@ -41,7 +41,7 @@ const text = (page, sel) => page.locator(sel).first().innerText().catch(() => ''
 
 /* ---------- 1. Captures : tailles × thèmes ---------- */
 const SIZES = { pc: { width: 1440, height: 900 }, tablette: { width: 834, height: 1112 }, telephone: { width: 390, height: 844 } };
-const ROUTES = [['accueil', '#/'], ['parcours', '#/parcours'], ['etape', '#/etape/f.crochets'], ['genre', '#/genre/techno/kick'], ['comparer', '#/comparer?a=techno&b=trance'], ['wiki', '#/wiki/fx.lpf'], ['wiki-adsr', '#/wiki/fx.adsr'], ['wiki-ondes', '#/wiki/son.ondes'], ['wiki-lpenv', '#/wiki/fx.lpenv'], ['wiki-crochets', '#/wiki/mini.crochets'], ['wiki-tempo', '#/wiki/sol.tempo'], ['schemas', '#/schemas'], ['studio', '#/studio'], ['reglages', '#/reglages']];
+const ROUTES = [['accueil', '#/'], ['parcours', '#/parcours'], ['etape', '#/etape/f.crochets'], ['genre', '#/genre/techno/kick'], ['comparer', '#/comparer?a=techno&b=trance'], ['wiki', '#/wiki/fx.lpf'], ['wiki-adsr', '#/wiki/fx.adsr'], ['wiki-ondes', '#/wiki/son.ondes'], ['wiki-lpenv', '#/wiki/fx.lpenv'], ['wiki-crochets', '#/wiki/mini.crochets'], ['wiki-tempo', '#/wiki/sol.tempo'], ['wiki-accord', '#/wiki/sol.accord'], ['wiki-gamme', '#/wiki/sol.gamme'], ['schemas', '#/schemas'], ['studio', '#/studio'], ['reglages', '#/reglages']];
 for (const [size, viewport] of Object.entries(SIZES)) {
   for (const scheme of ['light', 'dark']) {
     if (onlyOffline) continue;
@@ -314,6 +314,24 @@ if (!onlyOffline) {
     await page.waitForTimeout(150);
     check(/setcpm\(121\/4\)/.test(await text(page, '.schema-tempo .sch-code code')), `${label} · tempo : la fin du cycle se règle au clavier (setcpm(121/4))`);
     await page.screenshot({ path: join(SHOTS, `schemas-${label}-${scheme}-tempo.png`) });
+    // Vague 4 : le clavier.
+    await page.evaluate(() => { window.location.hash = '#/wiki/sol.octave'; });
+    await page.waitForSelector('.schema-clavier');
+    const keyC4 = page.locator('.schema-clavier .sch-key-w[aria-label^="c4,"]');
+    await keyC4.dispatchEvent('pointerdown');
+    await page.waitForTimeout(200);
+    check(/note\("c3 c4 c4"\)/.test(await text(page, '.schema-clavier .sch-code code')), `${label} · clavier : toucher une touche l’ajoute à note("…")`);
+    await page.locator('.schema-clavier .sch-key-w[aria-label^="c3,"]').dispatchEvent('pointerdown');
+    await keyC4.dispatchEvent('pointerdown');
+    await page.waitForTimeout(200);
+    check((await page.locator('.schema-clavier .sch-mission.is-done').count()) === 1, `${label} · clavier : mission « octave » (c3 puis c4)`);
+    await page.evaluate(() => { window.location.hash = '#/wiki/sol.gamme'; });
+    await page.waitForSelector('.schema-clavier');
+    check((await page.locator('.schema-clavier .sch-key.is-on').count()) === 8, `${label} · gamme : les 8 degrés de do majeur sont allumés`);
+    await page.click('.schema-clavier .sch-choice-b:has-text("mineure")');
+    await page.waitForTimeout(150);
+    check(/scale\("C3:minor"\)/.test(await text(page, '.schema-clavier .sch-code code')), `${label} · gamme : le choix « mineure » change le code`);
+    await page.screenshot({ path: join(SHOTS, `schemas-${label}-${scheme}-gamme.png`) });
     check(!errors.length, `${label} · aucune erreur de page` + (errors.length ? ' → ' + errors.slice(0, 3).join(' | ') : ''));
     await ctx.close();
   }

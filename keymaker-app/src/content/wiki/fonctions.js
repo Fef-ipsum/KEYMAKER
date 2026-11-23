@@ -157,6 +157,7 @@ $: sound("hh*8").gain(.5)`,
   /* ---------------------------- hauteur ---------------------------- */
   {
     id: 'fn.scale', t: 'scale', sub: 'la gamme', kind: 'fn', tokens: ['scale'], doc: 'scale',
+    schema: { type: 'clavier', mode: 'gamme', gamme: 'C3:major', missions: ['mineure', 'penta'] },
     ess: 'Transforme les numéros de `n()` en notes d’une gamme. S’écrit `"tonique:type"`.',
     code: 'n("0 2 4 7").scale("C:minor").sound("piano")',
     use: [

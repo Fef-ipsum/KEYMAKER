@@ -52,6 +52,7 @@ export default {
 
     {
       id: 'f.do-re-mi',
+      schema: { type: 'clavier', mode: 'notes', notes: 'c3 d3 e3 f3 g3 a3 b3 c4', missions: ['melodie'] },
       title: 'Do ré mi = C D E',
       listen: 'Huit notes qui montent. Tu les connais : chante-les en même temps.',
       code: 'note("c d e f g a b c4").sound("piano")',
@@ -97,6 +98,7 @@ export default {
 
     {
       id: 'f.octave',
+      schema: { type: 'clavier', mode: 'notes', notes: 'c3 c4', missions: ['octave'] },
       title: 'L’octave : le chiffre après la lettre',
       listen: 'Deux do. Le même nom, pas la même hauteur.',
       code: 'note("c3 c4 c3 c4").sound("piano")',
@@ -133,6 +135,7 @@ export default {
 
     {
       id: 'f.demi-ton',
+      schema: { type: 'clavier', mode: 'notes', notes: 'c3 c#3 d3', missions: ['demiton'] },
       title: 'Les douze notes : # et b',
       listen: 'Douze notes qui montent par les plus petites marches possibles.',
       code: 'note("c c# d d# e f f# g g# a a# b").sound("piano")',
@@ -217,6 +220,7 @@ export default {
 
     {
       id: 'f.melodie',
+      schema: { type: 'clavier', mode: 'notes', notes: 'c4 e4 g4', missions: ['melodie'] },
       title: 'Le rythme marche aussi avec les notes',
       listen: 'Une mélodie avec des silences et un groupe rapide.',
       code: 'note("c4 e4 g4 [e4 c4] ~ g4 e4 ~").sound("piano")',

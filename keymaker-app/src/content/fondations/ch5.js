@@ -13,6 +13,7 @@ export default {
   steps: [
     {
       id: 'f.intervalle',
+      schema: { type: 'clavier', mode: 'intervalle', a: 'c3', b: 'g3', missions: ['tierce-majeure', 'tierce-mineure'] },
       title: 'Deux notes : un intervalle',
       listen: 'Deux notes l’une après l’autre, puis les mêmes en même temps.',
       code: 'note("c3 g3 [c3,g3] ~").sound("piano")',
@@ -51,6 +52,7 @@ export default {
 
     {
       id: 'f.tierce',
+      schema: { type: 'clavier', mode: 'intervalle', a: 'c3', b: 'e3', missions: ['tierce-mineure', 'quinte'] },
       title: 'La tierce : claire ou sombre',
       listen: 'Deux paires de notes. Le bas ne bouge pas ; seul le haut change un tout petit peu.',
       code: 'note("[c3,e3] ~ [c3,eb3] ~").sound("piano")',
@@ -109,6 +111,7 @@ export default {
 
     {
       id: 'f.accord',
+      schema: { type: 'clavier', mode: 'accord', accord: 'C', missions: ['mineur', 'septieme', 'arpege'] },
       title: 'Trois notes : un accord',
       listen: 'Trois notes en même temps.',
       code: 'note("[c3,e3,g3]").sound("piano")',
@@ -237,6 +240,7 @@ export default {
 
     {
       id: 'f.arpege',
+      schema: { type: 'clavier', mode: 'accord', accord: 'C', missions: ['arpege'] },
       title: 'L’arpège : l’accord égrené',
       listen: 'Les mêmes accords, mais les notes arrivent une par une.',
       code: 'n("<[0,2,4] [3,5,7]>").scale("C4:major").arp("0 1 2 1").sound("piano").room(.4)',

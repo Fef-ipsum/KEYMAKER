@@ -12,6 +12,7 @@ export default {
   steps: [
     {
       id: 'f.gamme',
+      schema: { type: 'clavier', mode: 'gamme', gamme: 'C3:major', missions: ['tonique'] },
       title: 'Un escalier de notes',
       listen: 'Encore do ré mi… mais regarde : il n’y a plus de lettres, seulement des nombres.',
       code: 'n("0 1 2 3 4 5 6 7").scale("C:major").sound("piano")',
@@ -47,6 +48,7 @@ export default {
 
     {
       id: 'f.majeur-mineur',
+      schema: { type: 'clavier', mode: 'gamme', gamme: 'C3:major', missions: ['mineure'] },
       title: 'Majeur ou mineur',
       listen: 'Une mélodie en do majeur. Retiens sa couleur.',
       code: 'n("0 2 4 2 0 4 7 ~").scale("C:major").sound("piano")',
@@ -95,6 +97,7 @@ export default {
 
     {
       id: 'f.tonique',
+      schema: { type: 'clavier', mode: 'gamme', gamme: 'C3:minor', missions: ['tonique'] },
       title: 'La tonique : la note-maison',
       listen: 'La mélodie part de la marche 0 et y revient. Écoute comme la fin sonne « posée ».',
       code: 'n("0 2 4 7 4 2 0 ~").scale("C:minor").sound("piano")',
@@ -133,6 +136,7 @@ export default {
 
     {
       id: 'f.pentatonique',
+      schema: { type: 'clavier', mode: 'gamme', gamme: 'A3:minor:pentatonic', missions: ['tonique'] },
       title: 'Cinq notes qui sonnent toujours bien',
       listen: 'Une gamme à cinq notes seulement. Écoute : rien n’accroche.',
       code: 'n("0 1 2 3 4 3 2 1").scale("A:minor:pentatonic").sound("piano")',

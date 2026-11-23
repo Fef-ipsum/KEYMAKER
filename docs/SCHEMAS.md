@@ -13,7 +13,7 @@
 | 1 | Socle (catalogue, son, intégration leçons/wiki, missions, question « à l'oreille », Sati, tests, page de revue) · filtre passe-bas · enveloppe ADSR | **Construite et vérifiée.** Poussée sur la branche `ccr-b6c29ca3-4wolq4` (PR #1). **Pas encore déployée sur le Pi** (voir ci-dessous). |
 | 2 | Ondes et harmoniques (les 4 ondes natives), passe-haut / passe-bande, enveloppe de filtre | **Construite et vérifiée.** `pulse` et `supersaw` : pas de schéma (voir §2.4). |
 | 3 | Le cycle, le tempo | **Construite et vérifiée.** |
-| 4 | Clavier, intervalles, gammes, accords | À faire |
+| 4 | Clavier, intervalles, gammes, accords | **Construite et vérifiée** (un seul type, quatre modes). |
 | 5 | Signaux, écho, réverbération, sidechain, distorsion | À faire |
 
 **Déploiement.** Cette session de travail tournait dans un conteneur cloud qui n'atteint ni le Pi (Tailscale, réseau local) ni ton laptop. Le code est sur GitHub ; le déploiement se fait depuis le laptop avec `scripts/deploy-pi.sh` (commandes exactes dans le rapport de session et en §9).
@@ -113,7 +113,19 @@
 | **Avant / après** | « Maintiens : sans setcpm » (30 cycles par minute). |
 | **Missions** | `lent` (≤ 80 BPM), `rapide` (≥ 140), `trois` (3 temps par cycle). |
 
-### 2.7 Où ils vivent
+### 2.7 `clavier` — notes, intervalles, gammes, accords
+
+| | |
+|---|---|
+| **Ce qu'on voit** | Deux octaves ; chaque touche blanche porte sa lettre (et son octave sur les do : C3, C4) et son nom en do-ré-mi. Les touches **allumées** sont les notes que le moteur produit pour la ligne de code (vérifié : identiques à la ligne évaluée par l'éditeur). Au-dessus, des arcs : l'écart en demi-tons (gammes : T et ½). |
+| **Ce qu'on attrape** | Les touches : chacune joue tout de suite (le piano de Strudel, par superdough). |
+| **Modes** | `notes` : la touche s'ajoute à `note("…")` (8 au plus), l'écart avec la précédente s'affiche. `intervalle` : deux notes, jouées l'une, l'autre, puis ensemble (`note("c3 e3 [c3,e3] ~")`), avec le nom de l'écart. `gamme` : `n("0 … 7").scale("C3:major")`, degrés numérotés, toucher une touche change la tonique. `accord` : fondamentale (F), tierce (3), quinte (5), septième (7), plaqué `note("[c3,e3,g3]")` ou en arpège. |
+| **Avant / après** | Gamme : « Maintiens : majeure ». Accord : « majeur plaqué ». Intervalle : « une seule note ». Notes : pas d'effet à retirer (un bouton « Recommencer la mélodie »). |
+| **Missions** | notes : `octave`, `demiton`, `melodie` · intervalle : `quinte`, `tierce-mineure`, `tierce-majeure` · gamme : `mineure`, `penta`, `tonique` · accord : `mineur`, `septieme`, `arpege`. Toutes demandent un geste. |
+| **Écriture** | Touches noires : dièses en mode notes (comme le chapitre 3 : `c#`), bémols ailleurs (`eb`, `bb`, comme les chapitres 4 et 5). Les deux désignent la même touche (vérifié). |
+| **Accords et `voicing()`** | Le schéma joue les notes de l'accord empilées en tierces. `chord("D7").voicing()` de Strudel omet la quinte (mesuré : fa♯, do, ré) : c'est un choix de « voicing », pas une erreur ; le test vérifie que chaque note de Strudel appartient bien à l'accord du schéma. |
+
+### 2.8 Où ils vivent
 
 | Lieu | Schéma | Missions |
 |---|---|---|
@@ -131,6 +143,8 @@
 | Étapes `f.cycle`, `f.silence`, `f.etoile`, `f.crochets`, `f.chevrons`, `f.virgule`, `f.durees`, `f.euclide`, `f.hasard` | cycle, avec le motif de l'étape | une mission liée au signe de l'étape (aucune pour `@`, `( , )`, `?`) |
 | Étape `f.groove` · wiki `sol.tempo`, `fn.setcpm` | tempo, 120 BPM | lent, rapide · toutes |
 | Wiki `mini.*` (12 signes), `sol.cycle`, `sol.temps`, `sol.mesure`, `sol.croche`, `sol.contretemps` | cycle, motif de l'entrée | au plus une |
+| Étapes `f.do-re-mi`, `f.octave`, `f.demi-ton`, `f.melodie` · `f.gamme`, `f.majeur-mineur`, `f.tonique`, `f.pentatonique` · `f.intervalle`, `f.tierce`, `f.accord`, `f.arpege` | clavier (notes · gamme · intervalle · accord) | celle de la notion |
+| Wiki `sol.hauteur`, `sol.noms-des-notes`, `sol.octave`, `sol.demi-ton`, `sol.ton`, `sol.diese-bemol`, `sol.intervalle`, `sol.tierce`, `sol.quinte`, `sol.gamme`, `sol.majeur`, `sol.mineur`, `sol.pentatonique`, `sol.degre`, `sol.tonique`, `fn.scale`, `sol.accord`, `sol.arpege` | clavier | 0 à 2 |
 | Page de revue `#/schemas` | tout, d'un coup | — |
 
 ---
@@ -270,6 +284,20 @@ Le banc compare d'abord, pour 29 motifs (ceux du contenu et des motifs difficile
 - **`tempo.cpm`** — *Mesure* : `setcpm(30)` → le moteur règle 0,5 cycle par seconde (un cycle toutes les 2 s).
 - **`tempo.bpm`** — *Mesure* : `setcpm(120/4)` + `bd*4` → 0,5 cycle/s × 4 × 60 = 120 par minute ; `setcpm(87/3)` → 0,4833 cycle/s ; `setcpm(174/4)` → 0,725.
 - **`tempo.defaut`** — *Mesure* : moteur seul, `setcpm(90)` puis un code sans `setcpm` : 1,5 cycle/s, le tempo reste (comme strudel.cc) ; la règle de l'app qui remet 0,5 est présente dans `src/lib/engine.js`.
+
+### Notes et harmonie
+
+Le banc compare d'abord, pour 34 claviers (contenu + cas difficiles : `Eb4:minor`, `Bb^7` en arpège, `f#3 → c4`), les touches allumées aux notes de la ligne de code évaluée par l'éditeur, sur 2 cycles : identiques.
+
+- **`clavier.octave`** — *Mesure* : `noteToMidi` : c3 = 48, c4 = 60 ; `midiToFreq(60) / midiToFreq(48)` = 2 exactement.
+- **`clavier.sans-chiffre`** — *Mesure* : `noteToMidi("c")` = 48 = `noteToMidi("c3")`.
+- **`clavier.demi-ton`** — *Mesure* : c#3 = db3 = 49 ; f#3 = gb3 = 54 ; a#3 = bb3 = 58 ; e3 → f3 : 1.
+- **`intervalle.noms`** — *Mesure* : `note("c3").transpose(…)` du moteur : 3m → 3 demi-tons, 3M → 4, 5P → 7, 8P → 12 ; les 13 noms affichés (unisson à octave) vérifiés de la même façon.
+- **`gamme.majeure`** — *Mesure* : `n("0 … 7").scale("C:major")` → écarts 2 2 1 2 2 2 1.
+- **`gamme.mineure`** — *Mesure* : `A:minor` → 2 1 2 2 1 2 2.
+- **`gamme.penta`** — *Mesure* : `A:minor:pentatonic` → 5 notes par octave, écarts 3 2 2 3 2… ; `C:major:pentatonic` → 5 notes, écarts 2 2 3 2 3… ; aucun demi-ton.
+- **`accord.majeur-mineur`** — *Mesure* : `chord("C").voicing()` → classes 0, 4, 7 ; `"Cm"` → 0, 3, 7 ; 12 accords (do, ré, la × 4 qualités) comparés au moteur.
+- **`accord.septieme`** — *Mesure* : `"C7"` → 0, 4, 7, 10 ; `"C^7"` → 0, 4, 7, 11 ; `"Cmaj7"` → rien ne joue (déjà noté dans NOTES_FABLE).
 
 ### Annexe B, revérifiée
 

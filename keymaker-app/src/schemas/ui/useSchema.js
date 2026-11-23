@@ -27,7 +27,12 @@ export function useSchema(def, spec, { ear = null, context = 'lecon' } = {}) {
   const playingRef = useRef(false);
 
   // Missions (jamais dans une question d'écoute : là, on cherche, on ne s'exerce pas).
-  const missionDefs = useMemo(() => (ear ? [] : pickMissions(def, spec.missions)), [def, spec, ear]);
+  const missionDefs = useMemo(() => {
+    if (ear) return [];
+    // Un type à plusieurs modes (clavier) choisit ses missions par défaut selon le mode.
+    const ids = spec.missions ?? (def.modeMissions ? def.modeMissions[stateFromSpec(spec).o.mode] : undefined);
+    return pickMissions(def, ids);
+  }, [def, spec, ear]);
   const runner = useMemo(() => createMissionRunner(missionDefs), [missionDefs]);
   const [done, setDone] = useState([]);
   const [fresh, setFresh] = useState(null);
