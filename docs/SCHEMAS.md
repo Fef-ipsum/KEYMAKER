@@ -18,6 +18,8 @@
 
 **Déploiement.** La session qui a construit les schémas tournait dans un conteneur cloud qui n'atteint ni le Pi (Tailscale, réseau local) ni le laptop. Le code est sur GitHub. Il a été déployé sur le Pi par une session Claude Code lancée **sur le Pi** depuis le téléphone (§9.2). Chaque nouveau commit de la branche demande un nouveau déploiement : depuis le laptop (§9.1) ou depuis le téléphone (§9.2).
 
+**Retours de Felix au téléphone, deuxième série (23 novembre, soir) : corrigés.** Schéma ADSR peu clair : axes sans nom ni unité, noms français qui ne correspondaient pas aux lettres (« Retombée » pour D, « Maintien » pour S), mode « Tenir » absent de Strudel qui faisait passer `sustain` pour une durée, durée de la note invisible. Maintenant : lettres et noms de Strudel (A `attack`, D `decay`, S `sustain` = un niveau, R `release`) avec une explication courte ; durée de la note donnée par le code (`note("c3*4")`, réglage « notes par cycle ») et écrite sur le dessin ; axes nommés avec leurs unités sur **tous** les schémas à axes (filtre, enveloppe de filtre, onde, signal, écho, réverbération, distorsion, ADSR). Même vocabulaire pour l'enveloppe de filtre (`lpa`, `lpd`, `lps`, `lpr`) et dans le wiki. Deux faits mesurés de plus : `adsr.niveau`, `adsr.duree` (§6).
+
 **Missions des effets : corrigé.** Les schémas d'effet du wiki n'affichaient aucune mission : l'app cherchait le mode dans `o.mode`, alors que le type `effet` le range dans `o.effet`. Le choix des missions est maintenant une seule fonction (`missionsFor`, avec `modeOf` pour les types à plusieurs modes), partagée par l'app et le banc ; le banc vérifie en plus que chaque schéma du contenu propose des missions, sauf refus explicite (`missions: []`).
 
 **Retours de Felix au téléphone (23 novembre) : corrigés.** Réglages sous le dessin (le dessin reste visible pendant qu'on règle), poignées et courbe de l'enveloppe quand l'attaque n'est pas atteinte, étiquettes A/D qui se chevauchaient, « Ce schéma n'a pas pu s'afficher » sur l'enveloppe de filtre, distorsion muette quand c'est le premier son joué.
@@ -66,13 +68,16 @@
 
 | | |
 |---|---|
-| **Ce qu'on voit** | La forme du volume, calculée par **la même fonction** que celle qui programme le volume (`adsrPlan`, réplique de `getParamADSR`), troncature comprise. Une zone grise = le temps où la note joue ; l'extinction commence à sa fin. Une **trace dorée** : le volume réel de la dernière note, en temps réel, avec un point qui avance ; la phase en cours (A, D, S, R) s'allume. |
-| **Ce qu'on attrape** | Trois poignées : sommet de l'attaque (temps), fin de la retombée (temps et maintien), fin de l'extinction (temps). Toucher ailleurs amène la plus proche. L'échelle du temps est **figée pendant un glissement**. |
-| **Réglages** | `attack`, `decay` 0 → 2 s ; `release` 0 → 3 s (échelle au cube) ; `sustain` 0 → 1. Temps arrondis à 0,001 s sous 0,1 s, 0,01 s sous 1 s, 0,1 s au-delà. |
-| **Jouer** | **Tenir** (un gros bouton : appuyer = la note, lâcher = l'extinction) · **Motif** `note("c3 e3 g3 e3")`, notes de 0,5 s. Toujours `.sound("sawtooth").lpf(1500)`. Pendant qu'on tient, changer un réglage change la note en cours (en 20 ms). |
+| **Principe** | Comme dans Strudel, **le code décide de la durée des notes** ; l'enveloppe décide de la forme du volume pendant la note (A, D, puis le **niveau** S jusqu'à la fin de la note) et après (R). `sustain` est un niveau (0 à 1), jamais une durée. |
+| **Ce qu'on voit** | La forme du volume, calculée par **la même fonction** que celle qui programme le volume (`adsrPlan`, réplique de `getParamADSR`), troncature comprise. Axes nommés : « volume (1 = sommet) », gradué 0 / 0,5 / 1, et « temps depuis le début de la note (s) ». En haut, une accolade : « la note dure 0,5 s · c3*4 » ; la zone grise = le temps où la note joue, le release commence à sa fin. Le niveau est écrit sur le palier (« S = 0,3 »). Une **trace dorée** : le volume réel de la dernière note, en temps réel ; la phase en cours (A, D, S, R) s'allume. |
+| **Noms** | Les lettres et les noms de Strudel : **A** `attack`, **D** `decay`, **S** `sustain`, **R** `release`, avec une explication courte à côté (« temps de montée jusqu'au sommet », « NIVEAU gardé jusqu'à la fin de la note »…). Plus de traduction qui ne correspond pas aux lettres (retours de Felix, 23 novembre). |
+| **Ce qu'on attrape** | Trois poignées : sommet de l'attack (temps), fin du decay (temps et niveau S), fin du release (temps). Toucher ailleurs amène la plus proche. L'échelle du temps est **figée pendant un glissement**. |
+| **Réglages** | `attack`, `decay` 0 → 2 s ; `release` 0 → 3 s (échelle au cube) ; `sustain` 0 → 1. Temps arrondis à 0,001 s sous 0,1 s, 0,01 s sous 1 s, 0,1 s au-delà. **Notes par cycle** : 1, 2, 4 ou 8, c'est-à-dire `note("c3")`, `note("c3*2")`, `note("c3*4")`, `note("c3*8")` : notes de 2 s, 1 s, 0,5 s ou 0,25 s (un cycle dure 2 s). Toujours `.sound("sawtooth").lpf(1500)`. |
+| **Déclaration** | `{ type: 'adsr', reglages: {…}, notes: 1 \| 2 \| 4 \| 8 }`. L'ancien champ `mode` est encore lu : `tenir` → 1, `motif` → 4. |
 | **Exemples** | Sans réglage (défauts de Strudel, aucun réglage d'enveloppe dans le code) · Pincé .005/.2/0/.1 · Orgue .01/.01/1/.05 · Nappe .4/.3/.8/1.2 |
-| **Avant / après** | « Tiens : sans réglage » (mode Tenir) ou « Maintiens : sans réglage » (mode Motif) : le son et la forme reviennent aux valeurs par défaut de Strudel. |
-| **Missions** | `lente` (attaque ≥ 0,4 s, tenir jusqu'au sommet) · `pince` (maintien 0, tenir plus d'1 s) · `traine` (extinction ≥ 1 s, puis lâcher) |
+| **Avant / après** | « Maintiens : sans réglage » : le son et la forme reviennent aux valeurs par défaut de Strudel. |
+| **Missions** | `lente` (`attack` ≥ 0,4 s, notes assez longues pour atteindre le sommet) · `pince` (`sustain` 0, notes d'au moins 1 s) · `traine` (`release` ≥ 1 s) · `courte` (8 notes par cycle, `attack` ≥ 0,3 s : le sommet n'est plus atteint). Toutes demandent un changement depuis le départ. |
+| **Retiré** | Le mode « Tenir » (appuyer = la note, lâcher = le release) : Strudel n'a pas de note tenue au doigt, et la longueur du palier y dépendait du doigt, pas du code ; il laissait croire que `sustain` était une durée. |
 
 ### 2.3 `onde` — la forme d'une onde et ses harmoniques
 
@@ -91,7 +96,7 @@
 | | |
 |---|---|
 | **Ce qu'on voit** | La coupure dans le temps (échelle en octaves), calculée par `envPlan` — la fonction qui programme aussi le filtre de chaque note, réplique de `getParamADSR` en mode exponentiel. Les montées exponentielles y sont des droites. Une ligne pointillée à `lpf`. En dessous, la courbe du filtre : fermée et ouverte au repos, celle de l'instant pendant la lecture. |
-| **Ce qu'on attrape** | Trois poignées A, D, R (comme l'ADSR) ; curseurs `lpenv`, `lpf`, `lpq` ; les quatre temps `lpa`, `lpd`, `lps`, `lpr` dans un repli. |
+| **Ce qu'on attrape** | Trois poignées A, D, R (comme l'ADSR) ; curseurs `lpenv`, `lpf`, `lpq` ; les quatre temps `lpa`, `lpd`, `lps`, `lpr` dans un repli, nommés par leurs lettres (A attack, D decay, S sustain = un niveau, R release). Axes nommés : « coupure du filtre (Hz) », « temps depuis le début de la note (s) » ; en dessous, « volume par fréquence », fréquences en Hz. |
 | **Règles du moteur** | Bornes : de `lpf` à `lpf·2^lpenv` (ancre `fanchor` 0 : `setVersionDefaults` existe mais n'est pas appelé dans ce moteur), limitées à 20 000 Hz, inversées si `lpenv` est négatif. Valeurs par défaut .005, .14, 0, .1. |
 | **Sources** | Ligne de basse (notes de 0,25 s) · Note tenue (2 s). |
 | **Missions** | `balaye` (`lpenv` ≥ 4) · `eveil` (`lpa` ≥ 0,2 s) · `pique` (`lpd` ≤ 0,1, `lps` 0, `lpenv` ≥ 2) |
@@ -175,10 +180,10 @@ Le banc **relève l'heure que superdough donne réellement** à `setValueAtTime`
 |---|---|---|
 | Étape `f.filtre` | filtre, `lpf(400)`, note répétée, seule la coupure se règle | ferme, ouvre |
 | Étape `f.resonance` | filtre, `lpf(600).lpq(0)`, ligne de basse | ferme, siffle, acid |
-| Étape `f.enveloppe` | adsr, `attack(.01).release(.1)`, Tenir | lente, traine |
-| Étape `f.pluck` | adsr, sans réglage, Tenir | pince, lente, traine |
+| Étape `f.enveloppe` | adsr, `attack(.01).release(.1)`, `note("c3")` (notes de 2 s) | lente, traine |
+| Étape `f.pluck` | adsr, sans réglage, `note("c3")` (notes de 2 s) | pince, lente, traine |
 | Wiki `fx.lpf` · `fx.lpq` | filtre | ferme, ouvre · siffle, acid |
-| Wiki `fx.attack` · `fx.decay` · `fx.sustain` · `fx.release` · `fx.adsr` · `sol.enveloppe` | adsr | une mission chacun (toutes pour `fx.adsr`, `sol.enveloppe`) |
+| Wiki `fx.attack` · `fx.decay` · `fx.sustain` · `fx.release` · `fx.adsr` · `sol.enveloppe` | adsr | `fx.attack` : courte (notes de 1 s au départ) · `fx.decay` : pince (notes de 0,5 s au départ : il faut des notes plus longues) · `fx.sustain` : pince · `fx.release` : traine (`release(.3)` au départ) · `fx.adsr`, `sol.enveloppe` : toutes |
 | Point d'étape du chapitre 6 | `oreille.filtre-coupure`, `oreille.adsr-pince` | — |
 | Étape `f.ondes` | onde, dent de scie | pure, creuse, brillante |
 | Wiki `son.ondes` · `sol.timbre` | onde | toutes · pure, brillante |
@@ -264,7 +269,7 @@ Chaque type fournit `code(état)` (des morceaux, dont ceux qui brillent) et `exp
 | # | Vérification | Méthode |
 |---|---|---|
 | A | Déclarations, missions, questions, Sati | Hors navigateur : chaque schéma déclaré est valide ; chaque schéma du contenu propose des missions (choisies comme dans l'app), sauf refus explicite ; aucune mission n'est gagnée sans geste ; chaque mission est atteignable par un parcours scripté (valeurs passées par les arrondis) ; chaque question à l'oreille échoue au départ et réussit à la cible ; 10 blocs de Sati (valides et invalides) ; le catalogue envoyé à Sati nomme tous les types et toutes les missions. |
-| 1 | Le dessin = l'objet audio | Filtre : courbe dessinée vs `getFrequencyResponse` du filtre d'une note qui joue, après un changement de réglage. Enveloppe : forme dessinée vs volume rendu hors temps réel vs `getParamADSR` **du moteur lui-même**, y compris notes tenues lâchées en attaque, retombée et maintien, et réglage changé pendant qu'on tient. Sidechain : volume dessiné vs volume de l'orbite mesuré dans un rendu superdough suspendu après chaque déclencheur (§2.10), cinq réglages. |
+| 1 | Le dessin = l'objet audio | Filtre : courbe dessinée vs `getFrequencyResponse` du filtre d'une note qui joue, après un changement de réglage. Enveloppe : forme dessinée vs volume rendu hors temps réel vs `getParamADSR` **du moteur lui-même**, pour des notes de 0,2 à 2 s, y compris des notes plus courtes que l'attack ou que l'attack + le decay. Sidechain : volume dessiné vs volume de l'orbite mesuré dans un rendu superdough suspendu après chaque déclencheur (§2.10), cinq réglages. |
 | 2 | Le son = Strudel | Rendu hors temps réel du **même code** par superdough et par le schéma ; comparaison échantillon par échantillon, enveloppe (RMS 10 ms) et spectre. Toutes les déclarations du contenu + 10 états tirés au hasard. |
 | 3 | La ligne de code s'exécute et produit les valeurs attendues | Chaque ligne évaluée par Strudel : notes, `cutoff`, `resonance` (absente quand elle doit l'être), `attack`… comparées à `expect`. Contenu + 50 états au hasard. |
 | 4 | Missions atteignables | Parcours scripté (partie A) ; plus, dans `npm run smoke`, un vrai glissement sur le dessin qui valide une mission. |
@@ -312,9 +317,11 @@ Mesures sur un `OscillatorNode` de période entière (675 échantillons), sur 60
 
 ### Enveloppe
 
-- **`adsr.defauts`** — Sans réglage : .001, .05, .6, .01. *Code* : `registerSynthSounds` → `getADSRValues([…], 'linear', [.001, .05, .6, .01])`. *Mesure* : rendu superdough de `note("c3 e3 g3 e3").sound("sawtooth").lpf(1500)` = rendu du schéma avec ces valeurs (écart max 1,5·10⁻⁶).
+- **`adsr.defauts`** — Sans réglage : .001, .05, .6, .01. *Code* : `registerSynthSounds` → `getADSRValues([…], 'linear', [.001, .05, .6, .01])`. *Mesure* : rendu superdough de `note("c3*4").sound("sawtooth").lpf(1500)` = rendu du schéma avec ces valeurs (écart max 1,5·10⁻⁶).
 - **`adsr.un-seul`** — Un seul réglage écrit change les autres. *Code* : `getADSRValues`. *Mesure* : les 16 combinaisons écrit / pas écrit, comparées à `getADSRValues` du moteur : 0 différence. Ex. `attack` seul → [a, .001, 1, .01] ; `decay` seul → [.001, d, .001, .01].
 - **`adsr.lineaire`** — Montées et descentes en lignes droites. *Code* : `getParamADSR(…, 'linear')` pour ces ondes. *Mesure* : à mi-attaque (0,2 s sur 0,4 s), le volume vaut 0,5000.
+- **`adsr.niveau`** — `sustain` est un niveau, pas une durée. *Code* : `getParamADSR` : niveau `min + (max − min) · sustain`, tenu jusqu'à la fin de la note. *Mesure* : rendus superdough de `note("c3")` et `note("c3*2")` (`.attack(.01).decay(.1).release(.1)`), `sustain(.3)` contre `sustain(1)` : rapport des volumes (RMS) pendant la note = « mesure en cours ».
+- **`adsr.duree`** — La durée de la note vient du code. *Mesure* : `note("c3*4")` évalué par Strudel au tempo de Keymaker : « mesure en cours ».
 - **`adsr.troncature`** — Note plus courte que l'attaque : sommet jamais atteint ; extinction depuis le niveau atteint. *Mesure* : attaque 0,5 s, note de 0,2 s → sommet 0,400 ; écart avec `getParamADSR` : 0.
 - **`adsr.raccourci`** — `.adsr(".01:.2:.5:.3")` règle les quatre. *Mesure* : `queryArc` → `attack .01, decay .2, sustain .5, release .3`.
 

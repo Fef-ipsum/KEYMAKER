@@ -10,9 +10,9 @@
 // Un « métronome » à anticipation programme les notes d'un motif qui boucle, au tempo par
 // défaut de l'app (0,5 cycle par seconde), sur la grille exacte du motif.
 import { synthNote, midiToFreq, freezeAt } from '../core/synth.js';
-import { SYNTH_DEFAULTS, adsrPlan, envPlan, planValue, holdStartPlan, applyPlan, noteStop } from '../core/adsr.js';
+import { SYNTH_DEFAULTS, adsrPlan, envPlan, planValue, applyPlan, noteStop } from '../core/adsr.js';
 import { SOURCES, KINDS } from '../types/filtre.js';
-import adsrDef, { MOTIF, HOLD_NOTE } from '../types/adsr.js';
+import adsrDef, { HOLD_NOTE } from '../types/adsr.js';
 
 export const CPS = 0.5;
 const SMOOTH = 0.004; // constante de temps du lissage des réglages (≈ 12 ms pour arriver)
@@ -194,80 +194,11 @@ export function adsrNote(ac, dest, midi, t, dur, vals) {
   return voice;
 }
 
-// Une voix tenue dont on peut changer l'enveloppe en cours de route : on garde la
-// trace exacte de ce qui a été programmé, pour la dessiner.
-export function heldVoice(ac, dest, vals, wave = 'sawtooth') {
-  const begin = ac.currentTime + 0.01;
-  let out = dest;
-  let filt = null;
-  if (wave !== 'one') {
-    filt = ac.createBiquadFilter();
-    filt.type = 'lowpass';
-    filt.frequency.value = 1500;
-    filt.Q.value = 1;
-    filt.connect(dest);
-    out = filt;
-  }
-  const v = synthNote(ac, out, { wave, freq: midiToFreq(HOLD_NOTE), begin, hold: null, vals });
-  // Morceaux : [{ from, fn }] ; fn(t) = valeur programmée à t.
-  const pieces = [{ from: -Infinity, fn: (t) => planValue(holdStartPlan(vals, begin), t) }];
-  const valueAt = (t) => {
-    for (let i = pieces.length - 1; i >= 0; i--) if (t >= pieces[i].from) return pieces[i].fn(t);
-    return 0;
-  };
-  let releaseAt = null;
-  let curVals = vals;
-  return {
-    begin,
-    env: v.env,
-    get releaseAt() {
-      return releaseAt;
-    },
-    get vals() {
-      return curVals;
-    },
-    valueAt,
-    // Nouveaux réglages pendant qu'on tient : le volume rejoint la nouvelle courbe en 20 ms.
-    retune(newVals) {
-      if (releaseAt != null) return;
-      const now = ac.currentTime;
-      const T = now + 0.02;
-      const from = valueAt(now);
-      const plan = holdStartPlan(newVals, begin);
-      const to = planValue(plan, T);
-      freezeAt(v.env.gain, now, from);
-      v.env.gain.linearRampToValueAtTime(to, T);
-      const rest = plan.filter((e) => e.t > T);
-      applyPlan(v.env.gain, rest);
-      const restPlan = [{ kind: 'set', t: T, v: to }, ...rest];
-      pieces.push({ from: now, fn: (t) => (t < T ? from + (to - from) * ((t - now) / 0.02) : planValue(restPlan, t)) });
-      curVals = newVals;
-    },
-    // Lâcher : on fige le niveau atteint, puis l'extinction (comme getParamADSR pour cette durée).
-    release() {
-      if (releaseAt != null) return;
-      const T = ac.currentTime;
-      const from = valueAt(T);
-      const r = curVals[3];
-      freezeAt(v.env.gain, T, from);
-      v.env.gain.linearRampToValueAtTime(0, T + r);
-      v.osc.stop(noteStop(curVals, T));
-      pieces.push({ from: T, fn: (t) => (t >= T + r ? 0 : from * (1 - (t - T) / r)) });
-      releaseAt = T;
-      if (filt) audioTimeout(ac, () => filt.disconnect(), T, T + r);
-    },
-    kill() {
-      v.kill();
-      releaseAt = releaseAt ?? ac.currentTime;
-    },
-  };
-}
-
+// Comme note("c3*n") dans Strudel : n notes par cycle, chacune avec l'enveloppe du moment.
 export function createAdsrSound(ac, dest, getState) {
   const bus = ac.createGain();
   bus.connect(dest);
   let bypass = false;
-  let held = null;
   let last = null; // { begin, releaseAt, vals, valueAt }
   const voices = [];
   const pendingNotes = [];
@@ -283,7 +214,7 @@ export function createAdsrSound(ac, dest, getState) {
   };
 
   const looper = createLooper(ac, {
-    getSlots: () => MOTIF.midi,
+    getSlots: () => Array(getState().o.notes || 1).fill(HOLD_NOTE),
     onNote: (midi, t, dur) => {
       const vals = valsNow();
       voices.push(adsrNote(ac, bus, midi, t, dur, vals));
@@ -309,29 +240,16 @@ export function createAdsrSound(ac, dest, getState) {
       voices.length = 0;
       pendingNotes.length = 0;
     },
-    press() {
-      if (held) held.release();
-      held = heldVoice(ac, bus, valsNow());
-      last = held;
-      return held;
+    // Nombre de notes par cycle changé : repartir sur la nouvelle grille.
+    resync() {
+      looper.resync();
     },
-    lift() {
-      if (!held) return;
-      held.release();
-      held = null;
-    },
-    holding: () => !!held,
-    update() {
-      if (held) held.retune(valsNow());
-    },
+    update() {},
     bypass(on) {
       bypass = on;
-      if (held) held.retune(valsNow());
     },
     stop() {
       this.stopMotif();
-      if (held) held.kill();
-      held = null;
     },
     dispose() {
       this.stop();

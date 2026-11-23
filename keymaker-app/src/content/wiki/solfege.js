@@ -312,8 +312,8 @@ $: n("<0 -2 -4 -3>").scale("A2:minor").sound("sawtooth").lpf(500)`,
   },
   {
     id: 'sol.enveloppe', t: 'enveloppe', sub: 'la forme du son dans le temps', en: 'envelope, ADSR', kind: 'sol',
-    schema: { type: 'adsr', reglages: {}, mode: 'tenir' },
-    ess: 'La façon dont un son apparaît, se maintient et s’éteint. Quatre temps : attaque, retombée, maintien, extinction (ADSR).',
+    schema: { type: 'adsr', reglages: {}, notes: 1 },
+    ess: 'La façon dont un son apparaît, se maintient et s’éteint. Quatre temps, les lettres ADSR : attack, decay, sustain, release. `sustain` est un niveau ; les trois autres sont des durées.',
     code: 'note("c3 e3 g3 e3").sound("sawtooth").lpf(1500).attack(.01).decay(.15).sustain(.3).release(.2)',
     use: [
       ['Percussif', 'note("c3 e3 g3 e3").sound("sawtooth").lpf(1500).decay(.1).sustain(0)'],

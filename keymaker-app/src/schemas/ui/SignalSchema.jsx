@@ -24,8 +24,8 @@ export default function SignalSchema({ spec, context = 'lecon' }) {
   const H = W < 520 ? 190 : 230;
   const L = 44;
   const R = 12;
-  const T = 12;
-  const B = 24;
+  const T = 26; // titre de l'axe de la coupure
+  const B = 38; // graduations des cycles + titre de l'axe
   const x = (c) => L + (c / span) * (W - L - R);
   const y = (f) => T + (1 - Math.log(Math.max(f, 20) / 20) / Math.log(1000)) * (H - T - B);
 
@@ -77,7 +77,7 @@ export default function SignalSchema({ spec, context = 'lecon' }) {
           {Array.from({ length: span + 1 }, (_, c) => (
             <g key={c} className="sch-grid">
               <line x1={x(c)} x2={x(c)} y1={T} y2={H - B} />
-              {span <= 8 || c % 2 === 0 ? <text x={x(c)} y={H - 7} textAnchor="middle">{c}</text> : null}
+              {span <= 8 || c % 2 === 0 ? <text x={x(c)} y={H - B + 15} textAnchor="middle">{c}</text> : null}
             </g>
           ))}
           {[100, 1000, 10000].map((f) => (
@@ -89,7 +89,8 @@ export default function SignalSchema({ spec, context = 'lecon' }) {
           <path className="sch-curve" d={path} />
           {steps.map(([b, e, v], i) => <line key={i} className="sch-step" x1={x(b)} x2={x(e)} y1={y(v)} y2={y(v)} />)}
           {head != null ? <line className="sch-head" x1={x(head)} x2={x(head)} y1={T} y2={H - B} /> : null}
-          <text className="sch-axis-t" x={W - R} y={T + 10} textAnchor="end">cycles →</text>
+          <text className="sch-axis-title" x={4} y={13}>coupure lpf (Hz)</text>
+          <text className="sch-axis-title" x={W - R} y={H - 4} textAnchor="end">temps (cycles ; un cycle = 2 s)</text>
         </svg>
       </div>
       <p className="sch-code-note">Courbe bleue : le signal. Traits dorés : la coupure que chaque note reçoit, sa valeur au début de la note.</p>

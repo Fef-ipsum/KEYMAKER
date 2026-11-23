@@ -2,8 +2,8 @@
 //
 // En haut : la coupure (échelle en octaves) au fil du temps, calculée par envPlan — la
 // fonction qui programme aussi le filtre de chaque note. Les montées exponentielles y
-// sont des droites. Trois poignées : A (sommet), D (fin de la retombée, et maintien),
-// R (fin de l'extinction). Pendant la lecture, une trace dorée suit la vraie coupure.
+// sont des droites. Trois poignées : A (sommet), D (fin du decay, et niveau S),
+// R (fin du release). Pendant la lecture, une trace dorée suit la vraie coupure.
 // En dessous : la courbe du filtre lui-même, qui s'ouvre et se referme.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import def from '../types/enveloppeFiltre.js';
@@ -19,7 +19,7 @@ import { Fold } from '../../ui.jsx';
 
 const F_LO = 20;
 const F_HI = 20000;
-const PHASES = [['A', 'attaque'], ['D', 'retombée'], ['S', 'maintien'], ['R', 'extinction']];
+const PHASES = [['A', 'attack · lpa'], ['D', 'decay · lpd'], ['S', 'sustain · lps'], ['R', 'release · lpr']];
 const niceSpan = (v) => [0.5, 1, 1.5, 2, 3, 4, 5, 6].find((x) => x >= v) || Math.ceil(v);
 
 export default function FenvSchema({ spec, context = 'lecon' }) {
@@ -30,8 +30,8 @@ export default function FenvSchema({ spec, context = 'lecon' }) {
   const H = W < 520 ? 210 : 250;
   const L = 44;
   const R = 16;
-  const T = 24;
-  const B = 26;
+  const T = 36; // titre de l'axe de la coupure
+  const B = 40; // graduations du temps + titre de l'axe
 
   const noteDur = 1 / (SOURCES[st.o.source].midi.length * CPS);
   const view = s.bypass ? { ...st, p: { ...st.p, env: 0 } } : st;
@@ -54,10 +54,10 @@ export default function FenvSchema({ spec, context = 'lecon' }) {
   const plan = useMemo(() => envPlan(vals, 0, noteDur, { min, max, curve: 'exponential' }), [vals.join(','), noteDur, min, max]);
   const toPath = (pts) => pts.map(([t, f], i) => (i ? 'L' : 'M') + x(t).toFixed(1) + ' ' + y(f).toFixed(1)).join(' ');
   const shape = plan.map((e) => [e.t, e.v]);
-  // La note s'arrête avant la fin de la retombée : ce qu'elle n'atteint pas, en pointillé.
+  // La note s'arrête avant la fin du decay : ce qu'elle n'atteint pas, en pointillé.
   const truncated = a + d > noteDur;
   const ideal = truncated ? envPlan(vals, 0, a + d + 0.0001, { min, max, curve: 'exponential' }).slice(0, 3).map((e) => [e.t, e.v]) : null;
-  const truncWarn = a > noteDur ? 'L’attaque du filtre dure plus longtemps que la note : la coupure n’atteint jamais son sommet.' : truncated ? 'La note s’arrête pendant la retombée du filtre : le maintien n’est jamais atteint.' : null;
+  const truncWarn = a > noteDur ? `L’attack du filtre (lpa, ${frNum(a)} s) dure plus longtemps que la note (${frNum(noteDur, 2)} s) : la coupure n’atteint jamais son sommet.` : truncated ? `La note (${frNum(noteDur, 2)} s) s’arrête pendant le decay du filtre (lpd) : le niveau S n’est jamais atteint.` : null;
 
   // Trace dorée : la coupure réelle de la dernière note, depuis son début.
   const [live, setLive] = useState(null);
@@ -132,8 +132,8 @@ export default function FenvSchema({ spec, context = 'lecon' }) {
   const canEdit = (k) => !s.bypass && s.can(k);
   const handles = [
     { id: 'A', cx: x(a), cy: y(max), label: `Sommet : coupure ${frHz(max)} à ${frNum(a)} s` },
-    { id: 'D', cx: x(a + d), cy: y(sus), label: `Fin de la retombée : ${frNum(d)} s, maintien ${Math.round(vals[2] * 100)} %` },
-    { id: 'R', cx: x(noteDur + r), cy: y(min), label: `Fin de l’extinction : ${frNum(r)} s après la note` },
+    { id: 'D', cx: x(a + d), cy: y(sus), label: `Fin du decay : ${frNum(d)} s ; niveau sustain ${frNum(vals[2], 2)}` },
+    { id: 'R', cx: x(noteDur + r), cy: y(min), label: `Fin du release : ${frNum(r)} s après la fin de la note` },
   ];
   const closeAD = Math.hypot(handles[0].cx - handles[1].cx, handles[0].cy - handles[1].cy) < 26;
   const dragTo = (hid, e) => {
@@ -197,9 +197,11 @@ export default function FenvSchema({ spec, context = 'lecon' }) {
           {ticks.map((t) => (
             <g key={t} className="sch-grid">
               <line x1={x(t)} x2={x(t)} y1={T} y2={H - B} />
-              <text x={x(t)} y={H - 8} textAnchor="middle">{frNum(t, 2)} s</text>
+              <text x={x(t)} y={H - B + 15} textAnchor="middle">{frNum(t, 2)}</text>
             </g>
           ))}
+          <text className="sch-axis-title" x={4} y={13}>coupure du filtre (Hz)</text>
+          <text className="sch-axis-title" x={W - R} y={H - 4} textAnchor="end">temps depuis le début de la note (s)</text>
           {[100, 1000, 10000].map((f) => (
             <g key={f} className="sch-grid sch-grid-h">
               <line x1={L} x2={W - R} y1={y(f)} y2={y(f)} />
@@ -224,15 +226,15 @@ export default function FenvSchema({ spec, context = 'lecon' }) {
                 <g key={h.id} className="sch-handle" tabIndex={0} role="group" aria-label={h.label + '. Flèches pour régler.'} onKeyDown={(e) => keyMove(h.id, e)}>
                   <circle className="sch-handle-hit" data-h={h.id} cx={h.cx} cy={h.cy} r={22} />
                   <circle className="sch-handle-dot" data-h={h.id} cx={h.cx} cy={h.cy} r={8} />
-                  <text className="sch-handle-t" x={h.id === 'R' ? h.cx + 14 : closeAD && h.id === 'A' ? h.cx - 12 : closeAD && h.id === 'D' ? h.cx + 14 : h.cx} y={h.cy - 13} textAnchor="middle">{h.id}</text>
+                  <text className="sch-handle-t" x={h.id === 'A' ? h.cx + 12 : h.id === 'R' ? h.cx + 14 : closeAD ? h.cx + 12 : h.cx} y={h.id === 'A' ? h.cy - 6 : h.id === 'D' && closeAD ? h.cy + 16 : h.cy - 13} textAnchor={h.id === 'A' || (h.id === 'D' && closeAD) ? 'start' : 'middle'}>{h.id}</text>
                 </g>
               ))
             : null}
         </svg>
         <svg width={RW} height={RH} viewBox={`0 0 ${RW} ${RH}`} className="sch-svg sch-fenv-resp" role="img" aria-label="La courbe du filtre, fermée puis ouverte.">
-          <text className="sch-axis-t" x={L} y={14}>le filtre {live ? 'en ce moment' : 'fermé (pointillé) et ouvert'}</text>
+          <text className="sch-axis-t" x={L} y={14}>volume par fréquence · {live ? 'filtre en ce moment' : 'fermé (pointillé), ouvert'}</text>
           <line className="sch-zero" x1={L} x2={RW - R} y1={ry(0)} y2={ry(0)} />
-          {[100, 1000, 10000].map((f) => <text key={f} className="sch-grid-t" x={rx(f)} y={RH - 4} textAnchor="middle">{f >= 1000 ? f / 1000 + 'k' : f}</text>)}
+          {[100, 1000, 10000].map((f) => <text key={f} className="sch-grid-t" x={rx(f)} y={RH - 4} textAnchor="middle">{f >= 1000 ? f / 1000 + ' kHz' : f + ' Hz'}</text>)}
           {live ? <path className="sch-curve sch-curve-live" d={nowPath} /> : (
             <>
               <path className="sch-curve sch-curve-ideal" d={closed} />

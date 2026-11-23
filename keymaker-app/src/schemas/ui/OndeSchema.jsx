@@ -63,12 +63,13 @@ export default function OndeSchema({ spec, context = 'lecon' }) {
     <div className={'schema schema-onde' + (s.bypass ? ' is-bypass' : '')} data-schema="onde" data-schema-id={s.id}>
       <div className="sch-figure sch-onde-fig" ref={boxRef}>
         <svg width={waveW} height={waveH} viewBox={`0 0 ${waveW} ${waveH}`} className="sch-svg sch-onde-wave" role="img" aria-label={`Forme de l’onde ${WAVES[wave].label}, deux périodes.`}>
-          <line className="sch-zero" x1={6} x2={waveW - 6} y1={waveH / 2} y2={waveH / 2} />
-          <g className="sch-curve"><WavePath wave={wave} w={waveW} h={waveH} /></g>
-          <text className="sch-axis-t" x={8} y={14}>la forme (2 périodes)</text>
+          {/* Une ligne libre en haut pour le titre : l'onde est dessinée en dessous. */}
+          <line className="sch-zero" x1={6} x2={waveW - 6} y1={20 + (waveH - 20) / 2} y2={20 + (waveH - 20) / 2} />
+          <g className="sch-curve" transform="translate(0 20)"><WavePath wave={wave} w={waveW} h={waveH - 20} /></g>
+          <text className="sch-axis-title" x={8} y={14}>la forme : amplitude dans le temps (2 périodes)</text>
         </svg>
         <svg width={barsW} height={barsH} viewBox={`0 0 ${barsW} ${barsH}`} className="sch-svg sch-onde-bars" role="img" aria-label={`Harmoniques : ${levels.map((l, i) => (l > 0.001 ? i + 1 : null)).filter(Boolean).join(', ')}.`}>
-          <text className="sch-axis-t" x={bL} y={13}>les harmoniques (niveau par rapport à la 1re)</text>
+          <text className="sch-axis-title" x={bL} y={13}>harmoniques n° 1, 2, 3… · niveau (1 = la 1re)</text>
           {levels.map((l, i) => {
             const h = l * (barsH - bT - bB);
             const x = bL + i * slot + slot * 0.18;

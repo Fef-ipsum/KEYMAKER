@@ -213,7 +213,7 @@ if (!onlyOffline) {
     await page.waitForTimeout(400);
     check(!(await playing('.schema-filtre .sch-play.is-on')), `${label} · ▶ dans l’éditeur arrête le schéma`);
     await page.click('.crown');
-    // Enveloppe : « Pincé » puis tenir plus d'une seconde → mission « pince ».
+    // Enveloppe : « Pincé », puis jouer (notes de 2 s, durée donnée par le code) → mission « pince ».
     await page.evaluate(() => { window.location.hash = '#/etape/f.pluck'; });
     await ready(page);
     await page.click('.crown');
@@ -222,17 +222,18 @@ if (!onlyOffline) {
     await page.locator('.schema-adsr .sch-presets').scrollIntoViewIfNeeded();
     await page.click('.schema-adsr .sch-presets .chip:has-text("Pincé")');
     await page.waitForTimeout(200);
-    check(/sustain\(0\)/.test(await text(page, '.schema-adsr .sch-code code')), `${label} · exemple « Pincé » : le code montre sustain(0)`);
-    const big = await page.locator('.schema-adsr .sch-hold-big').boundingBox();
-    await page.mouse.move(big.x + big.width / 2, big.y + big.height / 2);
-    await page.mouse.down();
+    check(/note\("c3"\).*sustain\(0\)/.test(await text(page, '.schema-adsr .sch-code code')), `${label} · exemple « Pincé » : le code montre note("c3") et sustain(0)`);
+    await page.click('.schema-adsr .sch-play');
     await page.waitForTimeout(1300);
     const phaseOn = await page.locator('.schema-adsr .sch-phases li.is-on').count();
-    await page.mouse.up();
-    await page.waitForTimeout(300);
-    check(phaseOn === 1, `${label} · pendant qu’on tient, une phase de l’enveloppe est allumée`);
-    check((await page.locator('.schema-adsr .sch-mission.is-done').count()) >= 1, `${label} · mission « pince » validée en tenant une note`);
+    check(phaseOn === 1, `${label} · pendant la lecture, une phase de l’enveloppe est allumée`);
+    check((await page.locator('.schema-adsr .sch-mission.is-done').count()) >= 1, `${label} · mission « pince » validée (notes de 2 s, sustain 0)`);
     check((await page.locator('.schema-adsr .sch-trace path').count()) === 1, `${label} · la trace dorée de la dernière note est dessinée`);
+    // La durée des notes vient du code : 4 notes par cycle → note("c3*4"), notes de 0,5 s.
+    await page.click('.schema-adsr .sch-choice-b:has-text("4 · 0,5 s")');
+    await page.waitForTimeout(300);
+    check(/note\("c3\*4"\)/.test(await text(page, '.schema-adsr .sch-code code')) && /la note dure 0,5 s/.test(await page.locator('.schema-adsr svg').first().textContent()), `${label} · 4 notes par cycle : le code devient note("c3*4") et le dessin annonce des notes de 0,5 s`);
+    await page.click('.schema-adsr .sch-play');
     await page.screenshot({ path: join(SHOTS, `schemas-${label}-${scheme}-adsr.png`) });
     // Point d'étape du chapitre 6 : jusqu'aux questions « à l'oreille ».
     await page.evaluate(() => { window.location.hash = '#/point/timbre'; });

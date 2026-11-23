@@ -80,12 +80,15 @@ export default function EffetSchema({ spec, context = 'lecon' }) {
           <line className="sch-zero" x1={cx(0, half)} x2={cx(0, half)} y1={T} y2={T + h} />
           <path className="sch-curve sch-curve-ideal" d={curve.map((x, i) => (i ? 'L' : 'M') + cx(x, half) + ' ' + cy(x)).join(' ')} />
           <path className="sch-curve" d={curve.map((x, i) => (i ? 'L' : 'M') + cx(x, half) + ' ' + cy(scurve(x, d))).join(' ')} />
+          <text className="sch-axis-title" x={half - 8} y={cy(0) - 6} textAnchor="end">entrée</text>
+          <text className="sch-axis-title" x={cx(0, half) + 6} y={T + 10}>sortie</text>
           <text className="sch-axis-t" x={10} y={H - 6}>la courbe : entrée → sortie</text>
         </svg>
         <svg width={half} height={H} viewBox={`0 0 ${half} ${H}`} className="sch-svg" role="img" aria-label="Une période de sinusoïde avant (gris) et après la distorsion (doré).">
           <line className="sch-zero" x1={8} x2={half - 8} y1={cy(0)} y2={cy(0)} />
           <path className="sch-curve sch-curve-ideal" d={t.map((u, i) => (i ? 'L' : 'M') + (8 + u * (half - 16)) + ' ' + cy(Math.sin(2 * Math.PI * u))).join(' ')} />
           <path className="sch-curve sch-curve-live" d={t.map((u, i) => (i ? 'L' : 'M') + (8 + u * (half - 16)) + ' ' + cy(scurve(Math.sin(2 * Math.PI * u), d))).join(' ')} />
+          <text className="sch-axis-title" x={half - 8} y={cy(0) - 6} textAnchor="end">temps</text>
           <text className="sch-axis-t" x={10} y={H - 6}>l’onde : avant (gris), après (doré)</text>
         </svg>
       </>
@@ -121,8 +124,9 @@ export default function EffetSchema({ spec, context = 'lecon' }) {
     );
   } else {
     const span = mode === 'echo' ? 2 : Math.max(2, Math.min(12, 1.5 * st.p.size));
+    const top = 28; // titre de l'axe du niveau
     const x = (t) => L + (t / span) * (W - L - R);
-    const y = (v) => T + (1 - Math.min(1, v)) * (H - T - B);
+    const y = (v) => top + (1 - Math.min(1, v)) * (H - top - B);
     const ticks = Array.from({ length: Math.floor(span) + 1 }, (_, i) => i);
     const ech = mode === 'echo' && !s.bypass ? echoes(st.p, span) : [];
     const tail = mode === 'reverb' && !s.bypass ? Array.from({ length: 161 }, (_, i) => [(i / 160) * span, reverbEnv(st.p, (i / 160) * span)]) : [];
@@ -130,15 +134,16 @@ export default function EffetSchema({ spec, context = 'lecon' }) {
       <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="sch-svg" role="img" aria-label={mode === 'echo' ? `${ech.length} répétitions, toutes les ${frNum(st.p.delaytime, 2)} s.` : `Une traîne de ${frNum(1.5 * st.p.size, 1)} s.`}>
         {ticks.map((t) => (
           <g key={t} className="sch-grid">
-            <line x1={x(t)} x2={x(t)} y1={T} y2={H - B} />
+            <line x1={x(t)} x2={x(t)} y1={top} y2={H - B} />
             <text x={x(t)} y={H - 7} textAnchor="middle">{t} s</text>
           </g>
         ))}
+        {[0, 0.5, 1].map((v) => <text key={v} className="sch-axis-t" x={L - 5} y={y(v) + 4} textAnchor="end">{frNum(v, 1)}</text>)}
         <line className="sch-zero" x1={L} x2={W - R} y1={y(0)} y2={y(0)} />
         <rect className="sch-bar-dry" x={x(0) - 3} y={y(1)} width={6} height={y(0) - y(1)} rx={2} />
         {ech.map((e, i) => <rect key={i} className="sch-bar" x={x(e.t) - 3} y={y(e.level)} width={6} height={y(0) - y(e.level)} rx={2} />)}
         {tail.length ? <path className="sch-fill sch-fill-gold" d={'M ' + x(0) + ' ' + y(0) + ' ' + tail.map(([t, v]) => 'L ' + x(t).toFixed(1) + ' ' + y(v).toFixed(1)).join(' ') + ` L ${x(span)} ${y(0)} Z`} /> : null}
-        <text className="sch-axis-t" x={L + 4} y={T + 10}>{mode === 'echo' ? 'la note (bleu) puis ses échos (doré), à leur niveau' : 'la note (bleu) et la traîne (forme de son volume)'}</text>
+        <text className="sch-axis-title" x={4} y={13}>{mode === 'echo' ? 'niveau (1 = la note) · la note (bleu), ses échos (doré)' : 'volume (1 = la note) · la note (bleu), la traîne (doré)'}</text>
       </svg>
     );
   }

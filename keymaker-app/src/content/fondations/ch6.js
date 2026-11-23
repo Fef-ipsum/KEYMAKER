@@ -25,10 +25,10 @@ export default {
       id: 'oreille.adsr-pince',
       step: 'f.pluck',
       q: 'Retrouve l’enveloppe : le son mystère est une note pincée.',
-      schema: { type: 'adsr', reglages: { attack: 0.005, decay: 0.15, sustain: 1, release: 0.1 }, mode: 'motif' },
+      schema: { type: 'adsr', reglages: { attack: 0.005, decay: 0.15, sustain: 1, release: 0.1 }, notes: 4 },
       cible: { sustain: 0 },
       regler: ['sustain'],
-      explain: 'Le son mystère avait `sustain(0)` : après la retombée de 0,15 s, la note tombe au silence au lieu de rester tenue.',
+      explain: 'Le son mystère avait `sustain(0)` : après le decay de 0,15 s, le volume tombe à zéro au lieu de rester au niveau sustain jusqu’à la fin de la note.',
     },
   ],
   steps: [
@@ -155,7 +155,7 @@ export default {
 
     {
       id: 'f.enveloppe',
-      schema: { type: 'adsr', reglages: { attack: 0.01, release: 0.1 }, mode: 'tenir', missions: ['lente', 'traine'] },
+      schema: { type: 'adsr', reglages: { attack: 0.01, release: 0.1 }, notes: 1, missions: ['lente', 'traine'] },
       title: 'L’enveloppe : comment le son arrive et repart',
       listen: 'Des notes qui démarrent net et s’arrêtent net.',
       code: 'note("c3 e3 g3 b3").sound("sawtooth").lpf(1500).attack(.01).release(.1)',
@@ -196,7 +196,7 @@ export default {
 
     {
       id: 'f.pluck',
-      schema: { type: 'adsr', reglages: {}, mode: 'tenir', missions: ['pince', 'lente', 'traine'] },
+      schema: { type: 'adsr', reglages: {}, notes: 1, missions: ['pince', 'lente', 'traine'] },
       title: 'La note pincée : decay et sustain',
       listen: 'Les mêmes notes, tenues jusqu’au bout de leur pas.',
       code: 'note("c3 eb3 g3 bb3 c4 bb3 g3 eb3").sound("sawtooth").lpf(1200)',

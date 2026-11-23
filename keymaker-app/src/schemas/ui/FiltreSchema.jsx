@@ -32,8 +32,8 @@ export default function FiltreSchema({ spec, ear = null, context = 'lecon' }) {
   const H = W < 520 ? 230 : 280;
   const L = 34;
   const R = 12;
-  const T = 14;
-  const B = 24;
+  const T = 28; // titre de l'axe du volume
+  const B = 38; // graduations des fréquences + titre de l'axe
   const x = (f) => L + (Math.log(f / F_LO) / Math.log(F_HI / F_LO)) * (W - L - R);
   const fOf = (px) => F_LO * Math.pow(F_HI / F_LO, (px - L) / (W - L - R));
   const y = (db) => T + ((DB_HI - Math.max(DB_LO, Math.min(DB_HI, db))) / (DB_HI - DB_LO)) * (H - T - B);
@@ -168,9 +168,11 @@ export default function FiltreSchema({ spec, ear = null, context = 'lecon' }) {
           {TICKS.map((f) => (
             <g key={f} className="sch-grid">
               <line x1={x(f)} x2={x(f)} y1={T} y2={H - B} />
-              <text x={x(f)} y={H - 7} textAnchor="middle">{tickLabel(f)}</text>
+              <text x={x(f)} y={H - B + 15} textAnchor="middle">{tickLabel(f)}</text>
             </g>
           ))}
+          <text className="sch-axis-title" x={4} y={13}>volume ajouté ou retiré (dB)</text>
+          <text className="sch-axis-title" x={W - R} y={H - 4} textAnchor="end">fréquence (Hz)</text>
           {[24, 12, -12, -24, -36, -48].map((db) => (
             <g key={db} className="sch-grid sch-grid-h">
               <line x1={L} x2={W - R} y1={y(db)} y2={y(db)} />

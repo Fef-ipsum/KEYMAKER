@@ -1,21 +1,22 @@
 // Schéma « enveloppe » : la forme du volume d'une note, et le volume réel qui la suit.
 //
+// Comme dans Strudel, le CODE décide de la durée des notes (note("c3*4") : 4 notes par
+// cycle de 2 s, 0,5 s chacune) ; l'enveloppe décide de la forme du volume pendant la note
+// (A, D, puis le NIVEAU S jusqu'à la fin de la note) et après (R).
 // La forme vient de adsrPlan (../core/adsr.js) : la même fonction programme le volume.
 // L'échelle du temps s'adapte aux réglages, mais reste figée pendant qu'on fait glisser
 // une poignée (sinon elle fuirait sous le doigt).
 import { useEffect, useMemo, useRef, useState } from 'react';
-import def, { PRESETS } from '../types/adsr.js';
+import def, { PRESETS, noteCode } from '../types/adsr.js';
 import { codeText } from '../catalog.js';
 import { adsrPlan, phaseAt, SYNTH_DEFAULTS } from '../core/adsr.js';
 import { frNum } from '../core/format.js';
-import { createAdsrSound, CPS } from './sounds.js';
+import { createAdsrSound } from './sounds.js';
 import { useSchema } from './useSchema.js';
 import { useWidth, Slider, CodeLine, HoldButton, PlayButton, Choice, Missions, Deep, Warn } from './parts.jsx';
 import { stateFromSpec } from '../catalog.js';
 
-const MOTIF_DUR = 1 / (4 * CPS); // 4 notes par cycle → 0,5 s
-const NOMINAL_HOLD = 1;
-const PHASES = [['A', 'attaque'], ['D', 'retombée'], ['S', 'maintien'], ['R', 'extinction']];
+const PHASES = [['A', 'attack'], ['D', 'decay'], ['S', 'sustain'], ['R', 'release']];
 
 function niceSpan(v) {
   const steps = [0.5, 1, 1.5, 2, 3, 4, 5, 6, 8];
@@ -29,24 +30,26 @@ function planPoints(plan) {
 export default function AdsrSchema({ spec, ear = null, context = 'lecon' }) {
   const s = useSchema(def, spec, { ear, context });
   const { st } = s;
-  const mode = st.o.mode;
+  const perCycle = st.o.notes;
+  const noteDur = def.noteDur(st);
+  // Missions : un réglage ou le nombre de notes a-t-il bougé depuis le départ ?
+  const start = useRef(JSON.stringify([st.p, st.o.notes]));
+  s.extraRef.current = { ...s.extraRef.current, changed: JSON.stringify([st.p, st.o.notes]) !== start.current };
+
   const boxRef = useRef(null);
   const W = useWidth(boxRef, 600);
-  const H = W < 520 ? 210 : 250;
-  const L = 42;
+  const narrow = W < 520;
+  const H = narrow ? 240 : 270;
+  const L = 40;
   const R = 16;
-  const T = 28;
-  const B = 26;
+  const T = 44; // titre de l'axe du volume + durée de la note
+  const B = 40; // graduations du temps + titre de l'axe
 
-  const [holding, setHolding] = useState(false);
-  const [lastHeld, setLastHeld] = useState(null); // durée tenue de la dernière note
-  const [live, setLive] = useState(null); // { pts, now, phase, dur }
-  const pressAt = useRef(0);
+  const [live, setLive] = useState(null); // { pts, now, v, phase }
 
   const bypassVals = s.bypass ? [...SYNTH_DEFAULTS] : null;
   const vals = bypassVals || def.values(st);
   const [a, d, sus, r] = vals;
-  const noteDur = mode === 'motif' ? MOTIF_DUR : holding ? Math.max(0.05, live ? live.held : 0) : lastHeld != null ? lastHeld : NOMINAL_HOLD;
 
   // Échelle du temps : suit les réglages, figée pendant un glissement.
   const dragging = useRef(null);
@@ -63,93 +66,59 @@ export default function AdsrSchema({ spec, ear = null, context = 'lecon' }) {
   const plan = useMemo(() => adsrPlan(vals, 0, noteDur), [vals.join(','), noteDur]);
   const shape = planPoints(plan);
   const truncated = a + d > noteDur;
-  // Ce que la note n'atteint pas : la montée et la retombée complètes (sans l'extinction).
+  // Ce que la note n'atteint pas : la montée et la descente complètes (sans le release).
   const ideal = useMemo(() => (truncated ? planPoints(adsrPlan(vals, 0, a + d + 0.0001)).slice(0, 3) : null), [truncated, vals.join(',')]);
   const toPath = (pts) => pts.map(([t, v], i) => (i ? 'L' : 'M') + x(t).toFixed(1) + ' ' + y(v).toFixed(1)).join(' ');
 
-  // Trace dorée : le volume de la dernière note, depuis son début.
-  const animating = s.playing || holding;
+  // Trace dorée : le volume de la dernière note jouée, depuis son début.
   useEffect(() => {
-    if (!animating) return undefined;
+    if (!s.playing) return undefined;
     let raf = 0;
     const loop = () => {
       const snd = s.sound.current;
-      const n = snd && (mode === 'motif' ? snd.lastNote() : snd.lastNote ? snd.lastNote() : null);
-      const ctx = snd && n ? n : null;
-      if (ctx) {
+      const n = snd && snd.lastNote ? snd.lastNote() : null;
+      if (n) {
         const now = window.getAudioContext ? window.getAudioContext().currentTime : 0;
-        const rel = ctx.releaseAt;
-        const until = Math.min(now, (rel != null ? rel + ctx.vals[3] : now) + 0.02);
+        const until = Math.min(now, n.releaseAt + n.vals[3] + 0.02);
         const pts = [];
         const steps = 90;
         for (let i = 0; i <= steps; i++) {
-          const t = ctx.begin + ((until - ctx.begin) * i) / steps;
-          if (t < ctx.begin) continue;
-          pts.push([t - ctx.begin, ctx.valueAt(t)]);
+          const t = n.begin + ((until - n.begin) * i) / steps;
+          if (t >= n.begin) pts.push([t - n.begin, n.valueAt(t)]);
         }
-        const held = rel != null ? rel - ctx.begin : now - ctx.begin;
-        setLive({ pts, now: now - ctx.begin, v: ctx.valueAt(now), phase: phaseAt(ctx.vals, ctx.begin, rel, now), held });
-        if (holding) s.check({ holding: true, heldFor: now - pressAt.current, event: 'tick' });
+        setLive({ pts, now: now - n.begin, v: n.valueAt(now), phase: phaseAt(n.vals, n.begin, n.releaseAt, now) });
       }
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [animating, mode, holding]);
+  }, [s.playing]);
+  useEffect(() => {
+    if (!s.playing) setLive(null);
+  }, [s.playing]);
 
-  // Tenir une note.
-  const press = (withBypass = false) => {
-    const snd = s.ensureSound(createAdsrSound);
-    if (!s.playingRef.current) s.claim();
-    snd.bypass(withBypass);
-    if (withBypass) s.setBypass(true);
-    const v = snd.press();
-    pressAt.current = v.begin;
-    setHolding(true);
-    setLastHeld(null);
-    s.extraRef.current = { holding: true, heldFor: 0 };
-    s.check({ event: 'press', holding: true, heldFor: 0 });
-  };
-  const lift = () => {
-    const snd = s.sound.current;
-    if (!snd) return;
-    const now = window.getAudioContext ? window.getAudioContext().currentTime : 0;
-    snd.lift();
-    const heldFor = now - pressAt.current;
-    setHolding(false);
-    setLastHeld(Math.max(0.01, heldFor));
-    s.extraRef.current = { holding: false, heldFor };
-    s.check({ event: 'release', holding: false, heldFor });
-    if (s.bypass) {
-      s.setBypass(false);
-      snd.bypass(false);
-    }
-  };
-  // Mode motif.
-  const toggleMotif = () => {
+  const toggle = () => {
     if (s.playing) return s.unclaim();
     const snd = s.ensureSound(createAdsrSound);
     s.claim();
     snd.startMotif();
   };
-  // Changer de mode coupe le son en cours.
+  // Nouveau nombre de notes par cycle pendant la lecture : la grille suit tout de suite.
   useEffect(() => {
-    if (s.playingRef.current) s.unclaim();
+    const snd = s.sound.current;
+    if (snd && snd.resync && s.playingRef.current) snd.resync();
     setLive(null);
-    setLastHeld(null);
-  }, [mode]);
+  }, [perCycle]);
 
   const heldPlay = useRef(false);
   const bypassDown = () => {
-    if (mode === 'tenir') return press(true);
     s.setBypass(true);
     if (!s.playingRef.current) {
-      toggleMotif();
+      toggle();
       heldPlay.current = true;
     }
   };
   const bypassUp = () => {
-    if (mode === 'tenir') return lift();
     s.setBypass(false);
     if (heldPlay.current) {
       heldPlay.current = false;
@@ -157,17 +126,22 @@ export default function AdsrSchema({ spec, ear = null, context = 'lecon' }) {
     }
   };
 
-  // Poignées : sommet de l'attaque, fin de la retombée (et maintien), fin de l'extinction.
+  // Poignées : sommet de l'attack, fin du decay (et niveau S), fin du release.
   const canEdit = (k) => !s.bypass && s.can(k);
   const handles = [
-    { id: 'A', cx: x(a), cy: y(1), keys: ['attack'], label: `Sommet de l’attaque : ${frNum(a)} s` },
-    { id: 'D', cx: x(a + d), cy: y(sus), keys: ['decay', 'sustain'], label: `Fin de la retombée : ${frNum(d)} s, maintien ${Math.round(sus * 100)} %` },
-    { id: 'R', cx: x(noteDur + r), cy: y(0), keys: ['release'], label: `Fin de l’extinction : ${frNum(r)} s après la fin de la note` },
+    { id: 'A', text: 'A', cx: x(a), cy: y(1), keys: ['attack'], label: `Sommet de l’attack : ${frNum(a)} s` },
+    { id: 'D', text: 'D', cx: x(a + d), cy: y(sus), keys: ['decay', 'sustain'], label: `Fin du decay : ${frNum(d)} s ; niveau sustain ${frNum(sus, 2)}` },
+    { id: 'R', text: 'R', cx: x(noteDur + r), cy: y(0), keys: ['release'], label: `Fin du release : ${frNum(r)} s après la fin de la note` },
   ].filter((h) => h.keys.some(canEdit));
 
-  // A et D au même endroit (retombée presque nulle) : on écarte leurs lettres.
+  // Lettres des poignées : A en haut à droite (le titre de l'axe est en haut à gauche),
+  // D au-dessus (en bas à droite si A est tout près), R au-dessus à droite.
   const close = Math.hypot(x(a) - x(a + d), y(1) - y(sus)) < 26;
-  const labelX = (h) => (h.id === 'R' ? h.cx + 14 : close && h.id === 'A' ? h.cx - 12 : close && h.id === 'D' ? h.cx + 14 : h.cx);
+  const labelPos = (h) => {
+    if (h.id === 'A') return { x: h.cx + 12, y: h.cy - 6, anchor: 'start' };
+    if (h.id === 'D') return close ? { x: h.cx + 12, y: h.cy + 16, anchor: 'start' } : { x: h.cx, y: h.cy - 14, anchor: 'middle' };
+    return { x: h.cx + 14, y: h.cy - 10, anchor: 'middle' };
+  };
 
   const dragTo = (hid, e) => {
     const rect = boxRef.current.querySelector('svg').getBoundingClientRect();
@@ -208,13 +182,19 @@ export default function AdsrSchema({ spec, ear = null, context = 'lecon' }) {
   const tStep = span <= 1 ? 0.25 : span <= 2 ? 0.5 : 1;
   for (let t = 0; t <= span + 1e-9; t += tStep) ticks.push(Math.round(t * 100) / 100);
 
-  const phase = live && animating ? live.phase : null;
+  const phase = live && s.playing ? live.phase : null;
   const preset = !st.written ? 'sans-reglage' : Object.keys(PRESETS).find((k) => PRESETS[k].vals && Object.keys(PRESETS[k].vals).every((p) => PRESETS[k].vals[p] === st.p[p]));
   const applyPreset = (k) => {
-    const next = stateFromSpec({ type: 'adsr', reglages: PRESETS[k].vals || {}, mode: st.o.mode });
+    const next = stateFromSpec({ type: 'adsr', reglages: PRESETS[k].vals || {}, notes: st.o.notes });
     s.replace(next, PRESETS[k].vals ? 'attack' : null);
   };
-  const warn = def.warn(st, { noteDur: mode === 'motif' ? MOTIF_DUR : lastHeld });
+  const warn = def.warn(st);
+
+  // Le niveau S : sur le palier s'il existe, sinon signalé comme non atteint.
+  const plateau = !truncated && noteDur - (a + d) > 0.001;
+  const sMid = plateau ? (a + d + noteDur) / 2 : null;
+  const durText = `la note dure ${frNum(noteDur, 2)} s`;
+  const durWide = x(noteDur) - x(0) > 150;
 
   return (
     <div className={'schema schema-adsr' + (s.bypass ? ' is-bypass' : '')} data-schema="adsr" data-schema-id={s.id}>
@@ -225,7 +205,7 @@ export default function AdsrSchema({ spec, ear = null, context = 'lecon' }) {
           viewBox={`0 0 ${W} ${H}`}
           className="sch-svg"
           role="img"
-          aria-label={`Enveloppe : attaque ${frNum(a)} s, retombée ${frNum(d)} s, maintien ${Math.round(sus * 100)} %, extinction ${frNum(r)} s.`}
+          aria-label={`Enveloppe : attack ${frNum(a)} s, decay ${frNum(d)} s, sustain ${frNum(sus, 2)} (niveau), release ${frNum(r)} s ; ${durText}.`}
           onPointerDown={(e) => {
             const hid = e.target.dataset && e.target.dataset.h ? e.target.dataset.h : nearest(e);
             if (!hid) return;
@@ -241,32 +221,50 @@ export default function AdsrSchema({ spec, ear = null, context = 'lecon' }) {
             dragging.current = null;
           }}
         >
+          {/* Axe du volume : 0 = silence, 1 = sommet de l'attack. */}
+          <text className="sch-axis-title" x={4} y={13}>volume (1 = sommet)</text>
+          {[0, 0.5, 1].map((v) => (
+            <g key={v} className="sch-grid">
+              <line x1={L} x2={W - R} y1={y(v)} y2={y(v)} />
+              <text x={L - 6} y={y(v) + 4} textAnchor="end">{frNum(v, 1)}</text>
+            </g>
+          ))}
+          {/* Axe du temps. */}
           {ticks.map((t) => (
             <g key={t} className="sch-grid">
               <line x1={x(t)} x2={x(t)} y1={T} y2={H - B} />
-              <text x={x(t)} y={H - 8} textAnchor="middle">{frNum(t, 2)} s</text>
+              <text x={x(t)} y={H - B + 15} textAnchor="middle">{frNum(t, 2)}</text>
             </g>
           ))}
+          <text className="sch-axis-title" x={W - R} y={H - 4} textAnchor="end">temps depuis le début de la note (s)</text>
           <line className="sch-zero" x1={L} x2={W - R} y1={y(0)} y2={y(0)} />
-          <text className="sch-axis-t" x={L - 6} y={y(1) + 4} textAnchor="end">max</text>
-          <text className="sch-axis-t" x={L - 6} y={y(0) + 4} textAnchor="end">0</text>
 
-          {/* La note joue pendant la zone grise ; l'extinction commence à sa fin. */}
+          {/* La note joue pendant la zone grise (durée donnée par le code) ; le release commence à sa fin. */}
           <rect className="sch-notezone" x={x(0)} y={T} width={Math.max(0, x(noteDur) - x(0))} height={H - T - B} />
-          <text className="sch-notezone-t" x={Math.max(x(noteDur) - 6, x(0) + 120)} y={H - B - 8} textAnchor="end">
-            {mode === 'motif' ? 'la note dure 0,5 s' : holding ? 'tu tiens la note' : lastHeld != null ? 'tu l’as tenue ' + frNum(lastHeld, 2) + ' s' : 'si tu tiens 1 s'}
-          </text>
+          <g className="sch-bracket">
+            <line x1={x(0)} x2={x(noteDur)} y1={30} y2={30} />
+            <line x1={x(0)} x2={x(0)} y1={25} y2={35} />
+            <line x1={x(noteDur)} x2={x(noteDur)} y1={25} y2={H - B} className="sch-bracket-end" />
+            <text x={durWide ? (x(0) + x(noteDur)) / 2 : x(noteDur) + 6} y={25} textAnchor={durWide ? 'middle' : 'start'}>
+              {durText} · {noteCode(perCycle)}
+            </text>
+          </g>
 
           {ideal ? <path className="sch-curve sch-curve-ideal" d={toPath(ideal)} /> : null}
           {ideal ? <text className="sch-ideal-t" x={x(a) - 76 > L ? x(a) - 14 : x(a) + 14} y={y(1) + 4} textAnchor={x(a) - 76 > L ? 'end' : 'start'}>pas atteint</text> : null}
           <path className="sch-fill" d={toPath(shape) + ` L ${x(shape[shape.length - 1][0])} ${y(0)} Z`} />
           <path className={'sch-curve' + (s.bypass ? ' sch-curve-default' : '')} d={toPath(shape)} />
           {ear && ear.revealed ? <path className="sch-curve sch-curve-target" d={toPath(planPoints(adsrPlan(def.values(ear.target), 0, noteDur)))} /> : null}
+          {plateau ? (
+            <text className="sch-level-t" x={x(sMid)} y={sus > 0.82 ? y(sus) + 16 : y(sus) - 7} textAnchor="middle">
+              S = {frNum(sus, 2)}
+            </text>
+          ) : null}
 
           {live && live.pts.length > 1 ? (
             <g className="sch-trace">
               <path d={toPath(live.pts)} />
-              {animating ? <circle cx={x(Math.min(live.now, span))} cy={y(live.v)} r={5} /> : null}
+              <circle cx={x(Math.min(live.now, span))} cy={y(live.v)} r={5} />
             </g>
           ) : null}
 
@@ -274,7 +272,7 @@ export default function AdsrSchema({ spec, ear = null, context = 'lecon' }) {
             <g key={h.id} className="sch-handle" tabIndex={0} role="group" aria-label={h.label + '. Flèches pour régler.'} onKeyDown={(e) => keyMove(h.id, e)}>
               <circle className="sch-handle-hit" data-h={h.id} cx={h.cx} cy={h.cy} r={22} />
               <circle className="sch-handle-dot" data-h={h.id} cx={h.cx} cy={h.cy} r={8} />
-              <text className="sch-handle-t" x={labelX(h)} y={h.id === 'R' ? h.cy - 10 : h.cy - 14} textAnchor="middle">{h.id}</text>
+              <text className="sch-handle-t" x={labelPos(h).x} y={labelPos(h).y} textAnchor={labelPos(h).anchor}>{h.text}</text>
             </g>
           ))}
         </svg>
@@ -288,21 +286,20 @@ export default function AdsrSchema({ spec, ear = null, context = 'lecon' }) {
       </ul>
 
       <div className="sch-controls">
-        {!ear ? <Choice label={def.options.mode.label} values={def.options.mode.values} labels={def.options.mode.labels} value={mode} onChange={(v) => s.setOption('mode', v)} /> : null}
-        {ear ? null : mode === 'tenir' ? (
-          <HoldButton big onDown={() => press(false)} onUp={lift} label="Tiens pour jouer une note" className={holding && !s.bypass ? 'is-on' : ''}>
-            <span>{holding && !s.bypass ? 'Tu tiens…' : 'Tiens pour jouer'}</span>
-          </HoldButton>
-        ) : (
-          <PlayButton playing={s.playing} onToggle={toggleMotif} />
-        )}
+        {!ear ? (
+          <div className="sch-choice-wrap">
+            <span className="sch-choice-label">Notes par cycle · durée de chaque note</span>
+            <Choice label={def.options.notes.label} values={def.options.notes.values} labels={def.options.notes.labels} value={perCycle} onChange={(v) => s.setOption('notes', v, true)} />
+          </div>
+        ) : null}
+        {ear ? null : <PlayButton playing={s.playing} onToggle={toggle} />}
         {ear ? null : (
           <HoldButton onDown={bypassDown} onUp={bypassUp} label="Maintiens pour entendre sans réglage d’enveloppe">
-            <span>{mode === 'tenir' ? 'Tiens : sans réglage' : 'Maintiens : sans réglage'}</span>
+            <span>Maintiens : sans réglage</span>
           </HoldButton>
         )}
       </div>
-      {ear ? ear.controls(s, toggleMotif) : null}
+      {ear ? ear.controls(s, toggle) : null}
 
       {!ear ? (
         <div className="sch-presets" role="group" aria-label="Exemples">
@@ -327,9 +324,7 @@ export default function AdsrSchema({ spec, ear = null, context = 'lecon' }) {
           note={
             s.bypass || !st.written
               ? 'Sans réglage d’enveloppe dans le code, Strudel prend ses valeurs par défaut : .001, .05, .6, .01.'
-              : mode === 'tenir'
-                ? 'En mode Tenir, la note dure tant que tu appuies. Dans le code, c’est la durée de la note qui joue ce rôle : ici `note("c3")` dure un cycle entier, soit 2 s.'
-                : null
+              : `La durée de la note vient du code : un cycle dure 2 s, et \`note("${noteCode(perCycle)}")\` y joue ${perCycle} note${perCycle > 1 ? 's' : ''} de ${frNum(noteDur, 2)} s. L’enveloppe ne change pas cette durée : elle dessine le volume pendant la note (A, D, puis le niveau S) et après (R).`
           }
         />
       ) : null}

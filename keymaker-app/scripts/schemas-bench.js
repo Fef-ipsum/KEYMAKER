@@ -7,7 +7,7 @@
 // Puis on compare : échantillons, enveloppe de volume (RMS sur 10 ms), spectre.
 import { TYPES, stateFromSpec, codeText } from '/src/schemas/catalog.js';
 import { adsrValues, adsrPlan, planValue, SYNTH_DEFAULTS } from '/src/schemas/core/adsr.js';
-import { createFiltreSound, adsrNote, heldVoice, ondeNote, fenvNote, CPS } from '/src/schemas/ui/sounds.js';
+import { createFiltreSound, adsrNote, ondeNote, fenvNote, CPS } from '/src/schemas/ui/sounds.js';
 import { envPlan, FILTER_ENV_DEFAULTS, filterEnvRange } from '/src/schemas/core/adsr.js';
 import { NOTES as ONDE_NOTES, period, harmonics } from '/src/schemas/types/onde.js';
 import { motifEvents, createPatternSound, signalPattern, fullSignalPattern, signalAt, effetPattern } from '/src/schemas/ui/pattern.js';
@@ -17,7 +17,7 @@ import { CHORDS, INTERVALS, chordSymbol } from '/src/schemas/types/clavier.js';
 import { createMissionRunner, pickMissions } from '/src/schemas/core/missions.js';
 import { filterResponse } from '/src/schemas/ui/response.js';
 import { SOURCES } from '/src/schemas/types/filtre.js';
-import { MOTIF, HOLD_NOTE } from '/src/schemas/types/adsr.js';
+import { HOLD_NOTE } from '/src/schemas/types/adsr.js';
 
 export const SR = 44100;
 
@@ -120,7 +120,7 @@ export function teardownZones(spec, seconds) {
     n = 1;
     tail = SYNTH_DEFAULTS[3];
   } else {
-    n = st.o.mode === 'motif' ? MOTIF.midi.length : 1;
+    n = st.o.notes || 1;
     tail = TYPES.adsr.values(st)[3];
   }
   // Après le rangement, un filtre résonant continue de « sonner » : constante de temps
@@ -274,7 +274,7 @@ export async function renderSchema(spec, seconds, stOverride) {
     for (let i = 0; i * step < seconds; i++) snd.note(slots[i % slots.length], i * step, step);
   } else if (spec.type === 'adsr') {
     const vals = TYPES.adsr.values(st);
-    const slots = st.o.mode === 'motif' ? MOTIF.midi : [HOLD_NOTE];
+    const slots = Array(st.o.notes || 1).fill(HOLD_NOTE); // note("c3*n")
     const step = 1 / (slots.length * CPS);
     for (let i = 0; i * step < seconds; i++) adsrNote(ac, ac.destination, slots[i % slots.length], i * step, step, vals);
   }
@@ -376,6 +376,11 @@ export const FACT_RENDERS = [
   { key: 'fact:lpa-seul', code: 'note("c2*4").sound("sawtooth").lpf(300).lpa(.1)', seconds: 1.2 },
   { key: 'fact:lpa-env1', code: 'note("c2*4").sound("sawtooth").lpf(300).lpa(.1).lpenv(1)', seconds: 1.2 },
   { key: 'fact:fenv-defauts', code: 'note("c2*4").sound("sawtooth").lpf(300).lpenv(3)', seconds: 1.2 },
+  // sustain = niveau : la même enveloppe, sustain .3 puis 1, sur des notes de 2 s puis de 1 s.
+  { key: 'fact:sus3-2s', code: 'note("c3").sound("sawtooth").lpf(1500).attack(.01).decay(.1).sustain(.3).release(.1)', seconds: 2.3 },
+  { key: 'fact:sus1-2s', code: 'note("c3").sound("sawtooth").lpf(1500).attack(.01).decay(.1).sustain(1).release(.1)', seconds: 2.3 },
+  { key: 'fact:sus3-1s', code: 'note("c3*2").sound("sawtooth").lpf(1500).attack(.01).decay(.1).sustain(.3).release(.1)', seconds: 2.3 },
+  { key: 'fact:sus1-1s', code: 'note("c3*2").sound("sawtooth").lpf(1500).attack(.01).decay(.1).sustain(1).release(.1)', seconds: 2.3 },
   { key: 'fx:echo', code: 'note("c4 ~ ~ ~").sound("triangle").decay(.1).sustain(0).delay(.6).delaytime(.25).delayfeedback(.5).orbit(3)', seconds: 1.9 },
   { key: 'fx:echo-sync', code: 'note("c4 ~ ~ ~").sound("triangle").decay(.1).sustain(0).delay(.6).orbit(5)', seconds: 1.2 },
   { key: 'fx:rev1', code: 'note("c4 ~ ~ ~").sound("triangle").decay(.1).sustain(0).room(1).size(1).orbit(6)', seconds: 1.9 },
@@ -444,40 +449,6 @@ export async function envelopeVsEngine(vals, hold) {
     vsEngine = Math.max(vsEngine, Math.abs(mine[i] - theirs[i]));
   }
   return { vsDrawn, vsEngine };
-}
-
-// Note tenue puis lâchée (et éventuellement réglée pendant qu'on la tient) : la trace
-// dessinée (voice.valueAt) contre le volume rendu, et contre superdough pour la même durée.
-export async function heldVsEngine(vals, releaseAt, retune) {
-  const len = Math.round((releaseAt + 3.4) * SR);
-  const ac = new OfflineAudioContext(1, len, SR);
-  const v = heldVoice(ac, ac.destination, vals, 'one');
-  if (retune) ac.suspend(retune.t).then(() => {
-    v.retune(retune.vals);
-    ac.resume();
-  });
-  ac.suspend(releaseAt).then(() => {
-    v.release();
-    ac.resume();
-  });
-  const out = (await ac.startRendering()).getChannelData(0);
-  const k = 0.3 * 0.8; // gain 0,3 de l'onde × gain 0,8 par défaut
-  let vsTrace = 0;
-  for (let i = 0; i < len; i++) vsTrace = Math.max(vsTrace, Math.abs(out[i] / k - v.valueAt(i / SR)));
-  let vsEngine = null;
-  if (!retune) {
-    const ac2 = new OfflineAudioContext(1, len, SR);
-    const src = new ConstantSourceNode(ac2, { offset: 1 });
-    const g = ac2.createGain();
-    g.gain.value = 0;
-    src.connect(g).connect(ac2.destination);
-    window.getParamADSR(g.gain, vals[0], vals[1], vals[2], vals[3], 0, 1, v.begin, v.releaseAt, 'linear');
-    src.start(0);
-    const ref = (await ac2.startRendering()).getChannelData(0);
-    vsEngine = 0;
-    for (let i = 0; i < len; i++) vsEngine = Math.max(vsEngine, Math.abs(out[i] / k - ref[i]));
-  }
-  return { vsTrace, vsEngine, releasedAt: v.releaseAt };
 }
 
 // Une onde de période entière (P échantillons), mesurée sur 60 périodes exactes.
@@ -727,6 +698,29 @@ export function cycleMission(id, motifs) {
 
 /* --- 5. Les faits du « Creuser » -------------------------------------------------------- */
 export const FACTS = {
+  // sustain est un niveau : rapport des volumes (RMS) pendant la note, sustain .3 contre 1.
+  'adsr.niveau'() {
+    const rms = (x, t0, t1) => {
+      let s = 0;
+      let n = 0;
+      for (let i = Math.round(t0 * SR); i < Math.round(t1 * SR); i++, n++) s += x[i] * x[i];
+      return Math.sqrt(s / n);
+    };
+    const r2 = rms(rendered('fact:sus3-2s'), 0.4, 1.8) / rms(rendered('fact:sus1-2s'), 0.4, 1.8);
+    const r1a = rms(rendered('fact:sus3-1s'), 0.4, 0.9) / rms(rendered('fact:sus1-1s'), 0.4, 0.9);
+    const r1b = rms(rendered('fact:sus3-1s'), 1.4, 1.9) / rms(rendered('fact:sus1-1s'), 1.4, 1.9);
+    const ok = [r2, r1a, r1b].every((r) => Math.abs(r - 0.3) < 0.003);
+    return { ok, detail: `sustain(.3) / sustain(1), volume pendant la note : notes de 2 s → ${r2.toFixed(4)} ; notes de 1 s → ${r1a.toFixed(4)} et ${r1b.toFixed(4)} (0,3 attendu, quelle que soit la durée)` };
+  },
+  // La durée des notes vient du code : événements de note("c3*4") au tempo de Keymaker.
+  async 'adsr.duree'() {
+    const pat = await evalPattern('note("c3*4").sound("sawtooth")');
+    const haps = pat.queryArc(0, 1).filter((h) => h.hasOnset());
+    const secs = haps.map((h) => h.duration.valueOf() / 0.5);
+    const starts = haps.map((h) => h.whole.begin.valueOf() / 0.5);
+    const ok = haps.length === 4 && secs.every((d) => Math.abs(d - 0.5) < 1e-9) && starts.every((t, i) => Math.abs(t - 0.5 * i) < 1e-9);
+    return { ok, detail: `note("c3*4"), un cycle (2 s) : ${haps.length} notes, débuts ${starts.join(' / ')} s, durées ${secs.join(' / ')} s` };
+  },
   // Sidechain. Mesures sur les coups à 0,5 / 1 / 1,5 s (le coup à 0 tombe sur le début de la
   // nappe, encore silencieuse). Rapport rendu baissé / rendu seul (voir duckRatio).
   'duck.plancher'() {
@@ -1142,7 +1136,7 @@ export const FACTS = {
     return { ok: m < 1e-3, detail: `distort(2) sur une sinusoïde : sortie − (1+h)x/(1+h|x|) (h = e² − 1) au plus ${m.toExponential(1)}` };
   },
   async 'adsr.defauts'() {
-    const r = await soundVsStrudel({ type: 'adsr', reglages: {}, mode: 'motif' });
+    const r = await soundVsStrudel({ type: 'adsr', reglages: {}, notes: 4 });
     const v = window.getADSRValues([undefined, undefined, undefined, undefined], 'linear', [0.001, 0.05, 0.6, 0.01]);
     return { ok: r.maxAbs < 1e-4, detail: `rendu superdough de ${r.code} = rendu du schéma avec [${SYNTH_DEFAULTS.join(', ')}] (écart max ${r.maxAbs.toExponential(1)}) ; getADSRValues sans réglage → [${v.join(', ')}]` };
   },

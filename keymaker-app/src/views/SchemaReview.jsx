@@ -11,7 +11,7 @@ import { Fold, PageHead, Rich } from '../ui.jsx';
 // Une déclaration de départ par type (les réglages par défaut du type).
 const BASE = {
   filtre: { type: 'filtre', reglages: { lpf: 600, lpq: 0 }, source: 'basse' },
-  adsr: { type: 'adsr', reglages: {}, mode: 'tenir' },
+  adsr: { type: 'adsr', reglages: {}, notes: 1 },
   onde: { type: 'onde', onde: 'sawtooth', note: 'c3' },
   effet: { type: 'effet', effet: 'echo', reglages: { delay: 0.5, delaytime: 0.25, delayfeedback: 0.5 } },
   signal: { type: 'signal', reglages: { bas: 300, haut: 2000, slow: 4 }, forme: 'sine' },

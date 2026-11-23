@@ -110,9 +110,10 @@ const SCRIPTS = {
     pique: [{ playing: true, env: 3, lpd: 0.08, lps: 0 }],
   },
   adsr: {
-    lente: [{ attack: 0.5 }, { holding: true, heldFor: 0.2, event: 'press' }, { holding: true, heldFor: 0.6, event: 'tick' }],
-    pince: [{ sustain: 0 }, { holding: true, heldFor: 1.2, event: 'tick' }],
-    traine: [{ release: 1.2 }, { holding: false, heldFor: 0.5, event: 'release' }],
+    lente: [{ playing: true }, { playing: true, changed: true, attack: 0.5 }],
+    pince: [{ playing: true }, { playing: true, changed: true, sustain: 0, decay: 0.2, o: { notes: 2 } }],
+    traine: [{ playing: true }, { playing: true, changed: true, release: 1.2 }],
+    courte: [{ playing: true }, { playing: true, changed: true, attack: 0.35, o: { notes: 8 } }],
   },
 };
 for (const [type, def] of Object.entries(TYPES)) {
@@ -123,7 +124,7 @@ for (const [type, def] of Object.entries(TYPES)) {
       fail(`mission ${type}/${m.id} : pas de parcours scripté`);
       continue;
     }
-    const st = stateFromSpec(type === 'filtre' ? { type, reglages: { lpf: 1000, lpq: 0 } } : type === 'onde' ? { type, onde: 'triangle' } : type === 'enveloppe-filtre' ? { type, reglages: { lpf: 300, lpenv: 1 } } : type === 'tempo' ? { type, reglages: { bpm: 100 }, temps: 4 } : type === 'clavier' ? { type, mode: 'notes', notes: 'c3' } : type === 'signal' ? { type, reglages: { bas: 300, haut: 600, slow: 2 }, forme: 'sine' } : type === 'effet' ? { type, effet: 'echo' } : { type, reglages: {}, mode: 'tenir' });
+    const st = stateFromSpec(type === 'filtre' ? { type, reglages: { lpf: 1000, lpq: 0 } } : type === 'onde' ? { type, onde: 'triangle' } : type === 'enveloppe-filtre' ? { type, reglages: { lpf: 300, lpenv: 1 } } : type === 'tempo' ? { type, reglages: { bpm: 100 }, temps: 4 } : type === 'clavier' ? { type, mode: 'notes', notes: 'c3' } : type === 'signal' ? { type, reglages: { bas: 300, haut: 600, slow: 2 }, forme: 'sine' } : type === 'effet' ? { type, effet: 'echo' } : { type, reglages: {}, notes: 1 });
     const runner = createMissionRunner([m]);
     let done = false;
     for (const stepSnap of script) {
@@ -167,6 +168,7 @@ for (const [type, def] of Object.entries(TYPES)) {
 check(desc.length < 4000, 'catalogue pour Sati : ' + desc.length + ' caractères (le contexte est plafonné à 8 000)');
 const BLOCKS = [
   ['{"type":"filtre","reglages":{"lpf":800,"lpq":12},"source":"basse"}', true],
+  ['{"type":"adsr","reglages":{"attack":0.4,"release":1},"notes":4}', true],
   ['{"type":"adsr","reglages":{"attack":0.4,"release":1},"mode":"tenir"}', true],
   ['{"type":"filtre","reglages":{"lpf":600},"defi":{"cible":{"lpf":300},"regler":["lpf"]}}', true],
   ['{"type":"filtre","reglages":{"lpf":60000}}', false],
@@ -234,7 +236,7 @@ function randomSpec(type) {
   if (type === 'onde') return { type, onde: ['sine', 'triangle', 'square', 'sawtooth'][Math.floor(rnd() * 4)], note: ['c2', 'c3', 'c4'][Math.floor(rnd() * 3)] };
   const r = {};
   for (const k of ['attack', 'decay', 'sustain', 'release']) if (rnd() < 0.8) r[k] = def.params[k].q(fromPos(def.params[k], rnd()));
-  return { type, reglages: r, mode: rnd() < 0.5 ? 'motif' : 'tenir' };
+  return { type, reglages: r, notes: [1, 2, 4, 8][Math.floor(rnd() * 4)] };
 }
 
 section('[B1] le dessin correspond à l’objet audio');
@@ -250,6 +252,7 @@ for (const [vals, hold] of [
   [[0.001, 0.05, 0.6, 0.01], 0.25],
   [[0.4, 0.3, 0.8, 1.2], 0.5],
   [[0.4, 0.3, 0.8, 1.2], 2],
+  [[0.2, 0.3, 0.3, 0.5], 1],
   [[0.5, 0.2, 0.6, 0.3], 0.2],
   [[0.005, 0.2, 0, 0.1], 0.5],
   [[0.01, 0.01, 1, 0.05], 0.5],
@@ -257,19 +260,6 @@ for (const [vals, hold] of [
   const r = await bench('envelopeVsEngine', vals, hold);
   check(r.vsDrawn < 1e-3 && r.vsEngine < 1e-3, `enveloppe [${vals.join(', ')}] sur ${hold} s : forme dessinée = volume programmé = getParamADSR`, `écarts ${r.vsDrawn.toExponential(1)} / ${r.vsEngine.toExponential(1)}`);
 }
-for (const [vals, rel, label] of [
-  [[0.6, 0.4, 0.5, 0.8], 0.3, 'lâchée pendant l’attaque'],
-  [[0.1, 0.6, 0.3, 0.5], 0.4, 'lâchée pendant la retombée'],
-  [[0.05, 0.1, 0.4, 1], 1.2, 'lâchée pendant le maintien'],
-]) {
-  const r = await bench('heldVsEngine', vals, rel, null);
-  check(r.vsTrace < 2e-3 && r.vsEngine < 2e-3, `note tenue ${label} : trace dorée = volume rendu = superdough (même durée)`, `écarts ${r.vsTrace.toExponential(1)} / ${r.vsEngine.toExponential(1)}`);
-}
-{
-  const r = await bench('heldVsEngine', [0.05, 0.1, 0.8, 0.5], 1.2, { t: 0.5, vals: [0.05, 0.1, 0.2, 0.5] });
-  check(r.vsTrace < 2e-3, 'note tenue, maintien changé pendant qu’on tient : la trace suit exactement le volume', `écart ${r.vsTrace.toExponential(1)}`);
-}
-
 for (const w of ['sine', 'triangle', 'square', 'sawtooth']) {
   const r = await bench('waveDrawingVsOscillator', w);
   check(r.barsDiff < 0.01 && r.shapeDiff < 0.02 && r.rms < 0.03, `onde ${w} : forme et barres dessinées = oscillateur réel`, `barres ${r.barsDiff.toExponential(1)} ; forme (échelle ×${r.scale.toFixed(3)}) : écart max ${r.shapeDiff.toExponential(1)} hors des ${r.jumps} saut(s) vertical(aux), ${r.jumpDiff.toExponential(1)} tout près des sauts, écart moyen (RMS) ${r.rms.toExponential(1)}`);
@@ -288,7 +278,8 @@ for (const [vals, hold, f, env] of [
 section('[B2] le son correspond à Strudel (superdough vs schéma, hors temps réel)');
 const RHYTHM = new Set(['cycle', 'tempo', 'clavier', 'signal', 'effet']);
 const soundCases = [...all.filter((x) => !RHYTHM.has(x.spec.type)).map((x) => ({ where: x.where, spec: x.spec }))];
-soundCases.push({ where: 'sans réglage d’enveloppe (motif)', spec: { type: 'adsr', reglages: {}, mode: 'motif' } });
+soundCases.push({ where: 'sans réglage d’enveloppe (4 notes par cycle)', spec: { type: 'adsr', reglages: {}, notes: 4 } });
+soundCases.push({ where: 'enveloppe, 8 notes par cycle (attack plus longue que la note)', spec: { type: 'adsr', reglages: { attack: 0.4, decay: 0.1, sustain: 0.5, release: 0.3 }, notes: 8 } });
 for (const t of Object.keys(TYPES).filter((x) => !RHYTHM.has(x))) for (let i = 0; i < (quick ? 2 : 5); i++) soundCases.push({ where: 'au hasard ' + t + ' ' + (i + 1), spec: randomSpec(t) });
 // Tous les rendus superdough d'un coup (voir renderStrudelAll).
 const items = await page.evaluate((specs) => [...specs.map((sp) => window.__bench.strudelItem(sp)), ...window.__bench.FACT_RENDERS, { ...window.__bench.strudelItem({ type: 'filtre', reglages: { lpf: 138, lpq: 27 }, source: 'repetee' }), key: 'self:resonance' }], soundCases.map((c) => c.spec));
