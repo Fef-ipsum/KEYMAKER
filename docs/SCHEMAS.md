@@ -14,9 +14,11 @@
 | 2 | Ondes et harmoniques (les 4 ondes natives), passe-haut / passe-bande, enveloppe de filtre | **Construite et vérifiée.** `pulse` et `supersaw` : pas de schéma (voir §2.4). |
 | 3 | Le cycle, le tempo | **Construite et vérifiée.** |
 | 4 | Clavier, intervalles, gammes, accords | **Construite et vérifiée** (un seul type, quatre modes). |
-| 5 | Signaux, écho, réverbération, sidechain, distorsion | **Signaux, écho, réverbération, distorsion : construits et vérifiés.** Sidechain : **pas encore** (§2.10). |
+| 5 | Signaux, écho, réverbération, sidechain, distorsion | **Construite et vérifiée.** Le sidechain est le quatrième mode du type `effet` (§2.9, §2.10). |
 
 **Déploiement.** La session qui a construit les schémas tournait dans un conteneur cloud qui n'atteint ni le Pi (Tailscale, réseau local) ni le laptop. Le code est sur GitHub. Il a été déployé sur le Pi par une session Claude Code lancée **sur le Pi** depuis le téléphone (§9.2). Chaque nouveau commit de la branche demande un nouveau déploiement : depuis le laptop (§9.1) ou depuis le téléphone (§9.2).
+
+**Missions des effets : corrigé.** Les schémas d'effet du wiki n'affichaient aucune mission : l'app cherchait le mode dans `o.mode`, alors que le type `effet` le range dans `o.effet`. Le choix des missions est maintenant une seule fonction (`missionsFor`, avec `modeOf` pour les types à plusieurs modes), partagée par l'app et le banc ; le banc vérifie en plus que chaque schéma du contenu propose des missions, sauf refus explicite (`missions: []`).
 
 **Retours de Felix au téléphone (23 novembre) : corrigés.** Réglages sous le dessin (le dessin reste visible pendant qu'on règle), poignées et courbe de l'enveloppe quand l'attaque n'est pas atteinte, étiquettes A/D qui se chevauchaient, « Ce schéma n'a pas pu s'afficher » sur l'enveloppe de filtre, distorsion muette quand c'est le premier son joué.
 
@@ -143,12 +145,24 @@
 | **Écho** | Une ligne de temps de 2 s : la note (bleu) puis chaque répétition (doré) à k × `delaytime`, de niveau `delay` × `delayfeedback`^(k−1), jusqu'à 1 %. Code : `note("c4 ~ ~ ~").sound("triangle").decay(.1).sustain(0).delay(.5).delaytime(.25).delayfeedback(.5)`. Mission `traine` (`delayfeedback` ≥ 0,8). |
 | **Réverbération** | La note, puis la forme du volume de la traîne : `room` × 10^(−3 t / `size`), sur 1,5 × `size` secondes. Code : `….room(.5).size(2)`. Mission `cathedrale` (`size` ≥ 4, `room` ≥ 0,5). La traîne est du bruit tiré au hasard : le dessin montre sa **forme** (son enveloppe), pas un tracé exact. |
 | **Distorsion** | La courbe entrée → sortie, et une période de sinusoïde avant (gris) / après (doré). Code : `note("c3").sound("sine").distort(1)`. Mission `sature` (`distort` ≥ 3). Avertissement à partir de 4. |
+| **Sidechain** | Le volume de la nappe sur un cycle (2 s) : il plonge à chaque coup de kick (bleu) jusqu'au plancher 1 − √`duckdepth` (pointillés), puis remonte en `duckattack` secondes. Tête de lecture pendant la lecture. Code (deux pistes, comme l'entrée `duck` du wiki, la nappe d'abord pour que l'orbit visée existe au premier coup) : `$: note("[c2,c3]").sound("sawtooth").lpf(900).orbit(2)` puis `$: sound("bd*4").duck(2).duckdepth(1).duckattack(.2)`. Réglages : `duckdepth` 0 à 1, `duckattack` 0,02 à 0,45 s (au-delà, le volume ne serait pas remonté au coup suivant). Missions `pompe` (`duckdepth` ≥ 0,8 et `duckattack` ≥ 0,3) et `trou` (`duckattack` ≤ 0,05 avec `duckdepth` ≥ 0,5). |
 | **Son** | Superdough lui-même (le limiteur des schémas n'est pas sur ce chemin). |
 | **Avant / après** | « Maintiens : sans l'effet ». |
 
-### 2.10 Ce qui reste : le sidechain (`duck`)
+### 2.10 Le sidechain (`duck`) : ce que fait le moteur, et comment on le mesure
 
-Superdough fait plonger le volume de l'orbite visée par un événement asynchrone, 10 ms avant le kick (`webAudioTimeout` → `Orbit.duck`) : un rendu hors temps réel ne peut ni le placer au bon moment, ni le vérifier. Formule lue dans le moteur : le volume descend en exponentielle vers `1 − √duckdepth` (au moins 0,01), puis remonte jusqu'à 1 en `duckattack` secondes (0,1 par défaut). Pour la dessiner sans risque, il faut d'abord la **mesurer en temps réel** (capture de la sortie pendant la lecture) : c'est la prochaine étape.
+**Ce que fait superdough** (relu dans le moteur embarqué). `duck` posé sur un son appelle `Orbit.duck` de l'orbite visée. Une source muette (`ConstantSourceNode`) s'arrête 10 ms avant le coup ; dans son événement `ended`, le moteur lit l'heure `l` et le volume du moment `c`, puis programme sur le volume de l'orbite : `setValueAtTime(c, l)`, rampe exponentielle vers `h = clamp(1 − √duckdepth, 0,01, c)` atteinte **au coup**, puis rampe exponentielle vers 1 en `duckattack` secondes (`duckonset`, 0 par défaut, retarderait le fond). Le dessin (`duckGain`, `types/effet.js`) fait exactement ce calcul, avec `l` = 10 ms avant le coup.
+
+**Pourquoi c'était difficile à vérifier.** L'heure `l` dépend du moment où la page traite l'événement. En temps réel, quelques millisecondes après l'arrêt de la source. Hors temps réel, le rendu continue pendant ce temps : `l` variait d'un rendu à l'autre, et la courbe ne pouvait pas être comparée à l'échantillon près.
+
+**La solution.** Le banc **suspend le rendu** (`OfflineAudioContext.suspend`) à la fin du bloc de 128 échantillons où la source s'arrête (avec un échantillon de marge, sinon un arrêt tombé sur une frontière de bloc laisse partir le calcul plus tard : vu une fois). Il attend que la page traite l'événement, puis il reprend. Le calcul tombe alors toujours au même échantillon, que le banc note. Trois rendus de suite donnent exactement le même résultat. Superdough n'est pas modifié : seul le rythme du rendu l'est.
+
+**La mesure.** La nappe est rendue seule, puis baissée par un déclencheur **muet** (sinusoïde à `gain(0)`) sur sa propre orbite. Le rapport des deux rendus est le volume de l'orbite, échantillon par échantillon. Cinq réglages (`duckdepth`/`duckattack` : 1/0,2 · 0,75/0,2 · 0,3/0,45 · 0,9/0,02 · 0/0,2) :
+
+- la formule de l'app, avec l'heure notée, colle au rendu à **1,4·10⁻⁵ de la crête** près ;
+- **le dessin lui-même** (calcul supposé 10 ms avant) colle aussi à 1,4·10⁻⁵ près, partout **sauf dans les 10 ms qui précèdent chaque coup**. Là, la descente commence quand la page s'en occupe (dans ces rendus, entre 7,1 et 10 ms avant). À l'échelle du dessin (2 s), 10 ms font un ou deux pixels.
+
+**Le son** : superdough lui-même, qui joue le même motif que la ligne de code (vérifié comme les autres effets).
 
 ### 2.11 Où ils vivent
 
@@ -244,8 +258,8 @@ Chaque type fournit `code(état)` (des morceaux, dont ceux qui brillent) et `exp
 
 | # | Vérification | Méthode |
 |---|---|---|
-| A | Déclarations, missions, questions, Sati | Hors navigateur : chaque schéma déclaré est valide ; aucune mission n'est gagnée sans geste ; chaque mission est atteignable par un parcours scripté (valeurs passées par les arrondis) ; chaque question à l'oreille échoue au départ et réussit à la cible ; 10 blocs de Sati (valides et invalides) ; le catalogue envoyé à Sati nomme tous les types et toutes les missions. |
-| 1 | Le dessin = l'objet audio | Filtre : courbe dessinée vs `getFrequencyResponse` du filtre d'une note qui joue, après un changement de réglage. Enveloppe : forme dessinée vs volume rendu hors temps réel vs `getParamADSR` **du moteur lui-même**, y compris notes tenues lâchées en attaque, retombée et maintien, et réglage changé pendant qu'on tient. |
+| A | Déclarations, missions, questions, Sati | Hors navigateur : chaque schéma déclaré est valide ; chaque schéma du contenu propose des missions (choisies comme dans l'app), sauf refus explicite ; aucune mission n'est gagnée sans geste ; chaque mission est atteignable par un parcours scripté (valeurs passées par les arrondis) ; chaque question à l'oreille échoue au départ et réussit à la cible ; 10 blocs de Sati (valides et invalides) ; le catalogue envoyé à Sati nomme tous les types et toutes les missions. |
+| 1 | Le dessin = l'objet audio | Filtre : courbe dessinée vs `getFrequencyResponse` du filtre d'une note qui joue, après un changement de réglage. Enveloppe : forme dessinée vs volume rendu hors temps réel vs `getParamADSR` **du moteur lui-même**, y compris notes tenues lâchées en attaque, retombée et maintien, et réglage changé pendant qu'on tient. Sidechain : volume dessiné vs volume de l'orbite mesuré dans un rendu superdough suspendu après chaque déclencheur (§2.10), cinq réglages. |
 | 2 | Le son = Strudel | Rendu hors temps réel du **même code** par superdough et par le schéma ; comparaison échantillon par échantillon, enveloppe (RMS 10 ms) et spectre. Toutes les déclarations du contenu + 10 états tirés au hasard. |
 | 3 | La ligne de code s'exécute et produit les valeurs attendues | Chaque ligne évaluée par Strudel : notes, `cutoff`, `resonance` (absente quand elle doit l'être), `attack`… comparées à `expect`. Contenu + 50 états au hasard. |
 | 4 | Missions atteignables | Parcours scripté (partie A) ; plus, dans `npm run smoke`, un vrai glissement sur le dessin qui valide une mission. |
@@ -344,6 +358,10 @@ Les rendus d'effets se font chacun sur leur propre orbite : dans superdough, l'�
 - **`echo.sync`** — *Code* : `delaysync` par défaut 3/16, `delaytime ?? delaysync / cps`. *Mesure* : sans `delaytime`, premier écho à 0,378 s (0,375 attendu).
 - **`reverb.duree`** — *Code* : `reverbGen` : bruit × une décroissance qui atteint 1/1000 en `size` secondes, durée 1,5 × `size`. *Mesure* (pente de la traîne) : `size(1)` → −58,5 dB/s (−60 attendu) ; `size(3)` → −21,4 dB/s (−20 attendu).
 - **`reverb.hasard`** — *Code* : `randomSample = Math.random() * 2 − 1`. *Mesure* : deux rendus du même code diffèrent échantillon par échantillon et s'éteignent à la même vitesse (moins de 20 % d'écart sur la pente). Fenêtre par fenêtre, leur volume peut différer de plus de 10 dB : la phrase n'affirme donc pas qu'ils « sonnent pareil ».
+- **`duck.plancher`** — *Code* : `Orbit.duck` : `h = clamp(1 − √depth, 0,01, c)`. *Mesure* (rapport des rendus au coup, voir §2.10) : `duckdepth(1)` → 0,0100 ; `(.75)` → 0,1340 ; `(.3)` → 0,4523 ; `(0)` → 1,0000, chaque fois égal à 1 − √d (borné à 0,01).
+- **`duck.remontee`** — *Code* : `exponentialRampToValueAtTime(1, coup + duckattack)`. *Mesure* : à mi-remontée, `duckdepth(1).duckattack(.2)` → 0,1000 (√plancher = 0,1000 ; une droite donnerait 0,5050) ; `(.75)/(.2)` → 0,3660 ; `(.3)/(.45)` → 0,6725 (attendu 0,6725) ; revenu à 1 à 2·10⁻⁵ près juste après `duckattack`.
+- **`duck.pile`** — *Code* : source muette arrêtée 10 ms avant le coup, fond atteint en `coup + duckonset` (0). *Mesure* : volume intact (à 10⁻⁴ près) jusqu'à 10 ms avant le coup ; encore 0,019 / 0,187 / 0,083 une milliseconde avant ; fond 0,010 / 0,134 / 0,051 au coup (`duckdepth` 1 / 0,75 / 0,9). Dans ces rendus, la descente a commencé entre 7,1 et 10 ms avant le coup.
+- **`duck.fantome`** — *Code* : `duck` est traité dans `superdough()` avant le son et avant le volume du déclencheur. *Mesure* : une sinusoïde à `gain(0)` seule → crête 0 ; la même fait tomber l'orbit visée à 0,0100 (`duckdepth(1)`).
 - **`distort.courbe`** — *Code* : AudioWorklet `distort-processor`, algorithme 0 = `scurve` : `(1+h)·x / (1+h·|x|)`, h = `expm1(distort)`, multiplié par `distortvol` (1). *Mesure* : `distort(2)` sur une sinusoïde : écart à la formule 4,3·10⁻⁶.
 
 ### Annexe B, revérifiée
@@ -400,7 +418,7 @@ Dans le chapitre, tableau `ear` :
 
 ### 8.3 Un nouveau TYPE (code, fait à la main)
 
-1. `src/schemas/types/<type>.js` : `params` (bornes, échelle, arrondi `q`, affichage), `options`, `fromSpec`/`toSpec`/`specKeys`, `code`, `expect`, `missions`, `facts`, `tolerance`/`earHint`, `describe`, `summary`.
+1. `src/schemas/types/<type>.js` : `params` (bornes, échelle, arrondi `q`, affichage), `options`, `fromSpec`/`toSpec`/`specKeys`, `code`, `expect`, `missions`, `facts`, `tolerance`/`earHint`, `describe`, `summary`. Type à plusieurs modes : `modeMissions` (missions par mode) et, si le mode n'est pas dans `o.mode`, `modeOf(st)` (le type `effet` le range dans `o.effet`).
 2. Le son dans `ui/sounds.js` (en réutilisant `synthNote`, et en respectant la chaîne de superdough).
 3. Le composant `ui/<Type>Schema.jsx` avec `useSchema` et les pièces de `parts.jsx` ; l'ajouter à `VIEWS` (`ui/Schema.jsx`) et à `TYPES` (`catalog.js`).
 4. Dans le banc : le rendu du schéma (`renderSchema`), les zones de rangement, une mesure par fait (`FACTS`), un parcours scripté par mission (`SCRIPTS` dans `check-schemas.mjs`).

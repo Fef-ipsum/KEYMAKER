@@ -349,6 +349,21 @@ if (!onlyOffline) {
     await page.evaluate(() => { window.location.hash = '#/wiki/fx.distort'; });
     await page.waitForSelector('.schema-effet');
     check((await page.locator('.schema-effet svg.sch-svg').count()) === 2 && /distort\(1\)/.test(await text(page, '.schema-effet .sch-code code')), `${label} · distorsion : courbe et onde dessinées, code distort(1)`);
+    await page.evaluate(() => { window.location.hash = '#/wiki/fx.duck'; });
+    await page.waitForSelector('.schema-effet .sch-fill-gold');
+    {
+      const kicks = await page.locator('.schema-effet .sch-bar-dry').count();
+      const code0 = await text(page, '.schema-effet .sch-code code');
+      // Monter la remontée (duckattack) au maximum au clavier, pendant la lecture.
+      await page.click('.schema-effet .sch-play');
+      const att = page.locator('.schema-effet .sch-sliders input').nth(1);
+      await att.focus();
+      await page.keyboard.press('End');
+      await page.waitForTimeout(400);
+      const code1 = await text(page, '.schema-effet .sch-code code');
+      check(kicks === 4 && /duck\(2\)\.duckdepth\(1\)\.duckattack\(\.2\)/.test(code0) && /duckattack\(\.45\)/.test(code1) && (await page.locator('.schema-effet .sch-mission.is-done').count()) === 1, `${label} · sidechain : 4 coups dessinés, la ligne de code suit (${code1.match(/duckattack\([^)]*\)/)}), mission pompe validée`);
+      await page.click('.schema-effet .sch-play');
+    }
     check(!errors.length, `${label} · aucune erreur de page` + (errors.length ? ' → ' + errors.slice(0, 3).join(' | ') : ''));
     await ctx.close();
   }

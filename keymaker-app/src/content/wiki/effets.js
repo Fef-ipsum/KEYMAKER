@@ -312,6 +312,7 @@ $: note("c4 ~ eb4 ~").sound("triangle").room(.8).orbit(2)`,
     ess: 'Posé sur le kick, baisse brièvement le volume d’une autre orbit à chaque coup : c’est le « pompage » de la dance music.',
     code: `$: sound("bd*4").duck(2).duckattack(.2).duckdepth(1)
 $: note("[c2,c3]").sound("sawtooth").lpf(900).orbit(2)`,
+    schema: { type: 'effet', effet: 'sidechain', reglages: { duckdepth: 1, duckattack: 0.2 } },
     args: [
       ['duck', 'le numéro de l’orbit à faire plonger.'],
       ['duckattack', 'temps de remontée du volume, en secondes.'],

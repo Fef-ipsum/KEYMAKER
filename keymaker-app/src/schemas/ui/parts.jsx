@@ -47,15 +47,20 @@ export function Slider({ def, k, value, onChange, codeName, disabled = false, la
 }
 
 /* --- La ligne de code : exactement ce qu'on entend ; la valeur qui change brille --- */
+// Points de coupure avant chaque « .méthode( » : sur téléphone, une longue ligne se coupe entre
+// deux appels plutôt qu'au milieu d'un texte entre guillemets. <wbr> n'ajoute aucun caractère
+// (le texte copié reste le même).
+const breakable = (t) => String(t).split(/(?=\.[A-Za-z_$])/).flatMap((seg, i) => (i ? [<wbr key={'w' + i} />, seg] : [seg]));
+
 export function CodeLine({ parts, glow, note }) {
   return (
     <div className="sch-code">
       <pre className="code code-small"><code>
         {parts.map((x, i) =>
           x.k ? (
-            <span key={x.k + ':' + (glow.k === x.k ? glow.n : 0)} className={'sch-val' + (glow.k === x.k && glow.n ? ' is-glow' : '') + (x.off ? ' is-off' : '')}>{x.t}</span>
+            <span key={x.k + ':' + (glow.k === x.k ? glow.n : 0)} className={'sch-val' + (glow.k === x.k && glow.n ? ' is-glow' : '') + (x.off ? ' is-off' : '')}>{breakable(x.t)}</span>
           ) : (
-            <span key={i} className={x.off ? 'is-off' : undefined}>{x.t}</span>
+            <span key={i} className={x.off ? 'is-off' : undefined}>{breakable(x.t)}</span>
           ),
         )}
       </code></pre>

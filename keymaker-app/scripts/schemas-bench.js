@@ -11,7 +11,7 @@ import { createFiltreSound, adsrNote, heldVoice, ondeNote, fenvNote, CPS } from 
 import { envPlan, FILTER_ENV_DEFAULTS, filterEnvRange } from '/src/schemas/core/adsr.js';
 import { NOTES as ONDE_NOTES, period, harmonics } from '/src/schemas/types/onde.js';
 import { motifEvents, createPatternSound, signalPattern, fullSignalPattern, signalAt, effetPattern } from '/src/schemas/ui/pattern.js';
-import { echoes, scurve } from '/src/schemas/types/effet.js';
+import { echoes, scurve, duckGain, duckFloor, DUCK_LEAD } from '/src/schemas/types/effet.js';
 import { patternFromCode, notesOf } from '/src/schemas/ui/keys.js';
 import { CHORDS, INTERVALS, chordSymbol } from '/src/schemas/types/clavier.js';
 import { createMissionRunner, pickMissions } from '/src/schemas/core/missions.js';
@@ -158,6 +158,30 @@ export async function evalPattern(code) {
 // propre décalage dans le temps, séparés par assez de silence pour que rien ne déborde.
 const GAP = 5.5; // plus longue note tenue (2 s) + plus longue extinction (3 s) + marge
 window.__renders = window.__renders || {};
+// Sidechain : superdough calcule la baisse dans l'événement `ended` d'une source arrêtée
+// 10 ms avant le coup (webAudioTimeout → Orbit.duck), et lit alors l'heure du contexte.
+// Hors temps réel, le rendu continuerait pendant que la page traite l'événement : l'heure
+// lue varierait d'une fois à l'autre (mesuré). On suspend donc le rendu à la fin du bloc de
+// 128 échantillons où cette source s'arrête, le temps que la page traite l'événement, puis
+// on reprend. Le calcul tombe alors toujours au même échantillon ; on le note.
+window.__duckCalls = window.__duckCalls || {};
+// Marge d'un échantillon : si l'arrêt tombe à un cheveu d'une frontière de bloc, la source
+// finit dans le bloc SUIVANT ; suspendre sur cette frontière laisserait le calcul partir plus
+// tard (vu une fois sur un rendu complet : calcul noté 10,0 ms avant, courbe fausse).
+// Au plus 257 échantillons après l'arrêt : toujours avant le coup (441 échantillons).
+function holdAfterTrigger(ac, t, key, offset) {
+  const frame = (Math.floor(((t - DUCK_LEAD) * SR + 1) / 128) + 1) * 128;
+  const list = window.__duckCalls[key];
+  ac.suspend((frame + 0.25) / SR).then(
+    async () => {
+      const at = ac.currentTime;
+      await new Promise((r) => setTimeout(r, 30));
+      list.push({ e: t - offset, l: at - offset, onFrame: Math.round(at * SR) === frame });
+      ac.resume();
+    },
+    (err) => list.push({ e: t - offset, error: String(err) }),
+  );
+}
 export async function renderStrudelAll(items) {
   const cps = 0.5;
   const plans = [];
@@ -180,8 +204,10 @@ export async function renderStrudelAll(items) {
         .queryArc(0, p.seconds * cps)
         .filter((h) => h.hasOnset())
         .sort((x, y) => x.whole.begin.valueOf() - y.whole.begin.valueOf());
+      if (p.duck) window.__duckCalls[p.key] = [];
       for (const h of haps) {
         const begin = h.whole.begin.valueOf();
+        if (p.duck && h.value.duckorbit != null) holdAfterTrigger(ac, p.offset + begin / cps, p.key, p.offset);
         await window.superdough({ ...h.value }, p.offset + begin / cps, h.duration.valueOf() / cps, cps, begin);
       }
     }
@@ -239,6 +265,64 @@ export async function soundVsStrudel(spec, seconds = 2.3) {
   return { code: it.code, ...compare(a, b, teardownZones(spec, seconds)) };
 }
 
+// Sidechain : la nappe du schéma, seule (orbite 12) puis baissée par un déclencheur MUET
+// (sinusoïde à gain(0), quatre coups par cycle) sur sa propre orbite. Le rapport des deux
+// rendus donne le volume de l'orbite, échantillon par échantillon.
+const PAD_AT = (o) => `note("[c2,c3]").sound("sawtooth").lpf(900).orbit(${o})`;
+export const DUCK_CASES = [
+  { key: 'duck:100-20', orbit: 14, p: { duckdepth: 1, duckattack: 0.2 } }, // l'entrée duck du wiki
+  { key: 'duck:75-20', orbit: 13, p: { duckdepth: 0.75, duckattack: 0.2 } },
+  { key: 'duck:30-45', orbit: 15, p: { duckdepth: 0.3, duckattack: 0.45 } },
+  { key: 'duck:90-02', orbit: 16, p: { duckdepth: 0.9, duckattack: 0.02 } },
+  { key: 'duck:0-20', orbit: 17, p: { duckdepth: 0, duckattack: 0.2 } },
+];
+function DUCK_RENDERS_LIST() {
+  return [
+    { key: 'duck:dry', code: PAD_AT(12), seconds: 1.9 },
+    { key: 'duck:ghost', code: 'note("c1*4").sound("sine").gain(0).orbit(18)', seconds: 1.9 },
+    ...DUCK_CASES.map((c) => ({ key: c.key, duck: true, seconds: 1.9, code: `stack(${PAD_AT(c.orbit)}, note("c1*4").sound("sine").gain(0).duck(${c.orbit}).duckdepth(${c.p.duckdepth}).duckattack(${c.p.duckattack}))` })),
+  ];
+}
+// Volume de l'orbite mesuré : rapport rendu baissé / rendu seul, là où la nappe est assez forte.
+function duckRatio(key) {
+  const A = rendered(key);
+  const B = rendered('duck:dry');
+  let peak = 0;
+  for (const v of B) peak = Math.max(peak, Math.abs(v));
+  return { A, B, peak, at: (t0, t1, min = 0.2) => {
+    const out = [];
+    for (let i = Math.max(0, Math.round(t0 * SR)); i <= Math.min(B.length - 1, Math.round(t1 * SR)); i++) if (Math.abs(B[i]) >= min * peak) out.push({ t: i / SR, r: A[i] / B[i] });
+    return out;
+  } };
+}
+const kicksOf = (key) => (window.__duckCalls[key] || []).slice().sort((a, b) => a.e - b.e);
+
+// Le dessin = le volume réel de l'orbite. Deux comparaisons :
+//  - la formule de l'app (duckGain) avec l'instant du calcul noté pendant le rendu ;
+//  - le DESSIN lui-même (calcul supposé 10 ms avant le coup), hors des 10 ms qui précèdent
+//    chaque coup : la descente y commence au moment où la page traite l'événement.
+export function sidechainVsDrawing(key) {
+  const c = DUCK_CASES.find((x) => x.key === key);
+  const { A, B, peak } = duckRatio(key);
+  const calls = kicksOf(key);
+  const ideal = calls.map((k) => ({ e: k.e, l: k.e - DUCK_LEAD }));
+  let formula = 0;
+  let drawn = 0;
+  let lead = 0;
+  for (let i = 0; i < A.length; i++) {
+    const t = i / SR;
+    formula = Math.max(formula, Math.abs(A[i] - duckGain(t, c.p, calls) * B[i]));
+    const d = Math.abs(A[i] - duckGain(t, c.p, ideal) * B[i]);
+    if (ideal.some((k) => t >= k.l && t < k.e)) lead = Math.max(lead, d);
+    else drawn = Math.max(drawn, d);
+  }
+  const ok = calls.length === 4 && calls.every((k) => k.onFrame && !k.error) && formula / peak < 1e-4 && drawn / peak < 1e-4;
+  return {
+    ok,
+    detail: `${calls.length} coups, calcul ${calls.map((k) => ((k.e - k.l) * 1000).toFixed(1)).join(' / ')} ms avant ; écart / crête : formule ${(formula / peak).toExponential(1)}, dessin ${(drawn / peak).toExponential(1)} hors des 10 ms avant chaque coup (dedans : ${(lead / peak).toExponential(1)})`,
+  };
+}
+
 // Rendus superdough dont les faits ont besoin. Les effets d'orbite (écho, réverbération)
 // sont PARTAGÉS par orbite dans superdough : chaque mesure d'effet a la sienne, sinon un
 // écho à 0,98 continuerait de sonner dans les rendus suivants.
@@ -262,6 +346,8 @@ export const FACT_RENDERS = [
   { key: 'fx:dist2', code: 'note("c3").sound("sine").distort(2)', seconds: 0.6 },
   { key: 'fact:12db', code: 'note("c2").sound("sawtooth").lpf(500)', seconds: 0.4 },
   { key: 'fact:24db', code: 'note("c2").sound("sawtooth").lpf(500).ftype("24db")', seconds: 0.4 },
+  // Sidechain (avant l'écho à 0,98, qui déborde sur tout ce qui suit).
+  ...DUCK_RENDERS_LIST(),
   // En dernier : un écho à 0,98 sonne encore des dizaines de secondes après, sur toutes les orbites.
   { key: 'fx:echo-max', code: 'note("c4 ~ ~ ~").sound("triangle").decay(.1).sustain(0).delay(.6).delaytime(.25).delayfeedback(1.5).orbit(4)', seconds: 1.9 },
 ];
@@ -475,7 +561,7 @@ export async function patternScheduling() {
   const pat = window.sound(window.mini('bd hh sd hh'));
   const snd = createPatternSound(fake, () => pat, () => cps);
   try {
-    snd.start();
+    await snd.start(); // démarre une fois les AudioWorklets prêts
     for (let i = 0; i < 120; i++) {
       fake.currentTime += 0.04;
       if (i === 60) cps = 1; // le tempo double en route
@@ -560,7 +646,8 @@ export async function effetVsCode(spec) {
   const theirs = pat.queryArc(0, 1).filter((h) => h.hasOnset()).map((h) => h.value);
   const mine = effetPattern(st).queryArc(0, 1).filter((h) => h.hasOnset()).map((h) => h.value);
   const ex = TYPES.effet.expect(st);
-  const bad = Object.entries(ex).filter(([k, v]) => theirs.some((h) => h[k] !== v) || mine.some((h) => h[k] !== v));
+  const on = (h) => (TYPES.effet.expectOn ? TYPES.effet.expectOn(st, h) : true);
+  const bad = Object.entries(ex).filter(([k, v]) => !theirs.some(on) || theirs.filter(on).some((h) => h[k] !== v) || mine.filter(on).some((h) => h[k] !== v));
   return { ok: theirs.length > 0 && JSON.stringify(theirs) === JSON.stringify(mine) && !bad.length, code, bad: bad.map(([k]) => k).join(', ') };
 }
 const peakIn = (x, t0, t1) => {
@@ -601,6 +688,74 @@ export function cycleMission(id, motifs) {
 
 /* --- 5. Les faits du « Creuser » -------------------------------------------------------- */
 export const FACTS = {
+  // Sidechain. Mesures sur les coups à 0,5 / 1 / 1,5 s (le coup à 0 tombe sur le début de la
+  // nappe, encore silencieuse). Rapport rendu baissé / rendu seul (voir duckRatio).
+  'duck.plancher'() {
+    const rows = [];
+    let ok = true;
+    for (const key of ['duck:100-20', 'duck:75-20', 'duck:30-45', 'duck:0-20']) {
+      const c = DUCK_CASES.find((x) => x.key === key);
+      const m = duckRatio(key);
+      const want = duckFloor(c.p.duckdepth);
+      for (const e of [0.5, 1, 1.5]) {
+        const pts = m.at(e - 0.0005, e + 0.0005, 0.05);
+        const got = Math.min(...pts.map((p) => p.r));
+        if (!(pts.length && Math.abs(got - want) <= 0.02 * want + 1e-4)) ok = false;
+        if (e === 1) rows.push(`duckdepth(${c.p.duckdepth}) : ${got.toFixed(4)} (1 − √d = ${want.toFixed(4)})`);
+      }
+    }
+    return { ok, detail: 'fond du creux au coup, mesuré : ' + rows.join(' · ') };
+  },
+  'duck.remontee'() {
+    const rows = [];
+    let ok = true;
+    for (const key of ['duck:100-20', 'duck:75-20', 'duck:30-45']) {
+      const c = DUCK_CASES.find((x) => x.key === key);
+      const m = duckRatio(key);
+      const h = duckFloor(c.p.duckdepth);
+      const a = c.p.duckattack;
+      // Coups à 0,5 et 1 s : après celui de 1,5 s, la remontée de 0,45 s dépasse la fin du rendu.
+      for (const e of [0.5, 1]) {
+        // À mi-remontée : √h (exponentielle) ; une droite donnerait (1 + h) / 2.
+        const mid = m.at(e + a / 2 - 0.001, e + a / 2 + 0.001, 0.1);
+        const got = mid.reduce((x, p) => x + p.r * Math.pow(1 / h, -(p.t - e - a / 2) / a), 0) / mid.length;
+        // Remonté à 1 dès e + duckattack.
+        const after = m.at(e + a + 0.001, e + a + 0.02);
+        const back = Math.max(...after.map((p) => Math.abs(p.r - 1)));
+        if (!(mid.length && after.length && Math.abs(got - Math.sqrt(h)) <= 0.01 * Math.sqrt(h) && back < 1e-3)) ok = false;
+        if (e === 1) rows.push(`duckdepth(${c.p.duckdepth}).duckattack(${a}) : ${got.toFixed(4)} à mi-chemin (√plancher = ${Math.sqrt(h).toFixed(4)} ; une droite : ${((1 + h) / 2).toFixed(4)}), 1 à ${back.toExponential(0)} près après ${a} s`);
+      }
+    }
+    return { ok, detail: rows.join(' · ') };
+  },
+  'duck.pile'() {
+    const rows = [];
+    let ok = true;
+    for (const key of ['duck:100-20', 'duck:75-20', 'duck:90-02']) {
+      const c = DUCK_CASES.find((x) => x.key === key);
+      const m = duckRatio(key);
+      const h = duckFloor(c.p.duckdepth);
+      for (const e of [0.5, 1, 1.5]) {
+        // Rien ne bouge plus de 10 ms avant le coup ; le fond est atteint au coup, pas avant.
+        const before = m.at(e - 0.03, e - DUCK_LEAD - 0.0002, 0.05);
+        const untouched = Math.max(...before.map((p) => Math.abs(p.r - 1)));
+        const early = m.at(e - 0.0015, e - 0.0008, 0.05);
+        const notYet = Math.min(...early.map((p) => p.r));
+        if (!(before.length && early.length && untouched < 1e-3 && notYet > h * 1.05)) ok = false;
+        if (e === 1) rows.push(`duckdepth(${c.p.duckdepth}) : volume intact jusqu’à 10 ms avant (écart ${untouched.toExponential(0)}), encore ${notYet.toFixed(3)} 1 ms avant le coup, fond ${h.toFixed(3)} au coup`);
+      }
+    }
+    const leads = kicksOf('duck:75-20').map((k) => ((k.e - k.l) * 1000).toFixed(1));
+    return { ok, detail: rows.join(' · ') + ` · dans ce rendu, la descente a commencé ${leads.join(' / ')} ms avant les coups` };
+  },
+  'duck.fantome'() {
+    const ghost = rendered('duck:ghost');
+    let peak = 0;
+    for (const v of ghost) peak = Math.max(peak, Math.abs(v));
+    const m = duckRatio('duck:100-20');
+    const got = Math.min(...m.at(0.9995, 1.0005, 0.05).map((p) => p.r));
+    return { ok: peak === 0 && Math.abs(got - 0.01) < 5e-4, detail: `le déclencheur seul (sinusoïde à gain(0)) : crête ${peak} ; il fait pourtant tomber l’orbit visée à ${got.toFixed(4)} (duckdepth(1))` };
+  },
   async 'filtre.q-db'() {
     const ac = window.getAudioContext();
     const f = ac.createBiquadFilter();

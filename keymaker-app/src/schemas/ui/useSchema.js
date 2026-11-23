@@ -4,7 +4,7 @@
 // fois, missions vérifiées pendant que ça joue, inscription auprès de Sati.
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { stateFromSpec, clamp, summarize } from '../catalog.js';
-import { createMissionRunner, pickMissions } from '../core/missions.js';
+import { createMissionRunner, missionsFor } from '../core/missions.js';
 import * as audio from '../core/audio.js';
 import { showSchema } from '../core/visible.js';
 
@@ -29,9 +29,8 @@ export function useSchema(def, spec, { ear = null, context = 'lecon' } = {}) {
   // Missions (jamais dans une question d'écoute : là, on cherche, on ne s'exerce pas).
   const missionDefs = useMemo(() => {
     if (ear) return [];
-    // Un type à plusieurs modes (clavier) choisit ses missions par défaut selon le mode.
-    const ids = spec.missions ?? (def.modeMissions ? def.modeMissions[stateFromSpec(spec).o.mode] : undefined);
-    return pickMissions(def, ids);
+    // Un type à plusieurs modes (clavier, effet) choisit ses missions par défaut selon le mode.
+    return missionsFor(def, spec, stateFromSpec(spec));
   }, [def, spec, ear]);
   const runner = useMemo(() => createMissionRunner(missionDefs), [missionDefs]);
   const [done, setDone] = useState([]);

@@ -13,7 +13,7 @@ const STEPS = Number(arg('--steps', 120));
 const srv = await serve(join(here, '..', arg('--dir', 'dist-pi')), 0, { base: '/keymaker/app/' });
 const browser = await launchBrowser();
 const ONLY = arg('--only', null);
-const ALL_ROUTES = ['fx.lpq', 'fx.bpf', 'fx.adsr', 'fx.attack', 'son.ondes', 'fx.lpenv', 'mini.chevrons', 'sol.tempo', 'sol.gamme', 'sol.accord', 'sol.octave', 'fn.signaux', 'fx.delay', 'fx.room', 'fx.distort'];
+const ALL_ROUTES = ['fx.lpq', 'fx.bpf', 'fx.adsr', 'fx.attack', 'son.ondes', 'fx.lpenv', 'mini.chevrons', 'sol.tempo', 'sol.gamme', 'sol.accord', 'sol.octave', 'fn.signaux', 'fx.delay', 'fx.room', 'fx.distort', 'fx.duck'];
 const ROUTES = ONLY ? ONLY.split(',') : ALL_ROUTES;
 let bad = 0;
 for (const id of ROUTES) {

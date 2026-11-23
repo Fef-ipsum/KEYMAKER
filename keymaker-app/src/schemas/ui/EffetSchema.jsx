@@ -1,8 +1,9 @@
 // Schéma « effet » : écho (les répétitions sur une ligne de temps), réverbération (la
-// traîne), distorsion (la courbe, et l'onde avant / après). Formules de superdough,
-// vérifiées par mesure (scripts/check-schemas.mjs). Son : superdough lui-même.
-import { useMemo, useRef } from 'react';
-import def, { echoes, reverbEnv, scurve } from '../types/effet.js';
+// traîne), distorsion (la courbe, et l'onde avant / après), sidechain (le volume de la
+// nappe à chaque coup de kick). Formules de superdough, vérifiées par mesure
+// (scripts/check-schemas.mjs). Son : superdough lui-même.
+import { useEffect, useMemo, useRef, useState } from 'react';
+import def, { echoes, reverbEnv, scurve, duckGain, duckKicks, duckFloor } from '../types/effet.js';
 import { createPatternSound, effetPattern } from './pattern.js';
 import { useSchema } from './useSchema.js';
 import { useWidth, Slider, CodeLine, HoldButton, PlayButton, Missions, Deep, Warn } from './parts.jsx';
@@ -24,6 +25,23 @@ export default function EffetSchema({ spec, context = 'lecon' }) {
   const pat = useMemo(() => effetPattern(st, s.bypass), [JSON.stringify(st.p), mode, s.bypass]);
   const patRef = useRef(pat);
   patRef.current = pat;
+
+  // Tête de lecture (sidechain) : où en est la lecture dans le cycle de 2 s.
+  const [head, setHead] = useState(null);
+  useEffect(() => {
+    if (!s.playing || mode !== 'sidechain') {
+      setHead(null);
+      return undefined;
+    }
+    let raf = 0;
+    const loop = () => {
+      const p = s.sound.current && s.sound.current.position && s.sound.current.position();
+      if (p != null && p >= 0) setHead((p / 0.5) % 2);
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [s.playing, mode]);
   const toggle = () => {
     if (s.playing) return s.unclaim();
     const snd = s.ensureSound((ac) => createPatternSound(ac, () => patRef.current, () => 0.5));
@@ -72,6 +90,35 @@ export default function EffetSchema({ spec, context = 'lecon' }) {
         </svg>
       </>
     );
+  } else if (mode === 'sidechain') {
+    const span = 2; // un cycle au tempo de Keymaker : quatre coups de kick
+    const top = 30; // place pour la légende, au-dessus du volume plein
+    const x = (t) => L + (t / span) * (W - L - R);
+    const y = (v) => top + (1 - Math.min(1, v)) * (H - top - B);
+    const kicks = duckKicks(0, span);
+    const floor = duckFloor(st.p.duckdepth);
+    // Points réguliers, plus chaque début de descente et chaque coup (la descente dure 10 ms).
+    const ts = [...Array.from({ length: 401 }, (_, i) => (i / 400) * span), ...kicks.flatMap((k) => [k.l, k.e])].filter((t) => t >= 0 && t <= span).sort((a, b) => a - b);
+    const g = (t) => (s.bypass ? 1 : duckGain(t, st.p, kicks));
+    const hits = kicks.filter((k) => k.e >= 0 && k.e < span);
+    drawing = (
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="sch-svg" role="img" aria-label={s.bypass ? 'Sans le sidechain : le volume de la nappe reste à 100 %.' : `À chaque coup de kick, le volume de la nappe tombe à ${Math.round(floor * 100)} % puis remonte en ${frNum(st.p.duckattack, 2)} s.`}>
+        {[0, 0.5, 1, 1.5, 2].map((t) => (
+          <g key={t} className="sch-grid">
+            <line x1={x(t)} x2={x(t)} y1={top} y2={H - B} />
+            <text x={x(t)} y={H - 7} textAnchor="middle">{frNum(t, 1)} s</text>
+          </g>
+        ))}
+        <line className="sch-zero" x1={L} x2={W - R} y1={y(0)} y2={y(0)} />
+        <path className="sch-fill sch-fill-gold" d={'M ' + x(0) + ' ' + y(0) + ' ' + ts.map((t) => 'L ' + x(t).toFixed(1) + ' ' + y(g(t)).toFixed(1)).join(' ') + ` L ${x(span)} ${y(0)} Z`} />
+        <text className="sch-axis-t" x={L - 5} y={y(1) + 4} textAnchor="end">100 %</text>
+        {!s.bypass ? <line className="sch-curve sch-curve-ideal" x1={L} x2={W - R} y1={y(floor)} y2={y(floor)} /> : null}
+        {!s.bypass && y(floor) - y(1) > 14 ? <text className="sch-axis-t" x={L - 5} y={y(floor) + 4} textAnchor="end">{Math.round(floor * 100)} %</text> : null}
+        {hits.map((k) => <rect key={k.e} className="sch-bar-dry" x={x(k.e) - 3} y={y(0) - 14} width={6} height={14} rx={2} />)}
+        {head != null ? <line className="sch-head" x1={x(head)} x2={x(head)} y1={top - 4} y2={H - B} /> : null}
+        <text className="sch-axis-t" x={L} y={16}>{W < 520 ? 'nappe (doré) · kick (bleu) · plancher (pointillés)' : 'volume de la nappe (doré) · coups du kick (bleu) · plancher (pointillés)'}</text>
+      </svg>
+    );
   } else {
     const span = mode === 'echo' ? 2 : Math.max(2, Math.min(12, 1.5 * st.p.size));
     const x = (t) => L + (t / span) * (W - L - R);
@@ -109,7 +156,7 @@ export default function EffetSchema({ spec, context = 'lecon' }) {
         {def.keys(st).map((k) => <Slider key={k} def={def} k={k} value={st.p[k]} codeName={def.paramCode(st, k)} onChange={s.setParam} disabled={!s.can(k)} />)}
       </div>
       <Warn text={def.warn(st)} />
-      <CodeLine parts={[{ t: s.bypass ? def.codeText(st).replace(/\.(delay|room|distort)\(.*$/, '') : def.codeText(st), k: 'all' }]} glow={{ k: s.glow.n ? 'all' : null, n: s.glow.n }} note={s.bypass ? 'Pendant que tu maintiens : la même note, sans l’effet.' : null} />
+      <CodeLine parts={[{ t: s.bypass ? def.bypassText(st) : def.codeText(st), k: 'all' }]} glow={{ k: s.glow.n ? 'all' : null, n: s.glow.n }} note={s.bypass ? (mode === 'sidechain' ? 'Pendant que tu maintiens : le même kick et la même nappe, sans le sidechain.' : 'Pendant que tu maintiens : la même note, sans l’effet.') : null} />
       <Missions missions={s.missions} done={s.done} fresh={s.fresh} />
       <Deep facts={def.facts.filter((f) => f.modes.includes(mode))} />
     </div>

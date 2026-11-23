@@ -46,6 +46,7 @@ Certaines étapes déclarent un **schéma vivant** (le filtre, l'enveloppe… vo
 - Le schéma fait **comprendre** la notion (on voit la bosse grandir en l'entendant siffler) ; le code fait **apprendre** la syntaxe. Aucun bouton du schéma n'écrit dans l'éditeur : l'exercice « À toi » reste à faire.
 - Ses deux ou trois **missions** se valident toutes seules pendant que ça joue, et chaque réussite fait apparaître une phrase de compréhension. Elles ne bloquent rien : l'étape se valide toujours par le code.
 - Un seul son à la fois : toucher ▶ arrête le schéma, et inversement.
+- Une notion que les leçons n'enseignent pas encore (le sidechain, `duck`) n'a son schéma que dans le wiki : on ne glisse pas une notion nouvelle dans une leçon qui parle d'autre chose.
 
 ### Les deux vitesses
 

@@ -101,7 +101,8 @@ export function createPatternSound(ac, getPattern, getCps) {
       // doivent être chargés dans le contexte avant le premier son, sinon superdough
       // échoue (« AudioWorklet does not have a valid AudioWorkletGlobalScope »), ce qui
       // arrive quand un schéma est la toute première chose qu'on fait jouer.
-      workletsReady(ac).then(begin, begin);
+      // Renvoie la promesse du démarrage (le banc de test l'attend).
+      return workletsReady(ac).then(begin, begin);
     },
     stop() {
       wanted = false;
@@ -140,6 +141,13 @@ export const signalAt = (sig, t) => {
 // Mêmes appels que la ligne de code (vérifié par le banc). bypass : sans l'effet.
 export function effetPattern(st, bypass = false) {
   const p = st.p;
+  if (st.o.effet === 'sidechain') {
+    // stack(nappe sur l'orbite 2, kick qui la fait plonger) — la nappe d'abord : l'orbite
+    // visée doit exister quand le premier coup demande de la baisser.
+    const pad = window.note(window.mini('[c2,c3]')).s(window.mini('sawtooth')).lpf(900).orbit(2);
+    const kick = window.s(window.mini('bd*4'));
+    return window.stack(pad, bypass ? kick : kick.duck(2).duckdepth(p.duckdepth).duckattack(p.duckattack));
+  }
   if (st.o.effet === 'distort') {
     const base = window.note(window.mini('c3')).s(window.mini('sine'));
     return bypass ? base : base.distort(p.distort);

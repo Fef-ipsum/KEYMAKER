@@ -32,6 +32,15 @@ export function createMissionRunner(defs) {
   };
 }
 
+// Les missions d'un schéma déclaré : celles nommées par les données (`missions`), sinon
+// celles de son mode (types à plusieurs modes : `modeMissions`, mode lu par `modeOf`),
+// sinon celles par défaut. Même choix dans l'app (useSchema) et dans le banc de test.
+export function missionsFor(def, spec, st) {
+  const mode = def.modeOf ? def.modeOf(st) : st.o.mode;
+  const ids = spec.missions ?? (def.modeMissions ? def.modeMissions[mode] : undefined);
+  return pickMissions(def, ids);
+}
+
 // Choisit les missions d'un schéma : celles nommées par les données, sinon celles par défaut.
 export function pickMissions(def, ids) {
   const all = def.missions || [];

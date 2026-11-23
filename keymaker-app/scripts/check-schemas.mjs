@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 import { launchBrowser } from './browser.mjs';
 import { serve } from './static-server.mjs';
 import { TYPES, validateSpec, stateFromSpec, codeText, earCompare, describeCatalog, parseSchemaBlock, fromPos } from '../src/schemas/catalog.js';
-import { createMissionRunner, pickMissions } from '../src/schemas/core/missions.js';
+import { createMissionRunner, pickMissions, missionsFor } from '../src/schemas/core/missions.js';
 import { allSchemas } from '../src/content/registry.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -51,7 +51,10 @@ for (const x of all) {
 for (const x of all.filter((y) => !y.ear)) {
   const def = TYPES[x.spec.type];
   const st = stateFromSpec(x.spec);
-  const runner = createMissionRunner(pickMissions(def, x.spec.missions));
+  const picked = missionsFor(def, x.spec, st);
+  // Chaque schéma du contenu propose des missions, sauf refus explicite (`missions: []`).
+  check(picked.length > 0 || Array.isArray(x.spec.missions), 'des missions sont proposées : ' + x.where, 'aucune mission trouvée pour ce mode');
+  const runner = createMissionRunner(picked);
   const got = runner.update({ p: st.p, o: st.o, written: st.written, playing: true, holding: false, heldFor: 0, taps: 0, root0: st.o.root });
   check(!got.length, 'aucune mission gagnée sans geste : ' + x.where, got.join(', '));
 }
@@ -88,6 +91,8 @@ const SCRIPTS = {
     traine: [{ playing: true, changed: true, effet: 'echo', delayfeedback: 0.85 }],
     cathedrale: [{ playing: true, changed: true, effet: 'reverb', size: 5, room: 0.6 }],
     sature: [{ playing: true, changed: true, effet: 'distort', distort: 3.5 }],
+    pompe: [{ playing: true, changed: true, effet: 'sidechain', duckdepth: 0.9, duckattack: 0.35 }],
+    trou: [{ playing: true, changed: true, effet: 'sidechain', duckdepth: 0.7, duckattack: 0.03 }],
   },
   signal: {
     lent: [{ playing: true, changed: true, slow: 8 }],
@@ -374,9 +379,14 @@ for (const sp of [...all.filter((x) => x.spec.type === 'signal').map((x) => x.sp
   check(r.ok, 'signal : ' + r.code, `coupures par note = ligne de code (écart ${r.maxDiff}) = signal au début de la note (${r.maxStep})`);
 }
 
-for (const sp of [...all.filter((x) => x.spec.type === 'effet').map((x) => x.spec), { type: 'effet', effet: 'reverb', reglages: { room: 0.2, size: 7.5 } }, { type: 'effet', effet: 'distort', reglages: { distort: 5.5 } }]) {
+for (const sp of [...all.filter((x) => x.spec.type === 'effet').map((x) => x.spec), { type: 'effet', effet: 'reverb', reglages: { room: 0.2, size: 7.5 } }, { type: 'effet', effet: 'distort', reglages: { distort: 5.5 } }, { type: 'effet', effet: 'sidechain', reglages: { duckdepth: 0.35, duckattack: 0.45 } }, { type: 'effet', effet: 'sidechain', reglages: { duckdepth: 0, duckattack: 0.02 } }]) {
   const r = await bench('effetVsCode', sp);
   check(r.ok, 'effet : ' + r.code, r.bad ? 'valeurs différentes : ' + r.bad : 'mêmes valeurs que la ligne de code évaluée par Strudel');
+}
+// Sidechain : la courbe dessinée = le volume réel de l'orbite (rendu superdough suspendu).
+for (const key of await page.evaluate(() => window.__bench.DUCK_CASES.map((c) => c.key))) {
+  const r = await bench('sidechainVsDrawing', key);
+  check(r.ok, `sidechain ${key.replace('duck:', 'duckdepth/duckattack ')} : courbe dessinée = volume mesuré de l’orbit`, r.detail);
 }
 
 section('[B5] les faits du « Creuser », mesurés');
