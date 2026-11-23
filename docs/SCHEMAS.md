@@ -390,7 +390,7 @@ Les rendus d'effets se font chacun sur leur propre orbite : dans superdough, l'�
 
 ## 7. Derniers résultats
 
-Voir le rapport de session et `scripts/out/schemas-report.json` (régénéré à chaque `npm run check:schemas`). Au 23 novembre 2026, vague 5 terminée : **583 vérifications, 0 en échec** ; sons identiques à Strudel à moins de 3,4·10⁻⁶ près hors zones de rangement (≈ 10⁻⁵ de la crête) ; sidechain : volume dessiné = volume mesuré de l'orbite à 1,5·10⁻⁵ de la crête près, hors des 10 ms qui précèdent chaque coup (§2.10).
+Voir le rapport de session et `scripts/out/schemas-report.json` (régénéré à chaque `npm run check:schemas`). Au 23 novembre 2026, vague 5 terminée : **583 vérifications, 0 en échec** ; sons identiques à Strudel à moins de 3,4·10⁻⁶ près hors zones de rangement (≈ 10⁻⁵ de la crête) ; sidechain : volume dessiné = volume mesuré de l'orbite à 1,5·10⁻⁵ de la crête près, hors des 10 ms qui précèdent chaque coup (§2.10). Gestes au hasard (`npm run fuzz:schemas`) : les 16 schémas tiennent (« Aucun schéma ne plante. »). `npm run smoke` : tout passe sauf la police de guitare `gm_*`, que le conteneur de travail ne peut pas télécharger (sans rapport avec les schémas).
 
 ---
 
