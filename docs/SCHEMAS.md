@@ -155,7 +155,12 @@
 
 **Pourquoi c'était difficile à vérifier.** L'heure `l` dépend du moment où la page traite l'événement. En temps réel, quelques millisecondes après l'arrêt de la source. Hors temps réel, le rendu continue pendant ce temps : `l` variait d'un rendu à l'autre, et la courbe ne pouvait pas être comparée à l'échantillon près.
 
-**La solution.** Le banc **suspend le rendu** (`OfflineAudioContext.suspend`) à la fin du bloc de 128 échantillons où la source s'arrête (avec un échantillon de marge, sinon un arrêt tombé sur une frontière de bloc laisse partir le calcul plus tard : vu une fois). Il attend que la page traite l'événement, puis il reprend. Le calcul tombe alors toujours au même échantillon, que le banc note. Trois rendus de suite donnent exactement le même résultat. Superdough n'est pas modifié : seul le rythme du rendu l'est.
+**La solution.** Le banc **suspend le rendu** (`OfflineAudioContext.suspend`) juste après le bloc de 128 échantillons où la source s'arrête, attend que la page traite l'événement, puis reprend. Deux précautions, chacune apprise sur un rendu complet où 2 coups sur 20 étaient faux :
+
+- la page pouvait traiter l'événement **pendant** le rendu de ce bloc, en lisant une heure que le moteur avait déjà dépassée. Le banc suspend donc d'abord deux blocs plus tôt, puis relance le rendu en **bloquant la page 50 ms** : le moteur rend les deux blocs seul et s'arrête à la suspension suivante, et la page ne traite l'événement qu'à ce moment-là ;
+- un échantillon de marge : un arrêt tombé à un cheveu d'une frontière de bloc finit dans le bloc suivant.
+
+Le banc **relève l'heure que superdough donne réellement** à `setValueAtTime` sur le volume de l'orbite (observation seulement) et exige qu'elle égale celle de la suspension. Superdough n'est pas modifié : seul le rythme du rendu l'est.
 
 **La mesure.** La nappe est rendue seule, puis baissée par un déclencheur **muet** (sinusoïde à `gain(0)`) sur sa propre orbite. Le rapport des deux rendus est le volume de l'orbite, échantillon par échantillon. Cinq réglages (`duckdepth`/`duckattack` : 1/0,2 · 0,75/0,2 · 0,3/0,45 · 0,9/0,02 · 0/0,2) :
 

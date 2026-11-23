@@ -165,13 +165,27 @@ window.__renders = window.__renders || {};
 // 128 échantillons où cette source s'arrête, le temps que la page traite l'événement, puis
 // on reprend. Le calcul tombe alors toujours au même échantillon ; on le note.
 window.__duckCalls = window.__duckCalls || {};
-// Marge d'un échantillon : si l'arrêt tombe à un cheveu d'une frontière de bloc, la source
-// finit dans le bloc SUIVANT ; suspendre sur cette frontière laisserait le calcul partir plus
-// tard (vu une fois sur un rendu complet : calcul noté 10,0 ms avant, courbe fausse).
-// Au plus 257 échantillons après l'arrêt : toujours avant le coup (441 échantillons).
+window.__duckSet = window.__duckSet || {};
+// Deux précautions, chacune apprise sur un rendu complet :
+//  - la page peut traiter l'événement PENDANT le rendu du bloc où la source s'arrête (elle
+//    lit alors une heure déjà dépassée par le moteur) : on suspend donc d'abord deux blocs
+//    plus tôt, puis on relance le rendu en BLOQUANT la page 50 ms ; le moteur rend ces deux
+//    blocs et s'arrête seul à la suspension suivante, et la page ne traite l'événement
+//    qu'ensuite, à l'heure de cette suspension ;
+//  - marge d'un échantillon : un arrêt tombé à un cheveu d'une frontière de bloc finit dans
+//    le bloc suivant. Au plus 257 échantillons après l'arrêt : avant le coup (441).
+// L'heure réellement utilisée par superdough est relevée (duckSpy) et doit égaler celle
+// de la suspension.
 function holdAfterTrigger(ac, t, key, offset) {
   const frame = (Math.floor(((t - DUCK_LEAD) * SR + 1) / 128) + 1) * 128;
   const list = window.__duckCalls[key];
+  ac.suspend((frame - 256 + 0.25) / SR).then(() => {
+    ac.resume();
+    const until = performance.now() + 50;
+    while (performance.now() < until) {
+      /* la page attend : le moteur rend les deux blocs sans elle */
+    }
+  });
   ac.suspend((frame + 0.25) / SR).then(
     async () => {
       const at = ac.currentTime;
@@ -211,9 +225,31 @@ export async function renderStrudelAll(items) {
         await window.superdough({ ...h.value }, p.offset + begin / cps, h.duration.valueOf() / cps, cps, begin);
       }
     }
+    // Sidechain : relève l'heure que superdough donne à setValueAtTime sur le volume de
+    // chaque orbite visée (observation seulement, l'appel d'origine est fait tel quel).
+    const spied = new Map();
+    for (const p of plans) {
+      if (!p.duck) continue;
+      const orbit = window.getSuperdoughAudioController().nodes[p.duckOrbit];
+      if (orbit && orbit.output) spied.set(orbit.output.gain, p);
+      window.__duckSet[p.key] = [];
+    }
+    const realSet = AudioParam.prototype.setValueAtTime;
+    if (spied.size) {
+      AudioParam.prototype.setValueAtTime = function (v, when) {
+        const p = spied.get(this);
+        if (p) window.__duckSet[p.key].push({ l: when - p.offset, now: ac.currentTime - p.offset, c: v });
+        return realSet.call(this, v, when);
+      };
+    }
     // La réponse de la réverbération est générée de façon asynchrone : on lui laisse le temps.
     await new Promise((r) => setTimeout(r, 1500));
-    const x = (await ac.startRendering()).getChannelData(0);
+    let x;
+    try {
+      x = (await ac.startRendering()).getChannelData(0);
+    } finally {
+      AudioParam.prototype.setValueAtTime = realSet;
+    }
     for (const p of plans) window.__renders[p.key] = x.slice(Math.round(p.offset * SR), Math.round((p.offset + p.seconds) * SR));
     return plans.length;
   } finally {
@@ -280,7 +316,7 @@ function DUCK_RENDERS_LIST() {
   return [
     { key: 'duck:dry', code: PAD_AT(12), seconds: 1.9 },
     { key: 'duck:ghost', code: 'note("c1*4").sound("sine").gain(0).orbit(18)', seconds: 1.9 },
-    ...DUCK_CASES.map((c) => ({ key: c.key, duck: true, seconds: 1.9, code: `stack(${PAD_AT(c.orbit)}, note("c1*4").sound("sine").gain(0).duck(${c.orbit}).duckdepth(${c.p.duckdepth}).duckattack(${c.p.duckattack}))` })),
+    ...DUCK_CASES.map((c) => ({ key: c.key, duck: true, duckOrbit: c.orbit, seconds: 1.9, code: `stack(${PAD_AT(c.orbit)}, note("c1*4").sound("sine").gain(0).duck(${c.orbit}).duckdepth(${c.p.duckdepth}).duckattack(${c.p.duckattack}))` })),
   ];
 }
 // Volume de l'orbite mesuré : rapport rendu baissé / rendu seul, là où la nappe est assez forte.
@@ -316,10 +352,13 @@ export function sidechainVsDrawing(key) {
     if (ideal.some((k) => t >= k.l && t < k.e)) lead = Math.max(lead, d);
     else drawn = Math.max(drawn, d);
   }
-  const ok = calls.length === 4 && calls.every((k) => k.onFrame && !k.error) && formula / peak < 1e-4 && drawn / peak < 1e-4;
+  // Heures réellement données par superdough (setValueAtTime) = heures des suspensions.
+  const real = (window.__duckSet[key] || []).map((x) => x.l).sort((a, b) => a - b);
+  const same = real.length === calls.length && real.every((l, i) => Math.abs(l - calls[i].l) < 0.5 / SR);
+  const ok = calls.length === 4 && same && calls.every((k) => k.onFrame && !k.error) && formula / peak < 1e-4 && drawn / peak < 1e-4;
   return {
     ok,
-    detail: `${calls.length} coups, calcul ${calls.map((k) => ((k.e - k.l) * 1000).toFixed(1)).join(' / ')} ms avant ; écart / crête : formule ${(formula / peak).toExponential(1)}, dessin ${(drawn / peak).toExponential(1)} hors des 10 ms avant chaque coup (dedans : ${(lead / peak).toExponential(1)})`,
+    detail: `${calls.length} coups, heure du calcul ${same ? '= heure de la suspension' : '≠ suspension (' + real.map((l) => l.toFixed(5)).join(', ') + ')'}, calcul ${calls.map((k) => ((k.e - k.l) * 1000).toFixed(1)).join(' / ')} ms avant ; écart / crête : formule ${(formula / peak).toExponential(1)}, dessin ${(drawn / peak).toExponential(1)} hors des 10 ms avant chaque coup (dedans : ${(lead / peak).toExponential(1)})`,
   };
 }
 
