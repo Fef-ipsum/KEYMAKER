@@ -164,8 +164,8 @@ Le banc **relève l'heure que superdough donne réellement** à `setValueAtTime`
 
 **La mesure.** La nappe est rendue seule, puis baissée par un déclencheur **muet** (sinusoïde à `gain(0)`) sur sa propre orbite. Le rapport des deux rendus est le volume de l'orbite, échantillon par échantillon. Cinq réglages (`duckdepth`/`duckattack` : 1/0,2 · 0,75/0,2 · 0,3/0,45 · 0,9/0,02 · 0/0,2) :
 
-- la formule de l'app, avec l'heure notée, colle au rendu à **1,4·10⁻⁵ de la crête** près ;
-- **le dessin lui-même** (calcul supposé 10 ms avant) colle aussi à 1,4·10⁻⁵ près, partout **sauf dans les 10 ms qui précèdent chaque coup**. Là, la descente commence quand la page s'en occupe (dans ces rendus, entre 7,1 et 10 ms avant). À l'échelle du dessin (2 s), 10 ms font un ou deux pixels.
+- la formule de l'app, avec l'heure du calcul, colle au rendu à **1,5·10⁻⁵ de la crête** près au plus ;
+- **le dessin lui-même** (calcul supposé 10 ms avant) colle aussi à 1,5·10⁻⁵ près, partout **sauf dans les 10 ms qui précèdent chaque coup**. Là, la descente commence quand la page s'en occupe (dans ces rendus, entre 7,1 et 10 ms avant). À l'échelle du dessin (2 s), 10 ms font un ou deux pixels.
 
 **Le son** : superdough lui-même, qui joue le même motif que la ligne de code (vérifié comme les autres effets).
 
@@ -390,7 +390,7 @@ Les rendus d'effets se font chacun sur leur propre orbite : dans superdough, l'�
 
 ## 7. Derniers résultats
 
-Voir le rapport de session et `scripts/out/schemas-report.json` (régénéré à chaque `npm run check:schemas`). Au 23 novembre 2026 : toutes les vérifications passent (475) ; sons identiques à Strudel à moins de 3,4·10⁻⁶ près hors zones de rangement (≈ 10⁻⁵ de la crête). Gestes au hasard : les 15 schémas tiennent (« Aucun schéma ne plante. »).
+Voir le rapport de session et `scripts/out/schemas-report.json` (régénéré à chaque `npm run check:schemas`). Au 23 novembre 2026, vague 5 terminée : **583 vérifications, 0 en échec** ; sons identiques à Strudel à moins de 3,4·10⁻⁶ près hors zones de rangement (≈ 10⁻⁵ de la crête) ; sidechain : volume dessiné = volume mesuré de l'orbite à 1,5·10⁻⁵ de la crête près, hors des 10 ms qui précèdent chaque coup (§2.10).
 
 ---
 
