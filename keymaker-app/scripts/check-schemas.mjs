@@ -282,7 +282,9 @@ soundCases.push({ where: 'sans réglage d’enveloppe (4 notes par cycle)', spec
 soundCases.push({ where: 'enveloppe, 8 notes par cycle (attack plus longue que la note)', spec: { type: 'adsr', reglages: { attack: 0.4, decay: 0.1, sustain: 0.5, release: 0.3 }, notes: 8 } });
 for (const t of Object.keys(TYPES).filter((x) => !RHYTHM.has(x))) for (let i = 0; i < (quick ? 2 : 5); i++) soundCases.push({ where: 'au hasard ' + t + ' ' + (i + 1), spec: randomSpec(t) });
 // Tous les rendus superdough d'un coup (voir renderStrudelAll).
-const items = await page.evaluate((specs) => [...specs.map((sp) => window.__bench.strudelItem(sp)), ...window.__bench.FACT_RENDERS, { ...window.__bench.strudelItem({ type: 'filtre', reglages: { lpf: 138, lpq: 27 }, source: 'repetee' }), key: 'self:resonance' }], soundCases.map((c) => c.spec));
+// Le rendu de contrôle « superdough contre lui-même » passe AVANT les faits : le dernier fait
+// (écho à 0,98) sonne encore des dizaines de secondes et déborderait sur lui.
+const items = await page.evaluate((specs) => [...specs.map((sp) => window.__bench.strudelItem(sp)), { ...window.__bench.strudelItem({ type: 'filtre', reglages: { lpf: 138, lpq: 27 }, source: 'repetee' }), key: 'self:resonance' }, ...window.__bench.FACT_RENDERS], soundCases.map((c) => c.spec));
 const uniq = [...new Map(items.map((it) => [it.key, it])).values()];
 const nRendered = await bench('renderStrudelAll', uniq);
 ok(nRendered + ' rendus superdough hors temps réel');
@@ -298,7 +300,7 @@ for (const c of soundCases) {
     const sp = { type: 'filtre', reglages: { lpf: 138, lpq: 27 }, source: 'repetee' };
     return B.compare(Array.from(window.__renders['spec:' + JSON.stringify(sp)] || []), Array.from(window.__renders['self:resonance']), B.teardownZones(sp, 2.3));
   });
-  ok('superdough contre lui-même (lpf 138, lpq 27)', `hors zones de rangement : ${r.maxAbs.toExponential(1)} ; dans ces zones : ${r.zoneAbs.toExponential(1)}`);
+  check(r.maxAbs < 1e-4, 'superdough contre lui-même (lpf 138, lpq 27) : identique hors des zones de rangement', `hors zones de rangement : ${r.maxAbs.toExponential(1)} ; dans ces zones : ${r.zoneAbs.toExponential(1)}`);
   console.log(`  i superdough contre lui-même (lpf 138, lpq 27) : hors zones ${r.maxAbs.toExponential(1)}, dans les zones de rangement ${r.zoneAbs.toExponential(1)}`);
 }
 
