@@ -34,6 +34,18 @@ export function motifEvents(motif, from = 0, to = 4) {
 // Instant (en secondes) de chaque événement, au tempo cps, depuis le début du cycle 0.
 export const onsetSeconds = (ev, cps) => ev.map((x) => x.b / cps);
 
+// Charge une fois par contexte les AudioWorklets de superdough (window.loadWorklets du moteur).
+const workletLoads = new WeakMap();
+export function workletsReady(ac) {
+  if (!workletLoads.has(ac)) {
+    const load = typeof window.loadWorklets === 'function' ? Promise.resolve().then(() => window.loadWorklets()) : Promise.resolve();
+    // Déjà chargés par le moteur : le second chargement peut être refusé (processeurs déjà
+    // enregistrés) ; ce n'est pas une erreur pour nous.
+    workletLoads.set(ac, load.catch(() => {}));
+  }
+  return workletLoads.get(ac);
+}
+
 // Joue un motif par superdough. getPattern() et getCps() sont relus à chaque pas :
 // changer le motif ou le tempo s'entend au pas suivant.
 export function createPatternSound(ac, getPattern, getCps) {
@@ -72,16 +84,27 @@ export function createPatternSound(ac, getPattern, getCps) {
     }
     next = horizon;
   };
+  let wanted = false;
+  const begin = () => {
+    if (!wanted || timer) return;
+    cps = getCps();
+    anchorT = ac.currentTime + 0.12; // un peu d'avance : les sons se chargent
+    anchorC = 0;
+    next = 0;
+    tick();
+    timer = setInterval(tick, 40);
+  };
   return {
     start() {
-      cps = getCps();
-      anchorT = ac.currentTime + 0.12; // un peu d'avance : les sons se chargent
-      anchorC = 0;
-      next = 0;
-      tick();
-      timer = setInterval(tick, 40);
+      wanted = true;
+      // Certains sons de superdough (distorsion…) sont des AudioWorklets : leurs modules
+      // doivent être chargés dans le contexte avant le premier son, sinon superdough
+      // échoue (« AudioWorklet does not have a valid AudioWorkletGlobalScope »), ce qui
+      // arrive quand un schéma est la toute première chose qu'on fait jouer.
+      workletsReady(ac).then(begin, begin);
     },
     stop() {
+      wanted = false;
       clearInterval(timer);
       timer = 0;
     },

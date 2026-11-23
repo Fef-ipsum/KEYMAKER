@@ -12,7 +12,9 @@ const arg = (k, d) => (process.argv.includes(k) ? process.argv[process.argv.inde
 const STEPS = Number(arg('--steps', 120));
 const srv = await serve(join(here, '..', arg('--dir', 'dist-pi')), 0, { base: '/keymaker/app/' });
 const browser = await launchBrowser();
-const ROUTES = ['fx.lpq', 'fx.bpf', 'fx.adsr', 'fx.attack', 'son.ondes', 'fx.lpenv', 'mini.chevrons', 'sol.tempo', 'sol.gamme', 'sol.accord', 'sol.octave', 'fn.signaux', 'fx.delay', 'fx.room', 'fx.distort'];
+const ONLY = arg('--only', null);
+const ALL_ROUTES = ['fx.lpq', 'fx.bpf', 'fx.adsr', 'fx.attack', 'son.ondes', 'fx.lpenv', 'mini.chevrons', 'sol.tempo', 'sol.gamme', 'sol.accord', 'sol.octave', 'fn.signaux', 'fx.delay', 'fx.room', 'fx.distort'];
+const ROUTES = ONLY ? ONLY.split(',') : ALL_ROUTES;
 let bad = 0;
 for (const id of ROUTES) {
   const ctx = await browser.newContext({ viewport: { width: 412, height: 915 }, hasTouch: true });
