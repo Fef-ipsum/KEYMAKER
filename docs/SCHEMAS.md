@@ -279,7 +279,7 @@ Chaque type fournit `code(état)` (des morceaux, dont ceux qui brillent) et `exp
 ### 5.1 Deux limites rencontrées, et la meilleure comparaison suivante
 
 - **Superdough range ses notes de façon asynchrone.** Il déconnecte la chaîne d'une note sur un événement `onended` (`webAudioTimeout`). Juste après la fin d'une note, le rendu varie donc **d'une fois à l'autre** : deux rendus superdough du même code `lpf(138).lpq(27)` diffèrent de 0,25 dans ces zones, et de 0,00002 ailleurs (mesuré). La comparaison est donc exacte partout **sauf** dans les 80 ms qui suivent la fin + extinction de chaque note ; l'écart dans ces zones est rapporté à part, pour information. Il n'est audible qu'avec une résonance extrême sur des fréquences très basses.
-- **Combien de temps mettre à part ?** Au moins 80 ms ; davantage quand un filtre résonne : 7 constantes de temps τ = Q / (π·f), avec Q = 10^(lpq/20) (une baisse de 60 dB). Pour `lpf(138).lpq(27)`, cela fait 0,36 s. Mesuré : superdough contre lui-même, hors de ces zones, diffère de 1,8·10⁻⁵ ; dedans, de 0,22.
+- **Combien de temps mettre à part ?** Au moins 80 ms ; davantage quand un filtre résonne : 7 constantes de temps τ = Q / (π·f), avec Q = 10^(lpq/20) (une baisse de 60 dB). Pour `lpf(138).lpq(27)`, cela fait 0,36 s. Mesuré : superdough contre lui-même, hors de ces zones, diffère de 1,6·10⁻⁵ ; dedans, de 0,24. C'est une vérification du banc (rendue avant les faits : l'écho à 0,98 du dernier fait sonne encore des dizaines de secondes et la contaminait, sans échec visible, de la vague 5 au 23 novembre).
 - **La réserve de nœuds de superdough est commune à tous les contextes audio** (`getNodeFromPool`, non exportée). Un deuxième `OfflineAudioContext` reçoit des nœuds du premier et plante (« cannot connect to an AudioNode belonging to a different audio context »). `renderPatternAudio` n'est pas concerné parce qu'il ne sert qu'une fois. Le banc fait donc **tous** ses rendus superdough dans un seul contexte, chacun à son propre moment, séparés par 5,5 s de silence. Et il évalue le code **sans démarrer la lecture** (`repl.evaluate(code, false)`) : sinon quelques notes partent dans le contexte de la page et leurs nœuds recyclés fuient dans le rendu.
 
 ---
@@ -317,11 +317,11 @@ Mesures sur un `OscillatorNode` de période entière (675 échantillons), sur 60
 
 ### Enveloppe
 
-- **`adsr.defauts`** — Sans réglage : .001, .05, .6, .01. *Code* : `registerSynthSounds` → `getADSRValues([…], 'linear', [.001, .05, .6, .01])`. *Mesure* : rendu superdough de `note("c3*4").sound("sawtooth").lpf(1500)` = rendu du schéma avec ces valeurs (écart max 1,5·10⁻⁶).
+- **`adsr.defauts`** — Sans réglage : .001, .05, .6, .01. *Code* : `registerSynthSounds` → `getADSRValues([…], 'linear', [.001, .05, .6, .01])`. *Mesure* : rendu superdough de `note("c3*4").sound("sawtooth").lpf(1500)` = rendu du schéma avec ces valeurs (écart max 1,9·10⁻⁶).
 - **`adsr.un-seul`** — Un seul réglage écrit change les autres. *Code* : `getADSRValues`. *Mesure* : les 16 combinaisons écrit / pas écrit, comparées à `getADSRValues` du moteur : 0 différence. Ex. `attack` seul → [a, .001, 1, .01] ; `decay` seul → [.001, d, .001, .01].
 - **`adsr.lineaire`** — Montées et descentes en lignes droites. *Code* : `getParamADSR(…, 'linear')` pour ces ondes. *Mesure* : à mi-attaque (0,2 s sur 0,4 s), le volume vaut 0,5000.
-- **`adsr.niveau`** — `sustain` est un niveau, pas une durée. *Code* : `getParamADSR` : niveau `min + (max − min) · sustain`, tenu jusqu'à la fin de la note. *Mesure* : rendus superdough de `note("c3")` et `note("c3*2")` (`.attack(.01).decay(.1).release(.1)`), `sustain(.3)` contre `sustain(1)` : rapport des volumes (RMS) pendant la note = « mesure en cours ».
-- **`adsr.duree`** — La durée de la note vient du code. *Mesure* : `note("c3*4")` évalué par Strudel au tempo de Keymaker : « mesure en cours ».
+- **`adsr.niveau`** — `sustain` est un niveau, pas une durée. *Code* : `getParamADSR` : niveau `min + (max − min) · sustain`, tenu jusqu'à la fin de la note. *Mesure* : rendus superdough de `note("c3")` et `note("c3*2")` (`.attack(.01).decay(.1).release(.1)`), `sustain(.3)` contre `sustain(1)` : rapport des volumes (RMS) pendant la note = 0,3000 (notes de 2 s) ; 0,3000 et 0,3000 (notes de 1 s, première et deuxième). Même niveau, quelle que soit la durée de la note.
+- **`adsr.duree`** — La durée de la note vient du code. *Mesure* : `note("c3*4")` évalué par Strudel au tempo de Keymaker : 4 notes par cycle, débuts 0 / 0,5 / 1 / 1,5 s, durées 0,5 s chacune.
 - **`adsr.troncature`** — Note plus courte que l'attaque : sommet jamais atteint ; extinction depuis le niveau atteint. *Mesure* : attaque 0,5 s, note de 0,2 s → sommet 0,400 ; écart avec `getParamADSR` : 0.
 - **`adsr.raccourci`** — `.adsr(".01:.2:.5:.3")` règle les quatre. *Mesure* : `queryArc` → `attack .01, decay .2, sustain .5, release .3`.
 
@@ -397,7 +397,7 @@ Les rendus d'effets se font chacun sur leur propre orbite : dans superdough, l'�
 
 ## 7. Derniers résultats
 
-Voir le rapport de session et `scripts/out/schemas-report.json` (régénéré à chaque `npm run check:schemas`). Au 23 novembre 2026, vague 5 terminée : **583 vérifications, 0 en échec** ; sons identiques à Strudel à moins de 3,4·10⁻⁶ près hors zones de rangement (≈ 10⁻⁵ de la crête) ; sidechain : volume dessiné = volume mesuré de l'orbite à 1,5·10⁻⁵ de la crête près, hors des 10 ms qui précèdent chaque coup (§2.10). Gestes au hasard (`npm run fuzz:schemas`) : les 16 schémas tiennent (« Aucun schéma ne plante. »). `npm run smoke` : tout passe sauf la police de guitare `gm_*`, que le conteneur de travail ne peut pas télécharger (sans rapport avec les schémas).
+Voir le rapport de session et `scripts/out/schemas-report.json` (régénéré à chaque `npm run check:schemas`). Au 23 novembre 2026 (soir), après les retours sur l'ADSR : **588 vérifications, 0 en échec** ; sons identiques à Strudel à moins de 3,4·10⁻⁶ près hors zones de rangement (≈ 10⁻⁵ de la crête) ; sidechain : volume dessiné = volume mesuré de l'orbite à 1,5·10⁻⁵ de la crête près, hors des 10 ms qui précèdent chaque coup (§2.10). Gestes au hasard (`npm run fuzz:schemas`) : les 16 schémas tiennent (« Aucun schéma ne plante. »). `npm run smoke` : tout passe sauf la police de guitare `gm_*`, que le conteneur de travail ne peut pas télécharger (sans rapport avec les schémas).
 
 ---
 
