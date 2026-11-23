@@ -10,13 +10,15 @@
 
 | Vague | Contenu | État |
 |---|---|---|
-| 1 | Socle (catalogue, son, intégration leçons/wiki, missions, question « à l'oreille », Sati, tests, page de revue) · filtre passe-bas · enveloppe ADSR | **Construite et vérifiée.** Poussée sur la branche `ccr-b6c29ca3-4wolq4` (PR #1). **Pas encore déployée sur le Pi** (voir ci-dessous). |
+| 1 | Socle (catalogue, son, intégration leçons/wiki, missions, question « à l'oreille », Sati, tests, page de revue) · filtre passe-bas · enveloppe ADSR | **Construite et vérifiée.** Poussée sur la branche `ccr-b6c29ca3-4wolq4` (PR #1). |
 | 2 | Ondes et harmoniques (les 4 ondes natives), passe-haut / passe-bande, enveloppe de filtre | **Construite et vérifiée.** `pulse` et `supersaw` : pas de schéma (voir §2.4). |
 | 3 | Le cycle, le tempo | **Construite et vérifiée.** |
 | 4 | Clavier, intervalles, gammes, accords | **Construite et vérifiée** (un seul type, quatre modes). |
 | 5 | Signaux, écho, réverbération, sidechain, distorsion | **Signaux, écho, réverbération, distorsion : construits et vérifiés.** Sidechain : **pas encore** (§2.10). |
 
-**Déploiement.** Cette session de travail tournait dans un conteneur cloud qui n'atteint ni le Pi (Tailscale, réseau local) ni ton laptop. Le code est sur GitHub ; le déploiement se fait depuis le laptop avec `scripts/deploy-pi.sh` (commandes exactes dans le rapport de session et en §9).
+**Déploiement.** La session qui a construit les schémas tournait dans un conteneur cloud qui n'atteint ni le Pi (Tailscale, réseau local) ni le laptop. Le code est sur GitHub. Il a été déployé sur le Pi par une session Claude Code lancée **sur le Pi** depuis le téléphone (§9.2). Chaque nouveau commit de la branche demande un nouveau déploiement : depuis le laptop (§9.1) ou depuis le téléphone (§9.2).
+
+**Retours de Felix au téléphone (23 novembre) : corrigés.** Réglages sous le dessin (le dessin reste visible pendant qu'on règle), poignées et courbe de l'enveloppe quand l'attaque n'est pas atteinte, étiquettes A/D qui se chevauchaient, « Ce schéma n'a pas pu s'afficher » sur l'enveloppe de filtre, distorsion muette quand c'est le premier son joué.
 
 **Pour reprendre une vague :**
 1. Lire §3 (architecture) et §8 (ajouter un type).
@@ -248,6 +250,7 @@ Chaque type fournit `code(état)` (des morceaux, dont ceux qui brillent) et `exp
 | 3 | La ligne de code s'exécute et produit les valeurs attendues | Chaque ligne évaluée par Strudel : notes, `cutoff`, `resonance` (absente quand elle doit l'être), `attack`… comparées à `expect`. Contenu + 50 états au hasard. |
 | 4 | Missions atteignables | Parcours scripté (partie A) ; plus, dans `npm run smoke`, un vrai glissement sur le dessin qui valide une mission. |
 | 5 | Faits du « Creuser » | Chacun mesuré dans le navigateur (§6) et noté ici. Un fait sans mesure fait échouer le test. |
+| 6 | Aucun schéma ne plante | `npm run fuzz:schemas` (à part : plusieurs minutes). Ouvre chaque type dans un vrai navigateur et enchaîne des gestes au hasard (lecture, arrêt, curseurs, poignées, tenir pour comparer, notes jouées et lâchées), puis vérifie qu'aucun « Ce schéma n'a pas pu s'afficher » ni aucune erreur de page n'apparaît. `--steps 60` règle la longueur, `--only fx.distort,mini.chevrons` reteste quelques schémas. A trouvé les deux plantages de novembre (enveloppe de filtre réglée pendant la lecture ; distorsion jouée en premier). |
 
 ### 5.1 Deux limites rencontrées, et la meilleure comparaison suivante
 
@@ -364,7 +367,7 @@ Les rendus d'effets se font chacun sur leur propre orbite : dans superdough, l'�
 
 ## 7. Derniers résultats
 
-Voir le rapport de session et `scripts/out/schemas-report.json` (régénéré à chaque `npm run check:schemas`). Au 23 novembre 2026 : toutes les vérifications passent ; sons identiques à Strudel à moins de 3,4·10⁻⁶ près hors zones de rangement (≈ 10⁻⁵ de la crête).
+Voir le rapport de session et `scripts/out/schemas-report.json` (régénéré à chaque `npm run check:schemas`). Au 23 novembre 2026 : toutes les vérifications passent (475) ; sons identiques à Strudel à moins de 3,4·10⁻⁶ près hors zones de rangement (≈ 10⁻⁵ de la crête). Gestes au hasard : les 15 schémas tiennent (« Aucun schéma ne plante. »).
 
 ---
 
@@ -407,6 +410,8 @@ Dans le chapitre, tableau `ear` :
 
 ## 9. Déployer, revenir en arrière
 
+### 9.1 Depuis le laptop
+
 Depuis le laptop (Git Bash), dans `keymaker-app/` :
 
 ```bash
@@ -418,7 +423,17 @@ npm run smoke            # 3 tailles × 2 thèmes, hors ligne, schémas
 bash scripts/deploy-pi.sh
 ```
 
-`deploy-pi.sh` sauvegarde l'app en place dans `modules/keymaker/backups/webapp-<date>.tar.gz` avant de la remplacer. **Revenir en arrière** : sur le Pi, vider `modules/keymaker/webapp/` sans toucher à `.gitkeep`, puis y extraire la sauvegarde :
+`deploy-pi.sh` sauvegarde l'app en place dans `modules/keymaker/backups/webapp-<date>.tar.gz` avant de la remplacer.
+
+### 9.2 Depuis le téléphone, laptop éteint
+
+Lancer Claude Code **sur le Pi**, dans `/home/felix/keymaker` (le clone du dépôt Keymaker), en mode Remote Control, puis lui donner cette consigne :
+
+> Mets à jour le clone : `git fetch origin ccr-b6c29ca3-4wolq4`, `git checkout ccr-b6c29ca3-4wolq4`, `git pull`. Le pack de sons n'est pas dans git et le build refuse de tourner sans lui : si `keymaker-app/public/samples/manifest.json` n'existe pas, copie `/mnt/nvme/personal-os/repo/modules/keymaker/webapp/samples/` dans `keymaker-app/public/samples/` ; s'il manque aussi là, arrête-toi. Construis ensuite l'app dans un conteneur `node:22` lancé avec `--user "$(id -u):$(id -g)" -e HOME=/tmp` (sinon les fichiers créés appartiennent à root ; `HOME` donne à npm un cache où écrire), dans `keymaker-app/` : `npm ci && node scripts/check-links.mjs && npm run build:pi`. Rien ne s'installe sur le Pi lui-même. (`check-content` et `check-schemas` demandent un navigateur : ils ont tourné avant le push, pas sur le Pi.) Vérifie que `dist-pi/samples/manifest.json` existe. Puis fais exactement la partie « sur le Pi » de `keymaker-app/scripts/deploy-pi.sh` (sauvegarde de l'app servie, vider `webapp/` sans le supprimer ni toucher `.gitkeep`, extraire, droits 755/644, redémarrer le conteneur seulement si `webapp/` était vide, vérification page · sw.js · sons · santé), en encadrant le tout de `touch /mnt/nvme/personal-os/autodeploy.pause` et `rm /mnt/nvme/personal-os/autodeploy.pause`. Pas de `sudo`, rien hors de `modules/keymaker/`.
+
+### 9.3 Revenir en arrière
+
+Sur le Pi, vider `modules/keymaker/webapp/` sans toucher à `.gitkeep`, puis y extraire la sauvegarde :
 
 ```bash
 cd /mnt/nvme/personal-os/repo/modules/keymaker
