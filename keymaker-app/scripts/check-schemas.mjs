@@ -84,6 +84,11 @@ const SCRIPTS = {
     septieme: [{ taps: 1, o: { mode: 'accord', quality: '7' } }],
     arpege: [{ taps: 1, o: { mode: 'accord', arp: true } }],
   },
+  effet: {
+    traine: [{ playing: true, changed: true, effet: 'echo', delayfeedback: 0.85 }],
+    cathedrale: [{ playing: true, changed: true, effet: 'reverb', size: 5, room: 0.6 }],
+    sature: [{ playing: true, changed: true, effet: 'distort', distort: 3.5 }],
+  },
   signal: {
     lent: [{ playing: true, changed: true, slow: 8 }],
     large: [{ playing: true, changed: true, lo: 200, hi: 2000 }],
@@ -113,11 +118,12 @@ for (const [type, def] of Object.entries(TYPES)) {
       fail(`mission ${type}/${m.id} : pas de parcours scripté`);
       continue;
     }
-    const st = stateFromSpec(type === 'filtre' ? { type, reglages: { lpf: 1000, lpq: 0 } } : type === 'onde' ? { type, onde: 'triangle' } : type === 'enveloppe-filtre' ? { type, reglages: { lpf: 300, lpenv: 1 } } : type === 'tempo' ? { type, reglages: { bpm: 100 }, temps: 4 } : type === 'clavier' ? { type, mode: 'notes', notes: 'c3' } : type === 'signal' ? { type, reglages: { bas: 300, haut: 600, slow: 2 }, forme: 'sine' } : { type, reglages: {}, mode: 'tenir' });
+    const st = stateFromSpec(type === 'filtre' ? { type, reglages: { lpf: 1000, lpq: 0 } } : type === 'onde' ? { type, onde: 'triangle' } : type === 'enveloppe-filtre' ? { type, reglages: { lpf: 300, lpenv: 1 } } : type === 'tempo' ? { type, reglages: { bpm: 100 }, temps: 4 } : type === 'clavier' ? { type, mode: 'notes', notes: 'c3' } : type === 'signal' ? { type, reglages: { bas: 300, haut: 600, slow: 2 }, forme: 'sine' } : type === 'effet' ? { type, effet: 'echo' } : { type, reglages: {}, mode: 'tenir' });
     const runner = createMissionRunner([m]);
     let done = false;
     for (const stepSnap of script) {
-      const { playing = false, holding = false, heldFor = 0, event, kind, mode, onde, temps, taps = 0, o: oo, changed = false, forme, ...params } = stepSnap;
+      const { playing = false, holding = false, heldFor = 0, event, kind, mode, onde, temps, taps = 0, o: oo, changed = false, forme, effet, ...params } = stepSnap;
+      if (effet) st.o.effet = effet;
       if (forme) st.o.forme = forme;
       if (oo) Object.assign(st.o, oo);
       if (temps) st.o.temps = temps;
@@ -153,7 +159,7 @@ for (const [type, def] of Object.entries(TYPES)) {
   check(desc.includes(type + ' —'), 'catalogue pour Sati : type ' + type);
   for (const m of def.missions) check(desc.includes(m.id), `catalogue pour Sati : mission ${type}/${m.id}`);
 }
-check(desc.length < 3000, 'catalogue pour Sati : ' + desc.length + ' caractères (le contexte est plafonné à 8 000)');
+check(desc.length < 4000, 'catalogue pour Sati : ' + desc.length + ' caractères (le contexte est plafonné à 8 000)');
 const BLOCKS = [
   ['{"type":"filtre","reglages":{"lpf":800,"lpq":12},"source":"basse"}', true],
   ['{"type":"adsr","reglages":{"attack":0.4,"release":1},"mode":"tenir"}', true],
@@ -275,7 +281,7 @@ for (const [vals, hold, f, env] of [
 }
 
 section('[B2] le son correspond à Strudel (superdough vs schéma, hors temps réel)');
-const RHYTHM = new Set(['cycle', 'tempo', 'clavier', 'signal']);
+const RHYTHM = new Set(['cycle', 'tempo', 'clavier', 'signal', 'effet']);
 const soundCases = [...all.filter((x) => !RHYTHM.has(x.spec.type)).map((x) => ({ where: x.where, spec: x.spec }))];
 soundCases.push({ where: 'sans réglage d’enveloppe (motif)', spec: { type: 'adsr', reglages: {}, mode: 'motif' } });
 for (const t of Object.keys(TYPES).filter((x) => !RHYTHM.has(x))) for (let i = 0; i < (quick ? 2 : 5); i++) soundCases.push({ where: 'au hasard ' + t + ' ' + (i + 1), spec: randomSpec(t) });
@@ -366,6 +372,11 @@ section('[B4] rythme : événements, tempo, métronome, missions');
 for (const sp of [...all.filter((x) => x.spec.type === 'signal').map((x) => x.spec), { type: 'signal', reglages: { bas: 80, haut: 9000, slow: 3 }, forme: 'saw' }, { type: 'signal', reglages: { bas: 500, haut: 700, slow: 1 }, forme: 'square' }, { type: 'signal', reglages: { bas: 2000, haut: 200, slow: 16 }, forme: 'tri' }]) {
   const r = await bench('signalVsCode', sp);
   check(r.ok, 'signal : ' + r.code, `coupures par note = ligne de code (écart ${r.maxDiff}) = signal au début de la note (${r.maxStep})`);
+}
+
+for (const sp of [...all.filter((x) => x.spec.type === 'effet').map((x) => x.spec), { type: 'effet', effet: 'reverb', reglages: { room: 0.2, size: 7.5 } }, { type: 'effet', effet: 'distort', reglages: { distort: 5.5 } }]) {
+  const r = await bench('effetVsCode', sp);
+  check(r.ok, 'effet : ' + r.code, r.bad ? 'valeurs différentes : ' + r.bad : 'mêmes valeurs que la ligne de code évaluée par Strudel');
 }
 
 section('[B5] les faits du « Creuser », mesurés');

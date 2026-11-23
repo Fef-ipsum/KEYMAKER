@@ -13,6 +13,7 @@ const BASE = {
   filtre: { type: 'filtre', reglages: { lpf: 600, lpq: 0 }, source: 'basse' },
   adsr: { type: 'adsr', reglages: {}, mode: 'tenir' },
   onde: { type: 'onde', onde: 'sawtooth', note: 'c3' },
+  effet: { type: 'effet', effet: 'echo', reglages: { delay: 0.5, delaytime: 0.25, delayfeedback: 0.5 } },
   signal: { type: 'signal', reglages: { bas: 300, haut: 2000, slow: 4 }, forme: 'sine' },
   clavier: { type: 'clavier', mode: 'accord', accord: 'C' },
   cycle: { type: 'cycle', motif: 'bd [hh hh] sd <hh oh>', cycles: 4 },

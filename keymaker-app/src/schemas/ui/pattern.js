@@ -112,3 +112,17 @@ export const signalAt = (sig, t) => {
   return h ? Number(h.value) : null;
 };
 
+
+/* --- Effets (schéma « effet ») --------------------------------------------------- */
+// Mêmes appels que la ligne de code (vérifié par le banc). bypass : sans l'effet.
+export function effetPattern(st, bypass = false) {
+  const p = st.p;
+  if (st.o.effet === 'distort') {
+    const base = window.note(window.mini('c3')).s(window.mini('sine'));
+    return bypass ? base : base.distort(p.distort);
+  }
+  const base = window.note(window.mini('c4 ~ ~ ~')).s(window.mini('triangle')).decay(0.1).sustain(0);
+  if (bypass) return base;
+  if (st.o.effet === 'echo') return base.delay(p.delay).delaytime(p.delaytime).delayfeedback(p.delayfeedback);
+  return base.room(p.room).size(p.size);
+}

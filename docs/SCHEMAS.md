@@ -14,7 +14,7 @@
 | 2 | Ondes et harmoniques (les 4 ondes natives), passe-haut / passe-bande, enveloppe de filtre | **Construite et vérifiée.** `pulse` et `supersaw` : pas de schéma (voir §2.4). |
 | 3 | Le cycle, le tempo | **Construite et vérifiée.** |
 | 4 | Clavier, intervalles, gammes, accords | **Construite et vérifiée** (un seul type, quatre modes). |
-| 5 | Signaux, écho, réverbération, sidechain, distorsion | **Signaux : construit et vérifié.** Écho, réverbération, sidechain, distorsion : **pas encore**, voir §2.10. |
+| 5 | Signaux, écho, réverbération, sidechain, distorsion | **Signaux, écho, réverbération, distorsion : construits et vérifiés.** Sidechain : **pas encore** (§2.10). |
 
 **Déploiement.** Cette session de travail tournait dans un conteneur cloud qui n'atteint ni le Pi (Tailscale, réseau local) ni ton laptop. Le code est sur GitHub ; le déploiement se fait depuis le laptop avec `scripts/deploy-pi.sh` (commandes exactes dans le rapport de session et en §9).
 
@@ -134,16 +134,21 @@
 | **Ce qu'on attrape** | Valeur basse, valeur haute, lenteur, forme. Avant / après : « sans mouvement » (la coupure reste à la valeur basse). |
 | **Missions** | `lent` (slow ≥ 8), `large` (haute ≥ 8 × basse), `forme` — après un changement. |
 
-### 2.9 Ce qui reste (vague 5)
+### 2.9 `effet` — écho, réverbération, distorsion
 
-Pour chacun, la règle reste la même : pas de dessin tant qu'il n'est pas calculé depuis ce qui sonne et vérifié.
+| | |
+|---|---|
+| **Écho** | Une ligne de temps de 2 s : la note (bleu) puis chaque répétition (doré) à k × `delaytime`, de niveau `delay` × `delayfeedback`^(k−1), jusqu'à 1 %. Code : `note("c4 ~ ~ ~").sound("triangle").decay(.1).sustain(0).delay(.5).delaytime(.25).delayfeedback(.5)`. Mission `traine` (`delayfeedback` ≥ 0,8). |
+| **Réverbération** | La note, puis la forme du volume de la traîne : `room` × 10^(−3 t / `size`), sur 1,5 × `size` secondes. Code : `….room(.5).size(2)`. Mission `cathedrale` (`size` ≥ 4, `room` ≥ 0,5). La traîne est du bruit tiré au hasard : le dessin montre sa **forme** (son enveloppe), pas un tracé exact. |
+| **Distorsion** | La courbe entrée → sortie, et une période de sinusoïde avant (gris) / après (doré). Code : `note("c3").sound("sine").distort(1)`. Mission `sature` (`distort` ≥ 3). Avertissement à partir de 4. |
+| **Son** | Superdough lui-même (le limiteur des schémas n'est pas sur ce chemin). |
+| **Avant / après** | « Maintiens : sans l'effet ». |
 
-- **Écho** (`delay`, `delaytime`, `delayfeedback`, `delaysync`) : les répétitions sont produites par le nœud de retard de l'orbite (`Orbit.getDelay` → `createFeedbackDelay`). À faire : mesurer, sur un rendu superdough d'une note courte, le niveau de chaque répétition (hypothèse à vérifier : la première vaut `delay`, chacune suivante × `delayfeedback`, plafonné à 0,98) et le dessiner sur une ligne de temps.
-- **Réverbération** (`room`, `size`) : la queue est générée par `reverbGen` (bruit filtré, durée liée à `roomsize`, `roomfade`, `roomlp`). À faire : mesurer l'enveloppe de la réponse impulsionnelle pour plusieurs `size` et dessiner la traîne mesurée.
-- **Sidechain** (`duck`, `orbit`) : `Orbit.duck(t, onset, attack, depth)` programme le volume de l'orbite visée. À faire : relire la fonction, rendre basse + kick hors temps réel et dessiner le volume mesuré de la basse sur un cycle.
-- **Distorsion** (`distort`, `crush`, `clip`) : `getDistortion` construit une courbe de `WaveShaper`, `crush` et `coarse` sont des AudioWorklets. À faire : passer une sinusoïde dans la même chaîne (rendu hors temps réel) et dessiner l'onde avant / après mesurée.
+### 2.10 Ce qui reste : le sidechain (`duck`)
 
-### 2.10 Où ils vivent
+Superdough fait plonger le volume de l'orbite visée par un événement asynchrone, 10 ms avant le kick (`webAudioTimeout` → `Orbit.duck`) : un rendu hors temps réel ne peut ni le placer au bon moment, ni le vérifier. Formule lue dans le moteur : le volume descend en exponentielle vers `1 − √duckdepth` (au moins 0,01), puis remonte jusqu'à 1 en `duckattack` secondes (0,1 par défaut). Pour la dessiner sans risque, il faut d'abord la **mesurer en temps réel** (capture de la sortie pendant la lecture) : c'est la prochaine étape.
+
+### 2.11 Où ils vivent
 
 | Lieu | Schéma | Missions |
 |---|---|---|
@@ -162,6 +167,7 @@ Pour chacun, la règle reste la même : pas de dessin tant qu'il n'est pas calcu
 | Étape `f.groove` · wiki `sol.tempo`, `fn.setcpm` | tempo, 120 BPM | lent, rapide · toutes |
 | Wiki `mini.*` (12 signes), `sol.cycle`, `sol.temps`, `sol.mesure`, `sol.croche`, `sol.contretemps` | cycle, motif de l'entrée | au plus une |
 | Wiki `fn.signaux` · `fn.range` | signal | toutes · large |
+| Wiki `fx.delay`, `fx.delaytime`, `fx.delayfeedback` · `fx.room`, `fx.size` · `fx.distort` | effet (écho · réverbération · distorsion) | traine · cathedrale · sature (aucune pour `fx.delaytime`) |
 | Étapes `f.do-re-mi`, `f.octave`, `f.demi-ton`, `f.melodie` · `f.gamme`, `f.majeur-mineur`, `f.tonique`, `f.pentatonique` · `f.intervalle`, `f.tierce`, `f.accord`, `f.arpege` | clavier (notes · gamme · intervalle · accord) | celle de la notion |
 | Wiki `sol.hauteur`, `sol.noms-des-notes`, `sol.octave`, `sol.demi-ton`, `sol.ton`, `sol.diese-bemol`, `sol.intervalle`, `sol.tierce`, `sol.quinte`, `sol.gamme`, `sol.majeur`, `sol.mineur`, `sol.pentatonique`, `sol.degre`, `sol.tonique`, `fn.scale`, `sol.accord`, `sol.arpege` | clavier | 0 à 2 |
 | Page de revue `#/schemas` | tout, d'un coup | — |
@@ -325,6 +331,17 @@ Le banc compare, pour 5 signaux (dont `saw` de 80 à 9 000 Hz, `square`, `tri` i
 - **`signal.echantillon`** — *Mesure* : `lpf(sine.range(300, 2000).slow(4))` sur `note("c2*8")` : 64 notes, chacune avec la valeur du signal à son début, une seule valeur par note.
 - **`signal.range`** — *Mesure* : `sine.range(300, 2000)` va de 300,00 à 2 000,00 ; `sine` seul de 0,0000 à 1,0000.
 - **`signal.slow`** — *Mesure* : avec `slow(4)`, la valeur à 0,25 cycle se retrouve à 4,25 (période 4) mais pas à 1,25 ; sans `slow`, 0,25 et 1,25 donnent la même (période 1).
+
+### Effets
+
+Les rendus d'effets se font chacun sur leur propre orbite : dans superdough, l'écho et la réverbération sont **partagés par orbite**, et un écho à 0,98 sonne encore des dizaines de secondes après (il passe donc en dernier).
+
+- **`echo.repetitions`** — *Code* : nœud `createFeedbackDelay` de l'orbite ; envoi = `delay`. *Mesure* : `delay(.6).delaytime(.25).delayfeedback(.5)` → crêtes note → écho 1 → 2 → 3 dans les rapports 0,600 ; 0,500 ; 0,500.
+- **`echo.plafond`** — *Code* : `getDelay(…){ l = clamp(l, 0, .98) }`. *Mesure* : `delayfeedback(1.5)` → rapport 0,980 entre échos successifs.
+- **`echo.sync`** — *Code* : `delaysync` par défaut 3/16, `delaytime ?? delaysync / cps`. *Mesure* : sans `delaytime`, premier écho à 0,378 s (0,375 attendu).
+- **`reverb.duree`** — *Code* : `reverbGen` : bruit × une décroissance qui atteint 1/1000 en `size` secondes, durée 1,5 × `size`. *Mesure* (pente de la traîne) : `size(1)` → −58,5 dB/s (−60 attendu) ; `size(3)` → −21,4 dB/s (−20 attendu).
+- **`reverb.hasard`** — *Code* : `randomSample = Math.random() * 2 − 1`. *Mesure* : deux rendus du même code diffèrent échantillon par échantillon et s'éteignent à la même vitesse (moins de 20 % d'écart sur la pente). Fenêtre par fenêtre, leur volume peut différer de plus de 10 dB : la phrase n'affirme donc pas qu'ils « sonnent pareil ».
+- **`distort.courbe`** — *Code* : AudioWorklet `distort-processor`, algorithme 0 = `scurve` : `(1+h)·x / (1+h·|x|)`, h = `expm1(distort)`, multiplié par `distortvol` (1). *Mesure* : `distort(2)` sur une sinusoïde : écart à la formule 4,3·10⁻⁶.
 
 ### Annexe B, revérifiée
 

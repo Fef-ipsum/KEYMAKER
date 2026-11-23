@@ -171,3 +171,8 @@
 
 /* Signal */
 .sch-step { stroke: var(--gold); stroke-width: 3; stroke-linecap: round; }
+
+/* Effets */
+.sch-effet-fig { display: flex; flex-wrap: wrap; gap: 12px; }
+.sch-bar-dry { fill: var(--blue-fill); }
+.sch-fill-gold { fill: var(--gold-soft); stroke: var(--gold); stroke-width: 1.5; }

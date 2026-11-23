@@ -16,13 +16,14 @@ import CycleSchema from './CycleSchema.jsx';
 import TempoSchema from './TempoSchema.jsx';
 import ClavierSchema from './ClavierSchema.jsx';
 import SignalSchema from './SignalSchema.jsx';
+import EffetSchema from './EffetSchema.jsx';
 import { Icon, Rich } from '../../ui.jsx';
 import { useEngine } from '../../lib/app.js';
 
 // Ces types construisent leurs motifs avec le moteur Strudel : ils attendent qu'il soit chargé.
-const NEEDS_ENGINE = new Set(['cycle', 'tempo', 'clavier', 'signal']);
+const NEEDS_ENGINE = new Set(['cycle', 'tempo', 'clavier', 'signal', 'effet']);
 
-export const VIEWS = { filtre: FiltreSchema, adsr: AdsrSchema, onde: OndeSchema, 'enveloppe-filtre': FenvSchema, cycle: CycleSchema, tempo: TempoSchema, clavier: ClavierSchema, signal: SignalSchema };
+export const VIEWS = { filtre: FiltreSchema, adsr: AdsrSchema, onde: OndeSchema, 'enveloppe-filtre': FenvSchema, cycle: CycleSchema, tempo: TempoSchema, clavier: ClavierSchema, signal: SignalSchema, effet: EffetSchema };
 
 // Un schéma qui plante ne fait pas tomber l'écran qui l'accueille.
 class Guard extends Component {

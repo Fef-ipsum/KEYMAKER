@@ -239,6 +239,7 @@ export default [
   /* ------------------------------ espace ------------------------------ */
   {
     id: 'fx.room', t: 'room', sub: 'réverbération', kind: 'fx', tokens: ['room'], doc: 'room',
+    schema: { type: 'effet', effet: 'reverb', reglages: { room: 0.5, size: 2 } },
     ess: 'Ajoute le son d’une pièce autour du son. De 0 (sec) à 1 (noyé).',
     code: 'note("c4 ~ eb4 ~").sound("triangle").room(.6)',
     use: [
@@ -255,6 +256,7 @@ export default [
   },
   {
     id: 'fx.size', t: 'size', sub: 'taille de la pièce', kind: 'fx', tokens: ['size', 'roomsize', 'sz', 'rsize'], doc: 'roomsize',
+    schema: { type: 'effet', effet: 'reverb', reglages: { room: 0.6, size: 1 } },
     ess: 'Règle la taille de la pièce de la réverbération : petite valeur = petite pièce, grande valeur = cathédrale.',
     code: 'sound("~ cp ~ cp").room(.7).size(6)',
     evo: ['Le nom complet du réglage est `roomsize` ; `size`, `sz` et `rsize` en sont des raccourcis.'],
@@ -262,6 +264,7 @@ export default [
   },
   {
     id: 'fx.delay', t: 'delay', sub: 'écho', kind: 'fx', tokens: ['delay'], doc: 'delay',
+    schema: { type: 'effet', effet: 'echo', reglages: { delay: 0.5, delaytime: 0.25, delayfeedback: 0.5 } },
     ess: 'Répète le son, de plus en plus faiblement. La valeur règle le volume de l’écho, de 0 à 1.',
     code: 'note("c4 ~ eb4 ~").sound("triangle").delay(.5)',
     use: [
@@ -274,6 +277,7 @@ export default [
   },
   {
     id: 'fx.delaytime', t: 'delaytime', sub: 'temps entre les échos', kind: 'fx', tokens: ['delaytime', 'delayt', 'dt', 'delaysync'],
+    schema: { type: 'effet', effet: 'echo', reglages: { delay: 0.6, delaytime: 0.375, delayfeedback: 0.4 }, missions: [] },
     ess: 'L’écart entre deux répétitions de l’écho, en secondes.',
     code: 'note("c4 ~ ~ ~").sound("triangle").delay(.6).delaytime(.2)',
     use: [['Calé sur le tempo, en cycles', 'note("c4 ~ ~ ~").sound("triangle").delay(.6).delaysync(1/8)']],
@@ -286,6 +290,7 @@ export default [
   },
   {
     id: 'fx.delayfeedback', t: 'delayfeedback', sub: 'nombre de répétitions', kind: 'fx', tokens: ['delayfeedback', 'delayfb', 'dfb'], doc: 'delayfeedback',
+    schema: { type: 'effet', effet: 'echo', reglages: { delay: 0.6, delaytime: 0.25, delayfeedback: 0.5 } },
     ess: 'La part de l’écho qui est renvoyée dans l’écho : plus elle est grande, plus il se répète longtemps.',
     code: 'note("c4 ~ ~ ~").sound("triangle").delay(.6).delayfeedback(.7)',
     args: [['valeur', 'entre 0 et 1, strictement en dessous de 1.']],
@@ -349,6 +354,7 @@ $: note("[c2,c3]").sound("sawtooth").lpf(900).orbit(2)`,
   },
   {
     id: 'fx.distort', t: 'distort', sub: 'saturation', kind: 'fx', tokens: ['distort', 'dist', 'shape'], doc: 'distort',
+    schema: { type: 'effet', effet: 'distort', reglages: { distort: 1 } },
     ess: 'Salit et durcit le son. Indispensable pour un kick techno ou une basse acid qui mord.',
     code: 'sound("bd*4").distort(2)',
     use: [

@@ -10,7 +10,8 @@ import { adsrValues, adsrPlan, planValue, SYNTH_DEFAULTS } from '/src/schemas/co
 import { createFiltreSound, adsrNote, heldVoice, ondeNote, fenvNote, CPS } from '/src/schemas/ui/sounds.js';
 import { envPlan, FILTER_ENV_DEFAULTS, filterEnvRange } from '/src/schemas/core/adsr.js';
 import { NOTES as ONDE_NOTES, period, harmonics } from '/src/schemas/types/onde.js';
-import { motifEvents, createPatternSound, signalPattern, fullSignalPattern, signalAt } from '/src/schemas/ui/pattern.js';
+import { motifEvents, createPatternSound, signalPattern, fullSignalPattern, signalAt, effetPattern } from '/src/schemas/ui/pattern.js';
+import { echoes, scurve } from '/src/schemas/types/effet.js';
 import { patternFromCode, notesOf } from '/src/schemas/ui/keys.js';
 import { CHORDS, INTERVALS, chordSymbol } from '/src/schemas/types/clavier.js';
 import { createMissionRunner, pickMissions } from '/src/schemas/core/missions.js';
@@ -172,6 +173,8 @@ export async function renderStrudelAll(items) {
   window.setAudioContext(ac);
   window.setSuperdoughAudioController(new origCtl.constructor(ac));
   try {
+    // Les AudioWorklets de superdough (distorsion…) doivent être chargés dans CE contexte.
+    if (typeof window.loadWorklets === 'function') await window.loadWorklets();
     for (const p of plans) {
       const haps = p.pat
         .queryArc(0, p.seconds * cps)
@@ -182,6 +185,8 @@ export async function renderStrudelAll(items) {
         await window.superdough({ ...h.value }, p.offset + begin / cps, h.duration.valueOf() / cps, cps, begin);
       }
     }
+    // La réponse de la réverbération est générée de façon asynchrone : on lui laisse le temps.
+    await new Promise((r) => setTimeout(r, 1500));
     const x = (await ac.startRendering()).getChannelData(0);
     for (const p of plans) window.__renders[p.key] = x.slice(Math.round(p.offset * SR), Math.round((p.offset + p.seconds) * SR));
     return plans.length;
@@ -234,7 +239,9 @@ export async function soundVsStrudel(spec, seconds = 2.3) {
   return { code: it.code, ...compare(a, b, teardownZones(spec, seconds)) };
 }
 
-// Rendus superdough dont les faits ont besoin.
+// Rendus superdough dont les faits ont besoin. Les effets d'orbite (écho, réverbération)
+// sont PARTAGÉS par orbite dans superdough : chaque mesure d'effet a la sienne, sinon un
+// écho à 0,98 continuerait de sonner dans les rendus suivants.
 export const FACT_RENDERS = [
   { key: 'fact:sans-lpq', code: 'note("c2*4").sound("sawtooth").lpf(600)', seconds: 1.2 },
   { key: 'fact:lpq1', code: 'note("c2*4").sound("sawtooth").lpf(600).lpq(1)', seconds: 1.2 },
@@ -246,8 +253,17 @@ export const FACT_RENDERS = [
   { key: 'fact:lpa-seul', code: 'note("c2*4").sound("sawtooth").lpf(300).lpa(.1)', seconds: 1.2 },
   { key: 'fact:lpa-env1', code: 'note("c2*4").sound("sawtooth").lpf(300).lpa(.1).lpenv(1)', seconds: 1.2 },
   { key: 'fact:fenv-defauts', code: 'note("c2*4").sound("sawtooth").lpf(300).lpenv(3)', seconds: 1.2 },
+  { key: 'fx:echo', code: 'note("c4 ~ ~ ~").sound("triangle").decay(.1).sustain(0).delay(.6).delaytime(.25).delayfeedback(.5).orbit(3)', seconds: 1.9 },
+  { key: 'fx:echo-sync', code: 'note("c4 ~ ~ ~").sound("triangle").decay(.1).sustain(0).delay(.6).orbit(5)', seconds: 1.2 },
+  { key: 'fx:rev1', code: 'note("c4 ~ ~ ~").sound("triangle").decay(.1).sustain(0).room(1).size(1).orbit(6)', seconds: 1.9 },
+  { key: 'fx:rev3', code: 'note("c4 ~ ~ ~").sound("triangle").decay(.1).sustain(0).room(1).size(3).orbit(7)', seconds: 1.9 },
+  { key: 'fx:rev3b', code: 'note("c4 ~ ~ ~").sound("triangle").decay(.1).sustain(0).room(1).size(3).orbit(8)', seconds: 1.9 },
+  { key: 'fx:dry-sine', code: 'note("c3").sound("sine")', seconds: 0.6 },
+  { key: 'fx:dist2', code: 'note("c3").sound("sine").distort(2)', seconds: 0.6 },
   { key: 'fact:12db', code: 'note("c2").sound("sawtooth").lpf(500)', seconds: 0.4 },
   { key: 'fact:24db', code: 'note("c2").sound("sawtooth").lpf(500).ftype("24db")', seconds: 0.4 },
+  // En dernier : un écho à 0,98 sonne encore des dizaines de secondes après, sur toutes les orbites.
+  { key: 'fx:echo-max', code: 'note("c4 ~ ~ ~").sound("triangle").decay(.1).sustain(0).delay(.6).delaytime(.25).delayfeedback(1.5).orbit(4)', seconds: 1.9 },
 ];
 
 /* --- 1. Le dessin correspond à l'objet audio ----------------------------------------------- */
@@ -535,6 +551,40 @@ export async function signalVsCode(spec) {
     maxStep = Math.max(maxStep, Math.abs(v - signalAt(sig, b)));
   });
   return { ok: theirs.length === 64 && mine.length === 64 && maxDiff < 1e-9 && maxStep < 1e-9, code, maxDiff, maxStep };
+}
+
+export async function effetVsCode(spec) {
+  const st = stateFromSpec(spec);
+  const code = TYPES.effet.codeText(st);
+  const pat = await evalPattern(code);
+  const theirs = pat.queryArc(0, 1).filter((h) => h.hasOnset()).map((h) => h.value);
+  const mine = effetPattern(st).queryArc(0, 1).filter((h) => h.hasOnset()).map((h) => h.value);
+  const ex = TYPES.effet.expect(st);
+  const bad = Object.entries(ex).filter(([k, v]) => theirs.some((h) => h[k] !== v) || mine.some((h) => h[k] !== v));
+  return { ok: theirs.length > 0 && JSON.stringify(theirs) === JSON.stringify(mine) && !bad.length, code, bad: bad.map(([k]) => k).join(', ') };
+}
+const peakIn = (x, t0, t1) => {
+  let m = 0;
+  let at = t0;
+  for (let i = Math.round(t0 * SR); i < Math.min(x.length, Math.round(t1 * SR)); i++) if (Math.abs(x[i]) > m) {
+    m = Math.abs(x[i]);
+    at = i / SR;
+  }
+  return { m, at };
+};
+// Pente (dB par seconde) de l'enveloppe RMS entre t0 et t1 (régression linéaire).
+function slopeDb(x, t0, t1) {
+  const win = Math.round(SR * 0.02);
+  const pts = [];
+  for (let i = Math.round(t0 * SR); i + win < Math.min(x.length, Math.round(t1 * SR)); i += win) {
+    let s = 0;
+    for (let j = i; j < i + win; j++) s += x[j] * x[j];
+    pts.push([i / SR, 10 * Math.log10(s / win + 1e-20)]);
+  }
+  const n = pts.length;
+  const mx = pts.reduce((a, p) => a + p[0], 0) / n;
+  const my = pts.reduce((a, p) => a + p[1], 0) / n;
+  return pts.reduce((a, p) => a + (p[0] - mx) * (p[1] - my), 0) / pts.reduce((a, p) => a + (p[0] - mx) ** 2, 0);
 }
 
 export function cycleMission(id, motifs) {
@@ -854,6 +904,48 @@ export const FACTS = {
     const c = signalAt(sig, 1.25);
     const d = signalAt(window.sine.range(300, 2000), 0.25);
     return { ok: Math.abs(a - b) < 1e-9 && Math.abs(a - c) > 1 && Math.abs(signalAt(window.sine.range(300, 2000), 1.25) - d) < 1e-9, detail: `slow(4) : valeur à 0,25 cycle ${a.toFixed(2)}, à 4,25 ${b.toFixed(2)} (identique : période 4 cycles), à 1,25 ${c.toFixed(2)} ; sans slow, 0,25 et 1,25 donnent la même valeur (période 1)` };
+  },
+  async 'echo.repetitions'() {
+    const x = rendered('fx:echo');
+    const peaks = [0, 1, 2, 3].map((k) => peakIn(x, k * 0.25, k * 0.25 + 0.12).m);
+    const r = peaks.slice(1).map((p, i) => p / peaks[i]);
+    const drawn = echoes({ delay: 0.6, delaytime: 0.25, delayfeedback: 0.5 }).slice(0, 3).map((e) => e.level);
+    const ok = Math.abs(r[0] - 0.6) < 0.03 && Math.abs(r[1] - 0.5) < 0.03 && Math.abs(r[2] - 0.5) < 0.03 && drawn.join() === '0.6,0.3,0.15';
+    return { ok, detail: `delay .6, delayfeedback .5 : crêtes mesurées note → écho 1 → 2 → 3 dans les rapports ${r.map((v) => v.toFixed(3)).join(', ')} ; dessin : ${drawn.join(', ')}` };
+  },
+  async 'echo.plafond'() {
+    const x = rendered('fx:echo-max');
+    const peaks = [1, 2, 3, 4, 5].map((k) => peakIn(x, k * 0.25, k * 0.25 + 0.12).m);
+    const r = peaks.slice(1).map((p, i) => p / peaks[i]);
+    const src = await (await fetch('/public/vendor/strudel-repl/index.js')).text();
+    const clamp = src.includes('getDelay(e=0,l=.5,d){return l=clamp(l,0,.98)');
+    return { ok: clamp && r.every((v) => Math.abs(v - 0.98) < 0.02), detail: `delayfeedback(1.5) : rapport entre échos successifs ${r.map((v) => v.toFixed(3)).join(', ')} ; plafond 0,98 dans getDelay : ${clamp ? 'présent' : 'ABSENT'}` };
+  },
+  async 'echo.sync'() {
+    const x = rendered('fx:echo-sync');
+    const p = peakIn(x, 0.2, 0.6);
+    return { ok: Math.abs(p.at - 0.375) < 0.012, detail: `sans delaytime : premier écho à ${p.at.toFixed(3)} s (3/16 de cycle à 0,5 cycle/s = 0,375 s)` };
+  },
+  async 'reverb.duree'() {
+    const s1 = slopeDb(rendered('fx:rev1'), 0.25, 0.95);
+    const s3 = slopeDb(rendered('fx:rev3'), 0.25, 1.85);
+    const ok = Math.abs(s1 / -60 - 1) < 0.35 && Math.abs(s3 / -20 - 1) < 0.35;
+    return { ok, detail: `pente de la traîne mesurée : size 1 → ${s1.toFixed(1)} dB/s (attendu −60), size 3 → ${s3.toFixed(1)} dB/s (attendu −20)` };
+  },
+  async 'reverb.hasard'() {
+    const a = rendered('fx:rev3');
+    const b = rendered('fx:rev3b');
+    const c = compare(a, b);
+    const sa = slopeDb(a, 0.25, 1.85);
+    const sb = slopeDb(b, 0.25, 1.85);
+    return { ok: c.maxAbs > 1e-3 && Math.abs(sa / sb - 1) < 0.2, detail: `deux rendus du même code : échantillons différents (écart max ${c.maxAbs.toFixed(3)}) ; même vitesse d’extinction (${sa.toFixed(1)} et ${sb.toFixed(1)} dB/s)` };
+  },
+  async 'distort.courbe'() {
+    const dry = rendered('fx:dry-sine');
+    const wet = rendered('fx:dist2');
+    let m = 0;
+    for (let i = Math.round(0.02 * SR); i < Math.round(0.5 * SR); i++) m = Math.max(m, Math.abs(wet[i] - scurve(dry[i], 2)));
+    return { ok: m < 1e-3, detail: `distort(2) sur une sinusoïde : sortie − (1+h)x/(1+h|x|) (h = e² − 1) au plus ${m.toExponential(1)}` };
   },
   async 'adsr.defauts'() {
     const r = await soundVsStrudel({ type: 'adsr', reglages: {}, mode: 'motif' });
