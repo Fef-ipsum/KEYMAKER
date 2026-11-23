@@ -176,3 +176,11 @@
 .sch-effet-fig { display: flex; flex-wrap: wrap; gap: 12px; }
 .sch-bar-dry { fill: var(--blue-fill); }
 .sch-fill-gold { fill: var(--gold-soft); stroke: var(--gold); stroke-width: 1.5; }
+
+/* Téléphone et tablette : le dessin reste visible pendant qu'on règle les curseurs en dessous. */
+@media (max-width: 999px) {
+  .sch-figure { position: sticky; top: var(--sch-top, 0px); z-index: 3; background: var(--bg-2); box-shadow: 0 10px 18px -14px rgba(0, 0, 0, .45); }
+  .sheet { --sch-top: 58px; }
+  .sch-onde-fig, .sch-effet-fig { background: var(--bg-2); }
+}
+.sch-ideal-t { fill: var(--ink-3); font: 600 11px var(--font); paint-order: stroke; stroke: var(--bg-2); stroke-width: 3px; }

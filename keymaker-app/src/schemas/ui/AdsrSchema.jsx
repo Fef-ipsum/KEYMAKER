@@ -63,7 +63,8 @@ export default function AdsrSchema({ spec, ear = null, context = 'lecon' }) {
   const plan = useMemo(() => adsrPlan(vals, 0, noteDur), [vals.join(','), noteDur]);
   const shape = planPoints(plan);
   const truncated = a + d > noteDur;
-  const ideal = useMemo(() => (truncated ? planPoints(adsrPlan(vals, 0, a + d + 0.0001)) : null), [truncated, vals.join(',')]);
+  // Ce que la note n'atteint pas : la montée et la retombée complètes (sans l'extinction).
+  const ideal = useMemo(() => (truncated ? planPoints(adsrPlan(vals, 0, a + d + 0.0001)).slice(0, 3) : null), [truncated, vals.join(',')]);
   const toPath = (pts) => pts.map(([t, v], i) => (i ? 'L' : 'M') + x(t).toFixed(1) + ' ' + y(v).toFixed(1)).join(' ');
 
   // Trace dorée : le volume de la dernière note, depuis son début.
@@ -164,6 +165,10 @@ export default function AdsrSchema({ spec, ear = null, context = 'lecon' }) {
     { id: 'R', cx: x(noteDur + r), cy: y(0), keys: ['release'], label: `Fin de l’extinction : ${frNum(r)} s après la fin de la note` },
   ].filter((h) => h.keys.some(canEdit));
 
+  // A et D au même endroit (retombée presque nulle) : on écarte leurs lettres.
+  const close = Math.hypot(x(a) - x(a + d), y(1) - y(sus)) < 26;
+  const labelX = (h) => (h.id === 'R' ? h.cx + 14 : close && h.id === 'A' ? h.cx - 12 : close && h.id === 'D' ? h.cx + 14 : h.cx);
+
   const dragTo = (hid, e) => {
     const rect = boxRef.current.querySelector('svg').getBoundingClientRect();
     const t = tOf(e.clientX - rect.left);
@@ -253,6 +258,7 @@ export default function AdsrSchema({ spec, ear = null, context = 'lecon' }) {
           </text>
 
           {ideal ? <path className="sch-curve sch-curve-ideal" d={toPath(ideal)} /> : null}
+          {ideal ? <text className="sch-ideal-t" x={x(a) - 76 > L ? x(a) - 14 : x(a) + 14} y={y(1) + 4} textAnchor={x(a) - 76 > L ? 'end' : 'start'}>pas atteint</text> : null}
           <path className="sch-fill" d={toPath(shape) + ` L ${x(shape[shape.length - 1][0])} ${y(0)} Z`} />
           <path className={'sch-curve' + (s.bypass ? ' sch-curve-default' : '')} d={toPath(shape)} />
           {ear && ear.revealed ? <path className="sch-curve sch-curve-target" d={toPath(planPoints(adsrPlan(def.values(ear.target), 0, noteDur)))} /> : null}
@@ -268,12 +274,13 @@ export default function AdsrSchema({ spec, ear = null, context = 'lecon' }) {
             <g key={h.id} className="sch-handle" tabIndex={0} role="group" aria-label={h.label + '. Flèches pour régler.'} onKeyDown={(e) => keyMove(h.id, e)}>
               <circle className="sch-handle-hit" data-h={h.id} cx={h.cx} cy={h.cy} r={22} />
               <circle className="sch-handle-dot" data-h={h.id} cx={h.cx} cy={h.cy} r={8} />
-              <text className="sch-handle-t" x={h.id === 'R' ? h.cx + 14 : h.cx} y={h.id === 'R' ? h.cy - 10 : h.cy - 14} textAnchor="middle">{h.id}</text>
+              <text className="sch-handle-t" x={labelX(h)} y={h.id === 'R' ? h.cy - 10 : h.cy - 14} textAnchor="middle">{h.id}</text>
             </g>
           ))}
         </svg>
       </div>
 
+      <Warn text={warn} />
       <ul className="sch-phases" aria-label="Les quatre temps de l’enveloppe">
         {PHASES.map(([k, name]) => (
           <li key={k} className={phase === k ? 'is-on' : ''}><strong>{k}</strong> {name}</li>
@@ -312,7 +319,6 @@ export default function AdsrSchema({ spec, ear = null, context = 'lecon' }) {
           <Slider key={k} def={def} k={k} value={st.p[k]} codeName={k} onChange={s.setParam} disabled={!canEdit(k)} />
         ))}
       </div>
-      <Warn text={warn} />
 
       {!ear || ear.revealed ? (
         <CodeLine

@@ -54,6 +54,10 @@ export default function FenvSchema({ spec, context = 'lecon' }) {
   const plan = useMemo(() => envPlan(vals, 0, noteDur, { min, max, curve: 'exponential' }), [vals.join(','), noteDur, min, max]);
   const toPath = (pts) => pts.map(([t, f], i) => (i ? 'L' : 'M') + x(t).toFixed(1) + ' ' + y(f).toFixed(1)).join(' ');
   const shape = plan.map((e) => [e.t, e.v]);
+  // La note s'arrête avant la fin de la retombée : ce qu'elle n'atteint pas, en pointillé.
+  const truncated = a + d > noteDur;
+  const ideal = truncated ? envPlan(vals, 0, a + d + 0.0001, { min, max, curve: 'exponential' }).slice(0, 3).map((e) => [e.t, e.v]) : null;
+  const truncWarn = a > noteDur ? 'L’attaque du filtre dure plus longtemps que la note : la coupure n’atteint jamais son sommet.' : truncated ? 'La note s’arrête pendant la retombée du filtre : le maintien n’est jamais atteint.' : null;
 
   // Trace dorée : la coupure réelle de la dernière note, depuis son début.
   const [live, setLive] = useState(null);
@@ -131,6 +135,7 @@ export default function FenvSchema({ spec, context = 'lecon' }) {
     { id: 'D', cx: x(a + d), cy: y(sus), label: `Fin de la retombée : ${frNum(d)} s, maintien ${Math.round(vals[2] * 100)} %` },
     { id: 'R', cx: x(noteDur + r), cy: y(min), label: `Fin de l’extinction : ${frNum(r)} s après la note` },
   ];
+  const closeAD = Math.hypot(handles[0].cx - handles[1].cx, handles[0].cy - handles[1].cy) < 26;
   const dragTo = (hid, e) => {
     const rect = boxRef.current.querySelector('svg').getBoundingClientRect();
     const t = tOf(e.clientX - rect.left);
@@ -205,6 +210,8 @@ export default function FenvSchema({ spec, context = 'lecon' }) {
           <text className="sch-notezone-t" x={Math.max(x(noteDur) - 6, x(0) + 110)} y={H - B - 8} textAnchor="end">la note dure {frNum(noteDur, 2)} s</text>
           <line className="sch-curve-ideal sch-curve" x1={L} x2={W - R} y1={y(st.p.f)} y2={y(st.p.f)} />
           <text className="sch-axis-t" x={W - R - 4} y={y(st.p.f) - 6} textAnchor="end">lpf {frHz(st.p.f)}</text>
+          {ideal && !s.bypass ? <path className="sch-curve sch-curve-ideal" d={toPath(ideal)} /> : null}
+          {ideal && !s.bypass ? <text className="sch-ideal-t" x={x(a + d) + 14 < W - R - 70 ? x(a + d) + 14 : x(a + d) - 14} y={y(sus) + 18} textAnchor={x(a + d) + 14 < W - R - 70 ? 'start' : 'end'}>pas atteint</text> : null}
           <path className={'sch-curve' + (s.bypass ? ' sch-curve-default' : '')} d={toPath(shape)} />
           {live && live.pts.length > 1 ? (
             <g className="sch-trace">
@@ -217,7 +224,7 @@ export default function FenvSchema({ spec, context = 'lecon' }) {
                 <g key={h.id} className="sch-handle" tabIndex={0} role="group" aria-label={h.label + '. Flèches pour régler.'} onKeyDown={(e) => keyMove(h.id, e)}>
                   <circle className="sch-handle-hit" data-h={h.id} cx={h.cx} cy={h.cy} r={22} />
                   <circle className="sch-handle-dot" data-h={h.id} cx={h.cx} cy={h.cy} r={8} />
-                  <text className="sch-handle-t" x={h.id === 'R' ? h.cx + 14 : h.cx} y={h.cy - 13} textAnchor="middle">{h.id}</text>
+                  <text className="sch-handle-t" x={h.id === 'R' ? h.cx + 14 : closeAD && h.id === 'A' ? h.cx - 12 : closeAD && h.id === 'D' ? h.cx + 14 : h.cx} y={h.cy - 13} textAnchor="middle">{h.id}</text>
                 </g>
               ))
             : null}
@@ -235,6 +242,7 @@ export default function FenvSchema({ spec, context = 'lecon' }) {
         </svg>
       </div>
 
+      <Warn text={truncWarn || def.warn(st)} />
       <ul className="sch-phases" aria-label="Les quatre temps de l’enveloppe du filtre">
         {PHASES.map(([k, name]) => <li key={k} className={live && live.phase === k ? 'is-on' : ''}><strong>{k}</strong> {name}</li>)}
       </ul>
@@ -257,7 +265,6 @@ export default function FenvSchema({ spec, context = 'lecon' }) {
           {['lpa', 'lpd', 'lps', 'lpr'].map((k) => <Slider key={k} def={def} k={k} value={st.p[k]} codeName={k} onChange={s.setParam} disabled={!canEdit(k)} />)}
         </div>
       </Fold>
-      <Warn text={def.warn(st)} />
 
       <CodeLine
         parts={def.code(st, { bypass: s.bypass })}

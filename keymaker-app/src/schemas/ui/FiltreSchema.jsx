@@ -223,6 +223,7 @@ export default function FiltreSchema({ spec, ear = null, context = 'lecon' }) {
         </svg>
       </div>
 
+      <Warn text={def.warn(st)} />
       <div className="sch-controls">
         {ear ? null : <PlayButton playing={s.playing} onToggle={toggle} />}
         {ear ? null : (
@@ -243,7 +244,6 @@ export default function FiltreSchema({ spec, ear = null, context = 'lecon' }) {
         <Slider def={def} k="f" value={st.p.f} codeName={fCode} onChange={s.setParam} disabled={!canF} />
         <Slider def={def} k="q" value={st.p.q} codeName={qCode} onChange={s.setParam} disabled={!(canQ || canBandQ)} hint={st.o.kind === 'passe-bande' ? 'plus c’est haut, plus la bande est étroite' : undefined} />
       </div>
-      <Warn text={def.warn(st)} />
 
       {!ear || ear.revealed ? (
         <CodeLine parts={def.code(st, { bypass: s.bypass })} glow={s.glow} note={s.bypass ? 'Sans le filtre, ces réglages ne jouent pas.' : null} />
