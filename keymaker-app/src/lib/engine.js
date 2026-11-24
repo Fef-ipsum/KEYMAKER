@@ -8,7 +8,7 @@
 const listeners = new Set();
 let el = null; // l'élément <strudel-editor>
 let ed = null; // son StrudelMirror
-let state = { ready: false, playing: false, error: '', errorDetail: '', failed: '', previewing: null };
+let state = { ready: false, playing: false, error: '', errorDetail: '', failed: '', previewing: null, click: { on: false, beats: 4 }, clickNote: '' };
 let stash = null; // code mis de côté pendant une pré-écoute (wiki, quiz)
 let pendingCode = null; // code demandé avant que l'éditeur soit prêt (rechargement, lien direct)
 let evaluating = false; // pendant une évaluation, le moteur annonce encore l'ANCIENNE erreur
@@ -234,13 +234,27 @@ export async function mountEditor(host, initialCode) {
     }
     let thrown = null;
     evaluating = true;
+    // Clic des temps : la piste de clics est ajoutée au code ÉVALUÉ, jamais au texte
+    // de l'éditeur. Si le code ne l'accepte pas, on rejoue sans clic et on le signale.
+    const clicked = withClick(String(ed.code || ''));
+    let clickNote = '';
     try {
-      await rawEvaluate(...args);
+      if (clicked == null) await rawEvaluate(...args);
+      else {
+        if (typeof ed.flash === 'function') ed.flash();
+        await ed.repl.evaluate(clicked, args.length ? args[0] : true);
+        const st0 = (ed.repl && ed.repl.state) || {};
+        if (st0.evalError) {
+          clickNote = 'Le clic des temps n’a pas pu s’ajouter à ce code : il joue sans.';
+          await rawEvaluate(...args);
+        }
+      }
     } catch (e) {
       thrown = e;
     } finally {
       evaluating = false;
     }
+    if (clickNote !== state.clickNote) set({ clickNote });
     const st = (ed.repl && ed.repl.state) || {};
     const bad = thrown || st.evalError || st.schedulerError;
     if (bad) {
@@ -377,7 +391,7 @@ export function queryHaps(fromCycle = 0, toCycle = 1) {
     if (!pat) return [];
     return pat
       .queryArc(fromCycle, toCycle)
-      .filter((h) => h.hasOnset())
+      .filter((h) => h.hasOnset() && !(h.value && typeof h.value === 'object' && h.value.kmclic))
       .map((h) => {
         const v = h.value && typeof h.value === 'object' ? h.value : { value: h.value };
         return {
@@ -392,6 +406,37 @@ export function queryHaps(fromCycle = 0, toCycle = 1) {
   } catch {
     return [];
   }
+}
+
+/* --- Clic des temps (métronome) ---------------------------------------------
+   Une piste de clics, un par temps (le premier plus fort), jouée avec le code.
+   Écrite sans guillemets doubles : pas de mini-notation, donc rien à surligner
+   dans l'éditeur. Ses événements portent `kmclic` et sont écartés de queryHaps :
+   la validation des exercices ne les voit pas.                               */
+let click = { on: false, beats: 4 };
+export function getClick() {
+  return click;
+}
+export function clickTrack(beats) {
+  const n = Math.max(1, Math.min(12, Math.round(Number(beats) || 4)));
+  const vel = [1, ...Array(n - 1).fill(0.55)].join(', ');
+  return `s('rim').fast(${n}).velocity(seq(${vel})).gain(.45).set({ kmclic: 1 })`;
+}
+// Code réellement évalué quand le clic est actif (null sinon).
+export function withClick(code, opts = click) {
+  if (!opts || !opts.on) return null;
+  const track = clickTrack(opts.beats);
+  const src = String(code || '').replace(/\/\/.*$/gm, '');
+  // Code à pistes ($:, nom:, nom$:) : all() s'applique à toutes les pistes.
+  // Sinon, une seule expression : on lui accroche la piste avec .stack(…).
+  const tracks = /(^|\n)[ \t]*_?(\$|[A-Za-z]\w*\$?):/.test(src);
+  if (tracks) return code + '\nall(x => stack(x, ' + track + '))';
+  return String(code || '').replace(/[\s;]*$/, '') + '\n.stack(' + track + ')';
+}
+export function setClick(next) {
+  click = { ...click, ...next };
+  set({ click });
+  if (state.playing && ed) run();
 }
 
 export function currentCps() {

@@ -12,6 +12,7 @@ import { useEngine } from '../lib/app.js';
 import { explainCode, entryForToken } from '../content/wiki/index.js';
 import { addSnippet } from '../lib/notebook.js';
 import { Icon, useWiki } from '../ui.jsx';
+import { BeatButton, BeatPanel } from './BeatClock.jsx';
 
 /* --- Le cadran du cycle ------------------------------------------------------------ */
 const RINGS = 4;
@@ -105,6 +106,7 @@ export default function EditorDock({ visible, settings, reduceMotion, dark, canR
   const [codeText, setCodeText] = useState('');
   const [word, setWord] = useState('');
   const [keeping, setKeeping] = useState(false);
+  const [beatOpen, setBeatOpen] = useState(false);
   const [keepName, setKeepName] = useState('');
   const [toast, setToast] = useState('');
   const [allChips, setAllChips] = useState(false);
@@ -209,6 +211,7 @@ export default function EditorDock({ visible, settings, reduceMotion, dark, canR
                 <span>{resetLabel}</span>
               </button>
             ) : null}
+            <BeatButton open={beatOpen} onToggle={() => setBeatOpen((o) => !o)} />
             <button type="button" className="toolbtn" onClick={() => setKeeping((k) => !k)} title="Garder ce code" aria-expanded={keeping}>
               <Icon name="keep" size={19} />
               <span>Garder</span>
@@ -216,6 +219,7 @@ export default function EditorDock({ visible, settings, reduceMotion, dark, canR
           </div>
         </div>
 
+        {beatOpen ? <BeatPanel /> : null}
         {keeping ? (
           <form className="keepform" onSubmit={(e) => { e.preventDefault(); keep(); }}>
             <label htmlFor="keepname">Un nom pour le retrouver</label>

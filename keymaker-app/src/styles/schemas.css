@@ -193,3 +193,7 @@
 .sch-level-t { fill: var(--ink-2); font: 650 11px var(--mono); paint-order: stroke; stroke: var(--bg-2); stroke-width: 3px; }
 .sch-choice-wrap { display: flex; flex-direction: column; gap: 6px; flex-basis: 100%; }
 .sch-choice-label { font-size: .85em; font-weight: 600; color: var(--ink-3); }
+/* Les temps (pulsation) dans le schéma ADSR. */
+.sch-beat line { stroke: var(--blue); stroke-width: 1; stroke-dasharray: 3 4; opacity: .45; }
+.sch-beat text { fill: var(--blue); font: 600 10px var(--font); opacity: .8; }
+.sch-beatnote { font-size: .84rem; color: var(--ink-3); margin: 4px 2px 0; }

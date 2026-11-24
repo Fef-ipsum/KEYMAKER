@@ -178,6 +178,12 @@ export default function AdsrSchema({ spec, ear = null, context = 'lecon' }) {
     if (used) e.preventDefault();
   };
 
+  // Les temps, au tempo du schéma : un cycle de 2 s = une mesure de 4 temps (120 BPM).
+  const BEAT = 0.5;
+  const beatLines = [];
+  for (let t = BEAT; t <= span + 1e-9; t += BEAT) beatLines.push(Math.round(t * 100) / 100);
+  const inBeats = (sec) => frNum(sec / BEAT, 2);
+
   const ticks = [];
   const tStep = span <= 1 ? 0.25 : span <= 2 ? 0.5 : 1;
   for (let t = 0; t <= span + 1e-9; t += tStep) ticks.push(Math.round(t * 100) / 100);
@@ -237,6 +243,13 @@ export default function AdsrSchema({ spec, ear = null, context = 'lecon' }) {
             </g>
           ))}
           <text className="sch-axis-title" x={W - R} y={H - 4} textAnchor="end">temps depuis le début de la note (s)</text>
+          {/* Les temps (pulsation à 120 BPM) : pour lire les durées en musique. */}
+          {beatLines.map((t, i) => (
+            <g key={'b' + t} className="sch-beat">
+              <line x1={x(t)} x2={x(t)} y1={T} y2={H - B} />
+              {x(t) - x(0) > 26 ? <text x={x(t) - 3} y={T + 11} textAnchor="end">{i + 1} t</text> : null}
+            </g>
+          ))}
           <line className="sch-zero" x1={L} x2={W - R} y1={y(0)} y2={y(0)} />
 
           {/* La note joue pendant la zone grise (durée donnée par le code) ; le release commence à sa fin. */}
@@ -276,6 +289,9 @@ export default function AdsrSchema({ spec, ear = null, context = 'lecon' }) {
             </g>
           ))}
         </svg>
+        <p className="sch-beatnote">
+          Pointillés : les temps, au tempo du schéma (120 BPM, un temps = 0,5 s). En temps : attack {inBeats(a)} · decay {inBeats(d)} · release {inBeats(r)} · note {inBeats(noteDur)}.
+        </p>
       </div>
 
       <Warn text={warn} />
