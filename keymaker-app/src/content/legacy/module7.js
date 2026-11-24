@@ -88,12 +88,12 @@ export const m7chapitre1 = {
         title: "Hacher et réordonner",
         items: [
           ["chop(n)", "n tranches jouées DANS L’ORDRE."],
-          ["slice(n, \"<…>\")", "les tranches dans un ordre CHOISI."],
+          ["slice(n, \"…\")", "les tranches dans un ordre CHOISI, une par pas."],
           [":n / .n(\"…\")", "choisit quel fichier de la banque."],
           ["tes propres voix", "`samples(…)` charge tes enregistrements (réseau, une fois)."],
         ],
       },
-      exercise: "Remplace `.chop(8)` par `.slice(8, \"<0 2 4 6 1 3 5 7>\")` : les tranches sont réordonnées, la voix est remixée. Essaie d’autres ordres.",
+      exercise: "Remplace `.chop(8)` par `.slice(8, \"0 2 4 6 1 3 5 7\")` : les 8 tranches jouent toujours dans le cycle, mais dans un autre ordre, et la voix est remixée. Essaie d’autres ordres. Sans chevrons : avec `\"<…>\"`, une seule tranche jouerait par cycle.",
       rich: true,
     },
 
@@ -437,11 +437,11 @@ export const m7chapitre3 = {
         title: "Hacher un break",
         items: [
           ["amen", "l’un des breaks les plus échantillonnés de l’histoire, à la base de la jungle et du drum & bass."],
-          ["chop ou slice", "`chop` : dans l’ordre ; `slice(n, \"<…>\")` : dans l’ordre choisi."],
+          ["chop ou slice", "`chop` : dans l’ordre ; `slice(n, \"…\")` : dans l’ordre choisi, une tranche par pas."],
           ["iter(n)", "rotation du motif : une variation automatique."],
         ],
       },
-      exercise: "Remplace `.iter(4)` par `.slice(16, \"<0 1 2 3 8 9 6 7>\")` : tu réordonnes les tranches, ton propre découpage du break.",
+      exercise: "Remplace `.chop(16).iter(4)` par `.slice(16, \"<[0 1 2 3] [8 9 6 7] [4 5 2 3] [12 13 14 15]>\")` : quatre tranches par mesure, dans l’ordre que tu choisis. Garde quatre numéros par groupe : avec `fit()`, une tranche dure un quart de mesure, exactement la place de son pas.",
       culture: {
         artist: "The Winstons",
         track: "Amen, Brother",

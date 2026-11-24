@@ -556,9 +556,10 @@ export const legacyChecks = {
     check: (c) => {
       const m = c.code.match(/slice\(\s*8\s*,\s*"([^"]+)"/);
       if (!m) return 'Garde `slice(8, "…")` et change seulement l’ordre entre guillemets.';
-      return m[1].replace(/\s+/g, ' ').trim() !== '<0 2 1 3 4 6 5 7>' ? true : 'Invente ton ordre : `"<0 0 4 4 2 6 [5 7]>"`, par exemple.';
+      if (m[1].replace(/\s+/g, ' ').trim() === '<[0 2] [1 3] [4 6] [5 7]>') return 'Invente ton ordre : `"<[0 0] [4 4] [2 6] [5 7]>"`, par exemple.';
+      return c.haps.filter((e) => e.s === 'amen').length === 2 ? true : 'Garde deux tranches par cycle : des paires entre crochets, `[0 0]`.';
     },
-    solution: "samples({ amen: 'https://raw.githubusercontent.com/yaxu/clean-breaks/main/sounds/The_Winstons_-_Amen_Brother%20%5B2019-03-04%20124550%5D.wav' })\ns(\"amen/4\").fit().slice(8, \"<0 0 4 4 2 6 [5 7]>\").cut(1)",
+    solution: "samples({ amen: 'https://raw.githubusercontent.com/yaxu/clean-breaks/main/sounds/The_Winstons_-_Amen_Brother%20%5B2019-03-04%20124550%5D.wav' })\ns(\"amen/4\").fit().slice(8, \"<[0 0] [4 4] [2 6] [5 7]>\").cut(1)",
     ok: 'Une autre suite de tranches, un autre groove, avec le même enregistrement.',
   },
   'L6.6.19': {
@@ -600,10 +601,11 @@ export const legacyChecks = {
   /* ================= Autres genres (module 7) ================= */
   'L7.7.3': {
     check: (c) => {
-      if (c.has('chop(')) return 'Remplace `.chop(8)` par `.slice(8, "<0 2 4 6 1 3 5 7>")`.';
-      return c.has(/slice\(\s*8\s*,/) ? true : 'Écris `.slice(8, "<0 2 4 6 1 3 5 7>")` sur la voix.';
+      if (c.has('chop(')) return 'Remplace `.chop(8)` par `.slice(8, "0 2 4 6 1 3 5 7")`.';
+      if (!c.has(/slice\(\s*8\s*,/)) return 'Écris `.slice(8, "0 2 4 6 1 3 5 7")` sur la voix.';
+      return c.haps.filter((e) => e.s === 'numbers' && e.value.begin != null).length >= 8 ? true : 'Retire les chevrons : `"0 2 4 6 1 3 5 7"`. Avec `< >`, une seule tranche joue par cycle.';
     },
-    solution: 'setcpm(124/4)\n$: s("bd*4, ~ cp").bank("RolandTR909")\n$: s("numbers:3").slice(8, "<0 2 4 6 1 3 5 7>").gain(.7).room(.2)\n$: n("0 2 4 6").s("numbers").gain(.55)',
+    solution: 'setcpm(124/4)\n$: s("bd*4, ~ cp").bank("RolandTR909")\n$: s("numbers:3").slice(8, "0 2 4 6 1 3 5 7").gain(.7).room(.2)\n$: n("0 2 4 6").s("numbers").gain(.55)',
     ok: 'La voix est découpée en 8 tranches, jouées dans l’ordre que tu as écrit : un autre phrasé, avec le même enregistrement.',
   },
   'L7.7.4': {
@@ -637,10 +639,11 @@ export const legacyChecks = {
   },
   'L7.7.12': {
     check: (c) => {
-      if (c.has('iter(')) return 'Remplace `.iter(4)` par `.slice(16, "<0 1 2 3 8 9 6 7>")`.';
-      return c.has(/slice\(\s*16\s*,/) ? true : 'Écris `.slice(16, "<0 1 2 3 8 9 6 7>")` à la place de `.chop(16).iter(4)`.';
+      if (c.has('iter(')) return 'Remplace `.chop(16).iter(4)` par `.slice(16, "<[0 1 2 3] [8 9 6 7] [4 5 2 3] [12 13 14 15]>")`.';
+      if (!c.has(/slice\(\s*16\s*,/)) return 'Écris `.slice(16, "<[0 1 2 3] [8 9 6 7] [4 5 2 3] [12 13 14 15]>")` à la place de `.chop(16).iter(4)`.';
+      return c.haps.filter((e) => e.s === 'amen').length === 4 ? true : 'Garde quatre tranches par mesure : des groupes de quatre numéros entre crochets, `[0 1 2 3]`.';
     },
-    solution: AMEN + '\nsetcpm(170/4)\n$: s("amen/4").fit().slice(16, "<0 1 2 3 8 9 6 7>").cut(1).gain(.9)\n$: note("<c1 c1 eb1 c1>").s("sine").gain(.7)',
+    solution: AMEN + '\nsetcpm(170/4)\n$: s("amen/4").fit().slice(16, "<[0 1 2 3] [8 9 6 7] [4 5 2 3] [12 13 14 15]>").cut(1).gain(.9)\n$: note("<c1 c1 eb1 c1>").s("sine").gain(.7)',
     ok: 'Tu choisis toi-même quelle tranche du break joue, et quand : ton propre découpage.',
   },
   'L7.7.13': {

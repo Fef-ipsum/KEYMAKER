@@ -3908,13 +3908,13 @@ export const m6chapitre4 = {
       kicker: "Remixer",
       title: "slice / splice : réordonner les tranches",
       concept: "`chop` joue les tranches dans l’ordre. `slice` te laisse CHOISIR l’ordre : tu remixes le break. `splice` fait pareil, mais adapte la vitesse de chaque tranche pour qu’elle remplisse exactement son pas.",
-      code: "samples({ amen: 'https://raw.githubusercontent.com/yaxu/clean-breaks/main/sounds/The_Winstons_-_Amen_Brother%20%5B2019-03-04%20124550%5D.wav' })\ns(\"amen/4\").fit().slice(8, \"<0 2 1 3 4 6 5 7>\").cut(1)",
+      code: "samples({ amen: 'https://raw.githubusercontent.com/yaxu/clean-breaks/main/sounds/The_Winstons_-_Amen_Brother%20%5B2019-03-04%20124550%5D.wav' })\ns(\"amen/4\").fit().slice(8, \"<[0 2] [1 3] [4 6] [5 7]>\").cut(1)",
       decode: [
-        [".slice(8, \"<…>\")", "découpe en 8 et joue, à chaque pas, la tranche dont tu donnes le numéro."],
-        ["\"<0 2 1 3 4 6 5 7>\"", "un nouvel ordre, une tranche par cycle : le break est réarrangé."],
+        [".slice(8, \"…\")", "découpe le break en 8 tranches et joue, à chaque pas, la tranche dont tu donnes le numéro (de 0 à 7)."],
+        ["\"<[0 2] [1 3] [4 6] [5 7]>\"", "deux tranches par cycle, sur 4 cycles : les 8 tranches, dans un nouvel ordre. Avec `fit()`, une tranche dure un demi-cycle, exactement la place de son pas. Une seule tranche par cycle (`\"<0 2 1 3 …>\"`) laisserait un demi-cycle de silence après chacune (mesuré dans le moteur)."],
         ["splice", "comme `slice`, mais chaque tranche est accélérée ou ralentie pour remplir son pas."],
       ],
-      exercise: "Invente ton ordre : `\"<0 0 4 4 2 6 [5 7]>\"`. Chaque suite donne un autre groove.",
+      exercise: "Invente ton ordre, en gardant deux tranches par cycle : `\"<[0 0] [4 4] [2 6] [5 7]>\"`. Chaque suite donne un autre groove.",
       rich: true,
     },
 

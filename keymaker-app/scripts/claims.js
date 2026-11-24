@@ -148,6 +148,11 @@ export const claims = [
   { id: 'pentatonique-mineure-la', kind: 'motif', code: 'n("0 1 2 3 4 5").scale("A:minor:pentatonic")', expect: ['A3 C4 D4 E4 G4 A4'], cites: ['f.pentatonique'] },
   { id: 'accords-de-la-gamme', kind: 'motif', code: 'n("<[0,2,4] [1,3,5] [6,8,10]>").scale("C:major")', cycles: 3, expect: ['C3 E3 G3', 'A3 D3 F3', 'B3 D4 F4'], cites: ['f.accords-gamme'] },
 
+  /* ---------------- Tranches : slice ---------------- */
+  { id: 'slice-chevrons-une-par-cycle', kind: 'motif', code: 's("numbers:3").slice(8, "<0 2>")', cycles: 2, fields: ['begin', 'b'], expect: ['0/0', '0.25/0'], cites: ['L7.7.3', 'L6.6.18'] },
+  { id: 'slice-sans-chevrons', kind: 'motif', code: 's("numbers:3").slice(8, "0 2 4 6 1 3 5 7")', fields: ['begin'], expect: ['0 0.25 0.5 0.75 0.125 0.375 0.625 0.875'], cites: ['L7.7.3'] },
+  { id: 'slice-fit-remplit', kind: 'motif', code: 's("amen/4").fit().slice(8, "<[0 2] [1 3] [4 6] [5 7]>")', fields: ['begin', 'end', 'speed', 'unit', 'b'], expect: ['0/0.125/0.25/c/0 0.25/0.375/0.25/c/0.5'], cites: ['L6.6.18', 'L7.7.12'] },
+
   /* ---------------- Empreintes du code source du moteur ---------------- */
   { id: 'adsr-defauts-synthes', kind: 'empreinte', has: ['getADSRValues([l.attack,l.decay,l.sustain,l.release],"linear",[.001,.05,.6,.01])'], cites: ['fx.attack', 'fx.decay', 'fx.sustain', 'sol.enveloppe', 'f.pluck'] },
   { id: 'adsr-un-seul-reglage', kind: 'empreinte', has: ['const le=z??(R!=null&&I==null||R==null&&I==null?1:.001)'], cites: ['fx.attack', 'fx.decay', 'fx.release', 'sol.enveloppe'] },
