@@ -21,8 +21,8 @@ export default {
 ${DRUMS}
 $: note("${LIGNE}").sound("sawtooth").lpf(500).lpq(14).lpenv(3).lpd(.12).decay(.15).sustain(0).gain(.7)`,
       what:
-        'L’acid se greffe sur d’autres genres, donc son tempo dépend de l’hôte. L’acid house des débuts tourne autour de 120 à 128 BPM, avec un balancement dansant. ' +
-        'L’acid techno pousse à 135–145 : la même ligne devient frénétique.',
+        'L’acid se greffe sur d’autres genres, donc son tempo dépend de l’hôte. L’acid house des débuts tourne autour de 120 à 128 BPM, avec un balancement dansant. L’acid techno pousse à 135–145 : la même ligne devient frénétique.' +
+        ' À 124 BPM, une double-croche de la ligne acid dure 0,12 s ; à 140 BPM, 0,11 s. Dans l’exemple de la structure, `lpd(.12)` fait retomber le filtre en 0,12 s, à peu près une double-croche à 124 BPM : chaque note reçoit son propre coup de filtre (voir [lpenv](fx.lpenv)).',
       build: [
         ['Acid house : 124 BPM', `setcpm(124/4)\n${DRUMS}\n$: note("${LIGNE}").sound("sawtooth").lpf(500).lpq(14).lpenv(3).lpd(.12).decay(.15).sustain(0).gain(.7)`],
         ['Acid techno : 140 BPM', `setcpm(140/4)\n${DRUMS}\n$: note("${LIGNE}").sound("sawtooth").lpf(500).lpq(14).lpenv(3).lpd(.12).decay(.15).sustain(0).gain(.7)`],
@@ -36,8 +36,8 @@ $: note("${LIGNE}").sound("sawtooth").lpf(500).lpq(14).lpenv(3).lpd(.12).decay(.
       hear: `setcpm(126/4)
 sound("bd*4").bank("RolandTR808")`,
       what:
-        'Quatre coups par mesure, comme en house et en techno. Mais le kick n’est pas la vedette : il reste rond, sans grande saturation, pour ne pas disputer le grave à la basse. ' +
-        'Les premiers morceaux utilisent les machines Roland de l’époque : TR-808, TR-707, puis TR-909.',
+        'Quatre coups par mesure, comme en house et en techno. Mais le kick n’est pas la vedette : il reste rond, sans grande saturation, pour ne pas disputer le grave à la basse. Les premiers morceaux utilisent les machines Roland de l’époque : TR-808, TR-707, puis TR-909.' +
+        ' La [TR-808](fn.bank) a un kick long et rond, la TR-909 un kick plus court et plus sec : le second laisse plus de place à la basse.',
       build: [
         ['Le kick rond de la TR-808', `setcpm(126/4)\nsound("bd*4").bank("RolandTR808")`],
         ['Celui, plus sec, de la TR-909', `setcpm(126/4)\nsound("bd*4").bank("RolandTR909")`],
@@ -52,9 +52,8 @@ sound("bd*4").bank("RolandTR808")`,
       hear: `setcpm(126/4)
 note("${LIGNE}").sound("sawtooth").lpf(400).lpq(15).lpenv(4).lpd(.12).decay(.15).sustain(0)`,
       what:
-        'Quatre ingrédients. **Une ligne de 16 pas**, sur très peu de notes différentes, avec des silences et des **sauts d’octave**. ' +
-        '**Un filtre passe-bas fermé**, avec **beaucoup de résonance**. Et **une enveloppe de filtre** : à chaque note, le filtre s’ouvre puis se referme très vite. ' +
-        'C’est ce petit « ouah » répété seize fois par mesure qui fait le son acid.',
+        'Quatre ingrédients. **Une ligne de 16 pas**, sur très peu de notes différentes, avec des silences et des **sauts d’octave**. **Un filtre passe-bas fermé**, avec **beaucoup de résonance**. Et **une enveloppe de filtre** : à chaque note, le filtre s’ouvre puis se referme très vite. C’est ce petit « ouah » répété seize fois par mesure qui fait le son acid.' +
+        ' Les valeurs de l’exemple : `lpf(400)` ferme le filtre ; `lpq(15)` ajoute 15 dB à la coupure ; `lpenv(4)` l’ouvre de 4 octaves (jusqu’à 6 400 Hz) au début de chaque note ; `lpd(.12)` la referme en 0,12 s, juste avant la double-croche suivante (0,12 s à 126 BPM). Voir [enveloppe de filtre](fx.lpenv) et [basse acid](genre.basse-acid).',
       build: [
         ['1. Une dent de scie, 16 notes par mesure', `setcpm(126/4)\nnote("c2*16").sound("sawtooth")`],
         ['2. Une vraie ligne : silences et sauts d’octave', `setcpm(126/4)\nnote("${LIGNE}").sound("sawtooth")`],
@@ -71,7 +70,7 @@ note("${LIGNE}").sound("sawtooth").lpf(400).lpq(15).lpenv(4).lpd(.12).decay(.15)
           code: `setcpm(126/4)\nnote("c2 c2 c3 c2 ~ c2 eb2 c3").sound("sawtooth").lpf("<400 400>").lpq("<0 15>").lpenv("<0 4>").lpd(.12).decay(.15).sustain(0)`,
           choices: ['La deuxième : le filtre résonne et s’ouvre à chaque note', 'La première : le son est rond et neutre'],
           answer: 0,
-          explain: 'Mêmes notes. La différence : résonance forte (`lpq`) et enveloppe de filtre (`lpenv`).',
+          explain: 'Mêmes notes. Au 2ᵉ passage, deux réglages changent : `lpq(15)` ajoute 15 dB à la coupure (le sifflement, voir [lpq](fx.lpq)), et `lpenv(4)` ouvre la coupure de 400 à 6 400 Hz (4 octaves) au début de chaque note, puis la referme en 0,12 s avec `lpd(.12)` (voir [lpenv](fx.lpenv)).',
         },
       ],
     },
@@ -84,8 +83,8 @@ $: sound("bd*4").bank("RolandTR909")
 $: sound("[~ oh]*4").bank("RolandTR909").gain(.5)
 $: sound("~ cp ~ cp").bank("RolandTR909").gain(.7)`,
       what:
-        'La batterie est celle de la house : charleston ouvert entre les temps, clap ou caisse claire sur les temps 2 et 4. ' +
-        'Rien de compliqué. Tout ce qui est rythmiquement surprenant vient de la ligne de basse.',
+        'La batterie est celle de la house : charleston ouvert entre les temps, clap ou caisse claire sur les temps 2 et 4. Rien de compliqué. Tout ce qui est rythmiquement surprenant vient de la ligne de basse.' +
+        ' La batterie de l’exemple tient en une ligne de [mini-notation](mini.virgule) : `bd*4` (le kick sur chaque temps), `[~ oh]*4` (le charleston ouvert à contretemps) et `~ cp ~ cp` (le clap sur 2 et 4), superposés par des virgules.',
       build: [
         ['1. Kick et charleston à contretemps', `setcpm(126/4)\n$: sound("bd*4").bank("RolandTR909")\n$: sound("[~ oh]*4").bank("RolandTR909").gain(.5)`],
         ['2. Le clap sur 2 et 4', `setcpm(126/4)\n$: sound("bd*4").bank("RolandTR909")\n$: sound("[~ oh]*4").bank("RolandTR909").gain(.5)\n$: sound("~ cp ~ cp").bank("RolandTR909").gain(.7)`],
@@ -100,8 +99,8 @@ $: sound("~ cp ~ cp").bank("RolandTR909").gain(.7)`,
       hear: `setcpm(126/4)
 note("c2 c2 c3 c2 ~ c2 eb2 c3 c2 ~ c2 c3 bb1 c2 ~ c2").sound("sawtooth").lpf(700).decay(.15).sustain(0)`,
       what:
-        'La ligne ci-dessus n’utilise que trois notes : do, mi bémol et si bémol (plus le do à l’octave). La note-maison revient sans cesse ; les autres sont des écarts brefs. ' +
-        'Il n’y a pas d’accords : l’intérêt n’est pas dans les notes mais dans le timbre, qui change tout le temps.',
+        'La ligne ci-dessus n’utilise que trois notes : do, mi bémol et si bémol (plus le do à l’octave). La note-maison revient sans cesse ; les autres sont des écarts brefs. Il n’y a pas d’accords : l’intérêt n’est pas dans les notes mais dans le timbre, qui change tout le temps.' +
+        ' En degrés de do mineur : do est la [tonique](sol.tonique) (degré 1), mi bémol la tierce mineure (degré 3), si bémol la septième (degré 7). Les sauts d’octave (`c2` → `c3`) gardent le même nom de note, une octave plus haut : la ligne bouge beaucoup avec très peu de notes différentes.',
       build: [
         ['1. La note-maison seule, avec ses octaves', `setcpm(126/4)\nnote("c2 c2 c3 c2 ~ c2 c2 c3 c2 ~ c2 c3 c2 c2 ~ c2").sound("sawtooth").lpf(700).decay(.15).sustain(0)`],
         ['2. Une voisine : la tierce mineure (mi bémol)', `setcpm(126/4)\nnote("c2 c2 c3 c2 ~ c2 eb2 c3 c2 ~ c2 c3 c2 c2 ~ c2").sound("sawtooth").lpf(700).decay(.15).sustain(0)`],
@@ -119,8 +118,8 @@ note("${LIGNE}").sound("sawtooth")
   .lpf(sine.range(250, 1500).slow(8)).lpq(16).lpenv(3).lpd(.12)
   .decay(.15).sustain(0).distort(1).gain(.6)`,
       what:
-        'La TB-303 n’a que deux ondes : dent de scie (pleine, agressive) et carré (creuse, plus ronde). Le musicien ne change pas les notes : ' +
-        'il tourne les boutons du filtre pendant que la ligne joue. Ici, un signal lent (`sine`) le fait à ta place. Un peu de saturation rend le tout plus mordant.',
+        'La TB-303 n’a que deux ondes : dent de scie (pleine, agressive) et carré (creuse, plus ronde). Le musicien ne change pas les notes : il tourne les boutons du filtre pendant que la ligne joue. Ici, un signal lent (`sine`) le fait à ta place. Un peu de saturation rend le tout plus mordant.' +
+        ' Les deux ondes de la TB-303 se retrouvent dans Strudel : `square` et `sawtooth` (voir [ondes](son.ondes)). `ftype("ladder")` remplace le filtre standard par un modèle « en échelle », plus proche des filtres analogiques (voir [lpf](fx.lpf)).',
       build: [
         ['1. Onde carrée : plus creuse', `setcpm(126/4)\nnote("${LIGNE}").sound("square").lpf(500).lpq(14).lpenv(3).lpd(.12).decay(.15).sustain(0).gain(.6)`],
         ['2. Dent de scie : plus mordante', `setcpm(126/4)\nnote("${LIGNE}").sound("sawtooth").lpf(500).lpq(14).lpenv(3).lpd(.12).decay(.15).sustain(0).gain(.6)`],
@@ -139,8 +138,8 @@ $: sound("bd*4, [~ oh]*4, ~ cp ~ cp").bank("RolandTR909").gain(.8).mask("<0!2 1!
 $: note("${LIGNE}").sound("sawtooth")
   .lpf(saw.range(200, 2200).slow(8)).lpq(15).lpenv(3).lpd(.12).decay(.15).sustain(0).gain(.6)`,
       what:
-        'Dans un morceau acid, la ligne de basse peut rester identique pendant plusieurs minutes. Ce qui avance, c’est le son : le filtre est d’abord fermé (sourd, lointain), ' +
-        'puis s’ouvre peu à peu jusqu’à hurler. La batterie entre et sort autour de ce mouvement. Ici la montée dure 8 mesures ; en vrai, elle prend une minute ou deux.',
+        'Dans un morceau acid, la ligne de basse peut rester identique pendant plusieurs minutes. Ce qui avance, c’est le son : le filtre est d’abord fermé (sourd, lointain), puis s’ouvre peu à peu jusqu’à hurler. La batterie entre et sort autour de ce mouvement. Ici la montée dure 8 mesures ; en vrai, elle prend une minute ou deux.' +
+        ' Dans l’exemple, `lpf(saw.range(200, 2200).slow(8))` fait monter la coupure de 200 à 2 200 Hz en 8 mesures, puis la fait retomber d’un coup (voir [signaux](fn.signaux)) : plus de trois octaves d’ouverture.',
       build: [
         ['1. La ligne seule, filtre fermé', `setcpm(126/4)\nnote("${LIGNE}").sound("sawtooth").lpf(220).lpq(15).lpenv(3).lpd(.12).decay(.15).sustain(0).gain(.6)`],
         ['2. Le filtre s’ouvre sur 8 mesures', `setcpm(126/4)\nnote("${LIGNE}").sound("sawtooth").lpf(saw.range(200, 2200).slow(8)).lpq(15).lpenv(3).lpd(.12).decay(.15).sustain(0).gain(.6)`],

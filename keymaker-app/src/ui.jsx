@@ -33,6 +33,7 @@ const PATHS = {
   download: (<><path d="M12 4v11" /><path d="M7 11l5 5 5-5" /><path d="M5 20h14" /></>),
   trash: (<><path d="M5 7h14" /><path d="M9 7V4.5h6V7" /><path d="M7 7l1 12.5h8L17 7" /></>),
   dial: (<><circle cx="12" cy="12" r="8.5" /><path d="M12 12l4-4" /><circle cx="12" cy="12" r="1" fill="currentColor" /></>),
+  beat: (<><path d="M8.5 20h7l-2-15.5h-3z" /><path d="M12 15 16.5 6" /><circle cx="12" cy="15" r="1" fill="currentColor" /></>),
   flag: (<><path d="M6 20.5V4" /><path d="M6 4.5h11l-2.5 4 2.5 4H6" /></>),
 };
 
@@ -79,15 +80,32 @@ export function WikiChip({ id, label, strong = false }) {
 }
 
 /* --- Texte enrichi ------------------------------------------------------------------
-   Un mini-format dans les contenus : `code`, **gras**, *italique*.               */
+   Un mini-format dans les contenus : `code`, **gras**, *italique*, et les liens vers
+   le wiki : [texte](fx.lpf) — le texte peut contenir du `code`. Un identifiant
+   inconnu affiche le texte sans lien (scripts/check-links.mjs le signale).        */
 // Typographie française : espace insécable dans les guillemets « » et devant : ; ! ?
 // (évite un guillemet ou un deux-points seul en début de ligne). Jamais dans le code.
 const frType = (t) => t.replace(/« /g, '« ').replace(/ »/g, ' »').replace(/ ([:;!?])(?=\s|$)/g, ' $1');
 
+export const WIKI_LINK = /\[([^\]]+)\]\(([a-z]+\.[\w.-]+)\)/g;
+
+function WikiLink({ id, children }) {
+  const { openWiki } = useWiki();
+  const e = byId[id];
+  if (!e) return <>{children}</>;
+  return (
+    <button type="button" className="wikilink" onClick={() => openWiki(id)} title={e.t + (e.sub ? ' — ' + e.sub : '')}>
+      {children}
+    </button>
+  );
+}
+
+const linkLabel = (t) => t.split(/(`[^`]+`)/).map((part, i) => (part[0] === '`' ? <code key={i}>{part.slice(1, -1)}</code> : frType(part)));
+
 export function Rich({ text, as: Tag = 'span', className }) {
   if (!text) return null;
   const out = [];
-  const re = /(`[^`]+`|\*\*[^*]+\*\*|\*[^*\s][^*]*\*)/g;
+  const re = /(\[[^\]]+\]\([a-z]+\.[\w.-]+\)|`[^`]+`|\*\*[^*]+\*\*|\*[^*\s][^*]*\*)/g;
   let last = 0;
   let m;
   let k = 0;
@@ -95,7 +113,15 @@ export function Rich({ text, as: Tag = 'span', className }) {
   while ((m = re.exec(s))) {
     if (m.index > last) out.push(frType(s.slice(last, m.index)));
     const tok = m[0];
-    if (tok[0] === '`') out.push(<code key={k++}>{tok.slice(1, -1)}</code>);
+    if (tok[0] === '[') {
+      const [, label, id] = tok.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+      out.push(<WikiLink key={k++} id={id}>{linkLabel(label)}</WikiLink>);
+    } else if (tok[0] === '`') {
+      // Un code court ne se coupe jamais ; un code long (plus de 24 signes) peut passer à la
+      // ligne, sinon il déborde de l'écran d'un téléphone.
+      const c = tok.slice(1, -1);
+      out.push(<code key={k++} className={c.length > 24 ? 'code-long' : undefined}>{c}</code>);
+    }
     else if (tok.startsWith('**')) out.push(<strong key={k++}>{frType(tok.slice(2, -2))}</strong>);
     else out.push(<em key={k++}>{frType(tok.slice(1, -1))}</em>);
     last = m.index + tok.length;

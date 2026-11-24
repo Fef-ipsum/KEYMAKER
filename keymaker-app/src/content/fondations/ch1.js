@@ -42,8 +42,8 @@ export default {
       },
       deep: {
         why:
-          'On appelle ça le *live coding* : modifier un programme pendant qu’il joue. Strudel tourne entièrement ' +
-          'dans cette app, sans rien installer. Chaque ligne qui commence par `$:` est un instrument ; on y revient à la fin du chapitre.',
+          'On appelle ça le *live coding* : modifier un programme pendant qu’il joue. Strudel, la version en JavaScript de [TidalCycles](voc.code.tidalcycles), tourne entièrement dans cette app, sans rien installer : le son est calculé en direct par le navigateur. ' +
+          'Chaque ligne qui commence par `$:` est un instrument, une [piste](fn.dollar) ; on y revient à la fin du chapitre.',
         decode: [
           ['setcpm(110/4)', 'le tempo du morceau.', 'fn.setcpm'],
           ['$:', 'une ligne = un instrument qui joue en même temps que les autres.', 'fn.dollar'],
@@ -59,7 +59,7 @@ export default {
           q: 'Dans Strudel, que se passe-t-il quand tu modifies le code puis que tu relances ▶ ?',
           choices: ['Le son change tout de suite, sans coupure', 'Il faut d’abord exporter un fichier', 'Le morceau reprend toujours au début'],
           answer: 0,
-          explain: 'C’est le principe du live coding : le code est joué en direct, et relancer met à jour le son à chaud.',
+          explain: 'C’est le principe du *live coding* : le code est joué en direct. Relancer remplace le motif au vol : la lecture continue là où elle en était, et le nouveau code prend la suite en une fraction de seconde, sans silence ni retour au début.',
         },
       ],
       legacy: ['1:1.1', '1:1.2'],
@@ -85,8 +85,8 @@ export default {
       },
       deep: {
         why:
-          'Strudel ne compte pas en battements mais en **cycles** : un cycle est une boucle complète. Ici un cycle contient 4 battements ' +
-          '(une *mesure* à 4 temps), d’où la division : `110/4` cycles par minute = 110 battements par minute. Garde simplement la forme `setcpm(BPM/4)`.',
+          'Strudel ne compte pas en battements mais en **cycles** : un [cycle](sol.cycle) est une boucle complète. Ici, un cycle contient 4 battements (une *mesure* à 4 temps), d’où la division : `110/4` = 27,5 cycles par minute = 110 battements par minute. ' +
+          'Garde simplement la forme `setcpm(BPM/4)`. Sans cette ligne, l’app joue à 30 cycles par minute, soit 120 BPM (voir [setcpm](fn.setcpm)).',
         decode: [
           ['setcpm(…)', '« set cycles per minute » : règle le nombre de cycles par minute.', 'fn.setcpm'],
           ['110', 'le tempo en BPM.', 'sol.tempo'],
@@ -128,9 +128,8 @@ export default {
       },
       deep: {
         why:
-          'La TR-909 et la TR-808 sont deux machines Roland des années 1980. La 909 a donné son kick à la house et à la techno ; ' +
-          'la 808, plus ronde et plus grave, au hip-hop et à l’électro. Strudel en embarque des dizaines ; cette app en garde quatre disponibles hors ligne : ' +
-          '`RolandTR909`, `RolandTR808`, `RolandTR707` et `AkaiLinn`.',
+          'La TR-909 (1983) et la TR-808 (1980) sont deux boîtes à rythmes Roland. La 909 a donné son kick sec à la house et à la techno ; la 808, plus ronde et plus longue, au hip-hop et à l’électro. ' +
+          'Strudel en embarque des dizaines ; cette app en garde quatre disponibles hors ligne : `RolandTR909`, `RolandTR808`, `RolandTR707` et `AkaiLinn` (voir [bank](fn.bank)). Le nom doit être écrit exactement, majuscules comprises.',
         decode: [
           ['.bank("RolandTR909")', 'prend les sons dans cette machine. Attention aux majuscules : le nom doit être exact.', 'fn.bank'],
         ],
@@ -166,8 +165,8 @@ export default {
       },
       deep: {
         why:
-          'Les noms sont des abréviations anglaises, toujours en minuscules : `bd` grosse caisse, `sd` caisse claire (*snare drum*), ' +
-          '`hh` charleston fermé (*hi-hat*), `oh` charleston ouvert (*open hat*), `cp` clap. On peut écrire `s("bd")` : `s` est le raccourci de `sound`.',
+          'Les noms sont des abréviations anglaises, toujours en minuscules : `bd` grosse caisse (*bass drum*), `sd` caisse claire (*snare drum*), `hh` charleston fermé (*hi-hat*), `oh` charleston ouvert (*open hat*), `cp` clap. La liste complète est dans [les sons de batterie](son.batterie). ' +
+          'Chaque nom désigne un son enregistré, qui joue en entier à chaque coup. On peut écrire `s("bd")` : `s` est le raccourci de `sound`.',
         decode: [
           ['sound(', '« joue ce son ». Les parenthèses entourent ce qu’on lui donne.', 'fn.sound'],
           ['"bd"', 'le nom du son, toujours entre guillemets.', 'son.batterie'],
@@ -207,8 +206,8 @@ export default {
       },
       deep: {
         why:
-          'Ce qu’on écrit entre guillemets s’appelle la **mini-notation** : un petit langage pour écrire du rythme. ' +
-          'L’espace est son premier signe. Le chapitre II est entièrement consacré aux autres.',
+          'Ce qu’on écrit entre guillemets s’appelle la **mini-notation** : un petit langage pour écrire du rythme. L’[espace](mini.espace) est son premier signe : il découpe le cycle en parts égales, une par élément. ' +
+          'Avec 4 éléments, chacun dure un quart de cycle ; avec 8, un huitième. Le chapitre II est entièrement consacré aux autres signes.',
         decode: [
           ['"bd hh sd hh"', 'quatre sons, chacun occupe un quart du cycle.', 'mini.espace'],
           ['espace', 'sépare deux pas de la séquence.', 'mini.espace'],
@@ -246,8 +245,8 @@ $: sound("hh hh hh hh hh hh hh hh")`,
       },
       deep: {
         why:
-          'Le clap tombe sur les temps 2 et 4 (les temps faibles) : c’est ce qu’on appelle le *backbeat*, l’accent qui fait hocher la tête. ' +
-          'La grosse caisse sur chaque temps s’appelle « four on the floor » (quatre au plancher).',
+          'Le clap tombe sur les temps 2 et 4 (les temps faibles) : c’est le *backbeat*, l’accent qui fait hocher la tête (voir [contretemps](sol.contretemps)). ' +
+          'La grosse caisse sur chaque temps s’appelle « four on the floor » (quatre au plancher) : le métronome de la house, de la techno et de la trance (voir [kick techno](genre.kick-techno)).',
         decode: [
           ['$:', 'démarre une piste. On peut en écrire autant qu’on veut.', 'fn.dollar'],
           ['~', 'un silence : le pas existe mais rien ne joue.', 'mini.silence'],
@@ -289,8 +288,8 @@ $: sound("hh hh hh hh hh hh hh hh").bank("RolandTR909").gain(.5)`,
       },
       deep: {
         why:
-          '`.gain(.5)` baisse le volume d’une piste (0 = muet ; sans `.gain`, le moteur joue à 0.8) : le charleston est moins fort que le kick, comme dans un vrai mixage. ' +
-          'On y revient au chapitre VI.',
+          '`.gain(.5)` multiplie l’amplitude de la piste par 0,5 (sans `.gain`, le moteur joue à 0,8 ; 0 = muet). Cela fait environ 6 dB de moins : nettement moins fort, mais pas « moitié moins fort » à l’oreille (voir [gain](fx.gain)). ' +
+          'Le charleston est ainsi moins fort que le kick, comme dans un vrai mixage. On y revient au chapitre VIII.',
         decode: [
           ['.gain(.5)', 'volume de la piste : plus bas que le volume par défaut (0.8).', 'fx.gain'],
           ['.bank("RolandTR909")', 'la machine d’où viennent les sons.', 'fn.bank'],

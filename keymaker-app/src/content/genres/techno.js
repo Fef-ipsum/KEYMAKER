@@ -34,8 +34,8 @@ export default {
       hear: `setcpm(135/4)
 ${KICK}`,
       what:
-        'Assez rapide pour porter le corps, assez régulier pour qu’on l’oublie. La techno « classique » tourne autour de 130 à 135 BPM ; ' +
-        'les styles durs montent à 145 et au-delà. Le tempo ne varie jamais à l’intérieur d’un morceau : c’est ce qui permet aux DJ d’enchaîner les disques.',
+        'Assez rapide pour porter le corps, assez régulier pour qu’on l’oublie. La techno « classique » tourne autour de 130 à 135 BPM ; les styles durs montent à 145 et au-delà. Le tempo ne varie jamais à l’intérieur d’un morceau : c’est ce qui permet aux DJ d’enchaîner les disques.' +
+        ' En chiffres : à 135 BPM, un temps dure 0,44 s et une mesure 1,78 s ; à 145 BPM, 0,41 s et 1,66 s. Passer de 135 à 145 raccourcit donc chaque mesure de 0,12 s (voir [tempo](sol.tempo) et [setcpm](fn.setcpm)).',
       build: [
         ['128 BPM : la limite basse, proche de la house', `setcpm(128/4)\n${KICK}`],
         ['135 BPM : le cœur du genre', `setcpm(135/4)\n${KICK}`],
@@ -50,9 +50,8 @@ ${KICK}`,
       hear: `setcpm(135/4)
 sound("bd*4").bank("RolandTR909").distort(1.5).gain(.9)`,
       what:
-        'Quatre coups par mesure, un sur chaque temps : on dit *four on the floor*. Le kick techno a trois qualités. ' +
-        'Une **attaque nette** (le « clic » qui perce). Un **corps grave et court** (le « boum »). Et du **grain** : une saturation qui le durcit. ' +
-        'Dans la techno moderne, on lui ajoute souvent une *rumble* : une traînée grave et sourde qui remplit l’espace entre deux coups.',
+        'Quatre coups par mesure, un sur chaque temps : on dit *four on the floor*. Le kick techno a trois qualités. Une **attaque nette** (le « clic » qui perce). Un **corps grave et court** (le « boum »). Et du **grain** : une saturation qui le durcit. Dans la techno moderne, on lui ajoute souvent une *rumble* : une traînée grave et sourde qui remplit l’espace entre deux coups.' +
+        ' Ce que font les réglages : l’attaque, c’est le clic de quelques millisecondes où la hauteur chute (voir [penv](fx.penv) : `penv(36)` part trois octaves plus haut et retombe en 50 ms). Le corps est une fondamentale entre 40 et 100 Hz environ, éteinte avant le coup suivant (0,44 s plus tard à 135 BPM). La [saturation](fx.distort) écrase les crêtes, ajoute des harmoniques et allonge un peu la queue. La rumble est une copie du kick passée dans un passe-bas à 120 Hz et une grande réverbération, qui plonge à chaque coup grâce à [duck](fx.duck).',
       build: [
         ['1. Quatre coups, sons de la TR-909', `setcpm(135/4)\nsound("bd*4").bank("RolandTR909")`],
         ['2. On le durcit : saturation', `setcpm(135/4)\nsound("bd*4").bank("RolandTR909").distort(2).gain(.8)`],
@@ -73,7 +72,7 @@ sound("bd*4").bank("RolandTR909").distort(1.5).gain(.9)`,
           code: `setcpm(135/4)\nsound("bd*4, [~ oh]*4").bank("RolandTR909")`,
           choices: ['Sur chaque temps (four on the floor)', 'Sur les temps 1 et 3 seulement', 'Entre les temps'],
           answer: 0,
-          explain: 'Quatre kicks par mesure, un par temps : c’est la signature de la techno, de la house et de la trance.',
+          explain: 'Quatre kicks par mesure, un par temps (`bd*4` : aux positions 0, ¼, ½ et ¾ du cycle) ; le charleston ouvert tombe juste entre (`[~ oh]*4`). C’est le *four on the floor*, la signature de la techno, de la house et de la trance.',
         },
       ],
     },
@@ -85,8 +84,8 @@ sound("bd*4").bank("RolandTR909").distort(1.5).gain(.9)`,
 $: sound("bd*4").bank("RolandTR909")
 $: note("[~ c1 c1 c1]*4").sound("sawtooth").lpf(300).decay(.1).sustain(0).gain(.9)`,
       what:
-        'La basse techno ne chante pas : elle pousse. Souvent une seule note, très grave, jouée sur les trois doubles-croches qui suivent chaque kick. ' +
-        'Le kick prend le premier quart du temps, la basse les trois autres : les deux ne se marchent jamais dessus, et l’ensemble « roule ».',
+        'La basse techno ne chante pas : elle pousse. Souvent une seule note, très grave, jouée sur les trois doubles-croches qui suivent chaque kick. Le kick prend le premier quart du temps, la basse les trois autres : les deux ne se marchent jamais dessus, et l’ensemble « roule ».' +
+        ' `c1` vibre à 33 Hz : plus ressenti qu’entendu, et presque inaudible sur un téléphone (au casque, il apparaît). Les notes sont pincées (`decay(.1).sustain(0)`, voir [decay](fx.decay)) : courtes, elles laissent des blancs qui rendent le roulement lisible.',
       build: [
         ['1. Une note grave, 16 fois par mesure', `setcpm(135/4)\nnote("c1*16").sound("sawtooth").lpf(300)`],
         ['2. On laisse la place au kick : silence sur chaque temps', `setcpm(135/4)\nnote("[~ c1 c1 c1]*4").sound("sawtooth").lpf(300)`],
@@ -105,8 +104,8 @@ $: sound("bd*4").bank("RolandTR909")
 $: sound("[~ oh]*4").bank("RolandTR909").gain(.5)
 $: sound("hh*16").bank("RolandTR909").gain("[.25 .15 .35 .15]*4")`,
       what:
-        'Le charleston ouvert tombe exactement entre deux kicks : « boum-tss-boum-tss ». C’est lui qui donne l’élan. ' +
-        'Par-dessus, un charleston fermé en doubles-croches, très bas dans le mix, avec de petits accents. Le clap sur les temps 2 et 4 est facultatif, et souvent absent.',
+        'Le charleston ouvert tombe exactement entre deux kicks : « boum-tss-boum-tss ». C’est lui qui donne l’élan. Par-dessus, un charleston fermé en doubles-croches, très bas dans le mix, avec de petits accents. Le clap sur les temps 2 et 4 est facultatif, et souvent absent.' +
+        ' Les positions : `[~ oh]*4` place le charleston ouvert sur la seconde moitié de chaque temps (le [contretemps](sol.contretemps)) ; `hh*16` met un charleston fermé sur chaque double-croche, 0,11 s d’écart à 135 BPM. Les accents se font avec un motif de `gain` (voir [gain](fx.gain)).',
       build: [
         ['1. Kick et charleston ouvert à contretemps', `setcpm(135/4)\n$: sound("bd*4").bank("RolandTR909")\n$: sound("[~ oh]*4").bank("RolandTR909").gain(.5)`],
         ['2. Charleston fermé, 16 par mesure, très doux', `setcpm(135/4)\n$: sound("bd*4").bank("RolandTR909")\n$: sound("[~ oh]*4").bank("RolandTR909").gain(.5)\n$: sound("hh*16").bank("RolandTR909").gain(.2)`],
@@ -123,8 +122,8 @@ $: sound("hh*16").bank("RolandTR909").gain("[.25 .15 .35 .15]*4")`,
 $: sound("bd*4").bank("RolandTR909")
 $: note("[c3,eb3,g3]").struct("~ x ~ ~ ~ x ~ ~").sound("sawtooth").lpf(1400).decay(.12).sustain(0).delay(.5).delaysync(3/16).delayfeedback(.5).gain(.5)`,
       what:
-        'Pas de suite d’accords, pas de refrain. La techno reste sur une note-maison, presque toujours en mineur. ' +
-        'Quand il y a un accord, c’est un seul, court et répété, qu’on appelle un *stab* : il fonctionne comme une percussion. Son écho fait le reste.',
+        'Pas de suite d’accords, pas de refrain. La techno reste sur une note-maison, presque toujours en mineur. Quand il y a un accord, c’est un seul, court et répété, qu’on appelle un *stab* : il fonctionne comme une percussion. Son écho fait le reste.' +
+        ' Le *stab* est un accord dont le volume retombe au silence très vite (`decay(.12).sustain(0)`, voir [decay](fx.decay)) : il dure 0,12 s, moins qu’une croche à 135 BPM. Placé à contretemps avec `struct("~ x ~ ~ ~ x ~ ~")`, il tombe sur les croches 2 et 6 de la mesure (voir [struct](fn.struct)).',
       build: [
         ['1. Un seul accord mineur', `note("[c3,eb3,g3]").sound("sawtooth").lpf(1400)`],
         ['2. Très court : un stab', `note("[c3,eb3,g3]").sound("sawtooth").lpf(1400).decay(.12).sustain(0)`],
@@ -141,8 +140,8 @@ $: note("[c3,eb3,g3]").struct("~ x ~ ~ ~ x ~ ~").sound("sawtooth").lpf(1400).dec
 $: sound("bd*4").bank("RolandTR909").distort(1)
 $: note("c2*16").sound("sawtooth").lpf(sine.range(200, 1800).slow(8)).lpq(10).decay(.08).sustain(0).gain(.6)`,
       what:
-        'La palette est étroite : une boîte à rythmes (la Roland TR-909 est la référence), un ou deux synthétiseurs, et des effets joués comme des instruments. ' +
-        'Le geste central est le **filtre qui s’ouvre lentement** : la même note, de plus en plus brillante, sur huit ou seize mesures. La saturation donne le grain.',
+        'La palette est étroite : une boîte à rythmes (la Roland TR-909 est la référence), un ou deux synthétiseurs, et des effets joués comme des instruments. Le geste central est le **filtre qui s’ouvre lentement** : la même note, de plus en plus brillante, sur huit ou seize mesures. La saturation donne le grain.' +
+        ' Dans les exemples : `lpf(sine.range(200, 1800).slow(8))` fait suivre à la coupure une vague de 200 à 1 800 Hz sur 8 mesures (voir [signaux](fn.signaux)) ; la [résonance](fx.lpq) (`lpq(10)`, +10 dB à la coupure) fait chanter le filtre à mesure qu’il passe sur les harmoniques.',
       build: [
         ['1. Une note répétée, sèche', `setcpm(135/4)\nnote("c2*16").sound("sawtooth").lpf(400).decay(.08).sustain(0)`],
         ['2. Le filtre respire sur 8 mesures', `setcpm(135/4)\nnote("c2*16").sound("sawtooth").lpf(sine.range(200, 1800).slow(8)).decay(.08).sustain(0)`],
@@ -160,9 +159,8 @@ $: sound("bd*4").bank("RolandTR909").mask("<1!6 0 0>")
 $: sound("[~ oh]*4").bank("RolandTR909").gain(.5).mask("<0 0 1!6>")
 $: note("[~ c1 c1 c1]*4").sound("sawtooth").lpf(300).decay(.1).sustain(0).mask("<0!4 1!4>")`,
       what:
-        'Il n’y a ni couplet ni refrain. Un morceau de techno est une longue courbe : on **ajoute** une piste toutes les 8 ou 16 mesures, on en **retire** une, ' +
-        'on **coupe le kick** quelques mesures (le *break*), puis on le fait revenir. Ce retour est le moment fort. ' +
-        'L’exemple tient en 8 mesures pour que tu l’entendes vite ; dans un vrai morceau, chaque bloc dure 16 ou 32 mesures.',
+        'Il n’y a ni couplet ni refrain. Un morceau de techno est une longue courbe : on **ajoute** une piste toutes les 8 ou 16 mesures, on en **retire** une, on **coupe le kick** quelques mesures (le *break*), puis on le fait revenir. Ce retour est le moment fort. L’exemple tient en 8 mesures pour que tu l’entendes vite ; dans un vrai morceau, chaque bloc dure 16 ou 32 mesures.' +
+        ' Dans les exemples, `mask("<0 0 1!6>")` vaut 0 pendant 2 mesures puis 1 pendant 6 : la piste entre à la 3ᵉ mesure (voir [mask](fn.mask)). `mask("<1!6 0 0>")` fait l’inverse sur le kick : il joue 6 mesures, se tait 2. Le cycle complet dure 8 mesures, puis recommence.',
       build: [
         ['1. Le charleston entre à la 3ᵉ mesure', `setcpm(135/4)\n$: sound("bd*4").bank("RolandTR909")\n$: sound("[~ oh]*4").bank("RolandTR909").gain(.5).mask("<0 0 1!6>")`],
         ['2. La basse entre à la 5ᵉ', `setcpm(135/4)\n$: sound("bd*4").bank("RolandTR909")\n$: sound("[~ oh]*4").bank("RolandTR909").gain(.5).mask("<0 0 1!6>")\n$: note("[~ c1 c1 c1]*4").sound("sawtooth").lpf(300).decay(.1).sustain(0).mask("<0!4 1!4>")`],

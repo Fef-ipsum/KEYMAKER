@@ -29,8 +29,8 @@ export default {
       },
       deep: {
         why:
-          'On mesure un intervalle en **demi-tons**. De do à sol : 7 demi-tons (la quinte). De do au do suivant : 12 (l’octave). ' +
-          'Le nom vient du nombre de notes parcourues : do-ré-mi-fa-**sol**, cinq notes, d’où « quinte ».',
+          'On mesure un [intervalle](sol.intervalle) en **demi-tons**. De do à sol : 7 demi-tons (la quinte). De do au do suivant : 12 (l’octave). Le nom vient du nombre de notes parcourues : do-ré-mi-fa-**sol**, cinq notes, d’où « quinte ». ' +
+          'Pourquoi la quinte se fond si bien : la fréquence de sol est presque exactement 3/2 de celle de do. Avec un rapport aussi simple, beaucoup d’harmoniques des deux notes coïncident, et l’oreille entend une fusion. Plus le rapport est compliqué, plus les notes frottent.',
         decode: [
           ['c3 g3', 'les deux notes l’une après l’autre : intervalle *mélodique*.', 'sol.intervalle'],
           ['[c3,g3]', 'les deux notes ensemble : intervalle *harmonique*.', 'mini.virgule'],
@@ -74,7 +74,7 @@ export default {
       deep: {
         why:
           '« Tierce » parce qu’on parcourt trois notes : do-ré-**mi**. C’est exactement la marche 2 du chapitre IV : celle qui différencie la gamme majeure de la gamme mineure. ' +
-          'La tierce est l’intervalle qui donne sa couleur à toute l’harmonie.',
+          'Rapports de fréquences : environ 5/4 pour la tierce majeure, 6/5 pour la mineure. Les deux sont consonantes ; c’est leur différence d’un demi-ton qui donne à toute l’harmonie sa couleur claire ou sombre (voir [tierce](sol.tierce)).',
         decode: [
           ['[c3,e3]', 'do + mi : tierce majeure, 4 demi-tons.', 'sol.tierce'],
           ['[c3,eb3]', 'do + mi bémol : tierce mineure, 3 demi-tons.', 'sol.tierce'],
@@ -131,8 +131,8 @@ export default {
       },
       deep: {
         why:
-          'Dans un accord de trois notes, la note de départ s’appelle la **fondamentale** ; elle donne son nom à l’accord. La quinte ne change pas entre majeur et mineur : ' +
-          'seule la tierce bouge. Majeur = 4 demi-tons puis 3. Mineur = 3 demi-tons puis 4.',
+          'Dans un [accord](sol.accord) de trois notes, la note de départ s’appelle la **fondamentale** ; elle donne son nom à l’accord. La quinte ne change pas entre majeur et mineur : seule la tierce bouge. ' +
+          'Majeur = 4 demi-tons puis 3. Mineur = 3 demi-tons puis 4. Il existe aussi le diminué (3 + 3, très instable) et l’augmenté (4 + 4, flottant).',
         decode: [
           ['c3', 'la fondamentale : do.', 'sol.accord'],
           ['e3', 'la tierce : elle décide majeur ou mineur.', 'sol.tierce'],
@@ -178,8 +178,9 @@ export default {
       },
       deep: {
         why:
-          'On numérote les accords d’une gamme en chiffres romains selon leur marche de départ : I (marche 0), IV (marche 3), V (marche 4), vi (marche 5, en minuscules car mineur). ' +
-          'I–IV–V est la progression la plus jouée de la musique occidentale ; I–V–vi–IV celle d’innombrables tubes.',
+          'On numérote les accords d’une gamme en chiffres romains selon leur marche de départ, comptée à partir de 1 : I (marche 0), IV (marche 3), V (marche 4), vi (marche 5, en minuscules car mineur). ' +
+          'En do majeur, la forme « une marche sur deux » donne : I majeur, ii mineur, iii mineur, IV majeur, V majeur, vi mineur, vii° diminué. ' +
+          'I–IV–V est la [progression](sol.progression) la plus jouée de la musique occidentale ; I–V–vi–IV celle d’innombrables tubes.',
         decode: [
           ['[0,2,4]', 'marches 0, 2 et 4 ensemble : l’accord I.', 'sol.accord'],
           ['[3,5,7]', 'la même forme sur la marche 3 : l’accord IV.', 'sol.progression'],
@@ -218,8 +219,10 @@ export default {
       },
       deep: {
         why:
-          'Une lettre seule désigne un accord majeur ; lettre + `m` un accord mineur. On croise aussi `C7`, `Am7` ou `C^7` : des accords à quatre notes, plus riches (dans Strudel, l’accord « majeur 7 » s’écrit avec un accent circonflexe, `C^7` ; `Cmaj7` ne joue rien). ' +
-          '**Attention** : ici les lettres sont en majuscules (ce sont des noms d’accords), alors que les notes de `note(…)` s’écrivent en minuscules.',
+          'Une lettre seule désigne un accord majeur ; lettre + `m` un accord mineur. On croise aussi `C7`, `Am7` ou `C^7` : des accords à quatre notes, plus riches. ' +
+          '**Attention aux noms** (vérifiés dans cette app) : l’accord « majeur 7 » s’écrit `C^7` ; `Cmaj7` ne joue rien. De même, `Csus4`, `Csus2` et `Cdim` ne jouent rien : écris `Csus` et `Co`. Voir [chord](fn.chord). ' +
+          '`.voicing()` choisit des notes réelles : pour `C`, cinq notes (mi3, do4, mi4, sol4, do5), toutes sous `c5`, pour que les accords s’enchaînent sans sauts (voir [voicing](fn.voicing)). ' +
+          'Ici les lettres sont en MAJUSCULES (ce sont des noms d’accords), alors que les notes de `note(…)` s’écrivent en minuscules.',
         decode: [
           ['chord("<C Am F G>")', 'une grille : un accord par cycle.', 'fn.chord'],
           ['.voicing()', 'transforme chaque nom d’accord en notes réelles.', 'fn.voicing'],
@@ -258,8 +261,9 @@ export default {
       },
       deep: {
         why:
-          'Les nombres de `.arp()` ne sont pas des marches de gamme : ce sont les positions dans l’accord, dans l’ordre où ses notes sont écrites, en partant de 0 (ici, du grave à l’aigu). ' +
-          'On peut accélérer l’arpège avec l’étoile, à condition de mettre tout l’ordre entre crochets : `.arp("[0 1 2 1]*2")`, ou avec `.fast(2)` (chapitre VII). Sans crochets, `.arp("0 1 2 1*2")` ne double que le dernier pas.',
+          'Les nombres de [arp](fn.arp) ne sont pas des marches de gamme : ce sont les positions dans l’accord, dans l’ordre où ses notes sont écrites, en partant de 0 (ici, du grave à l’aigu). ' +
+          'On peut accélérer l’arpège avec l’étoile, à condition de mettre tout l’ordre entre crochets : `.arp("[0 1 2 1]*2")`, ou avec `.fast(2)` (chapitre VII). Sans crochets, `.arp("0 1 2 1*2")` ne double que le dernier pas. ' +
+          'Avec `chord(…).voicing()`, un accord peut avoir plus de trois notes (cinq pour `C`) : les positions vont alors jusqu’à 4.',
         decode: [
           ['.arp("0 1 2 1")', 'joue les notes de l’accord dans cet ordre.', 'fn.arp'],
           ['C4:major', 'do majeur à partir de l’octave 4.', 'fn.scale'],
@@ -306,8 +310,9 @@ $: sound("bd*4, [~ cp]*2").bank("RolandTR909").gain(.8)`,
       },
       deep: {
         why:
-          'Dans la gamme de do majeur, les accords les plus utiles sont : `C`, `Dm`, `Em`, `F`, `G`, `Am`. Tu peux les enchaîner dans n’importe quel ordre, ça fonctionnera. ' +
-          '`.struct("x*4")` impose un rythme (quatre coups par cycle) à la basse, qui sinon tiendrait une seule longue note.',
+          'Dans la gamme de do majeur, les accords les plus utiles sont : `C`, `Dm`, `Em`, `F`, `G`, `Am`. Tu peux les enchaîner dans n’importe quel ordre, ça fonctionnera : ils partagent tous les notes de la gamme. ' +
+          '`const` ([donner un nom](js.const)) évite d’écrire deux fois la grille : si tu la changes, le piano et la basse suivent. ' +
+          '[rootNotes](fn.rootNotes)`(2)` donne la fondamentale de chaque accord à l’octave 2 (65 à 123 Hz). `.struct("x*4")` ([struct](fn.struct)) impose quatre coups par cycle à la basse, qui sinon tiendrait une seule longue note.',
         decode: [
           ['const grille = …', 'range la grille sous un nom, pour s’en servir deux fois.', 'js.const'],
           ['.rootNotes(2)', 'ne garde que la fondamentale de chaque accord, à l’octave 2.', 'fn.rootNotes'],

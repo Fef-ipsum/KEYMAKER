@@ -254,23 +254,49 @@ function Note({ noteKey }) {
 function LegacyStep({ entry, settings }) {
   const { step, chapter, index } = entry;
   const [done, setDone] = useState(() => isDone(step.id));
+  // Exercice validé automatiquement (legacy/checks.js) : indice après chaque ▶.
+  const [res, setRes] = useState(null); // null | { kind: 'hint' | 'syntax', hint }
+  const [tries, setTries] = useState(0);
+  const chimeOn = useRef(settings.chime);
+  chimeOn.current = settings.chime;
+
+  const validate = () => {
+    if (!isDone(step.id)) {
+      markDone(step.id);
+      markPracticed(step.id);
+      if (chimeOn.current) chime();
+    }
+    setDone(true);
+    setRes(null);
+    refreshProgress();
+  };
 
   useEffect(() => {
     setDone(isDone(step.id, readState()));
+    setRes(null);
+    setTries(0);
     markSeen(step.id);
     setResume(stepRoute(step.id), chapter.trackTitle + ' · ' + step.title);
-    dock.claim({ key: 'step:' + step.id, code: step.code, onRan: () => {} });
+    dock.claim({
+      key: 'step:' + step.id,
+      code: step.code,
+      onRan: (ctx) => {
+        if (!step.check) return;
+        const r = runCheck(step.check, ctx);
+        if (r.ok) return validate();
+        if (!ctx.changed) return setRes(null); // le code de départ, juste écouté
+        setRes({ kind: 'hint', hint: r.hint });
+        setTries((t) => t + 1);
+      },
+      onError: () => {
+        if (!step.check) return;
+        setRes({ kind: 'syntax' });
+        setTries((t) => t + 1);
+      },
+    });
     window.scrollTo({ top: 0 });
     return () => dock.release('step:' + step.id);
   }, [step.id]);
-
-  const validate = () => {
-    markDone(step.id);
-    markPracticed(step.id);
-    if (settings.chime) chime();
-    setDone(true);
-    refreshProgress();
-  };
 
   return (
     <>
@@ -292,9 +318,25 @@ function LegacyStep({ entry, settings }) {
         {step.exercise ? (
           <div className={'task' + (done ? ' is-done' : '')}>
             <div className="moment-label">À toi</div>
-            <p>{step.exercise}</p>
+            {step.rich ? <Rich as="p" text={step.exercise} /> : <p>{step.exercise}</p>}
             {done ? (
-              <p className="task-ok" role="status"><Icon name="check" size={18} /> Noté comme fait.</p>
+              <p className="task-ok" role="status"><Icon name="check" size={18} /> {step.check && step.ok ? <Rich text={step.ok} /> : 'Noté comme fait.'}</p>
+            ) : step.check ? (
+              <>
+                {res && res.kind === 'syntax' ? (
+                  <p className="res res-hint" role="status">Ton code a une faute de frappe : le message rouge de l’éditeur dit où. Je vérifie dès qu’elle est corrigée.</p>
+                ) : res ? (
+                  <p className="res res-hint" role="status"><Rich text={res.hint || 'Pas encore. Relis la consigne, change le code, puis relance.'} /></p>
+                ) : (
+                  <p className="res res-wait">Change le code selon la consigne, puis touche ▶ : je vérifie tout seul.</p>
+                )}
+                <p className="task-alt">
+                  {tries >= 2 && step.solution ? (
+                    <button type="button" className="linkbtn" onClick={() => dock.loadCode(step.solution)}>Voir une solution</button>
+                  ) : null}
+                  <button type="button" className="linkbtn" onClick={validate}>Je l’ai fait autrement</button>
+                </p>
+              </>
             ) : (
               <button type="button" className="btn btn-primary" onClick={validate}><Icon name="check" size={18} /> C’est fait</button>
             )}
@@ -309,7 +351,7 @@ function LegacyStep({ entry, settings }) {
               {step.decode.map((d, i) => (
                 <div key={i} className="decode-row">
                   <dt><code>{d[0]}</code></dt>
-                  <dd>{d[1]}</dd>
+                  <dd>{step.rich ? <Rich text={d[1]} /> : d[1]}</dd>
                 </div>
               ))}
             </dl>
@@ -322,7 +364,7 @@ function LegacyStep({ entry, settings }) {
               {step.theory.items.map((d, i) => (
                 <div key={i} className="decode-row">
                   <dt><strong>{d[0]}</strong></dt>
-                  <dd>{d[1]}</dd>
+                  <dd>{step.rich ? <Rich text={d[1]} /> : d[1]}</dd>
                 </div>
               ))}
             </dl>
@@ -334,15 +376,15 @@ function LegacyStep({ entry, settings }) {
             <div className="tablewrap">
               <table className="recap">
                 <thead><tr>{step.recap.columns.map((c, i) => <th key={i}>{c}</th>)}</tr></thead>
-                <tbody>{step.recap.rows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j}>{c}</td>)}</tr>)}</tbody>
+                <tbody>{step.recap.rows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j}>{step.richRecap ? <Rich text={c} /> : c}</td>)}</tr>)}</tbody>
               </table>
             </div>
           </Fold>
         ) : null}
 
-        {step.free ? <p className="free"><strong>Pour aller plus loin.</strong> {step.free}</p> : null}
+        {step.free ? <p className="free"><strong>Pour aller plus loin.</strong> {step.richRecap ? <Rich text={step.free} /> : step.free}</p> : null}
         {step.culture ? (
-          <p className="culture"><strong>À écouter.</strong> {step.culture.artist} — {step.culture.track} : {step.culture.why}</p>
+          <p className="culture"><strong>À écouter.</strong> {step.culture.artist} — {step.culture.track} : {step.richRecap ? <Rich text={step.culture.why} /> : step.culture.why}</p>
         ) : null}
 
         <Note noteKey={step.noteKey} />

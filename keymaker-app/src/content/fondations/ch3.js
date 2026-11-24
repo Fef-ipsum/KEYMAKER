@@ -28,8 +28,9 @@ export default {
       },
       deep: {
         why:
-          'Un son est une vibration. Plus elle est rapide, plus le son est aigu. Chaque marche de cet escalier vibre exactement deux fois plus vite que la précédente : ' +
-          'c’est pour cela que ces quatre sons se ressemblent autant. Ils portent d’ailleurs le même nom, `c`. On y revient dans deux étapes.',
+          'Un son est une vibration ; sa [hauteur](sol.hauteur) dépend du nombre d’allers-retours par seconde, la fréquence, en hertz (Hz). Plus elle est élevée, plus le son est aigu. ' +
+          'Ici : do2 = 65 Hz, do3 = 131 Hz, do4 = 262 Hz, do5 = 523 Hz. Chaque marche vibre exactement deux fois plus vite que la précédente : c’est pour cela que ces quatre sons se ressemblent autant, et qu’ils portent le même nom, `c`. On y revient dans deux étapes. ' +
+          'L’oreille humaine entend d’environ 20 à 20 000 Hz.',
         decode: [
           ['note("…")', 'joue des notes, c’est-à-dire des hauteurs.', 'fn.note'],
           ['.sound("piano")', 'avec le son d’un piano.', 'son.piano'],
@@ -69,8 +70,9 @@ export default {
       },
       deep: {
         why:
-          'Les lettres vont de A à G parce que la série anglaise commence au **la** : A = la, B = si, C = do… Un moyen simple : retiens que **C = do**, puis déroule l’alphabet. ' +
-          'Après G (sol), on repart à A (la). Dans le code on écrit les lettres en minuscules.',
+          'La série de lettres commence au **la** : A = la, B = si, C = do… C’est un héritage historique, sans lien avec la façon dont les notes sonnent. ' +
+          'Un moyen simple : retiens que **C = do**, puis déroule l’alphabet. Après G (sol), on repart à A (la). Dans le code, on écrit les lettres en minuscules. ' +
+          'Les syllabes françaises, elles, viennent d’un hymne latin (voir [noms des notes](sol.noms-des-notes)).',
         decode: [
           ['c d e f g a b', 'do ré mi fa sol la si.', 'sol.noms-des-notes'],
           ['c4', 'le do suivant, une octave plus haut.', 'sol.octave'],
@@ -112,9 +114,9 @@ export default {
       },
       deep: {
         why:
-          'Le mot « octave » vient de *huit* : de do à do, on compte huit notes (do ré mi fa sol la si do). ' +
-          'Le do du milieu d’un piano est `c4` (beaucoup de méthodes françaises l’appellent « do3 » : Strudel suit la numérotation internationale). **Piège fréquent** : `c` tout seul n’est pas ce do central mais le do en dessous (`c3`). ' +
-          'Pour monter d’une octave depuis `c`, il faut donc écrire `c4`.',
+          'Le mot « octave » vient de *huit* : de do à do, on compte huit notes (do ré mi fa sol la si do). Physiquement, monter d’une [octave](sol.octave), c’est doubler la fréquence : 131 Hz pour `c3`, 262 Hz pour `c4`. ' +
+          'Le do du milieu d’un piano est `c4` (beaucoup de méthodes françaises l’appellent « do3 » : Strudel suit la numérotation internationale). ' +
+          '**Piège fréquent** : `c` tout seul n’est pas ce do central mais le do en dessous (`c3`). Pour monter d’une octave depuis `c`, il faut donc écrire `c4`.',
         decode: [
           ['c3', 'do, octave 3. C’est aussi ce que joue `c` tout seul.', 'sol.octave'],
           ['c4', 'do, une octave plus haut : le do central du piano.', 'sol.octave'],
@@ -149,9 +151,9 @@ export default {
       },
       deep: {
         why:
-          'Sur un piano, les dièses et bémols sont les touches noires. Une même touche a deux noms : `d#` (ré dièse) et `eb` (mi bémol) sont le même son. ' +
-          'Deux demi-tons font un **ton**. **Piège** : `b` tout seul est la note si ; `bb` est si bémol. Autre piège : il n’y a pas de touche noire entre mi et fa, ni entre si et do — ' +
-          'ces notes sont déjà à un demi-ton l’une de l’autre.',
+          'Sur un piano, les dièses et bémols sont les touches noires. Une même touche a deux noms : `d#` (ré dièse) et `eb` (mi bémol) sont le même son. Deux demi-tons font un **ton**. ' +
+          'Les 12 [demi-tons](sol.demi-ton) d’une octave sont égaux : chacun multiplie la fréquence par environ 1,0595 (12 fois de suite, on obtient ×2, l’octave). ' +
+          '**Piège** : `b` tout seul est la note si ; `bb` est si bémol. Autre piège : il n’y a pas de touche noire entre mi et fa, ni entre si et do : ces notes sont déjà à un demi-ton l’une de l’autre.',
         decode: [
           ['c#', 'do dièse : un demi-ton au-dessus de do.', 'sol.diese-bemol'],
           ['eb', 'mi bémol : un demi-ton en dessous de mi.', 'sol.diese-bemol'],
@@ -198,8 +200,8 @@ export default {
       },
       deep: {
         why:
-          'Le point `.` enchaîne : on part de `note(…)` et on lui ajoute des réglages, l’un après l’autre. ' +
-          'C’est le premier élément, ici `note(…)`, qui donne le rythme ; les réglages ajoutés ensuite ne font que colorer chaque note. Le chapitre VI est consacré au timbre.',
+          'Le point `.` enchaîne : on part de `note(…)` et on lui ajoute des réglages, l’un après l’autre. C’est le premier élément, ici `note(…)`, qui donne le rythme ; les réglages ajoutés ensuite ne font que colorer chaque note. ' +
+          'Ce qui distingue un piano d’un synthé à hauteur égale, c’est le [timbre](sol.timbre) : le mélange de fréquences qui accompagnent la note (ses harmoniques) et la façon dont le son démarre et s’éteint. Le chapitre VI y est consacré.',
         decode: [
           ['.sound("piano")', 'le timbre : ici un piano enregistré.', 'son.piano'],
           ['sawtooth', 'un synthétiseur au son riche et brillant.', 'son.ondes'],
@@ -238,8 +240,8 @@ export default {
       },
       deep: {
         why:
-          'Astuce pour une mélodie qui « tient » : commence et termine sur la même note, et bouge par petites marches plutôt que par grands sauts. ' +
-          'Au chapitre suivant, les gammes te donneront un moyen de ne jamais tomber sur une fausse note.',
+          'Astuce pour une mélodie qui « tient » : commence et termine sur la même note, et bouge par petites marches plutôt que par grands sauts. Les petites marches sont faciles à suivre pour l’oreille ; un grand saut attire l’attention, à réserver aux moments importants. ' +
+          'Au chapitre suivant, les [gammes](sol.gamme) te donneront un moyen de ne jamais tomber sur une fausse note.',
         decode: [
           ['[e4 c4]', 'deux notes rapides dans un seul pas.', 'mini.crochets'],
           ['~', 'un silence.', 'mini.silence'],
@@ -281,7 +283,8 @@ $: note("c2 c2 eb2 c2 g1 g1 bb1 c2").sound("sawtooth").lpf(700)`,
       },
       deep: {
         why:
-          '`.lpf(700)` étouffe les aigus du synthétiseur pour lui donner un son rond de basse (c’est un filtre, chapitre VI). ' +
+          '`.lpf(700)` est un [filtre passe-bas](fx.lpf) : il atténue les fréquences au-dessus de 700 Hz et donne au synthétiseur un son rond de basse (chapitre VI). ' +
+          'Les octaves 1 et 2 couvrent environ 33 à 123 Hz : la zone de la basse et du kick. Sur un téléphone, ces fréquences passent mal ; au casque, elles donnent le poids du morceau. ' +
           'Les notes `eb` (mi bémol) et `bb` (si bémol) donnent à cette ligne sa couleur sombre : elle est en *do mineur*. Le chapitre IV explique ce mot.',
         decode: [
           ['c2, g1, bb1', 'des notes graves : octaves 1 et 2.', 'sol.octave'],

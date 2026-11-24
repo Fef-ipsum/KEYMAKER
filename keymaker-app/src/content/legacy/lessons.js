@@ -1561,152 +1561,133 @@ export const m3chapitre1 = {
   subtitle: 'La guitare comme carte des notes',
   flashs: [
     {
-      id: '3.1',
-      kicker: 'La guitare entre en jeu',
-      title: 'Ta guitare, dans le code',
-      concept:
-        "Jusqu'ici tu jouais piano, sawtooth, triangle… Strudel embarque aussi de vraies " +
-        'guitares (banque General MIDI). On choisit le timbre avec .s("gm_…"). ' +
-        "Fil rouge du module : l'industrial / EBM — là, la guitare n'est pas l'ennemie de l'électro, elles fusionnent (riff distordu sur kick rigide).",
-      code: 'note("e3 a3 d4 g4").s("gm_acoustic_guitar_nylon").room(.3)',
+      id: "3.1",
+      kicker: "La guitare entre en jeu",
+      title: "Ta guitare, dans le code",
+      concept: "Strudel contient aussi des guitares enregistrées, issues d’une banque au format General MIDI (les sons dont le nom commence par `gm_`). On choisit le timbre avec `.s(\"gm_…\")`. Fil rouge du parcours : l’*industrial*, où la guitare saturée et la musique électronique se mêlent (riff distordu sur kick rigide).",
+      code: "note(\"e3 a3 d4 g4\").s(\"gm_acoustic_guitar_nylon\").room(.3)",
       decode: [
-        ['gm_acoustic_guitar_nylon', 'guitare classique (cordes nylon). Le « gm_ » = banque General MIDI.'],
-        ['.s("…")', 'choisit le timbre — comme .sound(). Ici, une guitare.'],
-        ['.room(.3)', "un peu de réverbération pour le corps de l'instrument."],
+        ["gm_acoustic_guitar_nylon", "guitare classique, cordes en nylon. `gm_` = banque General MIDI."],
+        [".s(\"…\")", "choisit le son, comme `.sound()`."],
+        [".room(.3)", "un peu de réverbération autour de l’instrument (voir [room](fx.room))."],
       ],
       theory: {
-        title: 'Les guitares disponibles',
+        title: "Les guitares disponibles",
         items: [
-          ['gm_acoustic_guitar_nylon', 'classique, douce (cordes nylon).'],
-          ['gm_acoustic_guitar_steel', 'folk, plus claire (cordes acier).'],
-          ['gm_electric_guitar_clean', 'électrique propre.'],
-          ['gm_distortion_guitar', 'électrique saturée (rock).'],
+          ["gm_acoustic_guitar_nylon", "classique, douce."],
+          ["gm_acoustic_guitar_steel", "folk, plus claire (cordes en acier)."],
+          ["gm_electric_guitar_clean", "électrique, son clair."],
+          ["gm_distortion_guitar", "électrique saturée."],
         ],
       },
-      exercise:
-        'Joue le code, puis échange le son contre gm_acoustic_guitar_steel, puis ' +
-        'gm_electric_guitar_clean. Mêmes notes, trois guitares.',
+      exercise: "Joue le code, puis remplace le son par `gm_acoustic_guitar_steel`, puis `gm_electric_guitar_clean`. Mêmes notes, trois guitares.",
+      rich: true,
     },
 
     {
-      id: '3.2',
+      id: "3.2",
       kicker: "L'accordage",
-      title: 'Les 6 cordes à vide : E A D G B E',
-      concept:
-        'Une guitare standard a 6 cordes, accordées de la plus grave à la plus aiguë : ' +
-        'Mi La Ré Sol Si Mi — en lettres E A D G B E. « À vide » = jouée sans poser de doigt.',
-      code: 'note("e2 a2 d3 g3 b3 e4").s("gm_acoustic_guitar_nylon").room(.3)',
+      title: "Les 6 cordes à vide : E A D G B E",
+      concept: "Une guitare a 6 cordes, accordées de la plus grave à la plus aiguë : mi, la, ré, sol, si, mi (E A D G B E). « À vide » = jouée sans poser de doigt. En notation Strudel : `e2 a2 d3 g3 b3 e4` (voir [cordes à vide](voc.guitare.cordes-a-vide)).",
+      code: "note(\"e2 a2 d3 g3 b3 e4\").s(\"gm_acoustic_guitar_nylon\").room(.3)",
       decode: [
-        ['e2 … e4', 'de la 6ᵉ corde (grave) à la 1ʳᵉ (aiguë).'],
-        ['les chiffres', "l'octave (M2) : e2 grave, e4 deux octaves plus haut."],
-        ['E A D G B E', "le moyen mnémo : « Et Adam Donna Genèse Bien Évidemment »."],
+        ["e2 … e4", "de la 6ᵉ corde (la plus grave, 82 Hz) à la 1ʳᵉ (la plus aiguë, 330 Hz)."],
+        ["les chiffres", "le numéro d’[octave](sol.octave) : e4 est deux octaves au-dessus de e2."],
+        ["E A D G B E", "un moyen mnémotechnique : « Et Adam Donna Genèse Bien Évidemment »."],
       ],
       theory: {
-        title: "Côté solfège — l'accordage",
+        title: "L’accordage",
         items: [
-          ['cordes à vide', 'les 6 notes de référence : E A D G B E.'],
-          ['lettres = M2', 'ce sont les lettres A–G du Module 2, appliquées à ta guitare.'],
-          ['intervalles', 'entre cordes voisines : une quarte (5 demi-tons)… sauf G→B : une tierce (4).'],
+          ["cordes à vide", "les 6 notes de référence : E A D G B E."],
+          ["lettres", "les mêmes lettres que les [noms des notes](sol.noms-des-notes) : E = mi, A = la…"],
+          ["intervalles", "entre cordes voisines : une quarte (5 demi-tons), sauf sol → si : une tierce majeure (4)."],
         ],
       },
-      exercise:
-        "Joue les 6 cordes lentement, du grave à l'aigu, puis à l'envers : " +
-        'note("e4 b3 g3 d3 a2 e2").',
+      exercise: "Joue les 6 cordes lentement, du grave à l’aigu, puis à l’envers : `note(\"e4 b3 g3 d3 a2 e2\")`.",
+      rich: true,
     },
 
     {
-      id: '3.3',
-      kicker: 'Les cases',
+      id: "3.3",
+      kicker: "Les cases",
       title: "Monter d'une case = +1 demi-ton",
-      concept:
-        "Poser un doigt une case plus haut monte la note d'un demi-ton (M2). " +
-        "En montant la corde de Mi grave case par case, on parcourt la gamme chromatique.",
-      code: 'note("e2 f2 f#2 g2 g#2 a2").s("gm_acoustic_guitar_nylon").clip(1.2)',
+      concept: "Poser un doigt une case plus haut monte la note d’un [demi-ton](sol.demi-ton) : la corde vibrante est raccourcie d’environ 6 %, sa fréquence augmente d’autant. En montant la corde de mi grave case par case, on parcourt les 12 notes.",
+      code: "note(\"e2 f2 f#2 g2 g#2 a2\").s(\"gm_acoustic_guitar_nylon\").clip(1.2)",
       decode: [
-        ['e2 → a2', 'cases 0 à 5 de la corde de Mi grave : E F F# G G# A.'],
-        ['1 case', '= 1 demi-ton = la plus petite marche (M2).'],
-        ['case 5 = a2', 'la même note que la corde de La à vide ! Un repère clé.'],
+        ["e2 → a2", "cases 0 à 5 de la corde de mi grave : E, F, F#, G, G#, A."],
+        ["1 case", "1 demi-ton."],
+        ["case 5 = a2", "la même note que la corde de la à vide : un repère clé."],
       ],
       theory: {
-        title: 'Côté solfège — la case',
+        title: "La case",
         items: [
-          ['demi-ton', '1 case = le plus petit pas (M2).'],
-          ['ton', '2 cases = 1 ton.'],
-          ['repère', "case 5 d'une corde ≈ la corde suivante à vide (sauf G→B : case 4)."],
+          ["demi-ton", "1 case : le plus petit pas."],
+          ["ton", "2 cases."],
+          ["repère", "case 5 d’une corde = la corde suivante à vide (sauf sol → si : case 4)."],
         ],
       },
-      exercise:
-        'Fais pareil sur la corde de La : note("a2 a#2 b2 c3 c#3 d3"). ' +
-        'Tu montes la corde de La, case par case — et tu retombes sur Ré (corde suivante).',
+      exercise: "Fais pareil sur la corde de la : `note(\"a2 a#2 b2 c3 c#3 d3\")`. Tu montes la corde de la, case par case, jusqu’au ré de la corde suivante.",
+      rich: true,
     },
 
     {
-      id: '3.4',
+      id: "3.4",
       kicker: "Le repère d'or",
-      title: 'La 12ᵉ case : l\'octave',
-      concept:
-        'Douze cases = douze demi-tons = une octave (M2). La 12ᵉ case d\'une corde donne ' +
-        'donc la même note que la corde à vide, en plus aigu. C\'est le grand repère du manche.',
-      code: 'note("e2 e3, a2 a3").s("gm_electric_guitar_clean").clip(2)',
+      title: "La 12ᵉ case : l'octave",
+      concept: "Douze cases = douze demi-tons = une [octave](sol.octave) : la fréquence est doublée, car la longueur vibrante de la corde est divisée par deux. La 12ᵉ case donne donc la même note que la corde à vide, une octave plus haut. C’est le grand repère du manche.",
+      code: "note(\"e2 e3, a2 a3\").s(\"gm_electric_guitar_clean\").clip(2)",
       decode: [
-        ['e2 → e3', 'corde de Mi à vide puis 12ᵉ case : même note, +1 octave.'],
-        ['la virgule', "joue les deux cordes en parallèle (M1) — entends l'octave."],
-        ['.clip(2)', 'laisse les notes sonner deux fois plus longtemps.'],
+        ["e2 → e3", "corde de mi à vide, puis 12ᵉ case : même note, une octave plus haut."],
+        ["la virgule", "joue les deux cordes en même temps (voir [virgule](mini.virgule))."],
+        [".clip(2)", "chaque note dure deux pas : elles résonnent ensemble (voir [clip](fx.clip))."],
       ],
       theory: {
-        title: "Côté solfège — l'octave sur le manche",
+        title: "L’octave sur le manche",
         items: [
-          ['12 cases', '= 1 octave = rapport de fréquence 2:1 (M2).'],
-          ['repères', 'les points du manche : cases 3, 5, 7, 9, et double point à la 12ᵉ.'],
+          ["12 cases", "1 octave : fréquence × 2."],
+          ["repères", "les points du manche : cases 3, 5, 7, 9, et un double point à la 12ᵉ."],
         ],
       },
-      exercise:
-        'Compare note("e2 e3") (12 cases sur une corde) et ' +
-        'note("e2 a2 d3 g3 b3 e4") : deux façons de monter sur le manche.',
+      exercise: "Compare `note(\"e2 e3\")` (12 cases sur une corde) et `note(\"e2 a2 d3 g3 b3 e4\")` : deux façons de monter sur le manche.",
+      rich: true,
     },
 
     {
-      id: '3.5',
+      id: "3.5",
       kicker: "Mettre d'accord",
       title: "S'accorder : la méthode de la 5ᵉ case",
-      concept:
-        "Pour accorder sans accordeur : la 5ᵉ case d'une corde donne la note de la corde " +
-        "suivante à vide. Exception : pour la corde de Sol (G), c'est la 4ᵉ case qui donne Si (B).",
-      code: 'note("a2 a2, e3 e3").s("gm_acoustic_guitar_nylon").clip(1.5)',
+      concept: "Pour accorder sans accordeur : la 5ᵉ case d’une corde doit donner exactement la note de la corde suivante, à vide. Exception : sur la corde de sol (G), c’est la 4ᵉ case qui donne le si (B). Si les deux notes ne sont pas identiques, on entend un battement lent : on tourne la mécanique jusqu’à ce qu’il disparaisse.",
+      code: "note(\"a2 a2, e3 e3\").s(\"gm_acoustic_guitar_nylon\").clip(1.5)",
       decode: [
-        ['5ᵉ case du Mi grave', '= A → doit sonner comme la corde de La à vide.'],
-        ['a2 = a2', 'les deux doivent être identiques : sinon, on ajuste la corde.'],
-        ['exception G→B', 'la 4ᵉ case de Sol (G) donne Si (B), pas la 5ᵉ.'],
+        ["5ᵉ case du mi grave", "= A : doit sonner comme la corde de la à vide."],
+        ["a2 = a2", "deux notes identiques : aucun battement."],
+        ["exception sol → si", "la 4ᵉ case de sol donne si."],
       ],
       theory: {
-        title: "L'ordre des comparaisons",
+        title: "L’ordre des comparaisons",
         items: [
-          ['E → A', '5ᵉ case de E = corde de A'],
-          ['A → D', '5ᵉ case de A = corde de D'],
-          ['D → G', '5ᵉ case de D = corde de G'],
-          ['G → B', '4ᵉ case de G = corde de B (l\'exception !)'],
-          ['B → E', '5ᵉ case de B = corde de E (aiguë)'],
+          ["E → A", "5ᵉ case de mi = corde de la."],
+          ["A → D", "5ᵉ case de la = corde de ré."],
+          ["D → G", "5ᵉ case de ré = corde de sol."],
+          ["G → B", "4ᵉ case de sol = corde de si (l’exception)."],
+          ["B → E", "5ᵉ case de si = corde de mi aiguë."],
         ],
       },
       recap: {
-        title: 'Récap chapitre 1 — Le manche',
-        columns: ['Repère', 'Sur le manche', 'Dans Strudel'],
+        title: "Récap chapitre 1 — Le manche",
+        columns: ["Repère", "Sur le manche", "Dans Strudel"],
         rows: [
-          ['Cordes à vide', 'E A D G B E', 'note("e2 a2 d3 g3 b3 e4")'],
-          ['1 case', '+1 demi-ton', 'note("e2 f2")'],
-          ['1 ton', '2 cases', 'note("e2 f#2")'],
-          ['Octave', '12 cases', 'note("e2 e3")'],
-          ['Accordage', '5ᵉ case (G→B : 4ᵉ)', 'note("a2 a2")'],
+          ["cordes à vide", "mi la ré sol si mi, du grave à l’aigu", "`note(\"e2 a2 d3 g3 b3 e4\")`"],
+          ["une case", "+1 demi-ton", "`note(\"e2 f2\")`"],
+          ["deux cases", "+1 ton", "`note(\"e2 f#2\")`"],
+          ["octave", "12 cases plus haut", "`note(\"e2 e3\")`"],
+          ["accordage", "5ᵉ case = la corde à vide suivante (de sol à si : 4ᵉ case)", "`note(\"a2 a2\")`"],
         ],
       },
-      exercise:
-        'Vérifie ta vraie guitare : joue a2 dans Strudel et la corde de La — ' +
-        "sont-elles d'accord ?",
-      free:
-        "Tu tiens le manche comme une carte : 6 cordes, des cases qui ajoutent des demi-tons, " +
-        "l'octave à la 12ᵉ. Bidouille : pars d'une corde et grimpe en " +
-        'note("e2 f#2 g#2 a2 b2") — tu joues déjà une gamme sur une seule corde. ' +
-        "Au chapitre 2, on apprend à trouver et déplacer n'importe quelle note.",
+      exercise: "Vérifie ta vraie guitare : joue `a2` dans Strudel et la corde de la. Si tu entends un battement, elles ne sont pas exactement accordées.",
+      free: "Tu lis le manche comme une carte : 6 cordes, des cases qui ajoutent chacune un demi-ton, l’octave à la 12ᵉ case. Essaie `note(\"e2 f#2 g#2 a2 b2\")` : les cases 0, 2, 4, 5 et 7 de la corde de mi, soit le début de la gamme de mi majeur, sur une seule corde. Au chapitre 2, on apprend à trouver et déplacer n’importe quelle note.",
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -1718,150 +1699,130 @@ export const m3chapitre2 = {
   subtitle: 'Trouver les notes, les déplacer',
   flashs: [
     {
-      id: '3.6',
-      kicker: 'Nommer les cases',
-      title: 'Trouver les notes sur la corde de Mi',
-      concept:
-        "Sur la corde de Mi grave, en montant case par case, on retrouve l'alphabet musical (M2). " +
-        'Connaître les notes de cette corde suffit déjà pour te repérer partout.',
-      code: 'note("e2 f2 g2 a2 b2 c3 d3 e3").s("gm_acoustic_guitar_nylon").clip(1.2)',
+      id: "3.6",
+      kicker: "Nommer les cases",
+      title: "Trouver les notes sur la corde de Mi",
+      concept: "Sur la corde de mi grave, en montant case par case, on retrouve les noms des notes dans l’ordre. Connaître les notes de cette corde suffit déjà à se repérer partout sur le manche.",
+      code: "note(\"e2 f2 g2 a2 b2 c3 d3 e3\").s(\"gm_acoustic_guitar_nylon\").clip(1.2)",
       decode: [
-        ['e2 f2 g2 …', 'les notes naturelles (sans dièse) de la corde de Mi grave.'],
-        ['cases 0 1 3 5 7 8 10 12', "attention : E→F et B→C n'ont qu'1 case d'écart (M2)."],
-        ['e2 → e3', '8 notes naturelles, et on retombe sur Mi (12ᵉ case).'],
+        ["e2 f2 g2 …", "les notes naturelles (sans dièse) de la corde de mi grave."],
+        ["cases 0 1 3 5 7 8 10 12", "E→F et B→C n’ont qu’une case d’écart (un demi-ton)."],
+        ["e2 → e3", "8 notes naturelles, et on retombe sur mi, à la 12ᵉ case."],
       ],
       theory: {
-        title: 'Côté solfège — mi-fa & si-do',
+        title: "Mi-fa et si-do",
         items: [
-          ['E → F', '1 seule case (1 demi-ton) : pas de note noire entre eux (M2).'],
-          ['B → C', 'pareil : 1 case seulement.'],
-          ['les autres', 'séparés par 2 cases (1 ton), avec une note noire entre.'],
+          ["E → F", "1 seule case : pas de touche noire entre elles sur un piano."],
+          ["B → C", "pareil : 1 case."],
+          ["les autres", "séparées par 2 cases (un ton), avec une note dièse/bémol entre."],
         ],
       },
-      exercise:
-        'Fais pareil sur la corde de La : note("a2 b2 c3 d3 e3 f3 g3 a3"). ' +
-        'Repère le saut court B→C.',
+      exercise: "Fais pareil sur la corde de la : `note(\"a2 b2 c3 d3 e3 f3 g3 a3\")`. Repère le pas court B→C.",
+      rich: true,
     },
 
     {
-      id: '3.7',
-      kicker: 'La gamme, version guitare',
-      title: 'Une gamme : le long ou en travers',
-      concept:
-        'Tu peux jouer une gamme (M2) de deux façons sur la guitare : tout sur une corde ' +
-        "(en montant les cases) ou en travers (en changeant de corde). Strudel rend les deux audibles.",
-      code: 'note("0 2 4 5 7 9 11 12".add("48")).s("gm_acoustic_guitar_steel").clip(1.2)',
+      id: "3.7",
+      kicker: "La gamme, version guitare",
+      title: "Une gamme : le long ou en travers",
+      concept: "Une [gamme](sol.gamme) se joue de deux façons sur la guitare : sur une seule corde (en montant les cases) ou en travers (en changeant de corde). Strudel rend les deux audibles.",
+      code: "note(\"0 2 4 5 7 9 11 12\".add(\"48\")).s(\"gm_acoustic_guitar_steel\").clip(1.2)",
       decode: [
-        ['"0 2 4 5 7 9 11 12"', 'les écarts en demi-tons de do majeur (M2 : T-T-S-T-T-T-S).'],
-        ['.add("48")', '48 = do (c3), une octave SOUS le do central (c4 = 60, cf. M1 4.1) ; on cale la gamme dessus → do ré mi fa sol la si do.'],
-        ['sur une corde', 'cette suite de cases « dessine » la gamme en ligne.'],
+        ["\"0 2 4 5 7 9 11 12\"", "les écarts en demi-tons de la gamme majeure : ton, ton, demi-ton, ton, ton, ton, demi-ton."],
+        [".add(\"48\")", "48 = do3, une octave sous le do central (60) : on pose la gamme sur ce do."],
+        ["sur une corde", "cette suite de cases dessine la gamme en ligne."],
       ],
       theory: {
-        title: 'Côté solfège — le lien',
+        title: "Le lien avec la théorie",
         items: [
-          ['la recette', 'do majeur = +0 +2 +4 +5 +7 +9 +11 +12 demi-tons (M2 ch.3).'],
-          ['une corde', "montre la gamme « en ligne » — parfait pour voir les intervalles."],
-          ['en travers', "n() + scale() répartit les mêmes notes sur plusieurs cordes."],
+          ["la recette", "do majeur = +0 +2 +4 +5 +7 +9 +11 +12 demi-tons (voir [gamme majeure](sol.majeur))."],
+          ["une corde", "montre la gamme en ligne : idéal pour voir les intervalles."],
+          ["en travers", "`n()` + `scale()` donne les mêmes notes ; sur le manche, on les répartit sur plusieurs cordes."],
         ],
       },
-      exercise:
-        'Compare avec n("0 1 2 3 4 5 6 7").scale("C:major").s("gm_acoustic_guitar_steel"). ' +
-        'Même gamme, répartie par Strudel.',
+      exercise: "Compare avec `n(\"0 1 2 3 4 5 6 7\").scale(\"C:major\").s(\"gm_acoustic_guitar_steel\")` : même gamme, écrite en degrés.",
+      rich: true,
     },
 
     {
-      id: '3.8',
-      kicker: 'Le capo',
-      title: 'Le capo = tout monter d\'un coup',
-      concept:
-        "Un capo serre toutes les cordes à une case : il monte tout le morceau de N demi-tons " +
-        "sans changer tes doigtés. Dans Strudel, c'est .add(N) appliqué à l'ensemble (M2 : transposer).",
-      code: 'note("e2 a2 d3 g3 b3 e4").add(note("<0 2 5>")).s("gm_acoustic_guitar_nylon").clip(1.5)',
+      id: "3.8",
+      kicker: "Le capo",
+      title: "Le capo = tout monter d'un coup",
+      concept: "Un [capo](voc.guitare.capo) serre toutes les cordes à une case : il monte tout de N demi-tons sans changer les doigtés. Dans Strudel, c’est `.add(note(N))` (voir [add](fn.add)).",
+      code: "note(\"e2 a2 d3 g3 b3 e4\").add(note(\"<0 2 5>\")).s(\"gm_acoustic_guitar_nylon\").clip(1.5)",
       decode: [
-        ['.add(note("<0 2 5>"))', 'capo 0 (rien), puis capo 2, puis capo 5 — un par cycle (M1 : < >).'],
-        ['capo 2', '+2 demi-tons : tes accords sonnent un ton plus haut.'],
-        ['à quoi ça sert', "changer la hauteur d'une chanson sans réapprendre les positions."],
+        [".add(note(\"<0 2 5>\"))", "sans capo, puis capo 2, puis capo 5 : un par cycle."],
+        ["capo 2", "+2 demi-tons : tout sonne un ton plus haut."],
+        ["à quoi ça sert", "changer la hauteur d’une chanson (pour la voix, par exemple) sans réapprendre les positions."],
       ],
       theory: {
-        title: 'Côté solfège — transposer',
+        title: "Transposer",
         items: [
-          ['transposer', 'décaler toutes les notes du même intervalle (M2 ch.5).'],
-          ['capo N', '= transposer de N demi-tons vers l\'aigu.'],
-          ['guitare', 'le capo garde les mêmes formes d\'accords — juste plus haut.'],
+          ["transposer", "décaler toutes les notes du même intervalle (voir [transpose](fn.transpose))."],
+          ["capo N", "transposer de N demi-tons vers l’aigu."],
+          ["les formes", "restent les mêmes, juste plus haut."],
         ],
       },
-      exercise:
-        'Fixe le capo à la 3ᵉ case : remplace par .add(note(3)). ' +
-        'Toutes les cordes montent de 3 demi-tons.',
+      exercise: "Fixe le capo à la 3ᵉ case : remplace par `.add(note(3))`. Toutes les cordes montent de 3 demi-tons.",
+      rich: true,
     },
 
     {
-      id: '3.9',
+      id: "3.9",
       kicker: "L'arme du guitariste",
-      title: 'La boîte pentatonique : improviser',
-      concept:
-        "La pentatonique (M2) tient sur la guitare dans une « boîte » : une position de 5 notes " +
-        "par octave qu'on joue partout. C'est LE terrain de jeu pour improviser un solo sans fausse note.",
-      code: 'setcpm(70/4)\nn("0 1 2 3 4 5 6 7").scale("E:minor:pentatonic").s("gm_electric_guitar_clean").clip(1.3)',
+      title: "La boîte pentatonique : improviser",
+      concept: "La [pentatonique](sol.pentatonique) tient sur le manche dans une « boîte » : une position des doigts qui couvre les 5 notes de la gamme sur plusieurs cordes, et qu’on peut déplacer. Sans demi-ton entre ses notes, aucune ne frotte : c’est le terrain de jeu de l’improvisation.",
+      code: "setcpm(70/4)\nn(\"0 1 2 3 4 5 6 7\").scale(\"E:minor:pentatonic\").s(\"gm_electric_guitar_clean\").clip(1.3)",
       decode: [
-        ['E:minor:pentatonic', 'mi mineur pentatonique : la boîte rock/blues par excellence.'],
-        ['n("0 … 7")', 'les degrés de la boîte, du grave à l\'aigu.'],
-        ['gm_electric_guitar_clean', 'une électrique propre, le son « solo ».'],
+        ["E:minor:pentatonic", "mi mineur pentatonique : mi, sol, la, si, ré."],
+        ["n(\"0 … 7\")", "les degrés de la gamme, du grave à l’aigu (5 = mi, une octave plus haut)."],
+        ["gm_electric_guitar_clean", "une électrique au son clair."],
       ],
       theory: {
-        title: 'Côté guitare — la boîte',
+        title: "La boîte",
         items: [
-          ['pentatonique', '5 notes par octave (M2 ch.3).'],
-          ['la boîte', 'une seule forme de doigts, déplaçable sur tout le manche.'],
-          ['mi mineur', 'la tonalité « ouverte » de la guitare (corde de Mi grave).'],
+          ["pentatonique", "5 notes par octave."],
+          ["la boîte", "une forme de doigts déplaçable : la même forme, ailleurs, donne une autre tonalité."],
+          ["mi mineur", "une tonalité confortable à la guitare : ses notes incluent plusieurs cordes à vide."],
         ],
       },
-      exercise:
-        'Improvise : joue des degrés au hasard, ex. ' +
-        'n("0 2 3 4 2 0 <3 5>").scale("E:minor:pentatonic"). Tout sonne juste.',
+      exercise: "Improvise : `n(\"0 2 3 4 2 0 <3 5>\").scale(\"E:minor:pentatonic\")`. Tout sonne juste.",
+      rich: true,
     },
 
     {
-      id: '3.10',
-      kicker: 'Premier riff',
-      title: 'Assembler : un riff sur le manche',
-      concept:
-        'Réunis tes repères : une basse saturée sur les cordes graves, la boîte pentatonique ' +
-        'par-dessus. Un vrai début de riff de guitare, dans une seule tonalité.',
-      code:
-        'setcpm(80/4)\n' +
-        '$: note("<e2 e2 g2 a2>*2").s("gm_distortion_guitar").clip(.6).gain(.7)\n' +
-        '$: n("0 ~ 2 3 ~ 2 ~ 0").scale("E:minor:pentatonic").s("gm_electric_guitar_clean").gain(.5)',
+      id: "3.10",
+      kicker: "Premier riff",
+      title: "Assembler : un riff sur le manche",
+      concept: "On réunit les repères : des notes graves saturées sur les cordes basses, la pentatonique par-dessus. Un vrai début de riff, dans une seule tonalité.",
+      code: "setcpm(80/4)\n$: note(\"<e2 e2 g2 a2>*2\").s(\"gm_distortion_guitar\").clip(.6).gain(.7)\n$: n(\"0 ~ 2 3 ~ 2 ~ 0\").scale(\"E:minor:pentatonic\").s(\"gm_electric_guitar_clean\").gain(.5)",
       decode: [
-        ['la basse <e2 e2 g2 a2>', 'des notes graves saturées — le « moteur » du riff.'],
-        ['.clip(.6)', 'notes un peu courtes → plus « mordantes » (vers le palm mute, ch.4).'],
-        ['la boîte par-dessus', 'la mélodie reste en mi mineur pentatonique → tout colle.'],
+        ["<e2 e2 g2 a2>*2", "deux notes graves par cycle, qui avancent dans la liste : mi, mi, puis sol, la. Le moteur du riff."],
+        [".clip(.6)", "notes un peu courtes, plus mordantes (vers le palm mute, leçon 3.18)."],
+        ["la pentatonique par-dessus", "la mélodie reste en mi mineur pentatonique : tout s’accorde."],
       ],
       theory: {
-        title: 'Ce que tu relies',
+        title: "Ce que tu relies",
         items: [
-          ['Module 1', 'tempo, < >, $:, gain.'],
-          ['Module 2', 'pentatonique, tonalité.'],
-          ['Module 3', 'cordes, son de guitare, le manche.'],
+          ["le rythme", "tempo, `< >`, `$:`, `gain`."],
+          ["la théorie", "pentatonique, tonalité."],
+          ["la guitare", "cordes, son de guitare, manche."],
         ],
       },
       recap: {
-        title: 'Récap chapitre 2 — Lire le manche',
-        columns: ['Concept', 'Repère guitare', 'Strudel'],
+        title: "Récap chapitre 2 — Lire le manche",
+        columns: ["Concept", "Repère guitare", "Strudel"],
         rows: [
-          ['Notes d\'une corde', 'monter les cases', 'note("e2 f2 g2 a2")'],
-          ['Gamme', 'le long / en travers', 'n("0 2 4").scale("C:major")'],
-          ['Capo', 'monter de N cases', '.add(note(N))'],
-          ['Boîte penta', '1 forme partout', 'scale("E:minor:pentatonic")'],
+          ["notes d’une corde", "chaque case monte d’un demi-ton", "`note(\"e2 f2 g2 a2\")`"],
+          ["gamme", "le long d’une corde, ou en travers des cordes", "`n(\"0 2 4\").scale(\"C:major\")`"],
+          ["capodastre", "toutes les cordes montent du même nombre de cases", "`.add(note(2))` : capo en 2ᵉ case"],
+          ["boîte pentatonique", "une forme de doigts qui marche partout sur le manche", "`.scale(\"E:minor:pentatonic\")`"],
         ],
       },
-      exercise:
-        'Reprends le riff et change la basse en <a2 a2 c3 d3> + la boîte en ' +
-        'A:minor:pentatonic. Tu déménages le riff en la mineur.',
-      free:
-        "Tu sais lire le manche : nommer les notes, jouer une gamme, poser un capo, improviser " +
-        "dans la boîte. Bidouille ton riff : change le tempo, la basse, ajoute une batterie en $: (M1). " +
-        'Au chapitre 3, on attaque les accords ouverts — les fameuses positions « feu de camp ».',
+      exercise: "Change la basse en `<a2 a2 c3 d3>` et la mélodie en `A:minor:pentatonic` : tu transposes le riff en la mineur.",
+      free: "Tu sais lire le manche : nommer les notes, jouer une gamme, poser un capodastre, improviser dans la boîte pentatonique. Fais varier ton riff : change le tempo, la basse, ajoute une batterie sur une autre [piste](fn.dollar). Au chapitre 3, les accords ouverts, les positions « feu de camp ».",
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -1873,155 +1834,132 @@ export const m3chapitre3 = {
   subtitle: 'Les positions « feu de camp »',
   flashs: [
     {
-      id: '3.11',
-      kicker: 'Les positions de base',
-      title: 'Les accords ouverts : Mi majeur',
-      concept:
-        'Un accord ouvert utilise des cordes à vide + quelques doigts près du sillet. Le Mi majeur (E) ' +
-        'est le plus simple : 3 doigts, 6 cordes qui sonnent. Voici ses vraies notes.',
-      code: 'note("[e2,b2,e3,g#3,b3,e4]").s("gm_acoustic_guitar_nylon").room(.4)',
+      id: "3.11",
+      kicker: "Les positions de base",
+      title: "Les accords ouverts : Mi majeur",
+      concept: "Un accord « ouvert » utilise des cordes à vide et quelques doigts près du sillet. Le mi majeur (E) est le plus simple : 3 doigts, 6 cordes qui sonnent. Voici ses vraies notes.",
+      code: "note(\"[e2,b2,e3,g#3,b3,e4]\").s(\"gm_acoustic_guitar_nylon\").room(.4)",
       decode: [
-        ['[e2,b2,e3,g#3,b3,e4]', 'les 6 cordes du Mi majeur ouvert, de la grave à l\'aiguë.'],
-        ['crochets + virgules', 'toutes les notes en même temps = un accord (M2).'],
-        ['g#3', "la tierce majeure (M2) : c'est elle qui rend l'accord « majeur »."],
+        ["[e2,b2,e3,g#3,b3,e4]", "les 6 cordes du mi majeur ouvert, de la grave à l’aiguë."],
+        ["crochets + virgules", "toutes les notes en même temps : un [accord](sol.accord)."],
+        ["g#3", "la tierce majeure : c’est elle qui rend l’accord majeur."],
       ],
       theory: {
-        title: "Côté solfège — l'accord de Mi",
+        title: "L’accord de mi",
         items: [
-          ['fondamentale', "E (mi) — la note qui nomme l'accord."],
-          ['tierce majeure', 'G# — la couleur joyeuse (M2 ch.2).'],
-          ['quinte', 'B (si) — la stabilité (M2).'],
-          ['notes doublées', '6 cordes, mais seulement 3 notes différentes (E, G#, B).'],
+          ["fondamentale", "E (mi) : la note qui nomme l’accord."],
+          ["tierce majeure", "G# : la couleur claire."],
+          ["quinte", "B (si) : la stabilité."],
+          ["notes doublées", "6 cordes, mais seulement 3 notes différentes (E, G#, B)."],
         ],
       },
-      exercise:
-        "Joue l'accord, puis arpège-le (une corde après l'autre) : " +
-        'note("e2 b2 e3 g#3 b3 e4").',
+      exercise: "Joue l’accord, puis arpège-le, une corde après l’autre : `note(\"e2 b2 e3 g#3 b3 e4\")`.",
+      rich: true,
     },
 
     {
-      id: '3.12',
-      kicker: 'La bascule',
-      title: 'Mi majeur → Mi mineur',
-      concept:
-        'Pour passer de Mi majeur à Mi mineur, on enlève un seul doigt : la tierce majeure (G#) ' +
-        "descend d'un demi-ton vers la tierce mineure (G). Un demi-ton change toute l'humeur (M2).",
-      code: 'note("[e2,b2,e3,g#3,b3,e4] [e2,b2,e3,g3,b3,e4]").s("gm_acoustic_guitar_nylon").room(.4)',
+      id: "3.12",
+      kicker: "La bascule",
+      title: "Mi majeur → Mi mineur",
+      concept: "Pour passer de mi majeur à mi mineur, on lève un seul doigt : la tierce majeure (G#) descend d’un demi-ton et devient la tierce mineure (G). Un demi-ton change toute l’humeur (voir [tierce](sol.tierce)).",
+      code: "note(\"[e2,b2,e3,g#3,b3,e4] [e2,b2,e3,g3,b3,e4]\").s(\"gm_acoustic_guitar_nylon\").room(.4)",
       decode: [
-        ['1er accord : g#3', 'Mi MAJEUR : joyeux.'],
-        ['2ᵉ accord : g3', 'Mi MINEUR : triste. Seul g#→g a changé.'],
-        ['un seul demi-ton', 'comme en M2 : la tierce décide majeur/mineur.'],
+        ["1er accord : g#3", "mi MAJEUR : clair."],
+        ["2ᵉ accord : g3", "mi MINEUR : sombre. Seul g# → g a changé."],
+        ["un seul demi-ton", "la tierce décide : majeur ou mineur."],
       ],
       theory: {
-        title: 'Côté solfège — la tierce qui colore',
+        title: "La tierce qui colore",
         items: [
-          ['majeur', 'tierce à 4 demi-tons (g#).'],
-          ['mineur', 'tierce à 3 demi-tons (g).'],
-          ['sur la guitare', "lever l'index de la 3ᵉ corde : E → Em."],
+          ["majeur", "tierce à 4 demi-tons (g#)."],
+          ["mineur", "tierce à 3 demi-tons (g)."],
+          ["sur la guitare", "lever le doigt de la 3ᵉ corde : E → Em."],
         ],
       },
-      exercise:
-        'Alterne plusieurs fois les deux accords (le code le fait). ' +
-        "Ferme les yeux : entends l'humeur basculer.",
+      exercise: "Écoute l’alternance plusieurs fois (le code la joue). Ferme les yeux : entends l’humeur basculer.",
+      rich: true,
     },
 
     {
-      id: '3.13',
-      kicker: 'La trousse',
-      title: 'Les accords « feu de camp »',
-      concept:
-        "Avec une poignée d'accords ouverts — E, A, D, G, C et leurs mineurs — tu accompagnes " +
-        'des centaines de chansons. Voici A, D, G, C dans leurs vraies positions.',
-      code: 'note("<[a2,e3,a3,c#4,e4] [d3,a3,d4,f#4] [g2,b2,d3,g3,b3,g4] [c3,e3,g3,c4,e4]>").s("gm_acoustic_guitar_steel").room(.4)',
+      id: "3.13",
+      kicker: "La trousse",
+      title: "Les accords « feu de camp »",
+      concept: "Avec une poignée d’accords ouverts (E, A, D, G, C et leurs mineurs), on accompagne énormément de chansons. Voici A, D, G et C dans leurs positions ouvertes habituelles.",
+      code: "note(\"<[a2,e3,a3,c#4,e4] [d3,a3,d4,f#4] [g2,b2,d3,g3,b3,g4] [c3,e3,g3,c4,e4]>\").s(\"gm_acoustic_guitar_steel\").room(.4)",
       decode: [
-        ['A (la majeur)', '[a2,e3,a3,c#4,e4] — c#4 = la tierce.'],
-        ['D (ré majeur)', '[d3,a3,d4,f#4] — 4 cordes seulement.'],
-        ['G (sol majeur)', '[g2,b2,d3,g3,b3,g4] — 6 cordes, son riche.'],
-        ['C (do majeur)', '[c3,e3,g3,c4,e4] — l\'accord ouvert classique.'],
+        ["A (la majeur)", "[a2,e3,a3,c#4,e4] : 5 cordes ; c#4 est la tierce."],
+        ["D (ré majeur)", "[d3,a3,d4,f#4] : 4 cordes seulement."],
+        ["G (sol majeur)", "[g2,b2,d3,g3,b3,g4] : 6 cordes."],
+        ["C (do majeur)", "[c3,e3,g3,c4,e4] : 5 cordes."],
       ],
       theory: {
-        title: 'Côté guitare — les positions ouvertes',
+        title: "Les positions ouvertes",
         items: [
-          ['ouvert', 'mêle cordes à vide et doigtés bas — facile et sonore.'],
-          ['les mineurs', 'Am, Dm, Em existent aussi (tierce abaissée).'],
-          ['pourquoi ceux-là', 'ils tombent bien sous les doigts près du sillet.'],
+          ["ouvert", "mêle cordes à vide et doigts près du sillet : facile et sonore."],
+          ["les mineurs", "Am, Dm, Em existent aussi : la tierce est abaissée d’un demi-ton."],
+          ["pourquoi ceux-là", "leurs notes tombent sur plusieurs cordes à vide."],
         ],
       },
-      exercise:
-        'Enchaîne-les lentement. Puis essaie un mineur : ' +
-        'Am = note("[a2,e3,a3,c4,e4]") (c4 au lieu de c#4).',
+      exercise: "Enchaîne-les lentement. Puis essaie un mineur : Am = `note(\"[a2,e3,a3,c4,e4]\")` (c4 au lieu de c#4).",
+      rich: true,
     },
 
     {
-      id: '3.14',
-      kicker: 'Les 4 accords',
-      title: 'La grille « 4 accords » à la guitare',
-      concept:
-        'En do majeur, les accords ouverts C, G, Am, F donnent la progression pop la plus célèbre ' +
-        "(M2 : I-V-vi-IV). Avec une rythmique, c'est déjà une chanson.",
-      code:
-        'setcpm(100/4)\n' +
-        '$: chord("<C G Am F>").voicing().s("gm_acoustic_guitar_nylon").room(.4).gain(.7)\n' +
-        '$: sound("bd*4, [~ sd]*2").bank("RolandTR909").gain(.6)',
+      id: "3.14",
+      kicker: "Les 4 accords",
+      title: "La grille « 4 accords » à la guitare",
+      concept: "En do majeur, les accords C, G, Am et F forment la [progression](sol.progression) pop la plus répandue : I–V–vi–IV. Avec une batterie, c’est déjà une chanson.",
+      code: "setcpm(100/4)\n$: chord(\"<C G Am F>\").voicing().s(\"gm_acoustic_guitar_nylon\").room(.4).gain(.7)\n$: sound(\"bd*4, [~ sd]*2\").bank(\"RolandTR909\").gain(.6)",
       decode: [
-        ['chord("<C G Am F>")', "les symboles d'une grille (M2) — Strudel trouve les notes."],
-        ['.voicing()', 'enchaîne les accords en douceur (voice leading, M2).'],
-        ['+ batterie', 'une boucle de batterie (M1) → un vrai accompagnement.'],
+        ["chord(\"<C G Am F>\")", "les noms des accords ; Strudel trouve les notes."],
+        [".voicing()", "choisit des dispositions proches d’un accord à l’autre (voir [voicing](fn.voicing))."],
+        ["+ batterie", "une boucle de batterie : un accompagnement complet."],
       ],
       theory: {
-        title: 'Côté solfège — la progression',
+        title: "La progression",
         items: [
-          ['I-V-vi-IV', 'C-G-Am-F en do majeur (M2 ch.4).'],
-          ['« 4 chords »', 'la grille de centaines de tubes.'],
-          ['voicing()', 'le raccourci pour ne pas écrire chaque note (M2 ch.4).'],
+          ["I–V–vi–IV", "C–G–Am–F en do majeur."],
+          ["« 4 accords »", "la grille d’innombrables chansons pop."],
+          ["voicing()", "évite d’écrire chaque note ; ses dispositions ne correspondent pas forcément aux positions d’une guitare."],
         ],
       },
-      exercise:
-        'Change la grille : chord("<G D Em C>").voicing(). ' +
-        'Une autre chanson, même recette.',
+      exercise: "Change la grille : `chord(\"<G D Em C>\").voicing()`. Une autre chanson, même recette.",
+      rich: true,
     },
 
     {
-      id: '3.15',
-      kicker: 'Première chanson',
-      title: 'Une chanson : accords + rythme',
-      concept:
-        'Donne un rythme de grattage à tes accords avec .struct() : des frappes (x) et des silences (~). ' +
-        'Tu passes de « plaquer un accord » à « gratter une chanson ».',
-      code:
-        'setcpm(110/4)\n' +
-        '$: chord("<C G Am F>").voicing().struct("x ~ x x ~ x ~ x").s("gm_acoustic_guitar_steel").room(.3).gain(.7)\n' +
-        '$: sound("bd ~ sd ~").bank("RolandTR909").gain(.6)',
+      id: "3.15",
+      kicker: "Première chanson",
+      title: "Une chanson : accords + rythme",
+      concept: "Donne un rythme de grattage à tes accords avec [struct](fn.struct) : des frappes (`x`) et des silences (`~`). Tu passes de « plaquer un accord » à « gratter une chanson ».",
+      code: "setcpm(110/4)\n$: chord(\"<C G Am F>\").voicing().struct(\"x ~ x x ~ x ~ x\").s(\"gm_acoustic_guitar_steel\").room(.3).gain(.7)\n$: sound(\"bd ~ sd ~\").bank(\"RolandTR909\").gain(.6)",
       decode: [
-        ['.struct("x ~ x x ~ x ~ x")', 'le patron de grattage : x = on gratte, ~ = on saute (M1).'],
-        ['un accord par cycle', 'la grille avance, le patron de rythme se répète.'],
-        ['gm_acoustic_guitar_steel', 'la folk claire, idéale pour le grattage.'],
+        [".struct(\"x ~ x x ~ x ~ x\")", "le motif de grattage : x = on gratte, ~ = on laisse passer."],
+        ["un accord par cycle", "la grille avance, le motif de rythme se répète."],
+        ["gm_acoustic_guitar_steel", "une folk au son clair."],
       ],
       theory: {
-        title: 'Côté guitare — le grattage',
+        title: "Le grattage",
         items: [
-          ['struct', 'sépare le RYTHME (quand) de l\'HARMONIE (quoi).'],
-          ['down/up', 'sur la vraie guitare, les x alternent coups vers le bas / vers le haut.'],
+          ["struct", "sépare le RYTHME (quand) de l’HARMONIE (quoi)."],
+          ["bas / haut", "sur une vraie guitare, les coups alternent vers le bas et vers le haut."],
         ],
       },
       recap: {
-        title: 'Récap chapitre 3 — Accords ouverts',
-        columns: ['Accord', 'Vraies notes', 'Raccourci'],
+        title: "Récap chapitre 3 — Accords ouverts",
+        columns: ["Accord", "Vraies notes", "Raccourci"],
         rows: [
-          ['E majeur', '[e2,b2,e3,g#3,b3,e4]', 'chord("E")'],
-          ['E mineur', '[e2,b2,e3,g3,b3,e4]', 'chord("Em")'],
-          ['A / D / G / C', 'positions ouvertes', 'chord("A D G C")'],
-          ['Grille', 'I-V-vi-IV', 'chord("<C G Am F>").voicing()'],
-          ['Grattage', 'rythme des frappes', '.struct("x ~ x x")'],
+          ["mi majeur", "`[e2,b2,e3,g#3,b3,e4]`", "`chord(\"E\").voicing()`"],
+          ["mi mineur", "`[e2,b2,e3,g3,b3,e4]`", "`chord(\"Em\").voicing()`"],
+          ["la, ré, sol, do", "positions ouvertes", "`chord(\"<A D G C>\").voicing()` : notes calculées, pas la position de guitare"],
+          ["grille", "I-V-vi-IV", "`chord(\"<C G Am F>\").voicing()`"],
+          ["grattage", "le rythme des frappes", "`.struct(\"x ~ x x\")`"],
         ],
       },
-      exercise:
-        'Change le patron de grattage : .struct("x x ~ x x ~ x ~"). ' +
-        'Le même accord, un autre groove.',
-      free:
-        'Tu tiens les accords ouverts : E, Em, A, D, G, C, la grille à 4 accords et le grattage ' +
-        'avec struct. Monte ta chanson : choisis 4 accords, un patron de grattage, ajoute une batterie. ' +
-        'Au chapitre 4, on rend ces accords mobiles : power chords et barrés.',
+      exercise: "Change le motif : `.struct(\"x x ~ x x ~ x ~\")`. Les mêmes accords, un autre groove.",
+      free: "Tu as les accords ouverts (mi, mi mineur, la, ré, sol, do), la grille à quatre accords et le grattage avec [struct](fn.struct). Monte ta chanson : quatre accords, un patron de grattage, une batterie. Au chapitre 4, on rend ces accords mobiles : power chords et barrés.",
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -2033,151 +1971,131 @@ export const m3chapitre4 = {
   subtitle: 'Une forme qui voyage sur le manche',
   flashs: [
     {
-      id: '3.16',
-      kicker: 'Le rock',
-      title: 'Le power chord : fondamentale + quinte',
-      concept:
-        "Le power chord, c'est juste deux notes : la fondamentale et sa quinte (M2). Pas de tierce " +
-        '→ ni majeur ni mineur → il sonne « puissant » et passe partout, surtout saturé.',
-      code: 'note("[e2,b2] [a2,e3] [d3,a3]").s("gm_distortion_guitar").clip(1).gain(.7)',
+      id: "3.16",
+      kicker: "Le rock",
+      title: "Le power chord : fondamentale + quinte",
+      concept: "Le [power chord](voc.guitare.power-chord), c’est deux notes : la fondamentale et sa [quinte](sol.quinte). Sans tierce, il n’est ni majeur ni mineur ; et saturé, il reste net, alors qu’un accord complet devient vite brouillon.",
+      code: "note(\"[e2,b2] [a2,e3] [d3,a3]\").s(\"gm_distortion_guitar\").clip(1).gain(.7)",
       decode: [
-        ['[e2,b2]', 'E5 : mi + sa quinte (si). 7 demi-tons d\'écart (M2).'],
-        ['[a2,e3]', 'A5 : la même forme, déplacée sur la corde de La.'],
-        ['gm_distortion_guitar', 'la guitare saturée : le son du power chord.'],
+        ["[e2,b2]", "E5 : mi + sa quinte (si), 7 demi-tons d’écart."],
+        ["[a2,e3]", "A5 : la même forme, sur la corde de la."],
+        ["gm_distortion_guitar", "la guitare saturée : le son du power chord."],
       ],
       theory: {
-        title: 'Côté solfège — la quinte',
+        title: "La quinte",
         items: [
-          ['quinte juste', '7 demi-tons : très stable (M2 ch.2).'],
-          ['pas de tierce', '→ ni majeur ni mineur : neutre et solide.'],
-          ['guitare', '2 cordes voisines, la quinte 2 cases plus haut.'],
+          ["quinte juste", "7 demi-tons, rapport de fréquences proche de 3:2 : très stable."],
+          ["pas de tierce", "ni majeur ni mineur : neutre et solide."],
+          ["à la guitare", "deux cordes voisines, la quinte deux cases plus haut sur la corde suivante."],
         ],
       },
-      exercise:
-        "Ajoute la fondamentale à l'octave : note(\"[e2,b2,e3]\"). " +
-        'Le power chord « complet » à 3 cordes.',
+      exercise: "Ajoute la fondamentale à l’octave : `note(\"[e2,b2,e3]\")`. Le power chord à 3 cordes.",
+      rich: true,
     },
 
     {
-      id: '3.17',
-      kicker: 'Mobile',
-      title: 'Une seule forme, partout',
-      concept:
-        "La grande force du power chord : c'est une forme mobile. La même position de doigts, " +
-        'glissée sur le manche, donne tous les power chords. En code : la même forme avec .add().',
-      code: 'note("[0,7]".add("<40 45 47 43>")).s("gm_distortion_guitar").clip(.9).gain(.7)',
+      id: "3.17",
+      kicker: "Mobile",
+      title: "Une seule forme, partout",
+      concept: "La force du power chord : c’est une forme mobile. La même position de doigts, glissée sur le manche, donne tous les power chords. En code : la même forme `[0,7]`, déplacée avec `.add()`.",
+      code: "note(\"[0,7]\".add(\"<40 45 47 43>\")).s(\"gm_distortion_guitar\").clip(.9).gain(.7)",
       decode: [
-        ['[0,7]', 'la forme : fondamentale (0) + quinte (7 demi-tons).'],
-        ['.add("<40 45 47 43>")', 'on déplace la forme : E5, A5, B5, G5 (un par cycle).'],
-        ['mobile', 'aucune corde à vide → glissable n\'importe où.'],
+        ["[0,7]", "la forme : fondamentale (0) + quinte (7 demi-tons)."],
+        [".add(\"<40 45 47 43>\")", "on pose la forme sur les numéros MIDI 40 (E2), 45 (A2), 47 (B2), 43 (G2) : E5, A5, B5, G5."],
+        ["mobile", "aucune corde à vide : on peut la glisser n’importe où."],
       ],
       theory: {
-        title: 'Côté guitare — les formes mobiles',
+        title: "Les formes mobiles",
         items: [
-          ['forme', "un motif d'intervalles qu'on déplace sans le changer."],
-          ['power chord', 'la forme mobile la plus simple : 2 notes.'],
-          ['nom = case', 'le power chord prend le nom de la note de la corde grave.'],
+          ["forme", "un motif d’intervalles qu’on déplace sans le changer."],
+          ["power chord", "la forme mobile la plus simple : 2 notes."],
+          ["nom", "le power chord prend le nom de sa note grave."],
         ],
       },
-      exercise:
-        'Compose un riff : note("[0,7]".add("<40 40 43 45>")).fast(2) — .fast(2) accélère tout le motif ×2 (détaillé au M5). ' +
-        'Quatre power chords, un vrai motif punk.',
+      exercise: "Compose un riff : `note(\"[0,7]\".add(\"<40 40 43 45>\")).fast(2)`. `.fast(2)` fait passer la suite deux fois par cycle (voir [fast](fn.fast)).",
+      rich: true,
     },
 
     {
-      id: '3.18',
-      kicker: 'Étouffer',
-      title: 'Le palm mute : des notes courtes',
-      concept:
-        'En posant la paume près du chevalet, le guitariste étouffe les cordes : le son devient ' +
-        'court et percussif. Dans Strudel, on raccourcit les notes avec .clip() (petit = étouffé).',
-      code: 'setcpm(120/4)\nnote("e2*8").s("gm_distortion_guitar").clip("<.2 1>").gain(.7)',
+      id: "3.18",
+      kicker: "Étouffer",
+      title: "Le palm mute : des notes courtes",
+      concept: "En posant la tranche de la main près du chevalet, le guitariste étouffe les cordes : le son devient court et percussif, c’est le [palm mute](voc.guitare.palm-mute). Dans Strudel, on raccourcit les notes avec [clip](fx.clip) : petite valeur = son étouffé.",
+      code: "setcpm(120/4)\nnote(\"e2*8\").s(\"gm_distortion_guitar\").clip(\"<.2 1>\").gain(.7)",
       decode: [
-        ['e2*8', 'huit Mi graves dans le cycle (M1 : *).'],
-        ['.clip(.2)', 'notes très courtes → palm mute « chugga-chugga ».'],
-        ['.clip(1)', 'notes pleines → cordes qui sonnent librement.'],
+        ["e2*8", "huit mi graves dans le cycle."],
+        [".clip(.2)", "chaque note ne dure que 20 % de son pas : le « tchouk-tchouk » du palm mute."],
+        [".clip(1)", "notes pleines : les cordes sonnent librement."],
       ],
       theory: {
-        title: "Côté guitare — l'articulation",
+        title: "L’articulation",
         items: [
-          ['palm mute', 'paume sur les cordes près du chevalet → son court, étouffé.'],
-          ['clip', 'règle la durée (1 = normale, <1 = courte, >1 = laisse sonner).'],
-          ['cousins', 'decay / sustain / release sculptent aussi la durée (effets Strudel).'],
+          ["palm mute", "main posée près du chevalet : son court, étouffé."],
+          ["clip", "règle la durée : 1 = le pas entier, moins = plus court, plus = laisse sonner."],
+          ["les cousins", "`decay`, `sustain`, `release` sculptent aussi la durée (voir [enveloppe](sol.enveloppe))."],
         ],
       },
-      exercise:
-        'Mélange étouffé et ouvert : note("e2*8").clip(".2 .2 .2 1 .2 .2 1 1"). ' +
-        'Un vrai motif metal.',
+      exercise: "Mélange étouffé et ouvert : `note(\"e2*8\").clip(\".2 .2 .2 1 .2 .2 1 1\")`. Un motif metal.",
+      rich: true,
     },
 
     {
-      id: '3.19',
+      id: "3.19",
       kicker: "L'accord mobile",
-      title: 'Le barré : un accord ouvert qui voyage',
-      concept:
-        "Un accord barré, c'est une forme d'accord ouvert où l'index « fait capo » sur toutes les " +
-        'cordes, puis qu\'on déplace. La forme de Mi, montée de N cases, donne n\'importe quel accord majeur.',
-      code: 'note("[e2,b2,e3,g#3,b3,e4]".add("<0 1 3 5>")).s("gm_electric_guitar_clean").room(.3).gain(.7)',
+      title: "Le barré : un accord ouvert qui voyage",
+      concept: "Un accord [barré](voc.guitare.barre), c’est une forme d’accord ouvert dont l’index joue le rôle du sillet, puis qu’on déplace. La forme de mi majeur, montée de N cases, donne n’importe quel accord majeur.",
+      code: "note(\"[e2,b2,e3,g#3,b3,e4]\".add(\"<0 1 3 5>\")).s(\"gm_electric_guitar_clean\").room(.3).gain(.7)",
       decode: [
-        ['la forme de Mi majeur', '[e2,b2,e3,g#3,b3,e4] (chapitre 3).'],
-        ['.add("<0 1 3 5>")', 'déplacée de 0, 1, 3, 5 cases → E, F, G, A majeur !'],
-        ['l\'index = barré', 'il remplace le sillet, et toute la forme « monte ».'],
+        ["la forme de mi majeur", "[e2,b2,e3,g#3,b3,e4] (leçon 3.11)."],
+        [".add(\"<0 1 3 5>\")", "déplacée de 0, 1, 3, 5 cases : mi, fa, sol, la majeur."],
+        ["l’index", "il remplace le sillet : toute la forme monte."],
       ],
       theory: {
-        title: 'Côté guitare — le barré',
+        title: "Le barré",
         items: [
-          ['barré', "l'index couche sur toutes les cordes (un capo « humain »)."],
-          ['forme de Mi', 'donne les majeurs : F (case 1), G (case 3)…'],
-          ['forme de Mim', 'la même en mineur (g# → g) donne Fm, Gm…'],
+          ["barré", "l’index couché sur toutes les cordes, comme un capo fait avec le doigt."],
+          ["forme de mi", "donne les majeurs : F (case 1), G (case 3)…"],
+          ["forme de mi mineur", "la même en mineur (g# → g) : Fm, Gm…"],
         ],
       },
-      exercise:
-        'Passe en mineur : remplace g#3 par g3, et garde .add("<0 3 5>"). ' +
-        'Tu obtiens Em, Gm, Am barrés.',
+      exercise: "Passe en mineur : remplace g#3 par g3, et garde `.add(\"<0 3 5>\")`. Tu obtiens Em, Gm, Am.",
+      rich: true,
     },
 
     {
-      id: '3.20',
-      kicker: 'Le mur du son',
-      title: 'Assembler : riff saturé + batterie',
-      concept:
-        'Réunis le chapitre : un power chord mobile, du palm mute, et une grosse batterie. ' +
-        "Le squelette d'un riff rock/metal, entièrement dans Strudel.",
-      code:
-        'setcpm(140/4)\n' +
-        '$: note("[0,7]".add("40")).struct("x x x ~ x x ~ x").s("gm_distortion_guitar").clip(.3).gain(.7)\n' +
-        '$: sound("bd*4, [~ sd]*2, hh*8").bank("RolandTR909").gain(.6)',
+      id: "3.20",
+      kicker: "Le mur du son",
+      title: "Assembler : riff saturé + batterie",
+      concept: "On réunit le chapitre : un power chord mobile, du palm mute, une grosse batterie. Le squelette d’un riff rock ou metal.",
+      code: "setcpm(140/4)\n$: note(\"[0,7]\".add(\"40\")).struct(\"x x x ~ x x ~ x\").s(\"gm_distortion_guitar\").clip(.3).gain(.7)\n$: sound(\"bd*4, [~ sd]*2, hh*8\").bank(\"RolandTR909\").gain(.6)",
       decode: [
-        ['[0,7].add("40")', 'un power chord de Mi (E5) qui pulse.'],
-        ['.struct("x x x ~ x x ~ x")', 'le rythme du riff (M1 : x / ~).'],
-        ['.clip(.3)', 'palm mute serré → l\'attaque « djent ».'],
+        ["[0,7].add(\"40\")", "un power chord de mi (E5)."],
+        [".struct(\"x x x ~ x x ~ x\")", "le rythme du riff : 6 coups sur 8 pas."],
+        [".clip(.3)", "palm mute serré : une attaque sèche."],
       ],
       theory: {
-        title: 'Ce que tu relies',
+        title: "Ce que tu relies",
         items: [
-          ['Module 1', 'tempo rapide, struct, batterie 909.'],
-          ['Module 2', 'la quinte (power chord).'],
-          ['Module 3', 'forme mobile, palm mute, guitare saturée.'],
+          ["le rythme", "tempo rapide, `struct`, batterie 909."],
+          ["la théorie", "la quinte du power chord."],
+          ["la guitare", "forme mobile, palm mute, son saturé."],
         ],
       },
       recap: {
-        title: 'Récap chapitre 4 — Power chords & barrés',
-        columns: ['Concept', 'Forme', 'Strudel'],
+        title: "Récap chapitre 4 — Power chords et barrés",
+        columns: ["Concept", "Forme", "Strudel"],
         rows: [
-          ['Power chord', 'fondamentale + quinte', 'note("[0,7]")'],
-          ['Mobile', 'glisser la forme', '.add("<40 45 47>")'],
-          ['Palm mute', 'notes courtes', '.clip(.2)'],
-          ['Barré majeur', 'forme de Mi', 'note("[e2,b2,e3,g#3,b3,e4]").add(n)'],
-          ['Barré mineur', 'forme de Mim', 'g3 au lieu de g#3'],
+          ["power chord", "fondamentale + quinte (7 demi-tons)", "`note(\"[0,7]\".add(40))` : mi (MIDI 40)"],
+          ["forme mobile", "la même forme, posée ailleurs", "`note(\"[0,7]\".add(\"<40 45 47>\"))`"],
+          ["étouffé (*palm mute*)", "notes raccourcies", "`.clip(.2)`"],
+          ["barré majeur", "la forme de mi, décalée de n cases", "`note(\"[e2,b2,e3,g#3,b3,e4]\".add(\"<0 1 3 5>\"))`"],
+          ["barré mineur", "la forme de mi mineur", "`g3` au lieu de `g#3`"],
         ],
       },
-      exercise:
-        'Ralentis à setcpm(110/4) et change la note de base : .add("<40 45 43>"). ' +
-        'Un riff plus lourd.',
-      free:
-        'Tu rends les accords mobiles : power chords, palm mute, barrés majeurs et mineurs. ' +
-        'Compose un riff : une forme [0,7], un patron struct, du palm mute, une batterie. ' +
-        'Au chapitre 5, on soigne le JEU : arpèges, picking et dynamique.',
+      exercise: "Ralentis à `setcpm(110/4)` et change la note de base : `.add(\"<40 45 43>\")`. Un riff plus lourd.",
+      free: "Tu rends les accords mobiles : power chords, palm mute, barrés majeurs et mineurs. Compose un riff : une forme `[0,7]`, un patron [struct](fn.struct), du palm mute, une batterie. Attention à la place de `.add` : il agit DANS `note(…)`, sur la chaîne de notes. `note(\"[0,7]\").add(40)` ne ferait rien (le moteur affiche `Can't do arithmetic on control pattern`) ; hors de `note(…)`, écris `.add(note(40))` (voir [add](fn.add)). Au chapitre 5, on soigne le jeu : arpèges, picking et dynamique.",
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -2189,161 +2107,137 @@ export const m3chapitre5 = {
   subtitle: 'Gratte, arpèges & rythmique',
   flashs: [
     {
-      id: '3.21',
-      kicker: 'Deux gestes',
-      title: 'Plaquer ou arpéger un accord',
-      concept:
-        "Un accord, tu peux le plaquer (toutes les cordes d'un coup) ou l'arpéger (corde après corde). " +
-        'Mêmes notes, geste différent — et ambiance différente.',
-      code: 'note("<[c3,e3,g3,c4] [c3 e3 g3 c4]>").s("gm_acoustic_guitar_nylon").clip(1.5).room(.3)',
+      id: "3.21",
+      kicker: "Deux gestes",
+      title: "Plaquer ou arpéger un accord",
+      concept: "Un accord se joue plaqué (toutes les cordes d’un coup) ou [arpégé](sol.arpege) (corde après corde). Mêmes notes, geste différent, ambiance différente.",
+      code: "note(\"<[c3,e3,g3,c4] [c3 e3 g3 c4]>\").s(\"gm_acoustic_guitar_nylon\").clip(1.5).room(.3)",
       decode: [
-        ['[c3,e3,g3,c4]', 'plaqué : les 4 notes ensemble (1er cycle).'],
-        ['[c3 e3 g3 c4]', 'arpégé : les mêmes notes en séquence rapide (2ᵉ cycle).'],
-        ['< >', 'alterne plaqué / arpégé à chaque cycle (M1).'],
+        ["[c3,e3,g3,c4]", "plaqué : les 4 notes ensemble (1er cycle)."],
+        ["[c3 e3 g3 c4]", "arpégé : les mêmes notes l’une après l’autre (2ᵉ cycle)."],
+        ["< >", "alterne plaqué et arpégé à chaque cycle."],
       ],
       theory: {
-        title: 'Côté guitare — le geste',
+        title: "Le geste",
         items: [
-          ['plaqué', 'un coup de médiator/pouce sur toutes les cordes.'],
-          ['arpégé', 'on fait sonner les cordes séparément (M2 : arpège).'],
-          ['picking', 'arpéger aux doigts = le fingerpicking.'],
+          ["plaqué", "un coup de médiator ou de pouce sur toutes les cordes."],
+          ["arpégé", "les cordes sonnent séparément."],
+          ["fingerpicking", "arpéger aux doigts (voir [fingerpicking](voc.guitare.fingerpicking))."],
         ],
       },
-      exercise:
-        "Allonge l'arpège : note(\"[c3 e3 g3 c4 e4 g4]\"). " +
-        'Plus de notes, qui montent.',
+      exercise: "Allonge l’arpège : `note(\"[c3 e3 g3 c4 e4 g4]\")`. Plus de notes, qui montent.",
+      rich: true,
     },
 
     {
-      id: '3.22',
-      kicker: 'Le picking',
-      title: 'Un motif de picking',
-      concept:
-        'Le fingerpicking joue les notes d\'un accord une par une, en motif régulier. ' +
-        'Dans Strudel : n() choisit les notes du voicing dans l\'ordre (M2), et .clip() les laisse résonner.',
-      code: 'setcpm(90/4)\nn("0 1 2 3").chord("<C Am F G>").voicing().s("gm_acoustic_guitar_nylon").clip(1.5).room(.3)',
+      id: "3.22",
+      kicker: "Le picking",
+      title: "Un motif de picking",
+      concept: "Le fingerpicking joue les notes d’un accord une par une, dans un motif régulier. Dans Strudel : `n()` choisit, par leur position, les notes du voicing de chaque accord, et [clip](fx.clip) les laisse résonner.",
+      code: "setcpm(90/4)\nn(\"0 1 2 3\").chord(\"<C Am F G>\").voicing().s(\"gm_acoustic_guitar_nylon\").clip(1.5).room(.3)",
       decode: [
-        ['n("0 1 2 3")', 'on joue les notes du voicing une par une (M2 : n + voicing).'],
-        ['.chord("<C Am F G>")', 'un accord par cycle ; ses notes sont arpégées.'],
-        ['.clip(1.5)', 'les notes se chevauchent → effet « harpe ».'],
+        ["n(\"0 1 2 3\")", "joue les notes n° 0, 1, 2 et 3 du voicing, du grave à l’aigu."],
+        [".chord(\"<C Am F G>\")", "un accord par cycle."],
+        [".clip(1.5)", "chaque note dure un pas et demi : elles se chevauchent, effet « harpe »."],
       ],
       theory: {
-        title: 'Côté guitare — le picking',
+        title: "Le picking",
         items: [
-          ['fingerpicking', 'jouer les cordes aux doigts, en motif.'],
-          ['n + voicing', 'sélectionne les notes de l\'accord dans l\'ordre (M2 ch.4).'],
-          ['pouce + doigts', 'le pouce les graves, les doigts les aigus.'],
+          ["fingerpicking", "jouer les cordes aux doigts, en motif."],
+          ["n + voicing", "sélectionne les notes de l’accord par leur position."],
+          ["pouce et doigts", "le pouce joue les graves, les doigts les aigus."],
         ],
       },
-      exercise:
-        'Change le motif : n("0 1 2 3 2 1").chord("<C Am F G>").voicing(). ' +
-        'Un picking plus long.',
+      exercise: "Change le motif : `n(\"0 1 2 3 2 1\").chord(\"<C Am F G>\").voicing()`. Un picking plus long.",
+      rich: true,
     },
 
     {
-      id: '3.23',
-      kicker: 'Le toucher',
-      title: 'Jouer fort, jouer doux',
-      concept:
-        "Un bon jeu n'est pas plat : on accentue certaines notes. Le .gain() règle le volume " +
-        'note par note — comme attaquer plus ou moins fort les cordes.',
-      code: 'setcpm(100/4)\nnote("c3 e3 g3 c4").s("gm_acoustic_guitar_steel").gain("1 .5 .7 .5").clip(1.2)',
+      id: "3.23",
+      kicker: "Le toucher",
+      title: "Jouer fort, jouer doux",
+      concept: "Un bon jeu n’est pas plat : on accentue certaines notes. [gain](fx.gain) règle le volume note par note, comme attaquer plus ou moins fort une corde.",
+      code: "setcpm(100/4)\nnote(\"c3 e3 g3 c4\").s(\"gm_acoustic_guitar_steel\").gain(\"1 .5 .7 .5\").clip(1.2)",
       decode: [
-        ['gain("1 .5 .7 .5")', 'la 1ʳᵉ note forte, les autres plus douces → un accent.'],
-        ['accent', 'mettre en avant le 1er temps = donner un groove.'],
-        ['velocity', 'gain("…") ≈ la force d\'attaque sur la corde.'],
+        ["gain(\"1 .5 .7 .5\")", "la 1ʳᵉ note à plein volume, les autres plus faibles (0,5 ≈ −6 dB) : un accent."],
+        ["accent", "appuyer le premier temps donne le groove."],
+        ["limite", "avec ces sons enregistrés, `gain` change le volume, pas le timbre ; une vraie corde frappée fort sonne aussi plus brillante."],
       ],
       theory: {
-        title: 'Côté guitare — la dynamique',
+        title: "La dynamique",
         items: [
-          ['dynamique', 'les variations de volume dans le jeu.'],
-          ['accent', 'frapper plus fort une note clé (souvent le temps 1).'],
-          ['expressivité', "ce qui sépare un robot d'un musicien."],
+          ["dynamique", "les variations de volume dans le jeu."],
+          ["accent", "frapper plus fort une note clé, souvent le temps 1."],
+          ["expressivité", "ce qui distingue un jeu vivant d’un jeu mécanique."],
         ],
       },
-      exercise:
-        'Déplace l\'accent : gain(".5 1 .5 .7"). Le groove change de place.',
+      exercise: "Déplace l’accent : `gain(\".5 1 .5 .7\")`. Le groove change de place.",
+      rich: true,
     },
 
     {
-      id: '3.24',
-      kicker: 'Les pédales',
-      title: 'Les effets : tes pédales virtuelles',
-      concept:
-        'Le guitariste branche des pédales : disto, reverb, delay, phaser. Strudel a les mêmes effets, ' +
-        'chaînables sur n\'importe quel son (M1/M2). Voici une électrique « pédalée ».',
-      code: 'setcpm(90/4)\nn("0 2 4 7 4 2").scale("E:minor:pentatonic").s("gm_electric_guitar_clean").distort("2:.3").phaser(2).delay(.25).room(.3)',
+      id: "3.24",
+      kicker: "Les pédales",
+      title: "Les effets : tes pédales virtuelles",
+      concept: "Le guitariste branche des pédales : saturation, réverbération, écho, phaser. Strudel a les mêmes effets, et on peut les appliquer à n’importe quel son. Voici une électrique « pédalée ».",
+      code: "setcpm(90/4)\nn(\"0 2 4 7 4 2\").scale(\"E:minor:pentatonic\").s(\"gm_electric_guitar_clean\").distort(\"2:.3\").phaser(2).delay(.25).room(.3)",
       decode: [
-        ['.distort("2:.3")', 'la saturation (overdrive / disto).'],
-        ['.phaser(2)', 'le phaser — Strudel le décrit comme une pédale de guitare.'],
-        ['.delay(.25) / .room(.3)', "l'écho et la réverbération (l'espace)."],
+        [".distort(\"2:.3\")", "la [saturation](fx.distort) : quantité 2, volume ramené à 0,3 après."],
+        [".phaser(2)", "le [phaser](fx.phaser), deux balayages par seconde ; la documentation officielle le présente comme une imitation des pédales de guitare."],
+        [".delay(.25) / .room(.3)", "l’[écho](fx.delay) et la [réverbération](fx.room) : l’espace."],
       ],
       theory: {
-        title: "Côté guitare — la chaîne d'effets",
+        title: "La chaîne d’effets",
         items: [
-          ['disto', 'écrase le son → grain rock (distort / dist).'],
-          ['modulation', 'phaser, chorus, vibrato (vib).'],
-          ['temps', 'delay (écho) et room (reverb) ajoutent l\'espace.'],
+          ["saturation", "écrase les crêtes de l’onde : le grain rock."],
+          ["modulation", "phaser, vibrato (`vib`) : le son bouge."],
+          ["espace", "écho et réverbération."],
         ],
       },
-      exercise:
-        'Enlève les effets un par un pour entendre ce que chacun apporte. ' +
-        'Puis pousse .distort("6:.3").',
+      exercise: "Retire les effets un par un pour entendre ce que chacun apporte. Puis pousse `.distort(\"6:.3\")`.",
+      rich: true,
     },
 
     {
-      id: '3.25',
-      kicker: 'Tout, ensemble',
-      title: 'Bilan : un morceau guitare complet',
-      concept:
-        "Le grand final, version industrial : basse, power chords distordus calés sur le kick, mélodie pickée, " +
-        'batterie 909 rigide — la guitare et l\'électro fusionnent dans une tonalité (M2), jouées comme un musicien (M3). ' +
-        "Tu tiens les trois modules d'un coup.",
-      code:
-        'setcpm(128/4)\n' +
-        '$: sound("bd*4, [~ sd]*2, hh*8").bank("RolandTR909").gain(.6)\n' +
-        '$: note("<e2 c2 g2 d2>").s("gm_acoustic_bass").clip(.9).gain(.7)\n' +
-        '$: note("<[e2,b2] [c3,g3] [g2,d3] [d3,a3]>").struct("x ~ x x ~ x ~ x").s("gm_distortion_guitar").distort("2:.3").gain(.5)\n' +
-        '$: n("0 2 4 2 <3 5>").scale("E:minor").s("gm_electric_guitar_clean").gain(.45).delay(.2)',
+      id: "3.25",
+      kicker: "Tout, ensemble",
+      title: "Bilan : un morceau guitare complet",
+      concept: "Le grand final, version industrial : une basse, des power chords saturés, une mélodie claire, et une batterie TR-909 rigide. Guitare et électronique se mêlent dans une même tonalité, mi mineur.",
+      code: "setcpm(128/4)\n$: sound(\"bd*4, [~ sd]*2, hh*8\").bank(\"RolandTR909\").gain(.6)\n$: note(\"<e2 c2 g2 d2>\").s(\"gm_acoustic_bass\").clip(.9).gain(.7)\n$: note(\"<[e2,b2] [c3,g3] [g2,d3] [d3,a3]>\").struct(\"x ~ x x ~ x ~ x\").s(\"gm_distortion_guitar\").distort(\"2:.3\").gain(.5)\n$: n(\"0 2 4 2 <3 5>\").scale(\"E:minor\").s(\"gm_electric_guitar_clean\").gain(.45).delay(.2)",
       decode: [
-        ['la batterie 909 rigide', 'le moteur, carré, sans swing (M1).'],
-        ['les power chords distordus', 'fondamentale + quinte (pas de tierce), saturés → le mur industrial.'],
-        ['.struct("x ~ x x ~ x ~ x")', 'le riff calé sur le kick (M3).'],
-        ['n(…).scale("E:minor")', 'une mélodie de guitare claire qui tranche sur la disto.'],
+        ["la batterie 909", "le moteur : kick sur chaque temps, sans swing."],
+        ["les power chords saturés", "fondamentale + quinte, sans tierce : un mur de son."],
+        [".struct(\"x ~ x x ~ x ~ x\")", "le rythme du riff : 5 coups sur 8 pas, dont deux sur des kicks (pas 1 et 3), les autres entre eux."],
+        ["n(…).scale(\"E:minor\")", "une mélodie de guitare claire, qui tranche sur la saturation."],
       ],
       theory: {
-        title: 'Les trois modules réunis',
+        title: "Les trois modules réunis",
         items: [
-          ['Module 1', 'tempo, mini-notation, batterie, $:.'],
-          ['Module 2', 'gamme, accords, tonalité, voicing.'],
-          ['Module 3', 'son de guitare, grattage, picking, effets.'],
+          ["Module 1", "tempo, mini-notation, batterie, $:."],
+          ["Module 2", "gamme, accords, tonalité, voicing."],
+          ["Module 3", "son de guitare, grattage, picking, effets."],
         ],
       },
       recap: {
-        title: 'Récap chapitre 5 — Le jeu',
-        columns: ['Geste', 'Idée', 'Strudel'],
+        title: "Récap chapitre 5 — Le jeu",
+        columns: ["Geste", "Idée", "Strudel"],
         rows: [
-          ['Plaqué / arpégé', 'ensemble / un par un', 'note("[c,e,g]") vs "c e g"'],
-          ['Picking', 'notes de l\'accord', 'n("0 1 2 3").chord("C").voicing()'],
-          ['Dynamique', 'accentuer', 'gain("1 .5 .7 .5")'],
-          ['Effets', 'pédales', '.distort().phaser().delay()'],
-          ['Grattage', 'rythme', '.struct("x ~ x x")'],
+          ["plaqué / arpégé", "ensemble / une par une", "`note(\"[c,e,g]\")` · `note(\"c e g\")`"],
+          ["picking", "les notes de l’accord, choisies par leur rang", "`n(\"0 1 2 3\").chord(\"C\").voicing()`"],
+          ["dynamique", "accentuer certaines frappes", "`.gain(\"1 .5 .7 .5\")`"],
+          ["effets", "les pédales", "`.distort(2)` · `.phaser(2)` · `.delay(.3)`"],
+          ["grattage", "le rythme", "`.struct(\"x ~ x x\")`"],
         ],
       },
-      exercise:
-        'Change la tonalité : grille chord("<Am F C G>"), basse <a1 f2 c2 g2>, ' +
-        'mélodie A:minor:pentatonic.',
-      free:
-        "Tu tiens le Module 3 : le manche, l'accordage, les accords ouverts, les power chords et " +
-        'barrés, et le jeu (picking, dynamique, effets). Mission industrial : pose tes power chords distordus ' +
-        "sur un beat 4/4 bien rigide, puis COUPE la guitare sur le temps 3 (mets un ~ dans le struct). " +
-        "Ce trou qui claque, c'est le riff industrial classique — la guitare et le code ne font plus qu'un. 🎸",
+      exercise: "Change la tonalité, en la mineur : la guitare saturée joue `chord(\"<Am F C G>\").voicing()` à la place des power chords (garde le `struct`), la basse `note(\"<a1 f2 c2 g2>\")`, la mélodie `scale(\"A:minor:pentatonic\")`.",
+      free: "Tu as fait le tour du parcours Guitare : le manche, l’accordage, les accords ouverts, les power chords et barrés, et le jeu (picking, dynamique, effets). Défi industrial : pose tes power chords saturés sur un beat 4/4 bien rigide, puis coupe la guitare sur le 3ᵉ temps (un `~` dans le `struct`). Ce silence net au milieu de la mesure donne au riff son côté mécanique.",
       culture: {
-        artist: 'Front 242',
-        track: 'Headhunter',
-        why:
-          "l'EBM belge (1988) : kick rigide, basse-machine, riffs secs — le pont exact entre ta guitare et la boîte à rythmes, l'ADN de l'industrial.",
+        artist: "Front 242",
+        track: "Headhunter",
+        why: "Belgique, 1988 : de l’EBM (*electronic body music*), cousine de la musique industrielle. Un rythme martelé et une basse de séquenceur répétée, sans la moindre fioriture : la musique de machines dont s’inspire le riff que tu construis ici.",
       },
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -2364,140 +2258,117 @@ export const m4chapitre1 = {
   subtitle: 'Les ondes & le timbre',
   flashs: [
     {
-      id: '4.1',
-      kicker: 'Le plan du son',
-      title: 'Du son brut au son fini',
-      concept:
-        "Tout son suit une chaîne : une SOURCE (l'onde de départ) puis un FILTRE (on sculpte le timbre), " +
-        "une ENVELOPPE (la forme dans le temps) et des EFFETS (l'espace, la couleur). " +
-        "Ce module suit cette chaîne, une étape par chapitre. " +
-        "Fil rouge : l'acid / psy-trance — le son acide, c'est exactement ça, une onde + un filtre + quelque chose qui fait bouger ce filtre.",
-      code: 'note("c3 e3 g3 c4").s("sawtooth")',
+      id: "4.1",
+      kicker: "Le plan du son",
+      title: "Du son brut au son fini",
+      concept: "Un son de synthé se fabrique en chaîne : une **source** (une [onde](son.ondes), riche en harmoniques), un **filtre** qui retire une partie de ces harmoniques, une **enveloppe** qui donne au son sa forme dans le temps, puis des **effets** qui le placent dans un espace. Ce parcours suit cette chaîne, un chapitre par étape. Fil rouge : le son *acid*, qui n’est rien d’autre qu’une onde, un filtre résonant et quelque chose qui fait bouger ce filtre.",
+      code: "note(\"c3 e3 g3 c4\").s(\"sawtooth\")",
       decode: [
-        ['note("c3 e3 g3 c4")', 'quatre hauteurs (M1/M2).'],
-        ['.s("sawtooth")', "la source : une onde « dent de scie », brute et riche."],
-        ['le son nu', "ici aucun filtre, aucun effet — on part du brut."],
+        ["note(\"c3 e3 g3 c4\")", "quatre hauteurs : do, mi, sol, do."],
+        [".s(\"sawtooth\")", "la source : une onde en dent de scie, qui contient toutes les harmoniques de la note."],
+        ["le son nu", "aucun filtre, aucun effet : la matière brute, brillante et agressive."],
       ],
-      exercise:
-        'Remplace sawtooth par triangle puis relance. Même mélodie, timbre plus doux : ' +
-        'tu viens de changer la SOURCE.',
+      exercise: "Remplace `sawtooth` par `triangle` puis relance. Même mélodie, son plus doux : le triangle contient beaucoup moins d’harmoniques aiguës. Tu viens de changer la SOURCE.",
+      rich: true,
     },
 
     {
-      id: '4.2',
-      kicker: 'Les quatre ondes',
-      title: 'Les quatre ondes de base',
-      concept:
-        "Le synthé de Strudel a quatre ondes, de la plus douce à la plus mordante : " +
-        "sine (pure), triangle (douce), square (creuse) et sawtooth (riche).",
-      code: 'note("c3 c3 c3 c3").s("sine triangle square sawtooth")',
+      id: "4.2",
+      kicker: "Les quatre ondes",
+      title: "Les quatre ondes de base",
+      concept: "Le synthé de Strudel calcule quatre ondes de base, de la plus douce à la plus brillante : `sine` (une seule fréquence), `triangle` et `square` (harmoniques impaires, faibles ou fortes), `sawtooth` (toutes les harmoniques). Même note, même volume : seul le [timbre](sol.timbre) change.",
+      code: "note(\"c3 c3 c3 c3\").s(\"sine triangle square sawtooth\")",
       decode: [
-        ['sine', 'onde pure, ronde — une flûte, un sifflet.'],
-        ['triangle', "douce, un peu plus présente (le son par défaut)."],
-        ['square', 'creuse, « nasillarde » — la 8-bit, la clarinette.'],
-        ['sawtooth', 'la plus riche — cordes, cuivres, basses de synthé.'],
+        ["sine", "sinusoïde : aucune harmonique. Son pur, comme un sifflet."],
+        ["triangle", "harmoniques impaires, très faibles : douce. C’est l’onde jouée sans `.s(…)`."],
+        ["square", "harmoniques impaires, fortes : creuse, « nasale », le son des consoles 8 bits."],
+        ["sawtooth", "toutes les harmoniques : la plus riche. Base des basses, leads et nappes."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['timbre', "le « caractère » d'un son : ce qui distingue deux sons de même hauteur."],
-          ['onde', 'la forme du son ; chaque forme a son timbre.'],
-          ['défaut', 'une note sans .s(...) sonne en triangle.'],
+          ["timbre", "ce qui distingue deux sons de même hauteur et de même volume. Voir [timbre](sol.timbre)."],
+          ["onde", "la forme de la vibration, répétée à la fréquence de la note ; chaque forme a son timbre."],
+          ["défaut", "une note sans `.s(…)` sonne avec l’onde `triangle`."],
         ],
       },
-      exercise:
-        'Garde une seule onde et joue une vraie mélodie : ' +
-        'note("c3 e3 g3 e3").s("square"). Essaie les quatre, choisis ta préférée.',
+      exercise: "Garde une seule onde et joue une vraie mélodie : `note(\"c3 e3 g3 e3\").s(\"square\")`. Essaie les quatre, et choisis ta préférée.",
+      rich: true,
     },
 
     {
-      id: '4.3',
-      kicker: 'Le grain',
-      title: 'Pourquoi les ondes sonnent différemment',
-      concept:
-        "La différence entre les ondes, ce sont les HARMONIQUES. La sine n'a qu'une seule fréquence " +
-        "(pure). La sawtooth empile une foule d'harmoniques (riche). Plus il y a d'harmoniques, " +
-        "plus on aura de matière à sculpter au filtre.",
-      code: 'note("c2").s("<sine sawtooth>").release(.5)',
+      id: "4.3",
+      kicker: "Le grain",
+      title: "Pourquoi les ondes sonnent différemment",
+      concept: "La différence entre les ondes, ce sont les **harmoniques** : des fréquences à 2, 3, 4… fois celle de la note, qui sonnent en même temps qu’elle. La sinusoïde n’a que la fondamentale ; la dent de scie les a toutes, la n-ième n fois plus faible que la première. Plus il y a d’harmoniques, plus le filtre aura de matière à retirer.",
+      code: "note(\"c2\").s(\"<sine sawtooth>\").release(.5)",
       decode: [
-        ['<sine sawtooth>', 'un cycle sine, un cycle sawtooth — compare-les.'],
-        ['sine', 'une seule fréquence → rien à filtrer, son « lisse ».'],
-        ['sawtooth', 'la fondamentale + tous ses harmoniques → du grain.'],
+        ["<sine sawtooth>", "un cycle de sinusoïde, un cycle de dent de scie : compare-les."],
+        ["sine", "une seule fréquence : rien à filtrer, son lisse."],
+        ["sawtooth", "la fondamentale + toutes ses harmoniques : du grain."],
       ],
       theory: {
-        title: 'Côté théorie (pont M2)',
+        title: "Harmoniques et intervalles",
         items: [
-          ['harmonique', "une fréquence multiple de la fondamentale (×2, ×3…)."],
-          ["×2 = l'octave", "le 1er harmonique, c'est l'octave au-dessus (M2)."],
-          ['×3 ≈ la quinte', 'un son riche contient déjà les intervalles du M2.'],
+          ["harmonique", "une fréquence multiple entière de la fondamentale. Par convention, la fondamentale est la 1ʳᵉ harmonique."],
+          ["×2", "la 2ᵉ harmonique : l’[octave](sol.octave) au-dessus de la note."],
+          ["×3", "la 3ᵉ harmonique : une [quinte](sol.quinte) au-dessus de cette octave (rapport 3:2 avec elle)."],
+          ["×4, ×5", "deux octaves au-dessus, puis la tierce majeure au-dessus : un son riche contient déjà, en lui-même, les intervalles de l’accord majeur."],
         ],
       },
-      exercise:
-        'Écoute sine puis sawtooth sur la même note. Lequel a « plus de grain » ? ' +
-        "C'est lui qu'on filtrera au chapitre suivant.",
+      exercise: "Écoute `sine` puis `sawtooth` sur la même note. Lequel a « plus de grain » ? C’est lui qu’on filtrera au chapitre suivant.",
+      rich: true,
     },
 
     {
-      id: '4.4',
-      kicker: 'Le bruit',
-      title: 'Le bruit : une source sans hauteur',
-      concept:
-        "Toutes les sources n'ont pas de note. Le BRUIT, c'est toutes les fréquences à la fois : " +
-        "white (dur), pink (médium), brown (doux). C'est la matière des cymbales, du souffle, de l'air.",
-      code: 's("<white pink brown>*8").decay(.04).sustain(0).gain(.4)',
+      id: "4.4",
+      kicker: "Le bruit",
+      title: "Le bruit : une source sans hauteur",
+      concept: "Toutes les sources n’ont pas de note. Le [bruit](son.bruit), c’est toutes les fréquences à la fois, au hasard, sans aucune qui domine : l’oreille n’y entend pas de hauteur. `white` a autant d’énergie à chaque hertz et sonne aigu ; `pink` perd 3 dB par octave ; `brown` perd 6 dB par octave et sonne sourd. C’est la matière des cymbales, du souffle, du vent.",
+      code: "s(\"<white pink brown>*8\").decay(.04).sustain(0).gain(.4)",
       decode: [
-        ['white / pink / brown', 'trois « couleurs » de bruit, du plus dur au plus doux.'],
-        ['*8', 'huit fois par cycle → un charley.'],
-        ['.decay(.04).sustain(0)', 'chaque coup retombe vite (percussion).'],
+        ["white / pink / brown", "trois « couleurs » de bruit, de la plus aiguë à la plus sourde."],
+        ["*8", "huit fois par cycle : un rythme de charleston."],
+        [".decay(.04).sustain(0)", "chaque coup retombe au silence en 40 ms : une percussion courte (voir [decay](fx.decay))."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['bruit', 'pas de hauteur définie : toutes les fréquences mélangées.'],
-          ['usage', 'charleston, cymbales, souffle, vent, transitions.'],
-          ['pont M1', "le « hh » de la batterie, c'est souvent du bruit filtré."],
+          ["bruit", "un son qui ne se répète jamais : pas de fréquence dominante, donc pas de hauteur."],
+          ["usage", "charleston, cymbales, souffle, vent, montées (*risers*)."],
+          ["charleston", "un vrai charleston est proche du bruit : son métal vibre à une multitude de fréquences sans rapport simple entre elles."],
         ],
       },
-      exercise:
-        'Mets le bruit sur un kick : s("bd*2, white*8").decay(.04).sustain(0). ' +
-        'Un mini-groove batterie 100 % synthétique.',
+      exercise: "Mets le bruit sur un kick : `s(\"bd*2, white*8\").decay(.04).sustain(0)`. Un mini-groove de batterie à moitié synthétique.",
+      rich: true,
     },
 
     {
-      id: '4.5',
-      kicker: 'On assemble',
-      title: 'Mélanger les sources',
-      concept:
-        "On empile plusieurs sources avec $: (M1). Voici un kit entièrement synthétique : " +
-        "un kick (sine grave), un charley (bruit), une basse (sawtooth filtrée). Aucun sample.",
-      code:
-        'setcpm(120/4)\n' +
-        '$: note("c1*2").s("sine").decay(.18).sustain(0).gain(.9)\n' +
-        '$: s("white*8").decay(.03).sustain(0).gain(.35)\n' +
-        '$: note("c2 eb2 g2 c2").s("sawtooth").lpf(800).gain(.5)',
+      id: "4.5",
+      kicker: "On assemble",
+      title: "Mélanger les sources",
+      concept: "On empile plusieurs sources avec `$:`, une piste par ligne. Voici un kit entièrement synthétique : un kick (une sinusoïde très grave qui retombe vite), un charleston (du bruit court) et une basse (une dent de scie filtrée). Aucun son enregistré.",
+      code: "setcpm(120/4)\n$: note(\"c1*2\").s(\"sine\").decay(.18).sustain(0).gain(.9)\n$: s(\"white*8\").decay(.03).sustain(0).gain(.35)\n$: note(\"c2 eb2 g2 c2\").s(\"sawtooth\").lpf(800).gain(.5)",
       decode: [
-        ['note("c1*2").s("sine")', 'le kick : une sine très grave, qui retombe vite.'],
-        ['s("white*8")', 'le charley : du bruit court.'],
-        ['.s("sawtooth").lpf(800)', 'la basse : une onde riche, un peu filtrée.'],
+        ["note(\"c1*2\").s(\"sine\")", "le kick : une sinusoïde à 33 Hz ; `decay(.18).sustain(0)` la fait retomber au silence en 0,18 s."],
+        ["s(\"white*8\")", "le charleston : du bruit blanc, 30 ms par coup."],
+        [".s(\"sawtooth\").lpf(800)", "la basse : une onde riche, dont le filtre retire les aigus au-dessus de 800 Hz."],
       ],
       recap: {
-        title: 'Récap chapitre 1 — La source',
-        columns: ['Source', 'Timbre', 'Strudel'],
+        title: "Récap chapitre 1 — La source",
+        columns: ["Source", "Timbre", "Strudel"],
         rows: [
-          ['sine', 'pure, ronde', '.s("sine")'],
-          ['triangle', 'douce (défaut)', '.s("triangle")'],
-          ['square', 'creuse, 8-bit', '.s("square")'],
-          ['sawtooth', 'riche, mordante', '.s("sawtooth")'],
-          ['bruit', 'sans hauteur', '.s("white"/"pink"/"brown")'],
+          ["sinusoïde", "une seule fréquence, aucune harmonique : ronde, pure", "`.s(\"sine\")`"],
+          ["triangle", "harmoniques impaires très faibles : douce. Le son joué quand `s` n’est pas écrit", "`.s(\"triangle\")`"],
+          ["carré", "harmoniques impaires, fortes : creuse, couleur 8-bit", "`.s(\"square\")`"],
+          ["dent de scie", "toutes les harmoniques : riche, mordante", "`.s(\"sawtooth\")`"],
+          ["bruit", "toutes les fréquences au hasard, sans hauteur : blanc (brillant), rose, brun (sourd)", "`.s(\"white\")` · `\"pink\"` · `\"brown\"`"],
         ],
       },
-      exercise:
-        "Fais ton propre kit : change l'onde de la basse, la couleur du bruit, " +
-        'la note du kick. Trois sources, ton son.',
-      free:
-        "Tu tiens la SOURCE : les quatre ondes, le bruit, et l'idée d'harmoniques. " +
-        "C'est le point de départ de tout son de synthé. Au chapitre suivant, on sort le ciseau : " +
-        "le filtre, pour sculpter ce son brut.",
+      exercise: "Fais ton propre kit : change l’onde de la basse, la couleur du bruit, la note du kick. Pour un kick plus percutant, ajoute `.penv(24).pdecay(.05)` (voir [penv](fx.penv)).",
+      free: "Tu as la **source** : quatre [ondes](son.ondes), le [bruit](son.bruit), et l’idée que ses harmoniques décident du [timbre](sol.timbre). Tout son de synthé part de là. Au chapitre suivant, le [filtre](fx.lpf) retire une partie de ces harmoniques pour sculpter le son.",
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -2509,139 +2380,123 @@ export const m4chapitre2 = {
   subtitle: 'Sculpter le timbre',
   flashs: [
     {
-      id: '4.6',
-      kicker: 'Le passe-bas',
-      title: 'Le passe-bas : adoucir le son',
-      concept:
-        "Le filtre passe-bas (lpf) laisse passer les graves et coupe les aigus → il feutre, adoucit. " +
-        "La fréquence de coupure décide où ça coupe : basse = sourd, haute = brillant.",
-      code: 'note("c2 e2 g2 c3").s("sawtooth").lpf("<400 800 2000 8000>")',
+      id: "4.6",
+      kicker: "Le passe-bas",
+      title: "Le passe-bas : adoucir le son",
+      concept: "Le [filtre passe-bas](fx.lpf) (`lpf`) laisse passer les fréquences sous la *coupure* et atténue celles au-dessus, de plus en plus (environ 12 dB par octave). Il retire des harmoniques sans changer la note : coupure basse = son sourd, coupure haute = son brillant.",
+      code: "note(\"c2 e2 g2 c3\").s(\"sawtooth\").lpf(\"<400 800 2000 8000>\")",
       decode: [
-        ['.lpf(...)', "le passe-bas : coupe au-dessus de la fréquence donnée."],
-        ['"<400 … 8000>"', "la coupure monte à chaque cycle → le son s'ouvre."],
-        ['cutoff', 'autre nom du même réglage (alias cutoff, ctf).'],
+        [".lpf(…)", "le passe-bas : atténue au-dessus de la fréquence donnée, en hertz."],
+        ["\"<400 … 8000>\"", "la coupure change à chaque cycle : le son s’ouvre peu à peu."],
+        ["cutoff", "un autre nom du même réglage (aussi `ctf`, `lp`)."],
       ],
       theory: {
-        title: 'Synthèse soustractive',
+        title: "Synthèse soustractive",
         items: [
-          ["l'idée", "partir d'un son riche (saw) et ENLEVER ce qu'on ne veut pas."],
-          ['passe-bas', "le filtre le plus courant : garde le corps, ôte la brillance."],
-          ['en hertz', 'la coupure va de ~20 à 20000 Hz.'],
+          ["l’idée", "partir d’un son riche (dent de scie) et RETIRER ce qu’on ne veut pas."],
+          ["passe-bas", "le filtre le plus courant : garde le corps du son, retire la brillance."],
+          ["en hertz", "la coupure va de 20 à 20 000 Hz. Repères : 200 étouffé, 800 rond, 2 000 présent, 8 000 presque ouvert."],
         ],
       },
-      exercise:
-        'Descends à lpf(200) (très sourd), puis monte à lpf(6000) (brillant). Trouve « ta » zone.',
+      exercise: "Descends à `lpf(200)` (très sourd), puis monte à `lpf(6000)` (brillant). Trouve « ta » zone.",
+      rich: true,
     },
 
     {
-      id: '4.7',
-      kicker: 'La résonance',
-      title: 'La résonance : faire chanter le filtre',
-      concept:
-        "La résonance (lpq) gonfle le son juste autour de la coupure → le filtre se met à « chanter », " +
-        "à siffler. C'est le son acid, le « waow ». Trop haut, ça crie : garde un gain raisonnable.",
-      code: 'note("c2 e2 g2 c3").s("sawtooth").lpf(600).lpq("<0 10 20 30>").gain(.5)',
+      id: "4.7",
+      kicker: "La résonance",
+      title: "La résonance : faire chanter le filtre",
+      concept: "La [résonance](fx.lpq) (`lpq`) amplifie une bande étroite autour de la coupure : `lpq(n)` y ajoute n décibels. À forte dose, cette bosse siffle par-dessus le son : le filtre « chante ». Quand la coupure bouge, la bosse balaie les harmoniques et on entend une voyelle, « ouah » : le son acid.",
+      code: "note(\"c2 e2 g2 c3\").s(\"sawtooth\").lpf(600).lpq(\"<0 10 20 30>\").gain(.5)",
       decode: [
-        ['lpf(600)', 'coupure fixe, plutôt basse.'],
-        ['lpq("<0 … 30>")', 'la résonance monte → le filtre résonne de plus en plus.'],
-        ['lpq', 'alias resonance.'],
+        ["lpf(600)", "coupure fixe, plutôt basse."],
+        ["lpq(\"<0 … 30>\")", "la résonance monte à chaque cycle : de 0 à +30 dB à la coupure."],
+        ["lpq", "nom complet : `resonance`."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['résonance', 'une bosse de volume pile à la coupure.'],
-          ['son acid', 'filtre résonant qui balaye = la signature de la TB-303.'],
-          ['prudence', 'résonance haute + balayage = ça peut crier. Baisse le gain.'],
+          ["résonance", "une bosse de volume à la fréquence de coupure : +n dB avec `lpq(n)`."],
+          ["son acid", "un filtre résonant dont la coupure bouge à chaque note : la signature de la Roland TB-303."],
+          ["prudence", "résonance forte = pics de volume. Baisse le `gain` avant de dépasser 20."],
         ],
       },
-      exercise:
-        'Pousse lpq(25) et balaye lpf("<300 600 1200 2400>"). Entends le filtre « parler ».',
+      exercise: "Pousse `lpq(25)` et balaie `lpf(\"<300 600 1200 2400>\")`. Entends le filtre « parler ».",
+      rich: true,
     },
 
     {
-      id: '4.8',
-      kicker: 'Passe-haut & bande',
-      title: 'Passe-haut & passe-bande',
-      concept:
-        "Le passe-haut (hpf) fait l'inverse du passe-bas : il coupe les graves et garde l'aigu " +
-        "(son fin, « radio »). Le passe-bande (bpf) ne garde qu'une tranche au milieu.",
-      code: 'note("c2 e2 g2 c3").s("sawtooth").hpf("<200 1000 3000>")',
+      id: "4.8",
+      kicker: "Passe-haut & bande",
+      title: "Passe-haut & passe-bande",
+      concept: "Le [passe-haut](fx.hpf) (`hpf`) fait l’inverse du passe-bas : il atténue les fréquences sous la coupure et garde l’aigu (son fin, « radio »). Le [passe-bande](fx.bpf) (`bpf`) ne garde qu’une bande autour d’une fréquence centrale ; `bpq` règle son étroitesse.",
+      code: "note(\"c2 e2 g2 c3\").s(\"sawtooth\").hpf(\"<200 1000 3000>\")",
       decode: [
-        ['.hpf(...)', 'le passe-haut : coupe en-dessous de la fréquence.'],
-        ['grave coupé', 'plus la valeur monte, plus le son devient fin.'],
-        ['bpf', "le passe-bande : ne garde qu'une bande (à tester en exercice)."],
+        [".hpf(…)", "le passe-haut : atténue en dessous de la fréquence donnée."],
+        ["grave coupé", "plus la valeur monte, plus le son devient fin."],
+        ["bpf", "le passe-bande : ne garde qu’une bande (à tester en exercice)."],
       ],
       theory: {
-        title: 'Les trois filtres',
+        title: "Les trois filtres",
         items: [
-          ['lpf', 'garde le grave (le plus courant).'],
-          ['hpf', "garde l'aigu (alléger, « téléphoner »)."],
-          ['bpf', 'garde une bande (+ bpq pour la largeur).'],
+          ["lpf", "garde le GRAVE (*low pass*, « le bas passe ») : le plus courant."],
+          ["hpf", "garde l’AIGU (*high pass*) : alléger un son, laisser la place à la basse."],
+          ["bpf", "garde une BANDE : `bpq` est un facteur sans unité ; la largeur vaut à peu près la fréquence centrale divisée par `bpq`."],
         ],
       },
-      exercise:
-        'Remplace hpf("<…>") par bpf(1200).bpq(8) : on ne garde plus qu\'une fine bande au milieu.',
+      exercise: "Remplace `hpf(\"<…>\")` par `bpf(1200).bpq(8)` : il ne reste qu’une bande d’environ 150 Hz autour de 1 200 Hz, un son très nasal.",
+      rich: true,
     },
 
     {
-      id: '4.9',
-      kicker: 'Le balayage',
-      title: 'Le filtre qui bouge (LFO)',
-      concept:
-        "Au lieu d'une coupure fixe, on la fait BOUGER avec un signal (sine, saw…) → le balayage " +
-        "« wah » automatique. Piège : un signal n'est lu qu'au déclenchement d'une note. Pour un " +
-        "balayage fluide, multiplie les notes ou ajoute .segment(n).",
-      code: 'note("c2").s("sawtooth").segment(16).lpf(sine.range(300,3000).slow(2)).lpq(8).gain(.5)',
+      id: "4.9",
+      kicker: "Le balayage",
+      title: "Le filtre qui bouge (LFO)",
+      concept: "Au lieu d’une coupure fixe, on la fait BOUGER avec un [signal](fn.signaux) (`sine`, `saw`…) : c’est le principe du *LFO* (oscillateur basse fréquence) des synthés. Piège : un signal n’est lu qu’au début de chaque note. Une note tenue garde donc la même coupure ; pour un balayage fluide, il faut beaucoup de notes, d’où `.segment(16)`.",
+      code: "note(\"c2\").s(\"sawtooth\").segment(16).lpf(sine.range(300,3000).slow(2)).lpq(8).gain(.5)",
       decode: [
-        ['sine.range(300,3000)', 'le cutoff oscille entre 300 et 3000 Hz.'],
-        ['.slow(2)', 'un aller-retour toutes les 2 mesures (lent).'],
-        ['.segment(16)', '16 paliers par cycle → sinon le filtre resterait figé.'],
+        ["sine.range(300,3000)", "la coupure suit une vague entre 300 et 3 000 Hz."],
+        [".slow(2)", "un aller-retour toutes les 2 mesures."],
+        [".segment(16)", "découpe la note tenue en 16 notes par cycle : 16 lectures du signal, donc 16 paliers de coupure."],
       ],
       theory: {
-        title: 'Le piège du signal figé',
+        title: "Le piège du signal figé",
         items: [
-          ['signal', 'sine / saw / tri / rand : une valeur qui varie en continu.'],
-          ['.range(min,max)', 'cale le signal entre deux valeurs.'],
-          ['.segment(n)', "force n lectures par cycle → le balayage s'entend."],
+          ["signal", "`sine`, `saw`, `tri`, `rand`… : une valeur entre 0 et 1 qui varie avec le temps."],
+          [".range(min, max)", "met le signal à l’échelle voulue (voir [range](fn.range))."],
+          ["lecture", "le signal est lu au début de chaque note : plus il y a de notes, plus le mouvement paraît continu."],
         ],
       },
-      exercise:
-        'Change sine en saw (montée qui retombe d\'un coup), ou ralentis avec .slow(4).',
+      exercise: "Change `sine` en `saw` (montée qui retombe d’un coup), ou ralentis avec `.slow(4)`.",
+      rich: true,
     },
 
     {
-      id: '4.10',
-      kicker: 'On assemble',
-      title: 'Filtrer un groove entier',
-      concept:
-        "Un filtre sur tout un morceau change l'ambiance : une intro filtrée qui s'ouvre lentement, " +
-        "c'est la montée classique. Ici la basse s'ouvre sur 8 mesures.",
-      code:
-        'setcpm(120/4)\n' +
-        '$: s("bd*4, hh*8").gain(.6)\n' +
-        '$: note("c2 eb2 g2 c2").s("sawtooth").lpf(sine.range(400,4000).slow(8)).lpq(6).gain(.5)',
+      id: "4.10",
+      kicker: "On assemble",
+      title: "Filtrer un groove entier",
+      concept: "Un filtre sur toute une piste change l’ambiance : une intro filtrée qui s’ouvre lentement est la montée classique de la musique électronique. Ici, la basse s’ouvre et se referme sur 8 mesures.",
+      code: "setcpm(120/4)\n$: s(\"bd*4, hh*8\").gain(.6)\n$: note(\"c2 eb2 g2 c2\").s(\"sawtooth\").lpf(sine.range(400,4000).slow(8)).lpq(6).gain(.5)",
       decode: [
-        ['lpf(sine.range(400,4000))', 'la coupure balaye du sourd au brillant.'],
-        ['.slow(8)', 'sur 8 mesures → une longue ouverture.'],
-        ['les 4 notes/mesure', 'suffisent à échantillonner ce balayage lent.'],
+        ["lpf(sine.range(400,4000))", "la coupure balaie de 400 Hz (sourd) à 4 000 Hz (brillant), plus de trois octaves."],
+        [".slow(8)", "un aller-retour sur 8 mesures : une ouverture lente."],
+        ["les 4 notes par mesure", "suffisent à lire ce balayage lent : la coupure change de palier à chaque note."],
       ],
       recap: {
-        title: 'Récap chapitre 2 — Le filtre',
-        columns: ['Filtre', 'Effet', 'Strudel'],
+        title: "Récap chapitre 2 — Le filtre",
+        columns: ["Filtre", "Effet", "Strudel"],
         rows: [
-          ['Passe-bas', "coupe l'aigu", '.lpf(800)'],
-          ['Résonance', 'fait chanter', '.lpq(20)'],
-          ['Passe-haut', 'coupe le grave', '.hpf(1500)'],
-          ['Passe-bande', 'garde une bande', '.bpf(1200).bpq(8)'],
-          ['Balayage', 'cutoff qui bouge', '.lpf(sine.range(300,3000)).segment(16)'],
+          ["passe-bas", "garde le grave, atténue au-dessus de la coupure (en Hz)", "`.lpf(800)`"],
+          ["résonance", "ajoute n dB à la coupure : le son siffle", "`.lpq(20)`"],
+          ["passe-haut", "l’inverse : atténue sous la coupure", "`.hpf(1500)`"],
+          ["passe-bande", "garde une bande autour du centre ; `bpq` la resserre", "`.bpf(1200).bpq(8)`"],
+          ["balayage", "la coupure suit un signal, relu au début de chaque note : il faut des notes courtes", "`.segment(16).lpf(sine.range(300, 3000))`"],
         ],
       },
-      exercise:
-        "Monte ton intro : pars de lpf(300), ouvre jusqu'à 5000, ajoute lpq(8) pour le « waow ».",
-      free:
-        "Tu tiens le FILTRE : passe-bas, résonance, passe-haut/bande et le balayage automatique. " +
-        "Avec la source du ch.1, tu crées déjà des timbres infinis. Au ch.3 : l'ENVELOPPE, " +
-        "la forme du son dans le temps.",
+      exercise: "Monte ton intro : pars de `lpf(300)`, ouvre jusqu’à 5 000, ajoute `lpq(8)` pour le « ouah ».",
+      free: "Tu as le **filtre** : [passe-bas](fx.lpf), [résonance](fx.lpq), [passe-haut](fx.hpf), [passe-bande](fx.bpf) et le balayage par un [signal](fn.signaux). Avec les sources du chapitre 1, ça fait déjà des timbres à l’infini. Au chapitre 3 : l’[enveloppe](sol.enveloppe), la forme du son dans le temps.",
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -2653,141 +2508,124 @@ export const m4chapitre3 = {
   subtitle: 'La forme du son dans le temps',
   flashs: [
     {
-      id: '4.11',
-      kicker: 'ADSR',
+      id: "4.11",
+      kicker: "ADSR",
       title: "L'enveloppe : la forme du son",
-      concept:
-        "Une note n'apparaît pas d'un bloc : elle a une forme dans le temps, l'enveloppe ADSR. " +
-        "Attaque (le temps pour monter), Déclin (la redescente), Maintien (le niveau tenu) et " +
-        "Relâche (l'extinction après la note).",
-      code: 'note("c3 e3 g3 c4").s("sawtooth").attack(.01).decay(.2).sustain(.3).release(.3)',
+      concept: "Une note n’apparaît pas d’un bloc : son volume a une forme dans le temps, l’[enveloppe](sol.enveloppe) ADSR. **Attack** : le temps pour monter de 0 au maximum. **Decay** : le temps pour redescendre vers le niveau tenu. **Sustain** : ce niveau, tenu tant que la note dure. **Release** : le temps pour s’éteindre après la fin de la note.",
+      code: "note(\"c3 e3 g3 c4\").s(\"sawtooth\").attack(.01).decay(.2).sustain(.3).release(.3)",
       decode: [
-        ['attack(.01)', 'montée quasi instantanée.'],
-        ['decay(.2).sustain(.3)', "retombe à 30 % du volume et s'y tient."],
-        ['release(.3)', 'traîne un peu après la note.'],
+        ["attack(.01)", "montée en 10 ms : départ net, sans clic."],
+        ["decay(.2).sustain(.3)", "retombe en 0,2 s à 30 % du maximum, et s’y tient."],
+        ["release(.3)", "après la fin de la note, s’éteint en 0,3 s."],
       ],
       theory: {
-        title: 'ADSR = 4 lettres',
+        title: "ADSR = 4 lettres",
         items: [
-          ['A — Attack', 'temps de montée.'],
-          ['D — Decay', 'temps de descente vers le maintien.'],
-          ['S — Sustain', 'le NIVEAU tenu (pas un temps !).'],
-          ['R — Release', 'extinction après le relâché.'],
+          ["A — Attack", "temps de montée, en secondes. Voir [attack](fx.attack)."],
+          ["D — Decay", "temps de descente vers le niveau tenu. Voir [decay](fx.decay)."],
+          ["S — Sustain", "le NIVEAU tenu, de 0 à 1 : ce n’est pas un temps ! Voir [sustain](fx.sustain)."],
+          ["R — Release", "temps d’extinction après la fin de la note. Voir [release](fx.release)."],
         ],
       },
-      exercise:
-        'Change une seule lettre à la fois pour sentir son rôle. Commence par attack(.5).',
+      exercise: "Change une seule lettre à la fois pour sentir son rôle. Commence par `attack(.5)`.",
+      rich: true,
     },
 
     {
-      id: '4.12',
-      kicker: 'Attaque & relâche',
-      title: 'Nappe ou pulsation',
-      concept:
-        "L'attaque change tout. Lente = une nappe qui gonfle (pad). Nette = une frappe immédiate. " +
-        "La relâche, c'est la traîne quand la note s'arrête.",
-      code: 'note("<c3 e3 g3>").s("sawtooth").attack("<.5 .01>").release(.6).lpf(1500)',
+      id: "4.12",
+      kicker: "Attaque & relâche",
+      title: "Nappe ou pulsation",
+      concept: "L’attaque change tout. Lente, une nappe qui gonfle (un *pad*) ; nette, une frappe immédiate. Le release décide de ce qui se passe après la note : court, les notes se détachent ; long, elles se fondent les unes dans les autres.",
+      code: "note(\"<c3 e3 g3>\").s(\"sawtooth\").attack(\"<.5 .01>\").release(.6).lpf(1500)",
       decode: [
-        ['attack("<.5 .01>")', 'un cycle gonfle lentement, le suivant frappe net.'],
-        ['release(.6)', 'la note traîne après sa fin.'],
-        ['nappe vs frappe', 'même son, deux caractères opposés.'],
+        ["attack(\"<.5 .01>\")", "un cycle, le son met une demi-seconde à monter ; le suivant, 10 ms."],
+        ["release(.6)", "la note continue 0,6 s après sa fin."],
+        ["nappe ou frappe", "même onde, même filtre : deux caractères opposés, uniquement par l’enveloppe."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['pad / nappe', "attaque lente + longue relâche = son d'ambiance."],
-          ['pluck / stab', 'attaque nette = son percussif, rythmique.'],
-          ['release', 'le « lâcher » : pour lier ou détacher les notes.'],
+          ["pad / nappe", "attaque lente + release long : un son d’ambiance, qui remplit."],
+          ["pluck / stab", "attaque nette, son court : percussif, rythmique."],
+          ["release", "ce qui suit la fin de la note : pour lier ou détacher les notes."],
         ],
       },
-      exercise:
-        'Fais une vraie nappe : attack(1).release(2) sur note("<c3 e3>"). Puis l\'inverse : attack(0).release(.1).',
+      exercise: "Fais une vraie nappe : `attack(1).release(2)` sur `note(\"<c3 e3>\")`. Puis l’inverse : `attack(0).release(.1)`.",
+      rich: true,
     },
 
     {
-      id: '4.13',
-      kicker: 'Déclin & maintien',
-      title: 'Le pluck : la note qui tombe',
-      concept:
-        "Pour un son percussif (pluck, mallet, kick) : attaque rapide + maintien à zéro → la note " +
-        "tombe toute seule. Important : le déclin ne s'entend QUE si le maintien est sous 1.",
-      code: 'note("c2 e2 g2 c3").s("sawtooth").attack(.01).decay(.15).sustain(0).lpf(2000)',
+      id: "4.13",
+      kicker: "Déclin & maintien",
+      title: "Le pluck : la note qui tombe",
+      concept: "Pour un son percussif (*pluck*, xylophone, kick) : attaque rapide + sustain à zéro. La note monte, puis retombe toute seule jusqu’au silence en `decay` secondes, quelle que soit la durée écrite. Le decay ne s’entend QUE si le sustain est sous 1 : sinon il n’y a rien vers quoi retomber.",
+      code: "note(\"c2 e2 g2 c3\").s(\"sawtooth\").attack(.01).decay(.15).sustain(0).lpf(2000)",
       decode: [
-        ['attack(.01)', 'frappe immédiate.'],
-        ['decay(.15).sustain(0)', 'la note retombe à zéro en 0,15 s → un pluck.'],
-        ['sustain(0)', 'sans lui, le déclin serait inaudible.'],
+        ["attack(.01)", "frappe immédiate."],
+        ["decay(.15).sustain(0)", "la note retombe à zéro en 0,15 s : un pluck."],
+        ["sustain(0)", "sans lui, le decay serait inaudible (avec un sustain à 1)."],
       ],
       theory: {
-        title: 'Pont M1 & M3',
+        title: "D’où vient ce son",
         items: [
-          ['kick / batterie', "c'est exactement cette enveloppe (M1)."],
-          ['corde pincée', 'la guitare aussi : attaque nette, ça décline (M3).'],
-          ['maintien bas', "la clé d'un son qui « plucke »."],
+          ["instruments frappés", "une batterie, un piano, une corde pincée reçoivent leur énergie une seule fois, puis la perdent : leur volume décroît tout seul."],
+          ["kick", "c’est exactement cette enveloppe, sur une onde très grave."],
+          ["sustain bas", "la clé d’un son qui « plucke »."],
         ],
       },
-      exercise:
-        'Monte sustain(.5) : la note se tient. Puis decay(.4).sustain(0) : un pluck plus long.',
+      exercise: "Monte `sustain(.5)` : la note se tient. Puis `decay(.4).sustain(0)` : un pluck plus long.",
+      rich: true,
     },
 
     {
-      id: '4.14',
-      kicker: 'Enveloppe de filtre',
+      id: "4.14",
+      kicker: "Enveloppe de filtre",
       title: "L'enveloppe de filtre : le son qui s'ouvre",
-      concept:
-        "Le coup de génie du synthé : faire bouger le FILTRE avec une enveloppe, à chaque note. " +
-        "Le son s'ouvre puis se referme tout seul — le fameux « waow ». lpenv = la profondeur, " +
-        "lpa/lpd/lps/lpr = l'ADSR du filtre.",
-      code: 'note("c2 e2 g2 c3").s("sawtooth").lpf(400).lpenv(4).lpa(.01).lpd(.2).lps(0).lpq(6)',
+      concept: "Le coup de génie du synthétiseur : faire bouger le FILTRE avec une enveloppe, à chaque note. La coupure monte au-dessus de `lpf`, puis redescend : le son s’ouvre puis se referme tout seul, le « ouah ». `lpenv` règle de combien d’OCTAVES la coupure monte ; `lpa`, `lpd`, `lps`, `lpr` sont l’ADSR de ce mouvement. Voir [enveloppe de filtre](fx.lpenv).",
+      code: "note(\"c2 e2 g2 c3\").s(\"sawtooth\").lpf(400).lpenv(4).lpa(.01).lpd(.2).lps(0).lpq(6)",
       decode: [
-        ['lpf(400)', 'la coupure de base (fermée).'],
-        ['lpenv(4)', "à l'attaque, le filtre monte de 4 crans."],
-        ['lpa(.01).lpd(.2).lps(0)', 'puis redescend en 0,2 s → le « waow ».'],
+        ["lpf(400)", "la coupure de repos : filtre fermé."],
+        ["lpenv(4)", "au début de chaque note, la coupure monte de 4 octaves : 400 × 2⁴ = 6 400 Hz."],
+        ["lpa(.01).lpd(.2).lps(0)", "elle y monte en 10 ms, puis redescend vers 400 Hz en 0,2 s : le « ouah »."],
       ],
       theory: {
-        title: 'Deux enveloppes',
+        title: "Deux enveloppes",
         items: [
-          ['ampli', 'attack/decay/sustain/release → le VOLUME.'],
-          ['filtre', 'lpa/lpd/lps/lpr + lpenv → la COUPURE.'],
-          ['lpenv', 'la profondeur : 0 = rien, plus = plus spectaculaire.'],
+          ["volume", "`attack`, `decay`, `sustain`, `release` : la forme du VOLUME."],
+          ["filtre", "`lpa`, `lpd`, `lps`, `lpr` + `lpenv` : la forme de la COUPURE."],
+          ["lpenv", "la profondeur, en octaves : 0 = rien, 1 = coupure doublée, 4 = ×16."],
         ],
       },
-      exercise:
-        'Pousse lpenv(8) (plus spectaculaire), ou allonge lpd(.6) (ouverture plus longue).',
+      exercise: "Pousse `lpenv(8)` (la coupure monte jusqu’à 20 000 Hz, le plafond) ou allonge `lpd(.6)` (le filtre met plus de temps à se refermer).",
+      rich: true,
     },
 
     {
-      id: '4.15',
-      kicker: 'On assemble',
-      title: 'Façonner un son de A à Z',
-      concept:
-        "Source + filtre + enveloppe d'ampli + enveloppe de filtre = un son de synthé complet, " +
-        "fait main. Voici une basse acid : une sawtooth filtrée, qui plucke et dont le filtre claque " +
-        "à chaque note.",
-      code:
-        'setcpm(120/4)\n' +
-        'note("c2 c2 eb2 c2 g1 c2 eb2 d2").s("sawtooth").lpf(300).lpenv(5).lpa(.01).lpd(.18).lps(.1).lpq(10).attack(.01).decay(.2).sustain(.2).release(.08).gain(.5)',
+      id: "4.15",
+      kicker: "On assemble",
+      title: "Façonner un son de A à Z",
+      concept: "Source + filtre + enveloppe de volume + enveloppe de filtre = un son de synthé complet, fait main. Voici une basse acid : une dent de scie filtrée, qui retombe vite, et dont le filtre s’ouvre et se referme à chaque note.",
+      code: "setcpm(120/4)\nnote(\"c2 c2 eb2 c2 g1 c2 eb2 d2\").s(\"sawtooth\").lpf(300).lpenv(5).lpa(.01).lpd(.18).lps(.1).lpq(10).attack(.01).decay(.2).sustain(.2).release(.08).gain(.5)",
       decode: [
-        ['note("c2 c2 eb2 …")', 'un motif de basse en do mineur (M2).'],
-        ['lpenv(5).lpd(.18).lpq(10)', 'le filtre claque à chaque note (le grain acid).'],
-        ['decay(.2).sustain(.2)', "l'ampli plucke légèrement."],
+        ["note(\"c2 c2 eb2 …\")", "un motif de basse en do mineur."],
+        ["lpenv(5).lpd(.18).lpq(10)", "à chaque note, la coupure monte de 5 octaves puis se referme en 0,18 s, avec une résonance de +10 dB : le grain acid."],
+        ["decay(.2).sustain(.2)", "le volume retombe à 20 % en 0,2 s : une note légèrement pincée."],
       ],
       recap: {
-        title: "Récap chapitre 3 — L'enveloppe",
-        columns: ['Réglage', 'Rôle', 'Strudel'],
+        title: "Récap chapitre 3 — L’enveloppe",
+        columns: ["Réglage", "Rôle", "Strudel"],
         rows: [
-          ['Attaque', 'temps de montée', '.attack(.5)'],
-          ['Déclin / Maintien', 'chute puis niveau tenu', '.decay(.2).sustain(.3)'],
-          ['Relâche', 'traîne après la note', '.release(.6)'],
-          ["Tout d'un coup", 'les 4 ensemble', '.adsr(".01:.2:.3:.3")'],
-          ['Env. de filtre', 'la coupure qui bouge', '.lpenv(4).lpa(.01).lpd(.2)'],
+          ["attack", "secondes pour monter au maximum", "`.attack(.5)`"],
+          ["decay, sustain", "secondes pour redescendre, puis niveau tenu (0 à 1)", "`.decay(.2).sustain(.3)`"],
+          ["release", "secondes pour s’éteindre après la fin de la note", "`.release(.6)`"],
+          ["les quatre d’un coup", "attack:decay:sustain:release", "`.adsr(\".01:.2:.3:.3\")`"],
+          ["enveloppe de filtre", "la coupure monte de n octaves au début de chaque note, puis redescend", "`.lpenv(4).lpa(.01).lpd(.2)`"],
         ],
       },
-      exercise:
-        'Transforme la basse en pad : attack(.6), sustain(.6), release(1), lpenv(2). Mêmes notes, tout autre son.',
-      free:
-        "Tu tiens l'ENVELOPPE : ADSR de l'ampli ET du filtre. Avec la source (ch.1) et le filtre " +
-        "(ch.2), tu fabriques maintenant n'importe quel son de synthé, de zéro. Au ch.4, on lui donne " +
-        "de l'ESPACE : réverb et délai.",
+      exercise: "Transforme la basse en nappe : `attack(.6)`, `sustain(.6)`, `release(1)`, `lpenv(2)`. Mêmes notes, tout autre son.",
+      free: "Tu as l’**enveloppe** : la forme du volume ([ADSR](fx.adsr)) et celle du filtre ([lpenv](fx.lpenv)). Avec la source et le filtre, tu peux construire un son de synthé de zéro : une nappe (attack et release longs), un pincement (`decay(.1).sustain(0)`), une basse qui mord (enveloppe de filtre courte). Au chapitre 4, on lui donne de l’espace : [réverbération](fx.room) et [écho](fx.delay).",
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -2799,146 +2637,123 @@ export const m4chapitre4 = {
   subtitle: 'Réverb & délai',
   flashs: [
     {
-      id: '4.16',
-      kicker: 'La réverb',
-      title: 'La réverb : mettre le son dans une pièce',
-      concept:
-        "La réverbération (room) place le son dans un espace : un peu = de la présence, beaucoup = " +
-        "une cathédrale. roomsize règle la taille de la pièce.",
-      code: 'note("c3 e3 g3 c4").s("triangle").room("<0 .3 .6 .9>").release(.2)',
+      id: "4.16",
+      kicker: "La réverb",
+      title: "La réverb : mettre le son dans une pièce",
+      concept: "La [réverbération](fx.room) (`room`) place le son dans un espace : elle ajoute la traîne des milliers de réflexions d’une pièce. `room` règle le niveau de cette traîne (le son direct reste intact) ; [size](fx.size) (`roomsize`) règle sa durée, en secondes : petite pièce ou cathédrale.",
+      code: "note(\"c3 e3 g3 c4\").s(\"triangle\").room(\"<0 .3 .6 .9>\").release(.2)",
       decode: [
-        ['room("<0 … .9>")', 'la quantité de réverb monte à chaque cycle.'],
-        ['0', 'son sec, collé au haut-parleur.'],
-        ['.9', 'son lointain, baigné.'],
+        ["room(\"<0 … .9>\")", "le niveau de réverbération monte à chaque cycle."],
+        ["0", "son sec, collé au haut-parleur."],
+        [".9", "son lointain, baigné."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['réverb', "les milliers de reflets d'un son dans un lieu."],
-          ['room', 'la quantité (0 à 1).'],
-          ['roomsize (sz)', 'la taille de la pièce (alias size).'],
+          ["réverbération", "les milliers de reflets d’un son dans un lieu, entendus comme une traîne continue."],
+          ["room", "le niveau envoyé vers la réverbération, de 0 à 1."],
+          ["roomsize", "la durée de la traîne, en secondes : le temps qu’elle met pour perdre 60 dB (autre nom : `size`). Défaut : 2."],
         ],
       },
-      exercise:
-        'Ajoute .roomsize(8) (grande salle), puis .rlp(2000) (une réverb feutrée, sombre).',
+      exercise: "Ajoute `.roomsize(8)` (une traîne de 8 s, une très grande salle), puis `.rlp(2000)` : la traîne est filtrée au-dessus de 2 000 Hz, plus feutrée et plus sombre.",
+      rich: true,
     },
 
     {
-      id: '4.17',
-      kicker: 'Le délai',
+      id: "4.17",
+      kicker: "Le délai",
       title: "Le délai : l'écho qui répète",
-      concept:
-        "Le délai (delay) répète le son comme un écho. delaytime règle l'intervalle entre les échos, " +
-        "delayfeedback combien de répétitions. Attention : un feedback ≥ 1 enfle à l'infini.",
-      code: 'note("c3 ~ e3 ~").s("triangle").delay(.5).delaytime(.25).delayfeedback(.4).release(.1)',
+      concept: "Le [délai](fx.delay) (`delay`) répète le son comme un écho, de plus en plus faiblement. `delaytime` règle l’intervalle entre les répétitions ; `delayfeedback`, la part de chaque répétition renvoyée pour produire la suivante. Plus elle est proche de 1, plus l’écho dure (le moteur plafonne à 0,98).",
+      code: "note(\"c3 ~ e3 ~\").s(\"triangle\").delay(.5).delaytime(.25).delayfeedback(.4).release(.1)",
       decode: [
-        ['delay(.5)', "le niveau de l'écho (0 à 1)."],
-        ['delaytime(.25)', 'le temps entre deux échos (en secondes).'],
-        ['delayfeedback(.4)', 'combien de fois ça se répète.'],
+        ["delay(.5)", "le niveau de la première répétition (0 à 1)."],
+        ["delaytime(.25)", "l’intervalle entre deux répétitions, en secondes (1 au maximum)."],
+        ["delayfeedback(.4)", "chaque répétition garde 40 % de la précédente."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['delay', "la quantité d'écho envoyée."],
-          ['delaytime (dt)', "l'écart entre les répétitions."],
-          ['delayfeedback (dfb)', 'le nombre de répétitions — reste sous 1 !'],
+          ["delay", "le niveau de l’écho envoyé."],
+          ["delaytime (dt)", "l’écart entre les répétitions, en secondes."],
+          ["delayfeedback (dfb)", "la part renvoyée, de 0 à 0,98 : 0,5 donne une dizaine de répétitions audibles, 0,9 une longue traîne. Voir [delayfeedback](fx.delayfeedback)."],
         ],
       },
-      exercise:
-        'Pousse delayfeedback(.7) (longue traîne), puis delaytime(.125) (échos serrés).',
+      exercise: "Pousse `delayfeedback(.7)` (longue traîne), puis `delaytime(.125)` (échos serrés).",
+      rich: true,
     },
 
     {
-      id: '4.18',
-      kicker: 'Le délai calé',
-      title: 'Caler le délai sur le tempo',
-      concept:
-        "Pour que l'écho groove, on cale delaytime sur le tempo. À 120 BPM, un temps dure 0,5 s. " +
-        "delaytime(.375) = trois croches : c'est le délai « pointé » que les guitaristes adorent (M3).",
-      code:
-        'setcpm(120/4)\n' +
-        '$: s("bd*4").gain(.6)\n' +
-        '$: note("c4 ~ ~ ~ e4 ~ ~ ~").s("triangle").delay(.6).delaytime(.375).delayfeedback(.5).gain(.7)',
+      id: "4.18",
+      kicker: "Le délai calé",
+      title: "Caler le délai sur le tempo",
+      concept: "Pour que l’écho groove, on cale son intervalle sur le tempo. À 120 BPM, un temps dure 0,5 s, une croche 0,25 s. `delaytime(.375)` = trois doubles-croches, une croche pointée : le délai « pointé » des guitaristes. Plus simple : `delaysync(3/16)`, qui compte en cycles et suit le tempo tout seul (voir [delaytime](fx.delaytime)).",
+      code: "setcpm(120/4)\n$: s(\"bd*4\").gain(.6)\n$: note(\"c4 ~ ~ ~ e4 ~ ~ ~\").s(\"triangle\").delay(.6).delaytime(.375).delayfeedback(.5).gain(.7)",
       decode: [
-        ['setcpm(120/4)', '120 BPM en 4/4 → 1 temps = 0,5 s (M1).'],
-        ['delaytime(.375)', '= 0,5 × 0,75 → la croche pointée.'],
-        ["l'écho danse", 'il tombe pile dans les trous du rythme.'],
+        ["setcpm(120/4)", "120 BPM en 4/4 : 1 temps = 0,5 s."],
+        ["delaytime(.375)", "0,5 × 0,75 : la croche pointée."],
+        ["l’écho", "il tombe à contretemps, dans les trous du rythme."],
       ],
       theory: {
-        title: 'Pont M3 — le délai du guitariste',
+        title: "Le délai du guitariste",
         items: [
-          ['croche pointée', 'le délai « dotted », signature de bien des solos.'],
-          ['la noire', 'delaytime(.5) à 120 BPM = un écho par temps.'],
-          ['calé = musical', 'un délai au hasard brouille ; calé, il groove.'],
+          ["croche pointée", "trois doubles-croches : l’écho décale chaque note par rapport à la grille, signature de beaucoup de solos."],
+          ["la noire", "`delaytime(.5)` à 120 BPM : un écho par temps, qui double la mélodie."],
+          ["calé", "un écho au hasard brouille ; calé sur le tempo, il groove."],
         ],
       },
-      exercise:
-        'Compare delaytime(.5) (la noire, carré) et delaytime(.375) (la croche pointée, qui « roule »).',
+      exercise: "Compare `delaytime(.5)` (la noire, carré) et `delaytime(.375)` (la croche pointée, qui « roule »).",
+      rich: true,
     },
 
     {
-      id: '4.19',
-      kicker: 'Les orbits',
-      title: 'Les orbits : séparer les espaces',
-      concept:
-        "Piège : la réverb et le délai sont PARTAGÉS par « orbit ». Deux couches sur le même orbit " +
-        "qui règlent room différemment → résultat imprévisible. La parade : .orbit(2) donne une " +
-        "chaîne d'effets séparée.",
-      code:
-        'setcpm(120/4)\n' +
-        '$: note("c3 e3 g3").s("triangle").room(.8).roomsize(6).orbit(2)\n' +
-        '$: s("bd*4").gain(.7)',
+      id: "4.19",
+      kicker: "Les orbits",
+      title: "Les orbits : séparer les espaces",
+      concept: "La réverbération et le délai sont PARTAGÉS par [orbit](fx.orbit) : chaque orbit a une seule réverbération et un seul délai. Le niveau envoyé (`room`, `delay`) reste propre à chaque son ; mais la pièce elle-même (`roomsize`) et l’intervalle de l’écho sont ceux de la dernière note jouée sur l’orbit. Pour deux pièces différentes, il faut deux orbits.",
+      code: "setcpm(120/4)\n$: note(\"c3 e3 g3\").s(\"triangle\").room(.8).roomsize(6).orbit(2)\n$: s(\"bd*4\").gain(.7)",
       decode: [
-        ['.orbit(2)', 'le lead a sa propre réverb, à part.'],
-        ['la batterie', "reste sur l'orbit 1 (défaut) → sèche."],
-        ['sans orbit', 'la grande réverb « baverait » sur le kick.'],
+        [".orbit(2)", "le lead a sa propre réverbération, une salle de 6 s."],
+        ["la batterie", "reste sur l’orbit 1 (le défaut), sans réverbération : sèche."],
+        ["room par son", "la batterie n’envoie rien dans la réverbération : même sur la même orbit que le lead, elle resterait sèche."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['orbit', 'un canal d\'effets globaux (réverb + délai).'],
-          ['1 par orbit', 'une seule réverb et un seul délai par orbit.'],
-          ['parade', 'un orbit différent par ambiance.'],
+          ["orbit", "un groupe d’effets partagés : une réverbération et un délai."],
+          ["partagé", "les réglages de la pièce (`roomsize`, `roomlp`) et de l’écho (`delaytime`, `delayfeedback`) valent pour toute l’orbit."],
+          ["propre à chaque son", "le niveau envoyé : `room`, `delay`."],
         ],
       },
-      exercise:
-        'Enlève .orbit(2) : écoute la batterie « polluée » par la réverb du lead. Puis remets-le.',
+      exercise: "Ajoute `.room(.3).roomsize(1)` à la batterie, puis enlève `.orbit(2)` du lead : les deux pistes partagent alors la même réverbération, dont la taille passe de 1 à 6 s selon la dernière note jouée. Remets `.orbit(2)` : chacune retrouve sa pièce.",
+      rich: true,
     },
 
     {
-      id: '4.20',
-      kicker: 'On assemble',
+      id: "4.20",
+      kicker: "On assemble",
       title: "Un mix avec de l'espace",
-      concept:
-        "Bien produire, c'est placer chaque élément dans l'espace : batterie sèche devant, lead avec " +
-        "un délai calé, nappe dans une grande réverb — chacun sur son orbit.",
-      code:
-        'setcpm(120/4)\n' +
-        '$: s("bd*4, [~ sd]*2").bank("RolandTR909").gain(.6)\n' +
-        '$: note("<c3 e3 g3 b3>").s("sawtooth").lpf(1500).delay(.4).delaytime(.375).delayfeedback(.4).orbit(2).gain(.4)\n' +
-        '$: note("<c4 e4 g4>").s("triangle").attack(.4).release(1).room(.9).roomsize(8).orbit(3).gain(.3)',
+      concept: "Produire, c’est placer chaque élément dans l’espace : batterie sèche, devant ; lead avec un délai calé sur le tempo ; nappe dans une grande réverbération. Chacun sur son orbit, pour que leurs réglages ne se mélangent pas.",
+      code: "setcpm(120/4)\n$: s(\"bd*4, [~ sd]*2\").bank(\"RolandTR909\").gain(.6)\n$: note(\"<c3 e3 g3 b3>\").s(\"sawtooth\").lpf(1500).delay(.4).delaytime(.375).delayfeedback(.4).orbit(2).gain(.4)\n$: note(\"<c4 e4 g4>\").s(\"triangle\").attack(.4).release(1).room(.9).roomsize(8).orbit(3).gain(.3)",
       decode: [
-        ['batterie (orbit 1)', 'sèche, en avant.'],
-        ['lead (orbit 2)', 'délai pointé calé au tempo.'],
-        ['nappe (orbit 3)', 'attaque lente, grande réverb.'],
+        ["batterie (orbit 1)", "sèche, en avant."],
+        ["lead (orbit 2)", "délai pointé, calé sur le tempo."],
+        ["nappe (orbit 3)", "attaque lente, grande réverbération."],
       ],
       recap: {
-        title: "Récap chapitre 4 — L'espace",
-        columns: ['Effet', 'Rôle', 'Strudel'],
+        title: "Récap chapitre 4 — L’espace",
+        columns: ["Effet", "Rôle", "Strudel"],
         rows: [
-          ['Réverb', 'la pièce', '.room(.5).roomsize(4)'],
-          ['Réverb feutrée', 'sombre, douce', '.room(.5).rlp(2000)'],
-          ['Délai', "l'écho", '.delay(.5).delaytime(.375)'],
-          ['Feedback', 'nb de répétitions', '.delayfeedback(.4)'],
-          ['Orbit', 'séparer les espaces', '.orbit(2)'],
+          ["réverbération", "la salle : `room` dose le mélange, `roomsize` la durée de la traîne", "`.room(.5).roomsize(4)`"],
+          ["réverbération feutrée", "un passe-bas sur la traîne : plus sombre", "`.room(.5).roomlp(2000)`"],
+          ["écho", "`delay` dose le mélange, `delaytime` l’écart en secondes (1 s au plus)", "`.delay(.5).delaytime(.375)`"],
+          ["réinjection", "part de l’écho renvoyée dans l’écho, de 0 à 0,98 (plafond du moteur)", "`.delayfeedback(.4)`"],
+          ["orbit", "un numéro de bus : chaque orbit a sa propre réverbération et son propre écho", "`.orbit(2)`"],
         ],
       },
-      exercise:
-        'Place tes 3 couches dans 3 espaces : change les orbits, la taille des réverbs, le temps des délais.',
-      free:
-        "Tu tiens l'ESPACE : réverb, délai, délai calé au tempo, et les orbits pour ne pas tout " +
-        "mélanger. Ton son a maintenant une source, un timbre, une forme ET un lieu. Dernier " +
-        "chapitre : la COULEUR et le mix final.",
+      exercise: "Place tes trois couches dans trois espaces : change les orbits, la taille des réverbérations, l’intervalle des délais.",
+      free: "Tu as l’**espace** : [réverbération](fx.room), [écho](fx.delay) calé ou non sur le tempo, et les [orbits](fx.orbit) pour donner à chaque piste son propre lieu. Ton son a maintenant une source, un timbre, une forme et un lieu. Dernier chapitre : la couleur (saturation, modulation) et le mélange final.",
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -2950,164 +2765,138 @@ export const m4chapitre5 = {
   subtitle: 'Saturation, modulation & assemblage',
   flashs: [
     {
-      id: '4.21',
-      kicker: 'La saturation',
-      title: 'Salir le son : disto, crush, lo-fi',
-      concept:
-        "Salir le son lui donne du grain. distort = l'overdrive/disto (ta pédale, M3). crush réduit " +
-        "les bits → son 8-bit. coarse réduit l'échantillonnage → grain rétro. Attention : la disto " +
-        "monte vite en volume, garde un gain raisonnable.",
-      code: 'note("c2 eb2 g2 c2").s("sawtooth").lpf(2000).distort("4:.3").gain(.5)',
+      id: "4.21",
+      kicker: "La saturation",
+      title: "Salir le son : disto, crush, lo-fi",
+      concept: "Salir le son lui donne du grain. La [saturation](fx.distort) (`distort`) écrase les crêtes de l’onde et ajoute des harmoniques, comme une pédale d’overdrive. Le [crush](fx.crush) arrondit chaque valeur sur peu de niveaux (son « 8 bits ») ; `coarse` ne garde qu’un échantillon sur n (son « lo-fi », métallique). La saturation fait monter le volume : compense.",
+      code: "note(\"c2 eb2 g2 c2\").s(\"sawtooth\").lpf(2000).distort(\"4:.3\").gain(.5)",
       decode: [
-        ['distort("4:.3")', 'quantité 4, avec un post-gain de 0,3 pour ne pas hurler.'],
-        ['crush', 'réduit la résolution : crush(4) brutal, crush(16) propre.'],
-        ['coarse', "réduit l'échantillonnage : coarse(8) = lo-fi."],
+        ["distort(\"4:.3\")", "quantité 4 ; la deuxième valeur baisse le volume après la saturation, à 0,3."],
+        ["crush", "nombre de bits : `crush(4)` brutal, `crush(16)` intact."],
+        ["coarse", "un échantillon sur n : `coarse(8)` = fréquence d’échantillonnage divisée par 8."],
       ],
       theory: {
-        title: 'Pont M3 — tes pédales',
+        title: "Tes pédales",
         items: [
-          ['distort (dist)', 'overdrive / distorsion = le grain rock.'],
-          ['crush', 'le son « jeu vidéo », bit-crushé.'],
-          ['gain', 'la disto pousse le volume → compense avec gain.'],
+          ["distort (dist)", "overdrive, distorsion : le grain rock. Les sons faibles sont amplifiés d’environ e^distort fois."],
+          ["crush", "le son « jeu vidéo » : l’onde devient un escalier."],
+          ["volume", "la saturation pousse le volume : compense avec la deuxième valeur de `distort` (ou `postgain`) plutôt qu’avec `gain`, qui changerait la quantité de saturation."],
         ],
       },
-      exercise:
-        'Remplace par .crush("<16 8 4 2>") puis par .coarse("<1 4 8 16>"). Deux façons de « salir ».',
+      exercise: "Remplace par `.crush(\"<16 8 4 2>\")`, puis par `.coarse(\"<1 4 8 16>\")`. Deux façons de « salir ».",
+      rich: true,
     },
 
     {
-      id: '4.22',
-      kicker: 'La modulation',
-      title: 'Phaser & vibrato : faire bouger le son',
-      concept:
-        "La modulation met le son en mouvement. Le phaser (pédale de guitare connue, M3) crée un " +
-        "balayage tournoyant. Le vibrato (vib) fait vibrer la hauteur, comme le doigt qui vibre " +
-        "sur la corde.",
-      code: 'n("0 2 4 7 4 2").scale("C:minor:pentatonic").s("sawtooth").phaser(2).vib("4:.2").release(.3)',
+      id: "4.22",
+      kicker: "La modulation",
+      title: "Phaser & vibrato : faire bouger le son",
+      concept: "La modulation met le son en mouvement. Le [phaser](fx.phaser) creuse une bande de fréquences et la fait monter et descendre : le son semble tourner. Le [vibrato](fx.vib) (`vib`) fait osciller la hauteur, comme le doigt qui vibre sur une corde.",
+      code: "n(\"0 2 4 7 4 2\").scale(\"C:minor:pentatonic\").s(\"sawtooth\").phaser(2).vib(\"4:.2\").release(.3)",
       decode: [
-        ['phaser(2)', 'la vitesse du balayage tournoyant.'],
-        ['vib("4:.2")', 'vibrato à 4 Hz, profondeur 0,2 demi-ton.'],
-        ['mouvement', "le son « respire » au lieu d'être figé."],
+        ["phaser(2)", "deux allers-retours du balayage par seconde."],
+        ["vib(\"4:.2\")", "vibrato à 4 oscillations par seconde, ±0,2 demi-ton."],
+        ["mouvement", "le son « respire » au lieu d’être figé."],
       ],
       theory: {
-        title: 'Pont M3 — gestes & pédales',
+        title: "Gestes et pédales",
         items: [
-          ['phaser', 'Strudel le décrit comme « une pédale de guitare ».'],
-          ['vibrato', 'le geste du guitariste qui fait vibrer la corde.'],
-          ['modulation', 'tout ce qui fait varier un paramètre en continu.'],
+          ["phaser", "une pédale de guitare classique. Celui de Strudel creuse un seul creux, un phaser analogique en creuse plusieurs."],
+          ["vibrato", "chanteurs et violonistes : environ 5 à 7 oscillations par seconde."],
+          ["modulation", "tout ce qui fait varier un réglage en continu."],
         ],
       },
-      exercise:
-        'Essaie phaser("<1 4 8>") (de lent à rapide), ou vib("6:.5") (un vibrato bien large).',
+      exercise: "Essaie `phaser(\"<1 4 8>\")` (de lent à rapide), ou `vib(\"6:.5\")` (un vibrato large, ±0,5 demi-ton).",
+      rich: true,
     },
 
     {
-      id: '4.23',
-      kicker: 'Le mix',
-      title: 'Dynamique & stéréo',
-      concept:
-        "Mixer, c'est équilibrer les volumes (gain, velocity) et placer chaque son dans l'espace " +
-        "stéréo (pan : 0 = gauche, 1 = droite). postgain règle le volume final, après tous les effets.",
-      code:
-        'setcpm(120/4)\n' +
-        '$: s("hh*8").gain(.4).pan(sine.range(0,1).slow(2))\n' +
-        '$: note("c3 e3 g3 c4").s("triangle").pan("<0 1>").release(.3).gain(.6)',
+      id: "4.23",
+      kicker: "Le mix",
+      title: "Dynamique & stéréo",
+      concept: "Mixer, c’est équilibrer les volumes et placer chaque son dans l’espace stéréo. `gain` multiplie l’amplitude : `gain(.5)` = environ 6 dB de moins. `pan` place le son entre la gauche (0) et la droite (1). `postgain` règle le volume après tous les effets de la note.",
+      code: "setcpm(120/4)\n$: s(\"hh*8\").gain(.4).pan(sine.range(0,1).slow(2))\n$: note(\"c3 e3 g3 c4\").s(\"triangle\").pan(\"<0 1>\").release(.3).gain(.6)",
       decode: [
-        ['pan(sine.range(0,1))', 'le charley balaye de gauche à droite.'],
-        ['pan("<0 1>")', "les notes alternent un côté puis l'autre."],
-        ['gain / velocity', 'le volume ; postgain = volume final.'],
+        ["pan(sine.range(0,1))", "le charleston va de gauche à droite et revient."],
+        ["pan(\"<0 1>\")", "les notes passent d’un côté à l’autre à chaque cycle."],
+        ["gain", "le volume d’une piste ; `velocity` en est un second multiplicateur, note par note."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['gain', "volume d'une couche (exponentiel)."],
-          ['pan', 'position stéréo, 0 → 1.'],
-          ['jux(rev)', "effet stéréo : la droite joue l'inverse de la gauche."],
+          ["gain", "multiplicateur LINÉAIRE de l’amplitude : `.5` ≈ −6 dB, `.25` ≈ −12 dB. Voir [gain](fx.gain)."],
+          ["pan", "position stéréo, de 0 (gauche) à 1 (droite). Voir [pan](fx.pan)."],
+          ["jux(rev)", "effet stéréo : la voie droite joue le motif à l’envers. Voir [jux](fn.jux)."],
         ],
       },
-      exercise:
-        "Ajoute .jux(rev) sur la mélodie : la voie droite joue à l'envers → large stéréo.",
+      exercise: "Remplace `.pan(\"<0 1>\")` par `.jux(rev)` sur la mélodie : à gauche elle joue à l’endroit, à droite à l’envers, et la stéréo s’élargit (au casque). Remplace, n’ajoute pas : `jux` décale le pan déjà écrit de 0,5 de chaque côté, si bien qu’avec `pan(0)` les deux copies tomberaient tout à gauche et au centre (voir [jux](fn.jux)).",
+      rich: true,
     },
 
     {
-      id: '4.24',
+      id: "4.24",
       kicker: "L'ordre compte",
-      title: 'La chaîne du signal',
-      concept:
-        "Surprise : l'ordre dans ton CODE ne change rien — Strudel applique toujours les effets dans " +
-        "le même ordre fixe (gain → filtres → saturation → pan → phaser → réverb/délai). Autre règle : " +
-        "chaque effet est à usage unique. Deux lpf ? Ils se télescopent, ils ne s'additionnent pas.",
-      code: 'note("c2 eb2 g2 c2").s("sawtooth").lpf(800).distort("3:.3").room(.3).gain(.6)',
+      title: "La chaîne du signal",
+      concept: "L’ordre dans ton CODE ne change rien : Strudel applique toujours les effets dans le même ordre (gain → filtres → crush → distorsion → pan → phaser → réverbération et délai). Autre règle : chaque effet n’existe qu’une fois par son. Deux `.lpf` ? La seconde valeur remplace la première.",
+      code: "note(\"c2 eb2 g2 c2\").s(\"sawtooth\").lpf(800).distort(\"3:.3\").room(.3).gain(.6)",
       decode: [
-        ["l'ordre du code", 'libre — le résultat sonore est le même.'],
-        ['la chaîne réelle', 'filtres, puis saturation, puis espace : toujours.'],
-        ['usage unique', 'un effet répété s\'écrase, il ne s\'empile pas.'],
+        ["l’ordre du code", "libre : le résultat sonore est le même."],
+        ["la chaîne réelle", "filtres, puis saturation, puis espace : toujours."],
+        ["usage unique", "un effet écrit deux fois ne s’empile pas : seule la dernière valeur compte."],
       ],
       theory: {
-        title: "Deux règles d'or",
+        title: "Deux règles d’or",
         items: [
-          ['ordre fixe', 'gain → filtres → disto → pan → phaser → réverb/délai.'],
-          ['usage unique', "un effet appelé 2× s'écrase."],
-          ['conséquence', 'le filtre agit donc TOUJOURS avant la disto.'],
+          ["ordre fixe", "gain → filtres → crush → distorsion → pan → phaser → réverbération et délai. Voir [ordre des effets](voc.effets.ordre-des-effets)."],
+          ["usage unique", "un effet appelé deux fois : la seconde valeur remplace la première."],
+          ["conséquence", "le filtre agit TOUJOURS avant la saturation : il ne peut pas adoucir le grain qu’elle ajoute."],
         ],
       },
-      exercise:
-        'Mets deux filtres : .lpf(300).distort("3:.3").lpf(3000). Tu n\'obtiens PAS deux filtrages — ils se télescopent.',
+      exercise: "Écris deux filtres : `.lpf(300).distort(\"3:.3\").lpf(3000)`. Tu n’obtiens PAS deux filtrages : seule la coupure à 3 000 Hz reste, et elle agit avant la saturation.",
+      rich: true,
     },
 
     {
-      id: '4.25',
-      kicker: 'Tout, ensemble',
-      title: 'Le morceau final : M1 → M4',
-      concept:
-        "Le grand final, version acid / psy-trance : un morceau produit qui réunit les quatre modules. Le live coding et le " +
-        "rythme (M1), la gamme et les accords (M2), la guitare (M3), et le son façonné main avec ses " +
-        "effets (M4) — articulé autour d'une basse acide. En do mineur.",
-      code:
-        'setcpm(145/4)\n' +
-        '$: s("bd*4, [~ sd]*2, hh*8").bank("RolandTR909").gain(.6)\n' +
-        '$: note("c2(3,8)").s("sawtooth").lpf(500).lpenv(4).lpa(.01).lpd(.18).lps(.1).lpq(15).decay(.2).sustain(.15).gain(.5)\n' +
-        '$: chord("<Cm Ab Bb Eb>").voicing().struct("x ~ x x").s("gm_electric_guitar_clean").distort("1.5:.3").delay(.3).delaytime(.375).delayfeedback(.3).orbit(2).gain(.4)\n' +
-        '$: n("0 3 5 7 5 3").scale("C:minor").s("sawtooth").attack(.01).release(.2).phaser(2).room(.4).orbit(3).gain(.35)',
+      id: "4.25",
+      kicker: "Tout, ensemble",
+      title: "Le morceau final : M1 → M4",
+      concept: "Le grand final : un morceau qui réunit tout le parcours, autour d’une basse acide. La batterie et le tempo, la gamme et les accords, la guitare, et le son façonné à la main avec ses effets. En do mineur.",
+      code: "setcpm(145/4)\n$: s(\"bd*4, [~ sd]*2, hh*8\").bank(\"RolandTR909\").gain(.6)\n$: note(\"c2(3,8)\").s(\"sawtooth\").lpf(500).lpenv(4).lpa(.01).lpd(.18).lps(.1).lpq(15).decay(.2).sustain(.15).gain(.5)\n$: chord(\"<Cm Ab Bb Eb>\").voicing().struct(\"x ~ x x\").s(\"gm_electric_guitar_clean\").distort(\"1.5:.3\").delay(.3).delaytime(.375).delayfeedback(.3).orbit(2).gain(.4)\n$: n(\"0 3 5 7 5 3\").scale(\"C:minor\").s(\"sawtooth\").attack(.01).release(.2).phaser(2).room(.4).orbit(3).gain(.35)",
       decode: [
-        ['la batterie (M1)', 'le moteur rythmique : kick 4/4 + hats serrés.'],
-        ['la basse acide (M4)', 'sawtooth + enveloppe de filtre + résonance haute (lpq 15) sur un rythme euclidien (3,8) — 3 coups répartis sur 8 pas, le tresillo (flash 5.9b du M5) → le squelch 303 du psy-trance.'],
-        ['les accords (M2+M3)', 'grille Cm-Ab-Bb-Eb, guitare grattée + disto + délai.'],
-        ['la mélodie (M2+M4)', 'do mineur, phaser + réverb.'],
+        ["la batterie", "le moteur rythmique : kick sur chaque temps et charlestons serrés."],
+        ["la basse acide", "dent de scie + enveloppe de filtre + forte résonance (`lpq(15)`), sur un rythme euclidien (3,8) : 3 coups répartis sur 8 pas, le *tresillo*."],
+        ["les accords", "grille Cm-Ab-Bb-Eb, grattée, avec saturation et délai."],
+        ["la mélodie", "en do mineur, avec phaser et réverbération."],
       ],
       theory: {
-        title: 'Les quatre modules réunis',
+        title: "Les quatre modules réunis",
         items: [
-          ['Module 1', 'tempo, mini-notation, batterie, $:.'],
-          ['Module 2', 'gamme, accords, tonalité, voicing.'],
-          ['Module 3', 'guitare : grattage, picking, effets.'],
-          ['Module 4', 'son : ondes, filtre, enveloppe, espace, couleur.'],
+          ["Module 1", "tempo, mini-notation, batterie, $:."],
+          ["Module 2", "gamme, accords, tonalité, voicing."],
+          ["Module 3", "guitare : grattage, picking, effets."],
+          ["Module 4", "son : ondes, filtre, enveloppe, espace, couleur."],
         ],
       },
       recap: {
-        title: 'Récap chapitre 5 — La couleur & le mix',
-        columns: ['Outil', 'Rôle', 'Strudel'],
+        title: "Récap chapitre 5 — La couleur et le mix",
+        columns: ["Outil", "Rôle", "Strudel"],
         rows: [
-          ['Saturation', 'salir, réchauffer', '.distort("4:.3") / .crush(8)'],
-          ['Modulation', 'mettre en mouvement', '.phaser(2) / .vib("4:.2")'],
-          ['Stéréo', 'placer à gauche/droite', '.pan(.2) / .jux(rev)'],
-          ['Dynamique', 'le volume', '.gain(.6) / .postgain(1.2)'],
-          ['La chaîne', 'ordre fixe, usage unique', 'gain→filtre→disto→espace'],
+          ["saturation", "écrase les crêtes, ajoute des harmoniques", "`.distort(\"4:.3\")` · `.crush(8)`"],
+          ["modulation", "un réglage qui oscille tout seul", "`.phaser(2)` · `.vib(\"4:.2\")`"],
+          ["stéréo", "placer de 0 (gauche) à 1 (droite)", "`.pan(.2)` · `.jux(rev)`"],
+          ["volume", "multiplie l’amplitude (`gain(.5)` ≈ −6 dB) ; `postgain` agit après les filtres et la saturation", "`.gain(.6)` · `.postgain(1.2)`"],
+          ["la chaîne", "ordre fixé par le moteur, quel que soit l’ordre d’écriture", "enveloppe → filtres → `crush` → `distort` → `pan` → `phaser` → écho et réverbération"],
         ],
       },
-      exercise:
-        'Change la tonalité : grille chord("<Am F C G>"), basse <a1 f1 c2 g1>, mélodie A:minor:pentatonic.',
-      free:
-        "Tu tiens le Module 4 — et avec lui, les quatre modules de Keymaker. Mission acid : fabrique un son acide " +
-        "(sawtooth + lpf + résonance lpq haute + un filtre qui BOUGE — LFO rapide ou enveloppe courte) : c'est le squelch du psy-trance. " +
-        "Puis RALENTIS le mouvement (slow le LFO, allonge attack et release) → la même matière devient un pad trance planant. " +
-        "Tu n'apprends plus Strudel — tu sculptes le son. 🎛️",
+      exercise: "Change la tonalité : grille `chord(\"<Am F C G>\")`, basse `<a1 f1 c2 g1>`, mélodie `A:minor:pentatonic`.",
+      free: "Tu as fait le tour du parcours « Sculpter le son ». Défi : fabrique une basse acid (voir le genre Acid) avec `sawtooth`, un passe-bas bas (`lpf(300)`), une résonance forte (`lpq(15)`) et une coupure qui bouge, par une [enveloppe de filtre](fx.lpenv) courte ou un [signal](fn.signaux) rapide. Puis ralentis tout : signal plus lent (`.slow(8)`), `attack` et `release` d’une seconde ou plus. La même matière devient une nappe.",
       culture: {
-        artist: 'Phuture',
-        track: 'Acid Tracks',
-        why:
-          "Chicago 1987 : une TB-303 détournée de son rôle de basse, résonance à fond — le morceau fondateur de l'acid. Ton lpq(15) vient en droite ligne de là.",
+        artist: "Phuture",
+        track: "Acid Tracks",
+        why: "Chicago, 1987 : la ligne de basse d’une Roland TB-303, résonance poussée et filtre manipulé à la main pendant l’enregistrement. Le morceau qui a donné son nom à l’acid. Le sifflement de `lpq(15)` imite celui-là.",
       },
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -3139,140 +2928,107 @@ export const m5chapitre1 = {
   subtitle: 'Du « quoi » au « comment »',
   flashs: [
     {
-      id: '5.1',
-      kicker: 'Le grand renversement',
-      title: 'Un pattern est une fonction du temps',
-      concept:
-        "Jusqu'ici tu écrivais des notes. En vrai, Strudel ne range pas une liste : " +
-        "à chaque cycle, il DEMANDE au pattern « qu'est-ce qui se passe maintenant ? ». " +
-        "Un pattern est une fonction : tu lui donnes un instant, il rend des événements. " +
-        "C'est ça, le live coding — on écrit la règle, pas le résultat figé. " +
-        "Deux terrains dans ce module : une musique qui se compose toute seule (ambient, hasard lent) et une musique qui joue avec notre perception du temps (drum & bass, breakbeat).",
-      code: 'note("<c4 e4 g4>")',
+      id: "5.1",
+      kicker: "Le grand renversement",
+      title: "Un pattern est une fonction du temps",
+      concept: "Strudel ne garde pas une liste de notes : il garde une **règle**. Pendant que la musique joue, le moteur demande régulièrement au motif « quels événements tombent entre tel instant et tel instant ? », et le motif calcule la réponse. Un motif est donc une *fonction du temps* : on lui donne un intervalle de temps, il rend des événements. C’est ce qui permet de modifier le code pendant qu’il joue. Ce parcours explore deux usages : une musique qui se compose toute seule (hasard dosé) et une musique qui joue avec le temps (accélérer, retourner, décaler).",
+      code: "note(\"<c4 e4 g4>\")",
       decode: [
-        ['<c4 e4 g4>', "un élément par cycle : le moteur « interroge » le pattern à chaque tour."],
-        ['cycle 1 -> c4', "premier tour : la fonction répond c4."],
-        ['cycle 2 -> e4', "tour suivant : elle répond e4. Tu entends la fonction se dérouler."],
+        ["<c4 e4 g4>", "une note par cycle (voir [chevrons](mini.chevrons)) : à chaque cycle, le motif répond par la note suivante."],
+        ["cycle 1 → c4", "pour l’intervalle du premier cycle, la fonction répond do4."],
+        ["cycle 2 → e4", "pour le suivant, mi4 ; puis sol4 ; puis on recommence."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['querying', "interroger le pattern pour un instant donné (le coeur du moteur)."],
-          ['cycle', "l'unité de temps de Strudel ; tout est mesuré en cycles."],
-          ['déterministe', "même question -> même réponse. Rien n'est stocké, tout est calculé."],
+          ["interroger (query)", "demander au motif les événements d’un intervalle de temps : le cœur du moteur."],
+          ["cycle", "l’unité de temps de Strudel ; tout est mesuré en cycles (voir [cycle](sol.cycle))."],
+          ["déterministe", "même question, même réponse : rien n’est stocké, tout est recalculé (voir [déterministe](voc.aleatoire.deterministe))."],
         ],
       },
-      exercise:
-        'Remplace les chevrons par des crochets : note("[c4 e4 g4]"). ' +
-        "Les trois notes tombent dans UN seul cycle. Mêmes données, autre fonction du temps.",
+      exercise: "Remplace les chevrons par des crochets : `note(\"[c4 e4 g4]\")`. Les trois notes tombent alors dans UN seul cycle. Mêmes données, autre fonction du temps.",
+      rich: true,
     },
 
     {
-      id: '5.2',
-      kicker: 'Transformer, pas réécrire',
-      title: 'Une transformation prend un pattern',
-      concept:
-        "Si un pattern est une fonction, alors .rev(), .fast(2)... sont des fonctions qui " +
-        "prennent un pattern et en rendent un AUTRE. Elles ne touchent pas tes notes : elles " +
-        "fabriquent un nouveau pattern qui appelle l'ancien. D'où la chaîne .a().b().c() : " +
-        "on emboîte des fonctions, comme des poupées russes.",
-      code: 'n("0 1 2 3 4 5 6 7").scale("C:major").rev()',
+      id: "5.2",
+      kicker: "Transformer, pas réécrire",
+      title: "Une transformation prend un pattern",
+      concept: "Si un motif est une fonction, alors `.rev()`, `.fast(2)`… sont des fonctions qui prennent un motif et en rendent un AUTRE. Elles ne modifient pas tes notes : elles fabriquent un nouveau motif qui interroge l’ancien et transforme ses réponses. D’où la chaîne `.a().b().c()` : chaque fonction emballe le résultat de la précédente.",
+      code: "n(\"0 1 2 3 4 5 6 7\").scale(\"C:major\").rev()",
       decode: [
-        ['n("0 1 ... 7").scale("C:major")', 'la gamme du M2 : huit degrés montants.'],
-        ['.rev()', 'prend ce pattern entier et le retourne -> la gamme descend.'],
-        ['les degrés', "intacts : 0..7. C'est l'EMBALLAGE qui change, pas les données."],
+        ["n(\"0 1 … 7\").scale(\"C:major\")", "huit degrés de do majeur, en montant."],
+        [".rev()", "prend ce motif et inverse l’ordre dans chaque cycle : la gamme descend."],
+        ["les degrés", "intacts : 0 à 7. C’est l’emballage qui change, pas les données."],
       ],
-      exercise:
-        'Enchaîne deux transformations : ajoute .fast(2) après .rev(). ' +
-        "Puis inverse l'ordre. L'ordre compte — c'est une composition de fonctions.",
+      exercise: "L’ordre des transformations peut compter. Compare `n(\"0 1 2 3 4 5 6 7\").scale(\"C:major\").slow(2).rev()` et `….rev().slow(2)` : dans le premier, chaque cycle joue une moitié de gamme à l’envers (3 2 1 0, puis 7 6 5 4) ; dans le second, toute la gamme est retournée puis étalée (7 6 5 4, puis 3 2 1 0). Attention : certaines paires donnent le même résultat dans les deux ordres, comme `rev()` et `fast(2)` sur ce motif.",
+      rich: true,
     },
 
     {
-      id: '5.3',
-      kicker: 'Construire par le code',
-      title: 'seq, stack, cat : les fabriques',
-      concept:
-        "La mini-notation a des jumelles en vraies fonctions. seq(a,b) joue l'un après l'autre " +
-        "(= \"a b\"), stack(a,b) joue tout en même temps (= \"a,b\"), cat(a,b) joue un par cycle " +
-        "(= \"<a b>\"). Pratique quand on assemble des morceaux par le code plutôt qu'à la main.",
-      code:
-        'stack(\n' +
-        '  s("bd*4"),\n' +
-        '  s("hh*8"),\n' +
-        '  note("c2 g2").s("sawtooth")\n' +
-        ')',
+      id: "5.3",
+      kicker: "Construire par le code",
+      title: "seq, stack, cat : les fabriques",
+      concept: "La mini-notation a des équivalents en fonctions : `seq(a, b)` joue l’un après l’autre dans un cycle (= `\"a b\"`), `stack(a, b)` joue tout en même temps (= `\"a, b\"`), `cat(a, b)` joue un motif par cycle (= `\"<a b>\"`). Pratique quand les éléments sont des motifs entiers, avec leurs propres réglages (voir [stack](fn.stack) et [cat](fn.cat)).",
+      code: "stack(\n  s(\"bd*4\"),\n  s(\"hh*8\"),\n  note(\"c2 g2\").s(\"sawtooth\")\n)",
       decode: [
-        ['stack(a, b, c)', '= "a,b,c" : les trois couches en même temps.'],
-        ['seq(a, b)', '= "a b" : a puis b dans un cycle.'],
-        ['cat(a, b)', '= "<a b>" : a un cycle, b le suivant.'],
+        ["stack(a, b, c)", "= `\"a, b, c\"` : les trois couches en même temps."],
+        ["seq(a, b)", "= `\"a b\"` : a puis b, dans un cycle."],
+        ["cat(a, b)", "= `\"<a b>\"` : a pendant un cycle, b le suivant."],
       ],
       theory: {
-        title: 'Fabriques de patterns (factories)',
+        title: "Les fabriques de motifs",
         items: [
-          ['seq / fastcat', 'tout tient dans un cycle (la séquence).'],
-          ['stack / pr', 'superposition (la polyrythmie).'],
-          ['cat / slowcat', 'un élément par cycle (l’alternance).'],
+          ["seq / fastcat", "tout tient dans un cycle : la séquence."],
+          ["stack / pr", "superposition : plusieurs motifs en même temps."],
+          ["cat / slowcat", "un élément par cycle : l’alternance."],
         ],
       },
-      exercise:
-        'Remplace stack par cat : tu passes de « tout en même temps » à « un par cycle ». ' +
-        'Le même code, une musique très différente.',
+      exercise: "Remplace `stack` par `cat` : tu passes de « tout en même temps » à « une couche par cycle ». Le même code, une musique très différente.",
+      rich: true,
     },
 
     {
-      id: '5.4',
-      kicker: 'Le code génère les données',
-      title: 'run : fabriquer des nombres',
-      concept:
-        "run(n) fabrique tout seul la suite 0 1 2 ... n-1. Couplé à .scale(), c'est une gamme " +
-        "entière sans rien taper à la main. Première vraie idée d'informatique musicale : " +
-        "le code ne joue pas que des notes, il les GÉNÈRE.",
-      code: 'n(run(8)).scale("C:major")',
+      id: "5.4",
+      kicker: "Le code génère les données",
+      title: "run : fabriquer des nombres",
+      concept: "`run(n)` fabrique la suite 0, 1, 2… jusqu’à n − 1, répartie dans un cycle. Avec `.scale()`, c’est une gamme entière sans rien taper (voir [irand / run](fn.irand)). Première idée d’informatique musicale : le code ne joue pas seulement des notes, il les GÉNÈRE.",
+      code: "n(run(8)).scale(\"C:major\")",
       decode: [
-        ['run(8)', '= "0 1 2 3 4 5 6 7" : huit nombres générés.'],
-        ['n(...).scale("C:major")', 'transforme ces degrés en notes (M2).'],
-        ['change le 8', 'run(12) = la gamme sur plus de degrés, sans retaper.'],
+        ["run(8)", "= `\"0 1 2 3 4 5 6 7\"` : huit nombres générés, un huitième de cycle chacun."],
+        ["n(…).scale(\"C:major\")", "transforme ces numéros en degrés de do majeur."],
+        ["run(12)", "douze degrés : la gamme continue sur l’octave suivante, sans rien retaper."],
       ],
-      exercise:
-        'Joue la gamme générée, puis transforme-la : ' +
-        'n(run(8)).scale("C:major").s("sawtooth").rev(). Générer + jouer + retourner, tout en fonctions.',
+      exercise: "Génère, joue, retourne : `n(run(8)).scale(\"C:major\").s(\"sawtooth\").rev()`.",
+      rich: true,
     },
 
     {
-      id: '5.5',
-      kicker: 'On assemble',
-      title: 'Penser en fonctions',
-      concept:
-        "Récapitulons le renversement : il y a les DONNÉES (les notes, les degrés) et les " +
-        "FONCTIONS (ce qui les fabrique et les transforme). Voici un mini-morceau 100 % généré : " +
-        "une batterie empilée, une gamme produite par run, puis retournée.",
-      code:
-        'setcpm(120/4)\n' +
-        '$: stack(s("bd*4"), s("hh*8"))\n' +
-        '$: n(run(8)).scale("C:major").s("sawtooth").lpf(800).rev()',
+      id: "5.5",
+      kicker: "On assemble",
+      title: "Penser en fonctions",
+      concept: "Il y a les DONNÉES (les notes, les degrés) et les FONCTIONS (ce qui les fabrique et les transforme). Voici un mini-morceau entièrement généré : une batterie empilée avec `stack`, une gamme produite par `run`, puis retournée.",
+      code: "setcpm(120/4)\n$: stack(s(\"bd*4\"), s(\"hh*8\"))\n$: n(run(8)).scale(\"C:major\").s(\"sawtooth\").lpf(800).rev()",
       decode: [
-        ['stack(s("bd*4"), s("hh*8"))', 'la fabrique stack monte la batterie.'],
-        ['n(run(8)).scale(...)', 'run génère les degrés, scale les rend musicaux.'],
-        ['.rev()', 'une fonction de plus, branchée au bout de la chaîne.'],
+        ["stack(s(\"bd*4\"), s(\"hh*8\"))", "la fabrique `stack` superpose kick et charleston."],
+        ["n(run(8)).scale(…)", "`run` génère les degrés, `scale` les transforme en notes."],
+        [".rev()", "une fonction de plus, branchée au bout de la chaîne."],
       ],
       recap: {
-        title: 'Récap chapitre 1 — Penser en fonctions',
-        columns: ['Idée', 'Mini-notation', 'Fonction'],
+        title: "Récap chapitre 1 — Penser en fonctions",
+        columns: ["Idée", "Mini-notation", "Fonction"],
         rows: [
-          ['un pattern', 'fonction du temps', 'interrogé à chaque cycle'],
-          ['séquence', '"a b"', 'seq(a, b)'],
-          ['superposition', '"a,b"', 'stack(a, b)'],
-          ['alternance', '"<a b>"', 'cat(a, b)'],
-          ['générer', '"0 1 2 3"', 'run(4)'],
+          ["motif", "une fonction du temps", "le moteur lui demande ce qu’il joue sur un intervalle de temps"],
+          ["séquence", "`\"a b\"`", "`seq(a, b)` : les deux dans le même cycle"],
+          ["superposition", "`\"a, b\"`", "`stack(a, b)` : en même temps"],
+          ["alternance", "`\"<a b>\"`", "`cat(a, b)` : un par cycle"],
+          ["suite de nombres", "`\"0 1 2 3\"`", "`run(4)`"],
         ],
       },
-      exercise:
-        'Fais ton mini-morceau : change run(8) en run(5), ajoute une transformation ' +
-        '(.fast, .rev...) au bout. Tu écris des règles, pas des notes.',
-      free:
-        "Tu tiens le renversement clé du module : un pattern est une fonction, et les " +
-        "transformations sont des fonctions de fonctions. Au chapitre suivant, on s'attaque à " +
-        "la matière la plus puissante du live coding : le TEMPS lui-même.",
+      exercise: "Fais ton mini-morceau : change `run(8)` en `run(5)`, ajoute une transformation (`.fast(2)`, `.rev()`…) au bout. Tu écris des règles, pas des notes.",
+      free: "Le renversement clé du parcours : un motif est une fonction du temps, que le moteur interroge sur un intervalle (« que joues-tu entre 0 et ¼ de cycle ? »), et les transformations (`fast`, `rev`…) sont des fonctions qui prennent un motif et en rendent un autre. Au chapitre suivant, on manipule le temps lui-même.",
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -3284,153 +3040,124 @@ export const m5chapitre2 = {
   subtitle: 'Le temps est une donnée',
   flashs: [
     {
-      id: '5.6',
-      kicker: 'Étirer, comprimer',
-      title: 'slow & fast',
-      concept:
-        "slow(n) étire un pattern sur n cycles ; fast(n) le comprime. Ce sont les opérateurs " +
-        "/ et * de la mini-notation, mais en FONCTION — donc applicables à un pattern entier, " +
-        "déjà transformé. Ralentir n'enlève aucune note : ça les espace.",
-      code: 'n("0 2 4 6").scale("C:major").s("sawtooth").slow(2)',
+      id: "5.6",
+      kicker: "Étirer, comprimer",
+      title: "slow & fast",
+      concept: "`slow(n)` étire un motif sur n cycles ; `fast(n)` le comprime pour qu’il passe n fois par cycle. Ce sont les signes `/` et `*` de la mini-notation, mais en fonctions : on peut les appliquer à un motif entier, déjà transformé. Ralentir ne retire aucune note : ça les espace (voir [slow](fn.slow), [fast](fn.fast)).",
+      code: "n(\"0 2 4 6\").scale(\"C:major\").s(\"sawtooth\").slow(2)",
       decode: [
-        ['.slow(2)', '= "[...]/2" : le motif prend deux cycles.'],
-        ['.fast(2)', '= "[...]*2" : le motif tient dans un demi-cycle.'],
-        ['les notes', 'identiques : seule leur durée change.'],
+        [".slow(2)", "= `\"[…]/2\"` : le motif s’étale sur deux cycles."],
+        [".fast(2)", "= `\"[…]*2\"` : le motif passe deux fois par cycle, chaque note deux fois plus courte."],
+        ["les notes", "identiques : seules leurs positions et leurs durées changent ; la hauteur ne bouge pas."],
       ],
       theory: {
-        title: 'Équivalences (vérifié strudel.cc)',
+        title: "Équivalences",
         items: [
-          ['slow(2)', 'pareil que "x/2" en mini-notation.'],
-          ['fast(2)', 'pareil que "x*2".'],
-          ['avantage', "la fonction s'applique APRÈS d'autres transformations."],
+          ["slow(2)", "comme `x/2` en mini-notation."],
+          ["fast(2)", "comme `x*2`."],
+          ["avantage", "la fonction s’applique APRÈS d’autres transformations, à tout le motif."],
         ],
       },
-      exercise:
-        'Empile une version lente et une rapide : ajoute .superimpose(x=>x.fast(2)) ' +
-        '(on verra superimpose au ch.4). Deux vitesses, une seule ligne écrite.',
+      exercise: "Superpose une version lente et une rapide : ajoute `.superimpose(x=>x.fast(2))`. Deux vitesses, une seule ligne écrite.",
+      rich: true,
     },
 
     {
-      id: '5.7',
-      kicker: 'À l’endroit, à l’envers',
-      title: 'rev & palindrome',
-      concept:
-        "rev() retourne chaque cycle (la fin devient le début). palindrome() va plus loin : " +
-        "il alterne endroit / envers un cycle sur deux, donc la boucle « respire » sans que tu " +
-        "réécrives une seule note.",
-      code: 'n("0 1 2 3 4 5 6 7").scale("C:minor:pentatonic").palindrome().s("triangle")',
+      id: "5.7",
+      kicker: "À l’endroit, à l’envers",
+      title: "rev & palindrome",
+      concept: "`rev()` inverse l’ordre des événements dans chaque cycle : le dernier joue en premier. `palindrome()` alterne : un cycle à l’endroit, un cycle à l’envers. La boucle fait l’aller-retour sans que tu réécrives une seule note (voir [rev](fn.rev)).",
+      code: "n(\"0 1 2 3 4 5 6 7\").scale(\"C:minor:pentatonic\").palindrome().s(\"triangle\")",
       decode: [
-        ['palindrome()', 'cycle 1 monte, cycle 2 descend, cycle 3 monte...'],
-        ['C:minor:pentatonic', 'la penta mineure (M2/M3), sûre à l’oreille.'],
-        ['aucune note réécrite', "c'est la fonction qui crée l'aller-retour."],
+        ["palindrome()", "cycle 1 monte, cycle 2 descend, cycle 3 monte…"],
+        ["C:minor:pentatonic", "la pentatonique mineure de do : cinq notes, aucune ne frotte."],
+        ["aucune note réécrite", "c’est la fonction qui crée l’aller-retour."],
       ],
-      exercise:
-        'Compare : mets .rev() seul (toujours à l’envers) puis .palindrome() (alterne). ' +
-        'Lequel « boucle » le plus naturellement ?',
+      exercise: "Compare : `.rev()` seul (toujours à l’envers) puis `.palindrome()` (alterne). Lequel boucle le plus naturellement ?",
+      rich: true,
     },
 
     {
-      id: '5.8',
-      kicker: 'La rotation',
-      title: 'iter : décaler le départ',
-      concept:
-        "iter(n) découpe le pattern en n morceaux et démarre un cran plus loin à chaque cycle. " +
-        "Le riff « tourne » sur lui-même : même matériel, point de départ qui glisse. " +
-        "Un geste de live coding très courant pour faire vivre une boucle.",
-      code: 'n("0 1 2 3").scale("C:major").iter(4).s("sawtooth")',
+      id: "5.8",
+      kicker: "La rotation",
+      title: "iter : décaler le départ",
+      concept: "`iter(n)` découpe le motif en n parts égales et, à chaque cycle, le fait commencer une part plus loin. Le riff tourne sur lui-même : même matériel, point de départ qui glisse. Il revient à l’original tous les n cycles (voir [iter](voc.code.iter-n)).",
+      code: "n(\"0 1 2 3\").scale(\"C:major\").iter(4).s(\"sawtooth\")",
       decode: [
-        ['iter(4)', 'cycle 1 : 0 1 2 3 ; cycle 2 : 1 2 3 0 ; cycle 3 : 2 3 0 1...'],
-        ['la boucle tourne', 'elle revient au départ après 4 cycles.'],
-        ['iterBack(4)', "même chose, mais elle tourne dans l'autre sens."],
+        ["iter(4)", "cycle 1 : 0 1 2 3 ; cycle 2 : 1 2 3 0 ; cycle 3 : 2 3 0 1 ; cycle 4 : 3 0 1 2 (vérifié dans le moteur)."],
+        ["la boucle tourne", "elle revient au départ après 4 cycles."],
+        ["iterBack(4)", "même chose, dans l’autre sens."],
       ],
-      exercise:
-        'Passe à iter(8) sur huit notes : la rotation met deux fois plus de temps à boucler. ' +
-        'Plus c’est long, plus ça « évolue ».',
+      exercise: "Passe à `iter(8)` sur huit notes : la rotation met deux fois plus de temps à revenir au départ. Plus c’est long, plus ça « évolue ».",
+      rich: true,
     },
 
     {
-      id: '5.9',
-      kicker: 'Épaissir chaque coup',
-      title: 'ply : répéter chaque événement',
-      concept:
-        "ply(n) répète CHAQUE événement n fois sur place : un roulement, un bégaiement. " +
-        "À ne pas confondre avec fast (qui accélère tout le motif) : ply épaissit chaque coup " +
-        "en gardant la place de chacun.",
-      code: 's("bd sd cp").ply("<1 2 3>")',
+      id: "5.9",
+      kicker: "Épaissir chaque coup",
+      title: "ply : répéter chaque événement",
+      concept: "`ply(n)` remplace CHAQUE événement par n copies plus courtes, au même endroit : un roulement, un bégaiement. À ne pas confondre avec `fast`, qui rejoue tout le motif : `ply` épaissit chaque coup en gardant sa place (voir [ply](fn.ply)).",
+      code: "s(\"bd sd cp\").ply(\"<1 2 3>\")",
       decode: [
-        ['ply("<1 2 3>")', 'cycle 1 : x1 ; cycle 2 : chaque son doublé ; cycle 3 : triplé.'],
-        ['<...>', 'le facteur change par cycle (M1) -> ça monte en intensité.'],
-        ['pont M1', 'un roulement de caisse claire = ply sur un sd.'],
+        ["ply(\"<1 2 3>\")", "cycle 1 : tel quel ; cycle 2 : chaque son doublé ; cycle 3 : triplé."],
+        ["<…>", "le facteur change à chaque cycle : l’intensité monte."],
+        ["roulement", "un roulement de caisse claire, c’est `ply` sur un `sd`."],
       ],
-      exercise:
-        'Pars de s("hh*4").ply(2), puis essaie un pattern de ply : .ply("2 1 2 3"). ' +
-        'Chaque temps a son propre nombre de répétitions.',
+      exercise: "Pars de `s(\"hh*4\").ply(2)`, puis essaie un motif de ply : `.ply(\"2 1 2 3\")`. Chaque pas a son propre nombre de répétitions.",
+      rich: true,
     },
 
     {
-      id: '5.9b',
-      kicker: 'Répartir',
-      title: 'Les rythmes euclidiens : (k,n)',
-      concept:
-        "Une paire de nombres après un son : (k,n) répartit k coups sur n pas, le plus également " +
-        "possible. C'est un rythme euclidien — et (3,8), le « tresillo », est LA syncope de l'électro " +
-        "entière. Deux nombres suffisent pour écrire des grooves que les percussionnistes jouent depuis des siècles.",
-      code: 'sound("bd(3,8), hh*8")',
+      id: "5.9b",
+      kicker: "Répartir",
+      title: "Les rythmes euclidiens : (k,n)",
+      concept: "Deux nombres entre parenthèses après un son : `(k,n)` répartit k coups sur n pas, le plus régulièrement possible. C’est un rythme *euclidien* (voir [euclid](fn.euclid)). `(3,8)`, le *tresillo*, est l’une des syncopes les plus répandues, de la musique cubaine à la musique électronique.",
+      code: "sound(\"bd(3,8), hh*8\")",
       decode: [
-        ['bd(3,8)', '3 kicks répartis au plus égal sur 8 pas : x ~ ~ x ~ ~ x ~ — le tresillo.'],
-        ['hh*8', 'la grille témoin : 8 pas réguliers pour ENTENDRE où tombent les 3 coups.'],
-        ['(k,n,r)', 'un 3e nombre fait tourner le motif : bd(3,8,2) démarre 2 pas plus loin.'],
-        ['sur des notes', 'marche aussi avec note() : note("c2(3,8)").s("sawtooth") = une basse syncopée en un geste.'],
+        ["bd(3,8)", "3 kicks répartis sur 8 pas, aux pas 1, 4 et 7 : `x ~ ~ x ~ ~ x ~`, le tresillo."],
+        ["hh*8", "la grille témoin : 8 pas réguliers, pour entendre où tombent les 3 coups."],
+        ["(k,n,r)", "un 3e nombre fait tourner le motif vers la droite : `bd(3,8,2)` frappe aux pas 1, 3 et 6."],
+        ["sur des notes", "`note(\"c2(3,8)\").s(\"sawtooth\")` : une basse syncopée en un geste."],
       ],
       theory: {
-        title: 'Côté rythme — la famille euclidienne',
+        title: "La famille euclidienne",
         items: [
-          ['rythme euclidien (euclidean rhythm)', "répartition la plus égale possible de k coups sur n pas (l'algorithme d'Euclide — oui, le Grec)."],
-          ['(3,8) = tresillo', 'Cuba → le reggaeton, et la basse de la moitié de la techno et de la house.'],
-          ['(5,8), (5,16), (7,16)', 'cinquillo, bossa, samba… presque toutes les claves du monde tiennent dans (k,n).'],
+          ["rythme euclidien", "répartition la plus régulière possible de k coups sur n pas. Le calcul est apparenté à l’algorithme d’Euclide, celui du plus grand diviseur commun."],
+          ["(3,8)", "le tresillo, d’origine cubaine."],
+          ["(5,8), (7,12)…", "le cinquillo cubain, des motifs de cloche d’Afrique de l’Ouest : beaucoup de rythmes traditionnels tiennent dans (k,n)."],
         ],
       },
-      exercise:
-        'Joue sound("bd(3,8), hh*8"), puis essaie (5,8) et (7,16) sur le kick, et une rotation bd(3,8,2). ' +
-        'Tu recroiseras ce motif : les finals du M4 (4.25) et du M6 (6.25) l’utilisent.',
+      exercise: "Joue `sound(\"bd(3,8), hh*8\")`, puis essaie `(5,8)` et `(7,16)` sur le kick, et une rotation `bd(3,8,2)`.",
+      rich: true,
     },
 
     {
-      id: '5.10',
-      kicker: 'On assemble',
-      title: 'Le temps comme matière',
-      concept:
-        "Le temps n'est plus un décor : c'est une donnée que tu sculptes. Voici un groove " +
-        "où le rythme est épaissi (ply), la mélodie tourne (iter) et s'étire (slow). " +
-        "Tu n'as écrit que quelques notes — les fonctions font le reste.",
-      code:
-        'setcpm(120/4)\n' +
-        '$: s("bd ~ sd ~").ply("<1 1 2 1>")\n' +
-        '$: s("hh*8")\n' +
-        '$: n("0 1 2 3 4 5 6 7").scale("C:minor").s("sawtooth").iter(4).slow(2).lpf(1200)',
+      id: "5.10",
+      kicker: "On assemble",
+      title: "Le temps comme matière",
+      concept: "Le temps devient une matière qu’on sculpte. Voici un groove où le rythme est épaissi (`ply`), la mélodie tourne (`iter`) et s’étire (`slow`). Tu n’as écrit que quelques notes : les fonctions font le reste.",
+      code: "setcpm(120/4)\n$: s(\"bd ~ sd ~\").ply(\"<1 1 2 1>\")\n$: s(\"hh*8\")\n$: n(\"0 1 2 3 4 5 6 7\").scale(\"C:minor\").s(\"sawtooth\").iter(4).slow(2).lpf(1200)",
       decode: [
-        ['.ply("<1 1 2 1>")', 'la caisse double un cycle sur quatre : un petit relief.'],
-        ['.iter(4)', 'la ligne de basse-mélodie tourne sur elle-même.'],
-        ['.slow(2)', 'le tout étiré pour respirer.'],
+        [".ply(\"<1 1 2 1>\")", "la caisse claire double un cycle sur quatre : un petit relief."],
+        [".iter(4)", "la ligne tourne sur elle-même."],
+        [".slow(2)", "le tout étalé sur deux cycles."],
       ],
       recap: {
-        title: 'Récap chapitre 2 — Le temps',
-        columns: ['Fonction', 'Effet', 'Repère'],
+        title: "Récap chapitre 2 — Le temps",
+        columns: ["Fonction", "Effet", "Repère"],
         rows: [
-          ['slow / fast', 'étire / comprime', '= "/" et "*"'],
-          ['rev', 'retourne chaque cycle', 'fin -> début'],
-          ['palindrome', 'alterne endroit/envers', 'la boucle respire'],
-          ['iter(n)', 'décale le départ', 'la boucle tourne'],
-          ['ply(n)', 'répète chaque coup', 'roulement / bégaiement'],
-          ['(k,n)', 'répartit k coups sur n pas', '"bd(3,8)" — le tresillo'],
+          ["`slow` · `fast`", "étire / comprime le temps", "comme `/` et `*` en mini-notation"],
+          ["`rev`", "retourne chaque cycle", "la fin passe au début"],
+          ["`palindrome`", "un cycle à l’endroit, un à l’envers", "`0 1 2`, puis `2 1 0`"],
+          ["`iter(n)`", "décale le départ d’un n-ième à chaque cycle", "`0 1 2 3`, `1 2 3 0`, `2 3 0 1`…"],
+          ["`ply(n)`", "répète chaque événement n fois, sur place", "roulement, bégaiement"],
+          ["`(k,n)`", "k coups répartis sur n pas", "`\"bd(3,8)\"` : le tresillo"],
         ],
       },
-      exercise:
-        'Triture le temps : change iter(4) en iter(3), slow(2) en fast(1.5), ' +
-        'le ply en "<1 2 1 3>". Même matériel, mille grooves.',
-      free:
-        "Tu sais maintenant plier le temps. Au chapitre suivant, on invite le HASARD — " +
-        "mais un hasard maîtrisé, reproductible, qui devient un vrai instrument.",
+      exercise: "Triture le temps : change `iter(4)` en `iter(3)`, `slow(2)` en `fast(1.5)`, le ply en `\"<1 2 1 3>\"`. Même matériel, autres grooves.",
+      free: "Tu sais plier le temps : l’étirer, le retourner, le faire tourner. Au chapitre suivant, le hasard, mais un hasard reproductible : relancer redonne exactement la même suite (voir [déterministe](voc.aleatoire.deterministe)).",
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -3442,141 +3169,117 @@ export const m5chapitre3 = {
   subtitle: 'Du contrôle dans l’aléatoire',
   flashs: [
     {
-      id: '5.11',
-      kicker: 'Des flux, pas des notes',
-      title: 'Les signaux : rand, sine, perlin',
-      concept:
-        "Un SIGNAL est une valeur continue qui bouge tout le temps — pas des notes, un flux. " +
-        "rand (hasard 0->1), sine (une vague), perlin (un hasard doux). On les rend musicaux " +
-        "avec .segment(n) (prélever n valeurs par cycle) et .range(min,max) (recadrer). " +
-        "On les a croisés au M4 pour le filtre ; ici, on en fait des notes.",
-      code: 'n(irand(8).segment(8)).scale("C:minor").s("triangle")',
+      id: "5.11",
+      kicker: "Des flux, pas des notes",
+      title: "Les signaux : rand, sine, perlin",
+      concept: "Un [signal](fn.signaux) est une valeur qui varie en continu avec le temps, entre 0 et 1 : `rand` (hasard), `sine` (une vague), `perlin` (un hasard lissé). Il n’a pas de rythme propre : `.segment(n)` y prélève n valeurs par cycle, ce qui crée n événements ; `.range(a, b)` recadre les valeurs. Ici, on en fait des notes.",
+      code: "n(irand(8).segment(8)).scale(\"C:minor\").s(\"triangle\")",
       decode: [
-        ['irand(8)', 'des entiers aléatoires entre 0 et 7.'],
-        ['.segment(8)', 'on prélève 8 valeurs par cycle (sinon le flux est continu).'],
-        ['.scale("C:minor")', 'chaque entier devient un degré de gamme.'],
+        ["irand(8)", "des entiers au hasard, de 0 à 7."],
+        [".segment(8)", "huit valeurs par cycle : huit événements."],
+        [".scale(\"C:minor\")", "chaque entier devient un degré de do mineur."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['signal', 'une valeur continue, infiniment fine.'],
-          ['segment(n)', 'transforme le flux continu en n événements nets.'],
-          ['range(a,b)', 'recadre un signal 0->1 vers a->b.'],
+          ["signal", "une valeur qui varie avec le temps, sans rythme propre."],
+          ["segment(n)", "transforme le signal en n événements par cycle."],
+          ["range(a, b)", "recadre un signal 0–1 vers a–b (voir [range](fn.range))."],
         ],
       },
-      exercise:
-        'Remplace irand(8) par sine.segment(8).range(0,7). ' +
-        'Le hasard devient une vague régulière : compare les deux ambiances.',
+      exercise: "Remplace `irand(8)` par `sine.segment(8).range(0, 7)` : le hasard devient une vague régulière. Compare les deux ambiances.",
+      rich: true,
     },
 
     {
-      id: '5.12',
-      kicker: 'Le secret',
-      title: 'Le hasard est déterministe',
-      concept:
-        "Surprise : le « hasard » de Strudel est REPRODUCTIBLE. Même code = même suite, à chaque " +
-        "fois. C'est une graine (seed). Donc tu peux DÉCALER la graine pour choisir le hasard qui " +
-        "te plaît, au lieu de le subir. C'est le coeur de l'informatique musicale : du chaos sous contrôle.",
-      code: 'n(irand(8).segment(4)).scale("C:pentatonic").ribbon(1337, 2).s("triangle")',
+      id: "5.12",
+      kicker: "Le secret",
+      title: "Le hasard est déterministe",
+      concept: "Le « hasard » de Strudel est REPRODUCTIBLE : il est calculé à partir de la position dans le temps (voir [déterministe](voc.aleatoire.deterministe)). Même code = même suite, à chaque écoute. On peut donc CHOISIR un fragment de hasard qui sonne bien et le figer : c’est le rôle de `ribbon`.",
+      code: "n(irand(8).segment(4)).scale(\"C:pentatonic\").ribbon(1337, 2).s(\"triangle\")",
       decode: [
-        ['ribbon(1337, 2)', 'boucle 2 cycles à partir du cycle 1337.'],
-        ['un fragment figé', 'tu gèles un bout d’aléatoire qui sonne bien.'],
-        ['change 1337', 'autre nombre = autre fragment. Tu « pêches » dans le hasard.'],
+        ["ribbon(1337, 2)", "joue en boucle les 2 cycles qui commencent au cycle 1337 (vérifié dans le moteur)."],
+        ["un fragment figé", "tu gèles un bout de hasard qui te plaît."],
+        ["change 1337", "autre nombre = autre fragment. Tu « pêches » dans le hasard."],
       ],
       theory: {
-        title: 'Pourquoi c’est puissant',
+        title: "Pourquoi c’est puissant",
         items: [
-          ['graine (seed)', 'le point de départ du générateur pseudo-aléatoire.'],
-          ['reproductible', 'ton morceau sonnera pareil demain — rien n’est perdu.'],
-          ['ribbon(n, len)', 'fige une fenêtre de len cycles à partir du cycle n.'],
+          ["graine", "le point de départ du générateur pseudo-aléatoire ; ici, la position dans le temps (voir [graine](voc.aleatoire.graine))."],
+          ["reproductible", "ton morceau sonnera pareil demain : rien n’est perdu."],
+          ["ribbon(n, len)", "fige une fenêtre de len cycles à partir du cycle n."],
         ],
       },
-      exercise:
-        'Essaie plusieurs nombres dans ribbon (1, 42, 1337, 9000...) jusqu’à trouver une boucle ' +
-        'que tu aimes. Tu choisis ton hasard.',
+      exercise: "Essaie plusieurs nombres dans `ribbon` (1, 42, 1337, 9000…) jusqu’à trouver une boucle que tu aimes. Tu choisis ton hasard.",
+      rich: true,
     },
 
     {
-      id: '5.13',
-      kicker: 'Piocher',
-      title: 'choose : tirer dans une liste',
-      concept:
-        "choose(a, b, c) pioche une valeur au hasard parmi celles que tu donnes. " +
-        "wchoose([\"a\",10],[\"b\",1]) PONDÈRE les chances (a sort 10 fois plus souvent). " +
-        "Et \"a | b | c\" pioche une fois par cycle. De quoi varier sans tout écrire.",
-      code: 'note("c2 g2 d2 f1").s(choose("sine","triangle","sawtooth"))',
+      id: "5.13",
+      kicker: "Piocher",
+      title: "choose : tirer dans une liste",
+      concept: "`choose(a, b, c)` pioche une valeur au hasard parmi celles que tu donnes, à chaque événement. `wchoose([\"a\", 10], [\"b\", 1])` PONDÈRE les chances : « a » sort dix fois plus souvent que « b ». En mini-notation, `\"a | b | c\"` pioche une séquence entière, une fois par cycle (voir [barre](mini.barre)).",
+      code: "note(\"c2 g2 d2 f1\").s(choose(\"sine\",\"triangle\",\"sawtooth\"))",
       decode: [
-        ['choose("sine","triangle","sawtooth")', 'la source change au hasard à chaque note.'],
-        ['wchoose(["sine",10],["bd:6",1])', 'mets le pouce sur la balance.'],
-        ['"a | b"', 'la barre = un choix au hasard par cycle — une nouveauté de mini-notation (elle ne sort pas de M1).'],
+        ["choose(\"sine\",\"triangle\",\"sawtooth\")", "l’onde change au hasard à chaque note."],
+        ["wchoose([\"sine\",10],[\"bd:6\",1])", "un tirage pondéré : 10 chances sur 11 pour « sine »."],
+        ["\"a | b\"", "la barre verticale : une séquence tirée au sort à chaque cycle."],
       ],
-      exercise:
-        'Varie le timbre tout seul : n("0 2 4").scale("C:major").s(choose("sawtooth","square")). ' +
-        'Relance plusieurs fois : la suite est stable, mais le grain change.',
+      exercise: "Varie le timbre tout seul : `n(\"0 2 4\").scale(\"C:major\").s(choose(\"sawtooth\",\"square\"))`. Relance : la suite est la même à chaque écoute (hasard reproductible), mais le timbre change d’une note à l’autre.",
+      rich: true,
     },
 
     {
-      id: '5.14',
-      kicker: 'Parfois',
-      title: 'sometimes & degrade',
-      concept:
-        "sometimes(f) applique f une fois sur deux ; ses cousins often (75 %), rarely (25 %). " +
-        "degrade() (ou le ? de la mini-notation) enlève des événements au hasard : ça « troue » " +
-        "un rythme trop régulier et le rend vivant. La régularité parfaite, c'est ennuyeux.",
-      code: 's("hh*8").degradeBy(.3).sometimesBy(.4, x=>x.speed(2))',
+      id: "5.14",
+      kicker: "Parfois",
+      title: "sometimes & degrade",
+      concept: "`sometimes(f)` applique f à chaque événement avec une chance sur deux ; `often`, 75 % ; `rarely`, 25 % (voir [sometimes](fn.sometimes)). `degradeBy(p)`, ou `?` en mini-notation, retire des événements au hasard (voir [degradeBy](fn.degradeBy)) : ça troue un rythme trop régulier et le rend vivant.",
+      code: "s(\"hh*8\").degradeBy(.3).seed(1).sometimesBy(.4, x=>x.speed(2))",
       decode: [
-        ['degradeBy(.3)', 'environ 30 % des coups retirés au hasard.'],
-        ['sometimesBy(.4, x=>x.speed(2))', '40 % du temps : double la vitesse de lecture.'],
-        ['déterministe', 'toujours reproductible (même graine).'],
+        ["degradeBy(.3)", "chaque coup a 30 % de chances d’être retiré."],
+        [".seed(1)", "donne au tirage suivant un autre hasard (voir [graine](voc.aleatoire.graine)). Sans lui, `sometimesBy` relirait les nombres de `degradeBy` et ne toucherait que les coups tirés entre 0,3 et 0,4 : 15 % des coups restants au lieu de 40 % (mesuré dans le moteur)."],
+        ["sometimesBy(.4, x=>x.speed(2))", "chaque coup a 40 % de chances d’être lu deux fois plus vite (une octave plus haut)."],
+        ["déterministe", "toujours la même suite à chaque écoute."],
       ],
       theory: {
-        title: 'La famille « parfois »',
+        title: "La famille « parfois »",
         items: [
-          ['sometimes', 'une fois sur deux (50 %).'],
-          ['often / rarely', '75 % / 25 %.'],
-          ['degrade / ?', 'retire la moitié des événements au hasard.'],
+          ["sometimes", "50 % de chances, à chaque événement."],
+          ["often / rarely", "75 % / 25 %."],
+          ["degrade / ?", "retire environ la moitié des événements, au hasard."],
         ],
       },
-      exercise:
-        'Pars d’un s("hh*16") plat et donne-lui vie : ajoute .degrade() puis ' +
-        '.sometimes(x=>x.gain(1.4)). Un charley qui respire.',
+      exercise: "Pars d’un `s(\"hh*16\")` plat et donne-lui vie : ajoute `.degrade()`, puis `.seed(1)`, puis `.sometimes(x=>x.gain(1.4))`. Un charleston qui respire. Retire ensuite `.seed(1)` : plus aucun accent, car `degrade` a déjà retiré tous les coups que `sometimes` aurait choisis.",
+      rich: true,
     },
 
     {
-      id: '5.15',
-      kicker: 'On assemble',
-      title: 'Le chaos sous contrôle',
-      concept:
-        "Réunissons-le : une batterie qui se troue (degrade), des accents qui tombent parfois " +
-        "(sometimes), et une mélodie pêchée dans le hasard puis figée (irand + ribbon). " +
-        "Personne n'a écrit cette mélodie — tu as écrit la RÈGLE, et tu as choisi la graine.",
-      code:
-        'setcpm(120/4)\n' +
-        '$: s("bd*4").degradeBy(.1)\n' +
-        '$: s("hh*8").degradeBy(.3).sometimesBy(.3, x=>x.gain(1.4))\n' +
-        '$: n(irand(8).segment(8)).scale("C:minor:pentatonic").s("triangle").ribbon(8, 2).lpf(1500)',
+      id: "5.15",
+      kicker: "On assemble",
+      title: "Le chaos sous contrôle",
+      concept: "Réunissons tout : une batterie qui se troue (`degradeBy`), des accents qui tombent parfois (`sometimesBy`), et une mélodie pêchée dans le hasard puis figée (`irand` + `ribbon`). Personne n’a écrit cette mélodie : tu as écrit la RÈGLE, et choisi le fragment.",
+      code: "setcpm(120/4)\n$: s(\"bd*4\").degradeBy(.1)\n$: s(\"hh*8\").degradeBy(.3).seed(1).sometimesBy(.3, x=>x.gain(1.4))\n$: n(irand(8).segment(8)).scale(\"C:minor:pentatonic\").s(\"triangle\").ribbon(8, 2).lpf(1500)",
       decode: [
-        ['.degradeBy(.1)', 'le kick saute rarement un coup : moins mécanique.'],
-        ['.sometimesBy(.3, ...)', 'des accents de charley imprévus.'],
-        ['irand + ribbon(8, 2)', 'une mélo aléatoire figée sur 2 cycles.'],
+        [".degradeBy(.1)", "le kick saute rarement un coup : moins mécanique."],
+        [".seed(1).sometimesBy(.3, …)", "des accents de charleston imprévus, sur 30 % des coups. Le `.seed(1)` sépare ce tirage de celui de `degradeBy` : sans lui, aucun accent (voir [graine](voc.aleatoire.graine))."],
+        ["irand + ribbon(8, 2)", "une mélodie au hasard, figée sur les cycles 8 et 9, en boucle."],
       ],
       recap: {
-        title: 'Récap chapitre 3 — Le hasard maîtrisé',
-        columns: ['Outil', 'Rôle', 'Repère'],
+        title: "Récap chapitre 3 — Le hasard maîtrisé",
+        columns: ["Outil", "Rôle", "Repère"],
         rows: [
-          ['rand / irand / perlin', 'signaux aléatoires', 'avec .segment(n)'],
-          ['choose / wchoose', 'piocher dans une liste', 'pondérable'],
-          ['degrade / ?', 'trouer un motif', 'retire au hasard'],
-          ['sometimes / often / rarely', 'transformer parfois', '50 / 75 / 25 %'],
-          ['ribbon(n, len)', 'figer une graine', 'reproductible'],
+          ["`rand` · `irand` · `perlin`", "des signaux aléatoires, continus", "à découper avec `.segment(n)` pour obtenir n valeurs par cycle"],
+          ["`choose` · `wchoose`", "piocher dans une liste", "`wchoose` : chaque élément a son poids"],
+          ["`degradeBy` · `?`", "retirer des événements au hasard", "`?` = 50 %"],
+          ["`sometimes` · `often` · `rarely`", "transformer certains événements", "50 · 75 · 25 %"],
+          ["`ribbon(n, len)`", "rejouer en boucle une tranche de hasard", "`len` cycles, à partir du cycle `n`"],
+          ["`seed(n)`", "un autre tirage", "à glisser entre deux hasards pour qu’ils ne se recouvrent pas"],
         ],
       },
-      exercise:
-        'Change la graine du ribbon, le taux de degrade, la gamme. ' +
-        'Cherche TON accident heureux, puis fige-le. C’est ça, composer avec le hasard.',
-      free:
-        "Le hasard est devenu un instrument : tu le diriges. Au chapitre suivant, on apprend à " +
-        "faire BEAUCOUP avec PEU : une seule ligne qui se démultiplie en un arrangement complet.",
+      exercise: "Change le point de départ du `ribbon`, le taux de `degradeBy`, la gamme. Cherche TON accident heureux, puis fige-le.",
+      free: "Le hasard est devenu un instrument : tu en fixes le cadre (une gamme, des probabilités) et tu choisis le fragment qui te plaît. Au chapitre suivant : faire beaucoup avec peu, une seule ligne qui se démultiplie en arrangement.",
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -3588,124 +3291,99 @@ export const m5chapitre4 = {
   subtitle: 'Beaucoup à partir de peu',
   flashs: [
     {
-      id: '5.16',
-      kicker: 'Une copie par-dessus',
-      title: 'superimpose : doubler une voix',
-      concept:
-        "superimpose(f) joue l'original ET une copie passée dans la fonction f, en même temps. " +
-        "Une ligne devient deux voix. layer(f) fait pareil mais SANS l'original (que des copies). " +
-        "C'est l'harmonie automatique : tu écris une mélodie, la fonction crée la deuxième voix.",
-      code: 'n("0 2 4 6".superimpose(x=>x.add(2))).scale("C:major").s("triangle")',
+      id: "5.16",
+      kicker: "Une copie par-dessus",
+      title: "superimpose : doubler une voix",
+      concept: "`superimpose(f)` joue l’original ET une copie passée dans la fonction f, en même temps. Une ligne devient deux voix. `layer(f)` joue seulement les copies, sans l’original (voir [superimpose](fn.superimpose)). Harmonie automatique : tu écris une mélodie, la fonction crée la deuxième voix.",
+      code: "n(\"0 2 4 6\".superimpose(x=>x.add(2))).scale(\"C:major\").s(\"triangle\")",
       decode: [
-        ['"0 2 4 6"', 'la mélodie en degrés.'],
-        ['.superimpose(x=>x.add(2))', 'ajoute une copie +2 degrés : une tierce au-dessus.'],
-        ['les deux ensemble', 'harmonie parallèle, sans écrire la 2e voix.'],
+        ["\"0 2 4 6\"", "la mélodie, en degrés."],
+        [".superimpose(x=>x.add(2))", "ajoute une copie deux degrés plus haut : une tierce dans la gamme (do + mi, mi + sol…)."],
+        ["les deux ensemble", "une harmonie parallèle, sans écrire la deuxième voix."],
       ],
       theory: {
-        title: 'superimpose vs layer',
+        title: "superimpose ou layer",
         items: [
-          ['superimpose(f)', 'original + copie(s) transformée(s).'],
-          ['layer(f, g)', 'que les copies (pas l’original).'],
-          ['add(2)', 'sur des degrés = une tierce dans la gamme.'],
+          ["superimpose(f)", "l’original + la copie transformée."],
+          ["layer(f, g)", "seulement les copies, pas l’original."],
+          ["add(2) sur des degrés", "deux marches plus haut : une tierce, majeure ou mineure selon l’endroit de la gamme."],
         ],
       },
-      exercise:
-        'Fais bouger l’harmonie : .superimpose(x=>x.add("<2 4>")). ' +
-        'La 2e voix alterne tierce et quinte selon le cycle.',
+      exercise: "Fais bouger l’harmonie : `.superimpose(x=>x.add(\"<2 4>\"))`. La deuxième voix alterne la tierce et la quinte selon le cycle.",
+      rich: true,
     },
 
     {
-      id: '5.17',
-      kicker: 'L’écho qui arrange',
-      title: 'off : une copie décalée',
-      concept:
-        "off(t, f) superpose une copie décalée de t (en cycles) ET transformée par f. " +
-        "C'est l'écho qui fait l'arrangement : une note, puis sa réponse un peu plus tard, " +
-        "un peu plus haut. Avec off, une phrase se répond à elle-même.",
-      code: '"c3 eb3 g3".off(1/8, x=>x.add(7)).note().s("triangle")',
+      id: "5.17",
+      kicker: "L’écho qui arrange",
+      title: "off : une copie décalée",
+      concept: "`off(t, f)` superpose une copie décalée de t cycles ET transformée par f (voir [off](fn.off)). Une note, puis sa réponse un peu plus tard, un peu plus haut : une phrase qui se répond à elle-même.",
+      code: "\"c3 eb3 g3\".off(1/8, x=>x.add(7)).note().s(\"triangle\")",
       decode: [
-        ['off(1/8, ...)', 'une copie décalée d’un huitième de cycle.'],
-        ['x=>x.add(7)', 'cette copie monte de 7 demi-tons (une quinte).'],
-        ['résultat', 'la phrase d’origine + sa réponse plus aiguë, en canon.'],
+        ["off(1/8, …)", "une copie retardée d’un huitième de cycle."],
+        ["x=>x.add(7)", "cette copie monte de 7 demi-tons (une quinte) : do3 répond sol3."],
+        ["résultat", "la phrase d’origine et sa réponse plus aiguë, en canon."],
       ],
-      exercise:
-        'Joue avec le décalage et l’intervalle : off(1/4, x=>x.add(12)) ' +
-        '(écho plus lent, à l’octave). C’est un mini-arrangement en une ligne.',
+      exercise: "Joue avec le décalage et l’intervalle : `off(1/4, x=>x.add(12))`, une réponse plus tardive, à l’octave.",
+      rich: true,
     },
 
     {
-      id: '5.18',
-      kicker: 'Rebonds',
-      title: 'echo : répétitions qui s’éteignent',
-      concept:
-        "echo(n, t, fb) répète le motif n fois, décalé de t à chaque fois, en baissant le " +
-        "volume (fb). C'est un delay rythmique « fait main » : chaque rebond est plus faible. " +
-        "echoWith permet même de transformer le son à chaque rebond.",
-      code: 's("bd sd").echo(3, 1/6, .8)',
+      id: "5.18",
+      kicker: "Rebonds",
+      title: "echo : répétitions qui s’éteignent",
+      concept: "`echo(n, t, fb)` répète chaque événement : n coups au total (l’original compris), espacés de t cycles, chacun `fb` fois moins fort que le précédent. Un écho « écrit » dans le motif, différent de l’effet [delay](fx.delay). `echoWith` transforme en plus chaque répétition.",
+      code: "s(\"bd sd\").echo(3, 1/6, .8)",
       decode: [
-        ['echo(3, 1/6, .8)', '3 répétitions, 1/6 de cycle d’écart, 80 % du volume à chaque fois.'],
-        ['les rebonds', 's’éteignent progressivement, comme un vrai écho.'],
-        ['echoWith(3, 1/6, f)', 'pareil, mais applique f (ex. monter) à chaque rebond.'],
+        ["echo(3, 1/6, .8)", "l’original + 2 répétitions, à 1/6 de cycle d’écart, au volume 0,8 puis 0,64."],
+        ["les rebonds", "s’éteignent progressivement, comme un vrai écho."],
+        ["echoWith(3, 1/6, f)", "3 copies espacées de 1/6 de cycle, chacune passée une fois dans f (vérifié dans ce moteur : la première comprise, sans cumul)."],
       ],
-      exercise:
-        'Fais rebondir un clap : s("cp").echo(4, 1/8, .7). ' +
-        'Change le feedback (.5 puis .95) : un écho court ou qui s’accroche.',
+      exercise: "Fais rebondir un clap : `s(\"cp\").echo(4, 1/8, .7)`. Change le retour (`.5` puis `.95`) : un écho court, ou qui s’accroche.",
+      rich: true,
     },
 
     {
-      id: '5.19',
-      kicker: 'La stéréo par fonction',
-      title: 'jux : gauche / droite',
-      concept:
-        "jux(f) joue l'original à GAUCHE et une copie transformée par f à DROITE. " +
-        "Largeur stéréo instantanée. En vrai, c'est superimpose + un pan automatique : " +
-        "encore une fois, une fonction qui démultiplie une seule ligne.",
-      code: 'n(run(8)).scale("C:major").s("sawtooth").jux(rev)',
+      id: "5.19",
+      kicker: "La stéréo par fonction",
+      title: "jux : gauche / droite",
+      concept: "`jux(f)` joue l’original tout à GAUCHE et une copie transformée par f tout à DROITE (voir [jux](fn.jux)). Largeur stéréo instantanée : c’est un `superimpose` avec un placement gauche-droite automatique.",
+      code: "n(run(8)).scale(\"C:major\").s(\"sawtooth\").jux(rev)",
       decode: [
-        ['jux(rev)', 'gauche = la gamme qui monte, droite = elle descend.'],
-        ['au casque', 'les deux oreilles entendent des choses différentes : ça s’ouvre.'],
-        ['jux(x=>x.fast(2))', 'marche avec n’importe quelle fonction.'],
+        ["jux(rev)", "gauche : la gamme qui monte ; droite : elle descend."],
+        ["au casque", "les deux oreilles entendent des choses différentes : l’espace s’ouvre."],
+        ["jux(x=>x.fast(2))", "marche avec n’importe quelle fonction."],
       ],
-      exercise:
-        'Envoie la quinte à droite : .jux(x=>x.add(7)). ' +
-        'Mets un casque pour bien entendre l’espace se créer.',
+      exercise: "Envoie la quinte à droite : `.jux(x=>x.add(note(7)))`, la copie de droite 7 demi-tons plus haut. Écris bien `note(7)` : après `.scale()`, ce sont des notes, et `x.add(7)` ne ferait rien (le moteur affiche `Can't do arithmetic on control pattern`). Mets un casque pour entendre l’espace se créer.",
+      rich: true,
     },
 
     {
-      id: '5.20',
-      kicker: 'On assemble',
-      title: 'Beaucoup à partir de peu',
-      concept:
-        "Le pari du chapitre : partir d'UNE ligne et la démultiplier en texture. " +
-        "Ici, une seule mélodie en degrés devient un canon (off), s'ouvre en stéréo (jux), " +
-        "sur une batterie. Compte ce que tu as écrit : presque rien. Écoute ce que ça donne.",
-      code:
-        'setcpm(120/4)\n' +
-        '$: s("bd*4, hh*8")\n' +
-        '$: n("0 2 4 6 7 6 4 2".off(1/8, x=>x.add(7))).scale("C:minor").s("sawtooth").lpf(1500).jux(rev).gain(.5)',
+      id: "5.20",
+      kicker: "On assemble",
+      title: "Beaucoup à partir de peu",
+      concept: "Le pari du chapitre : partir d’UNE ligne et la démultiplier en texture. Une seule mélodie en degrés devient un canon (`off`), puis s’ouvre en stéréo (`jux`), sur une batterie. Compte ce que tu as écrit : presque rien.",
+      code: "setcpm(120/4)\n$: s(\"bd*4, hh*8\")\n$: n(\"0 2 4 6 7 6 4 2\".off(1/8, x=>x.add(7))).scale(\"C:minor\").s(\"sawtooth\").lpf(1500).jux(rev).gain(.5)",
       decode: [
-        ['une seule ligne', '"0 2 4 6 7 6 4 2" : la matière de départ.'],
-        ['.off(1/8, x=>x.add(7))', 'elle se répond une quinte au-dessus.'],
-        ['.jux(rev)', 'puis s’ouvre en stéréo (envers à droite).'],
+        ["\"0 2 4 6 7 6 4 2\"", "la matière de départ, en degrés de do mineur."],
+        [".off(1/8, x=>x.add(7))", "la ligne se répond 1/8 de cycle plus tard, 7 degrés plus haut : dans une gamme de 7 notes, c’est l’octave."],
+        [".jux(rev)", "puis elle s’ouvre en stéréo, l’envers à droite."],
       ],
       recap: {
-        title: 'Récap chapitre 4 — Accumulation',
-        columns: ['Fonction', 'Ce qu’elle ajoute', 'Repère'],
+        title: "Récap chapitre 4 — Accumulation",
+        columns: ["Fonction", "Ce qu’elle ajoute", "Repère"],
         rows: [
-          ['superimpose(f)', 'copie transformée + original', 'harmonie'],
-          ['layer(f)', 'copies seules', 'sans original'],
-          ['off(t, f)', 'copie décalée + transformée', 'canon / écho'],
-          ['echo(n, t, fb)', 'rebonds qui s’éteignent', 'delay fait main'],
-          ['jux(f)', 'copie à droite', 'stéréo'],
+          ["`superimpose(f)`", "une copie transformée, en plus de l’original", "harmonie, doublure"],
+          ["`layer(f, g…)`", "seulement les copies, sans l’original", "plusieurs versions à la fois"],
+          ["`off(t, f)`", "une copie décalée de t cycles et transformée", "canon, écho mélodique"],
+          ["`echo(n, t, fb)`", "n événements (l’original compris), espacés de t cycles ; chaque répétition multiplie le volume par fb", "un écho écrit dans le motif"],
+          ["`jux(f)`", "l’original à gauche, la copie transformée à droite", "stéréo"],
         ],
       },
-      exercise:
-        'Empile les calques : ajoute .superimpose(x=>x.add(note(12))) à la ligne. ' +
-        'Une mélodie, une octave, un canon, une stéréo — tout d’une même phrase.',
-      free:
-        "Tu sais faire foisonner une idée minuscule. Dernier chapitre : d'où vient tout ça " +
-        "(TidalCycles, le fonctionnel), comment arranger dans le temps, sortir vers le MIDI, " +
-        "et un morceau final qui réunit les CINQ modules — et qui vit tout seul.",
+      exercise: "Ajoute un calque : `.superimpose(x=>x.add(note(12)))` à la ligne. Une mélodie, une octave, un canon, une stéréo : tout d’une même phrase.",
+      free: "Tu sais faire foisonner une idée minuscule. Dernier chapitre : d’où vient tout ça (TidalCycles, la programmation fonctionnelle), comment arranger dans le temps, sortir vers le MIDI, et un morceau qui réunit tout et évolue seul.",
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -3717,144 +3395,111 @@ export const m5chapitre5 = {
   subtitle: 'D’où ça vient, où ça va',
   flashs: [
     {
-      id: '5.21',
-      kicker: 'La famille',
-      title: 'Tidal, Strudel & le fonctionnel',
-      concept:
-        "Strudel est la version navigateur de TidalCycles, écrit à l'origine en Haskell — un " +
-        "langage 100 % fonctionnel. L'idée géniale héritée : TOUT est pattern, et tout se COMPOSE. " +
-        "Strudel l'a porté en JavaScript pour que ça tourne dans un onglet, sans rien installer.",
-      code: 'note("c e g b").add(note("<0 3 5>")).s("sawtooth")',
+      id: "5.21",
+      kicker: "La famille",
+      title: "Tidal, Strudel & le fonctionnel",
+      concept: "Strudel est la version pour navigateur de [TidalCycles](voc.code.tidalcycles), écrit en Haskell, un langage *fonctionnel*. L’idée héritée : tout est motif, et tout se COMPOSE ; on assemble des fonctions au lieu de modifier des données. Strudel a porté cette idée en JavaScript, pour qu’elle tourne dans un onglet sans rien installer.",
+      code: "note(\"c e g b\").add(note(\"<0 3 5>\")).s(\"sawtooth\")",
       decode: [
-        ['add("<0 3 5>")', 'un pattern qui transforme un pattern (transpose par cycle).'],
-        ['pas de boucle, pas de variable de temps', "on branche des fonctions, c'est tout."],
-        ['l’héritage Tidal', 'des briques qui se composent à l’infini.'],
+        ["add(note(\"<0 3 5>\"))", "un motif qui transforme un motif : transposition de 0, 3 puis 5 demi-tons selon le cycle."],
+        ["pas de boucle", "aucune variable de temps à gérer : on branche des fonctions."],
+        ["l’héritage Tidal", "des briques qui se composent sans limite."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['TidalCycles', 'l’ancêtre (Haskell, ~2009), pour la scène algorave.'],
-          ['Strudel', 'le portage JavaScript, dans le navigateur (2022+).'],
-          ['fonctionnel', 'on compose des fonctions ; on ne modifie rien en place.'],
+          ["TidalCycles", "l’ancêtre de Strudel, écrit en Haskell."],
+          ["Strudel", "sa version en JavaScript, dans le navigateur (voir [Strudel](voc.code.strudel))."],
+          ["fonctionnel", "on compose des fonctions ; on ne modifie rien en place."],
         ],
       },
-      exercise:
-        'Compose deux transformations patternées : .add(note("<0 3 5>")).rev(). ' +
-        'Change l’ordre et écoute : composer, ce n’est pas commutatif.',
+      exercise: "L’ordre compte parfois : `n(\"0 1 2 3 4 5 6 7\").scale(\"C:major\").slow(2).rev()` et `….rev().slow(2)` ne donnent pas la même chose. En revanche, `add(note(\"<0 3 5>\"))` et `rev()` donnent le même résultat dans les deux ordres : écoute pour t’en convaincre.",
+      rich: true,
     },
 
     {
-      id: '5.22',
-      kicker: 'Arranger dans le temps',
-      title: 'firstOf / lastOf / when',
-      concept:
-        "Pour qu'un morceau ÉVOLUE, on applique une fonction de temps en temps. " +
-        "firstOf(4, f) applique f au 1er de chaque groupe de 4 cycles ; lastOf au dernier ; " +
-        "when(motif, f) selon un motif binaire. C'est l'arrangement écrit en règles.",
-      code: 'n("0 1 2 3").scale("C:major").firstOf(4, x=>x.rev()).s("triangle")',
+      id: "5.22",
+      kicker: "Arranger dans le temps",
+      title: "firstOf / lastOf / when",
+      concept: "Pour qu’un morceau ÉVOLUE, on applique une transformation de temps en temps. `firstOf(4, f)` applique f au premier cycle de chaque groupe de 4 (les cycles 1, 5, 9…) ; `lastOf(4, f)` au dernier (4, 8, 12…) ; `when(motif, f)` là où un motif binaire vaut 1. C’est l’arrangement écrit en règles (voir [firstOf](fn.firstOf), [lastOf](fn.lastOf)).",
+      code: "n(\"0 1 2 3\").scale(\"C:major\").firstOf(4, x=>x.rev()).s(\"triangle\")",
       decode: [
-        ['firstOf(4, x=>x.rev())', '3 cycles normaux, le 4e à l’envers.'],
-        ['ça respire sur 4 mesures', 'une variation régulière, sans y penser.'],
-        ['lastOf(4, f)', 'cible le DERNIER cycle du groupe.'],
+        ["firstOf(4, x=>x.rev())", "cycle 1 à l’envers, puis 3 cycles normaux, et ainsi de suite (vérifié dans le moteur)."],
+        ["phrase de 4 mesures", "une variation régulière, qui marque le début de chaque phrase."],
+        ["lastOf(4, f)", "cible le DERNIER cycle du groupe : idéal pour une fin de phrase."],
       ],
-      exercise:
-        'Mets un emballement en fin de cycle : .lastOf(4, x=>x.fast(2)). ' +
-        'Un petit « fill » automatique tous les 4 cycles.',
+      exercise: "Mets un emballement en fin de phrase : `.lastOf(4, x=>x.fast(2))`. Un petit roulement automatique tous les 4 cycles.",
+      rich: true,
     },
 
     {
-      id: '5.23',
-      kicker: 'La transformation voyageuse',
-      title: 'chunk : un morceau à la fois',
-      concept:
-        "chunk(n, f) découpe le motif en n parts et applique f à UNE part par cycle, en tournant. " +
-        "Le changement se promène dans la phrase, cycle après cycle. Très organique : on dirait " +
-        "qu'une main passe sur le clavier.",
-      code: 'n("0 1 2 3").scale("C:major").chunk(4, x=>x.add(note(7))).s("sawtooth")',
+      id: "5.23",
+      kicker: "La transformation voyageuse",
+      title: "chunk : un morceau à la fois",
+      concept: "`chunk(n, f)` découpe le motif en n parts et applique f à UNE part par cycle, en avançant : la 1ʳᵉ au cycle 1, la 2ᵉ au cycle 2… Le changement se promène dans la phrase, comme une main qui passe sur le clavier.",
+      code: "n(\"0 1 2 3\").scale(\"C:major\").chunk(4, x=>x.add(note(7))).s(\"sawtooth\")",
       decode: [
-        ['chunk(4, x=>x.add(note(7)))', 'cycle 1 : la 1re note +7 ; cycle 2 : la 2e ; etc.'],
-        ['la quinte voyage', 'l’accent se déplace dans la mélodie.'],
-        ['chunkBack', 'pareil, mais le voyage va dans l’autre sens.'],
+        ["chunk(4, x=>x.add(note(7)))", "cycle 1 : la 1ʳᵉ note monte d’une quinte ; cycle 2 : la 2ᵉ ; etc. (vérifié dans le moteur)."],
+        ["la quinte voyage", "l’accent se déplace dans la mélodie."],
+        ["chunkBack", "part de la 1ʳᵉ part, puis remonte depuis la dernière : le voyage va dans l’autre sens."],
       ],
-      exercise:
-        'Fais voyager le timbre, pas la hauteur : .chunk(4, x=>x.s("square")). ' +
-        'Une note sur quatre change de son, et ça tourne.',
+      exercise: "Fais voyager le timbre plutôt que la hauteur : `n(\"0 1 2 3\").scale(\"C:major\").s(\"sawtooth\").chunk(4, x=>x.s(\"square\"))`. Une note sur quatre change de son, et ça tourne. Place bien `.s(\"sawtooth\")` AVANT `chunk` : écrit après, il remplacerait le `square` sur toutes les notes.",
+      rich: true,
     },
 
     {
-      id: '5.24',
-      kicker: 'Sortir de la boîte',
-      title: 'MIDI : piloter de vrais instruments',
-      concept:
-        "Strudel ne fait pas que du son interne : il peut piloter de VRAIS instruments. " +
-        ".midi(\"nom\") envoie tes patterns à un synthé matériel ou logiciel par MIDI, " +
-        "direct dans le navigateur (Web MIDI), sans rien installer. Ton code devient un séquenceur.",
-      code: 'chord("<C^7 A7 Dm7 G7>").voicing().s("sawtooth").lpf(2000).gain(.5)',
+      id: "5.24",
+      kicker: "Sortir de la boîte",
+      title: "MIDI : piloter de vrais instruments",
+      concept: "Strudel peut aussi piloter de VRAIS instruments : `.midi(\"nom du port\")` envoie les notes à un synthé ou à un logiciel par MIDI, directement depuis le navigateur grâce au Web MIDI (voir [MIDI](voc.code.midi-web-midi)). Le code devient un séquenceur. Ici, on reste sur le son interne pour vérifier la grille.",
+      code: "chord(\"<C^7 A7 Dm7 G7>\").voicing().s(\"sawtooth\").lpf(2000).gain(.5)",
       decode: [
-        ['chord(...).voicing()', 'une grille d’accords réalisée (M2).'],
-        ['ici .s("sawtooth")', 'on l’entend en interne, pour vérifier.'],
-        ['.midi("IAC Driver")', 'remplace .s(...) pour l’envoyer vers un appareil MIDI.'],
+        ["chord(…).voicing()", "une grille d’accords, réalisée en notes."],
+        [".s(\"sawtooth\")", "on l’entend en interne."],
+        [".midi(\"…\")", "remplacerait `.s(…)` pour envoyer les notes vers un appareil MIDI."],
       ],
       theory: {
-        title: 'Entrées / sorties',
+        title: "Entrées / sorties",
         items: [
-          ['MIDI', 'protocole standard pour piloter synthés et claviers.'],
-          ['Web MIDI', 'marche directement dans le navigateur, sans logiciel.'],
-          ['OSC', 'autre sortie, vers SuperCollider (le moteur de TidalCycles).'],
+          ["MIDI", "la norme qui permet aux instruments électroniques d’échanger des notes et des réglages."],
+          ["Web MIDI", "le MIDI dans le navigateur : sa prise en charge dépend du navigateur, et il faut un appareil branché."],
+          ["OSC", "une autre sortie, vers SuperCollider ; elle n’est pas disponible dans cette app."],
         ],
       },
-      exercise:
-        'Sans matériel, reste sur le son interne. Si tu as un port MIDI : lance le code, ' +
-        'lis le nom du port dans la console, puis remplace .s("sawtooth") par .midi("ce-nom").',
+      exercise: "Sans matériel, reste sur le son interne. Si tu as un appareil MIDI branché : remplace `.s(\"sawtooth\")` par `.midi(\"nom du port\")`, avec le nom exact que ton système donne à l’appareil.",
+      rich: true,
     },
 
     {
-      id: '5.25',
-      kicker: 'Le morceau final',
-      title: 'Tout Keymaker, en mouvement',
-      concept:
-        "Le final du module ET du parcours : un morceau qui se transforme TOUT SEUL, en réunissant " +
-        "les cinq modules. Batterie (M1) + grille d'accords (M2) + basse façon instrument (M3) + son " +
-        "sculpté (M4) + les outils génératifs (M5 : iter, off, degrade, sometimes, signal). " +
-        "Tu ne joues pas ce morceau : tu as écrit la règle, et il vit.",
-      code:
-        'setcpm(120/4)\n' +
-        '$: s("bd*4, [~ cp]*2").bank("RolandTR909").degradeBy(.08)\n' +
-        '$: s("hh*8").degradeBy(.3).sometimesBy(.3, x=>x.gain(1.3))\n' +
-        '$: note("c2 ~ g2 ~").s("gm_acoustic_bass").gain(.7)\n' +
-        '$: chord("<Cm7 Ab^7 Fm7 G7>").voicing().s("triangle").gain(.3).room(.4)\n' +
-        '$: n("0 1 2 3 4 5 6 7").scale("C:minor").s("sawtooth").iter(4).off(1/8, x=>x.add(note(12))).lpf(sine.range(500,2000).slow(4)).gain(.35)',
+      id: "5.25",
+      kicker: "Le morceau final",
+      title: "Tout Keymaker, en mouvement",
+      concept: "Le final : un morceau qui se transforme TOUT SEUL. Batterie, grille d’accords, basse jouée par un instrument enregistré, son sculpté, et les outils génératifs du parcours : `iter`, `off`, `degradeBy`, `sometimesBy`, un signal. Tu ne joues pas ce morceau : tu as écrit la règle, et il vit.",
+      code: "setcpm(120/4)\n$: s(\"bd*4, [~ cp]*2\").bank(\"RolandTR909\").degradeBy(.08)\n$: s(\"hh*8\").degradeBy(.3).seed(1).sometimesBy(.3, x=>x.gain(1.3))\n$: note(\"c2 ~ g2 ~\").s(\"gm_acoustic_bass\").gain(.7)\n$: chord(\"<Cm7 Ab^7 Fm7 G7>\").voicing().s(\"triangle\").gain(.3).room(.4)\n$: n(\"0 1 2 3 4 5 6 7\").scale(\"C:minor\").s(\"sawtooth\").iter(4).off(1/8, x=>x.add(note(12))).lpf(sine.range(500,2000).slow(4)).gain(.35)",
       decode: [
-        ['couche 1-2 (M1)', 'batterie 909 qui se troue (degrade) avec des accents (sometimes).'],
-        ['couche 3-4 (M2/M3)', 'basse d’instrument + grille d’accords avec un peu de réverb.'],
-        ['couche 5 (M4/M5)', 'mélodie qui tourne (iter), se répond (off) et balaye au filtre (signal).'],
+        ["couches 1-2", "batterie TR-909 qui se troue (`degradeBy`) avec des accents (`sometimesBy`), séparés par `.seed(1)` pour que les deux hasards ne se recouvrent pas."],
+        ["couches 3-4", "basse d’instrument (`gm_acoustic_bass`) et grille d’accords avec un peu de réverbération."],
+        ["couche 5", "mélodie qui tourne (`iter`), se répond à l’octave (`off` + `note(12)`) et dont le filtre suit une vague (`sine`)."],
       ],
       recap: {
-        title: 'Récap chapitre 5 — Le grand tableau',
-        columns: ['Module', 'Apport', 'Exemple'],
+        title: "Récap chapitre 5 — Le grand tableau",
+        columns: ["Parcours", "Apport", "Exemple"],
         rows: [
-          ['M1 Live coding', 'le rythme', 'bd / hh / stack'],
-          ['M2 Solfège', 'l’harmonie', 'scale / chord'],
-          ['M3 Guitare', 'le geste', 'gm_* / add'],
-          ['M4 Son & Effets', 'le timbre', 'lpf / room'],
-          ['M5 Informatique', 'le mouvement', 'iter / off / degrade'],
+          ["Les fondations", "rythme, notes, gammes, accords, timbre, mouvement", "`$:` · `scale` · `chord` · `lpf`"],
+          ["Guitare", "le manche et ses accords, joués par des sons enregistrés", "`gm_*` · `clip`"],
+          ["Sculpter le son", "le timbre : source, filtre, enveloppe, espace", "`lpf` · `adsr` · `room`"],
+          ["Le code comme instrument", "le mouvement : transformations et hasard", "`iter` · `off` · `degradeBy`"],
         ],
       },
-      exercise:
-        'Approprie-toi le morceau : change la gamme (C:minor -> C:dorian), la grille d’accords, ' +
-        'la graine du hasard. Une règle, des variations infinies.',
-      free:
-        "Tu as les clés (Keymaker !). Tu n'écris plus des notes : tu écris des RÈGLES, et la " +
-        "machine fait sonner le temps. Deux directions à explorer avec ce morceau : (1) RALENTIS tout " +
-        "(setcpm bas, notes longues, beaucoup de room, degrade/sometimes) → une ambiance générative ambient ; " +
-        "(2) ACCÉLÈRE le ressenti (breakbeat, iter sur les hats, half-time feel) → un groove drum & bass. " +
-        "Le Module 6 (Composition & Projets) viendra structurer tout ça — mais tu as déjà tout pour improviser.",
+      exercise: "Approprie-toi le morceau : change la gamme (`C:minor` → `C:dorian`), la grille d’accords, les taux de hasard. Une règle, des variations sans fin.",
+      free: "Tu n’écris plus des notes : tu écris des règles, et le moteur les fait sonner. Deux directions avec ce morceau. Ralentis tout (`setcpm` bas, notes longues, beaucoup de `room`, du `degradeBy`) : une pièce ambient. Ou serre le rythme (un break haché, `iter` sur les charlestons, la caisse claire sur le 3ᵉ temps) : un groove drum & bass. Le parcours « Composer un morceau » montre comment structurer tout ça, et ces deux genres ont leur chapitre dans « Autres genres ».",
       culture: {
-        artist: 'Aphex Twin',
-        track: 'Xtal',
-        why:
-          "l'ouverture de Selected Ambient Works 85-92 : des règles simples, un son qui évolue tout seul — l'esprit génératif de ce module, en chef-d'œuvre.",
+        artist: "Aphex Twin",
+        track: "Xtal",
+        why: "le morceau qui ouvre *Selected Ambient Works 85–92* (1992). Quelques éléments répétés (des nappes, une voix lointaine, un rythme régulier) qui changent lentement, sans couplet ni refrain : la répétition comme matière première, comme dans ce morceau.",
       },
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -3885,143 +3530,107 @@ export const m6chapitre1 = {
   subtitle: 'Empiler, nommer, couper, traiter : le stack live',
   flashs: [
     {
-      id: '6.1',
-      kicker: 'Empiler des pistes',
-      title: 'Le stack : plusieurs pistes en même temps',
-      concept:
-        "Un morceau, ce n'est pas une ligne : c'est des couches qui jouent ensemble. " +
-        "Dans le REPL, chaque ligne qui commence par $: est une PISTE. Tu en empiles " +
-        "autant que tu veux, elles sonnent en parallèle. C'est la table de mixage en code. " +
-        "Fil rouge du module : la house — un morceau y raconte une histoire en 4 actes (intro / montée / drop / outro), et on va coder ces actes.",
-      code:
-        '$: s("bd*4")\n' +
-        '$: s("~ cp")\n' +
-        '$: note("c2 g2").s("sawtooth")',
+      id: "6.1",
+      kicker: "Empiler des pistes",
+      title: "Le stack : plusieurs pistes en même temps",
+      concept: "Un morceau, ce sont des couches qui jouent ensemble. Chaque ligne qui commence par `$:` est une PISTE (voir [pistes](fn.dollar)) ; toutes jouent en parallèle, sur les mêmes cycles. C’est la table de mixage, en code. Fil rouge du parcours : un morceau de house, raconté en quatre actes (intro, montée, plein, fin).",
+      code: "$: s(\"bd*4\")\n$: s(\"~ cp\")\n$: note(\"c2 g2\").s(\"sawtooth\")",
       decode: [
-        ['$:', 'au début d’une ligne : « ajoute cette piste au stack ».'],
-        ['3 lignes = 3 pistes', 'grosse caisse + clap + basse, superposés.'],
-        ['(pont M1)', 'c’est le stack que tu connais, écrit en clair, une piste par ligne.'],
+        ["$:", "au début d’une ligne : « ajoute cette piste au morceau »."],
+        ["3 lignes = 3 pistes", "grosse caisse, clap et basse, superposés."],
+        ["sans $:", "seule la DERNIÈRE ligne jouerait : chaque expression remplacerait la précédente."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['stack', 'la pile de pistes jouées en même temps (= la virgule ",").'],
-          ['piste', 'une couche du morceau : batterie, basse, accords, lead…'],
-          ['parallèle', 'toutes les pistes partagent le même temps (les mêmes cycles).'],
+          ["piste", "une couche du morceau : batterie, basse, accords, lead…"],
+          ["parallèle", "toutes les pistes partagent le même temps (les mêmes cycles) et le même tempo."],
+          ["stack", "la fonction qui superpose des motifs dans une seule expression (voir [stack](fn.stack))."],
         ],
       },
-      exercise:
-        'Ajoute une 4e piste : $: s("hh*8").gain(.6). Une chanson, ' +
-        'c’est juste des couches bien choisies.',
+      exercise: "Ajoute une 4ᵉ piste : `$: s(\"hh*8\").gain(.6)`. Un morceau, c’est d’abord des couches bien choisies.",
+      rich: true,
     },
 
     {
-      id: '6.2',
-      kicker: 'Mettre de l’ordre',
-      title: 'Nommer ses pistes',
-      concept:
-        "Quand le patch grossit, une pile de $: anonymes devient illisible. " +
-        "Tu peux DONNER UN NOM à chaque piste : un mot collé devant le $:. " +
-        "Le code se met à te parler : tu vois d'un coup d'œil qui fait quoi.",
-      code:
-        'drums$: s("bd*4, ~ cp").bank("RolandTR909")\n' +
-        'bass$: note("c2 g2 ~ c2").s("gm_acoustic_bass")\n' +
-        'chords$: chord("<Cm Ab>").voicing().s("triangle").gain(.4)',
+      id: "6.2",
+      kicker: "Mettre de l’ordre",
+      title: "Nommer ses pistes",
+      concept: "Quand le code grossit, une pile de `$:` anonymes devient illisible. Tu peux nommer chaque piste : un mot devant `$:` (`drums$:`), ou un mot suivi de deux-points (`drums:`). Le son est le même ; le nom te dit qui fait quoi.",
+      code: "drums$: s(\"bd*4, ~ cp\").bank(\"RolandTR909\")\nbass$: note(\"c2 g2 ~ c2\").s(\"gm_acoustic_bass\")\nchords$: chord(\"<Cm Ab>\").voicing().s(\"triangle\").gain(.4)",
       decode: [
-        ['drums$:', 'un nom devant $: étiquette la piste.'],
-        ['nom unique', 'chaque piste a SON nom (seul « $: » peut se répéter).'],
-        ['(pont M2)', 'la grille d’accords du solfège, ici nommée « chords ».'],
+        ["drums$:", "un nom devant `$:` étiquette la piste (vérifié dans le moteur)."],
+        ["un nom par piste", "chaque piste nommée a son propre nom ; seul `$:` peut se répéter."],
+        ["chords$:", "la grille d’accords, nommée « chords »."],
       ],
-      exercise:
-        'Renomme les pistes avec TES mots : kick$:, basse$:, nappe$:. ' +
-        'Un patch lisible, c’est un patch qu’on retrouve le lendemain.',
+      exercise: "Renomme les pistes avec TES mots : `kick$:`, `basse$:`, `nappe$:`. Un code lisible, c’est un code qu’on retrouve le lendemain.",
+      rich: true,
     },
 
     {
-      id: '6.3',
-      kicker: 'L’interrupteur live',
-      title: 'Couper une piste : le souligné _',
-      concept:
-        "En live coding, on ne réécrit pas tout : on ALLUME et on ÉTEINT des couches. " +
-        "Mets un _ juste devant une piste : elle devient muette, sans disparaître. " +
-        "Enlève le _ : elle revient. C'est ton geste de DJ le plus utile.",
-      code:
-        'drums$: s("bd*4, ~ cp").bank("RolandTR909")\n' +
-        '_bass$: note("c2 g2").s("gm_acoustic_bass")\n' +
-        'hats$: s("hh*8").gain(.5)',
+      id: "6.3",
+      kicker: "L’interrupteur live",
+      title: "Couper une piste : le souligné _",
+      concept: "En direct, on ne réécrit pas tout : on ALLUME et on ÉTEINT des couches. Un `_` juste devant une piste la coupe, sans effacer son code ; enlève-le, et elle revient à la prochaine évaluation.",
+      code: "drums$: s(\"bd*4, ~ cp\").bank(\"RolandTR909\")\n_bass$: note(\"c2 g2\").s(\"gm_acoustic_bass\")\nhats$: s(\"hh*8\").gain(.5)",
       decode: [
-        ['_ devant bass$:', 'le souligné COUPE la piste (mute), le code reste là.'],
-        ['enlève le _', 'la basse rentre. Construire/retirer en direct, sans tout casser.'],
-        ['hush() / Ctrl+.', 'tout couper d’un coup (le bouton « panic »).'],
+        ["_bass$:", "le trait de soulignement coupe la piste (vérifié dans le moteur)."],
+        ["enlève le _", "la basse revient dès que tu relances : construire et retirer en direct."],
+        ["■ / Ctrl + .", "tout arrêter d’un coup."],
       ],
       theory: {
-        title: 'Couper, en pratique',
+        title: "Couper, en pratique",
         items: [
-          ['_piste$:', 'mute UNE piste (= hush sur cette piste).'],
-          ['hush()', 'coupe TOUT le son, proprement.'],
-          ['Ctrl + .', 'arrêt d’urgence du moteur (panic).'],
+          ["_piste$:", "coupe UNE piste."],
+          ["hush()", "coupe TOUT le son."],
+          ["■ ou Ctrl + .", "le bouton d’arrêt de l’app."],
         ],
       },
-      exercise:
-        'Lance le code, puis mute les hats (_hats$:). Attends 4 cycles, ' +
-        'enlève le _ : tu viens de faire entrer une couche. Voilà un « drop ».',
+      exercise: "Lance le code, puis coupe les charlestons (`_hats$:`). Attends 4 cycles, enlève le `_` et relance : une couche vient d’entrer.",
+      rich: true,
     },
 
     {
-      id: '6.4',
-      kicker: 'Le bus master',
-      title: 'all() : traiter toutes les pistes d’un coup',
-      concept:
-        "Parfois tu veux un effet sur TOUT le morceau à la fois : baisser le volume, " +
-        "fermer le filtre pour une transition. all(f) applique la fonction f à TOUTES " +
-        "les pistes du stack. C'est le bus master de ta table de mixage.",
-      code:
-        '$: s("bd*4, ~ cp").bank("RolandTR909")\n' +
-        '$: note("c2 g2 eb2 g2").s("sawtooth").gain(.6)\n' +
-        'all(x => x.room(.3))',
+      id: "6.4",
+      kicker: "Le bus master",
+      title: "all() : traiter toutes les pistes d’un coup",
+      concept: "`all(f)` applique la fonction f à TOUTES les pistes à la fois : baisser le volume général, fermer le filtre pour une transition, ajouter de la réverbération partout. C’est le bus master de ta table de mixage.",
+      code: "$: s(\"bd*4, ~ cp\").bank(\"RolandTR909\")\n$: note(\"c2 g2 eb2 g2\").s(\"sawtooth\").gain(.6)\nall(x => x.room(.3))",
       decode: [
-        ['all(x => x.room(.3))', 'colle une réverb sur TOUTES les pistes.'],
-        ['un seul geste', 'pas besoin de répéter .room sur chaque ligne.'],
-        ['(pont M4)', 'une transition : all(x => x.lpf(500)) ferme le filtre sur tout.'],
+        ["all(x => x.room(.3))", "ajoute `room(.3)` à chaque son de chaque piste (vérifié dans le moteur)."],
+        ["un seul geste", "pas besoin de répéter `.room` sur chaque ligne."],
+        ["all(x => x.lpf(500))", "une transition : le filtre se ferme sur tout le morceau."],
       ],
-      exercise:
-        'Remplace par all(x => x.gain(.7)) : tout le mix baisse d’un coup. ' +
-        'Puis essaie all(x => x.fast(2)) le temps d’un cycle. Le bus master, c’est puissant.',
+      exercise: "Remplace par `all(x => x.gain(.7))` : tout le mix baisse d’un coup. Puis essaie `all(x => x.fast(2))` le temps d’un cycle.",
+      rich: true,
     },
 
     {
-      id: '6.5',
-      kicker: 'Le métronome commun',
-      title: 'Le tempo du morceau',
-      concept:
-        "Toutes les pistes partagent UN tempo. On le pose une fois, tout en haut, " +
-        "avec setcpm. Notre convention (depuis M1) : setcpm(BPM/4) = ton BPM en 4/4. " +
-        "Change-le, et le morceau entier accélère ou ralentit ensemble.",
-      code:
-        'setcpm(120/4)\n' +
-        'drums$: s("bd*4, ~ cp").bank("RolandTR909")\n' +
-        'bass$: note("c2 ~ g2 ~").s("gm_acoustic_bass")',
+      id: "6.5",
+      kicker: "Le métronome commun",
+      title: "Le tempo du morceau",
+      concept: "Toutes les pistes partagent UN tempo. On le pose une fois, en haut, avec [setcpm](fn.setcpm) : `setcpm(BPM/4)` donne ton tempo en battements par minute, avec un cycle = une mesure de 4 temps. Change-le, et tout le morceau accélère ou ralentit ensemble.",
+      code: "setcpm(120/4)\ndrums$: s(\"bd*4, ~ cp\").bank(\"RolandTR909\")\nbass$: note(\"c2 ~ g2 ~\").s(\"gm_acoustic_bass\")",
       decode: [
-        ['setcpm(120/4)', '120 BPM en 4/4 : le métronome commun à toutes les pistes.'],
-        ['une seule fois, en haut', 'le tempo est global, comme dans un vrai studio.'],
-        ['(pont M1/M4)', 'la convention BPM/4 du projet : 1 cycle = 1 mesure.'],
+        ["setcpm(120/4)", "120 BPM : 30 cycles par minute, un cycle toutes les 2 s."],
+        ["une seule fois, en haut", "le tempo est global."],
+        ["1 cycle = 1 mesure", "la convention de toute l’app."],
       ],
       recap: {
-        title: 'Récap chapitre 1 — Le stack live',
-        columns: ['Geste', 'Code', 'Effet'],
+        title: "Récap chapitre 1 — Les pistes",
+        columns: ["Geste", "Code", "Effet"],
         rows: [
-          ['Empiler', '$: …', 'des pistes en parallèle'],
-          ['Nommer', 'drums$: …', 'une piste étiquetée, lisible'],
-          ['Couper', '_drums$: …', 'mute en direct (live)'],
-          ['Tout traiter', 'all(f)', 'effet global (bus master)'],
-          ['Tempo', 'setcpm(BPM/4)', 'le métronome commun'],
+          ["empiler", "`$: …`", "une piste par ligne, toutes en même temps"],
+          ["nommer", "`drums$: …`", "une piste étiquetée, plus lisible"],
+          ["couper", "`_drums$: …`", "la piste se tait, son code reste là"],
+          ["tout traiter", "`all(x => x.lpf(800))`", "la même transformation sur chaque piste"],
+          ["tempo", "`setcpm(BPM/4)`", "un tempo commun ; un cycle = 4 temps"],
         ],
       },
-      exercise:
-        'Passe le tempo à setcpm(140/4) puis setcpm(90/4). Même morceau, ' +
-        'autre énergie. Le tempo, c’est déjà une décision artistique.',
-      free:
-        'Tu sais déjà faire jouer plusieurs pistes ensemble, les nommer, les couper et les traiter d’un bloc. C’est l’établi de tout le reste : un morceau, ce sont des couches qu’on choisit et qu’on pilote.',
+      exercise: "Passe le tempo à `setcpm(140/4)`, puis `setcpm(90/4)`. Même morceau, autre énergie : le tempo est déjà une décision artistique.",
+      free: "Tu sais faire jouer plusieurs [pistes](fn.dollar) ensemble, les nommer, les couper et les traiter d’un bloc. C’est l’établi de tout le reste : un morceau, ce sont des couches qu’on choisit et qu’on pilote.",
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -4033,144 +3642,107 @@ export const m6chapitre2 = {
   subtitle: 'Définir une fois, rejouer partout',
   flashs: [
     {
-      id: '6.6',
-      kicker: 'Définir une fois',
-      title: 'La variable : const',
-      concept:
-        "Recopier le même motif partout, c'est la porte ouverte aux erreurs (et c'est " +
-        "fatigant). const te laisse définir un motif UNE fois, lui donner un nom, et le " +
-        "réutiliser autant que tu veux. Tu changes la définition : tout suit, d'un coup.",
-      code:
-        'const bass = note("c2 g2 ~ c2").s("gm_acoustic_bass")\n' +
-        '$: bass\n' +
-        '$: bass.add(note(12)).gain(.4)',
+      id: "6.6",
+      kicker: "Définir une fois",
+      title: "La variable : const",
+      concept: "Recopier le même motif partout, c’est s’exposer aux erreurs. `const` définit un motif UNE fois, sous un nom, pour le réutiliser autant que tu veux (voir [const](js.const)). Tu changes la définition : tout suit.",
+      code: "const bass = note(\"c2 g2 ~ c2\").s(\"gm_acoustic_bass\")\n$: bass\n$: bass.add(note(12)).gain(.4)",
       decode: [
-        ['const bass = …', 'on définit la basse une fois, on la nomme « bass ».'],
-        ['$: bass', 'on la joue telle quelle.'],
-        ['$: bass.add(note(12))', 'on la rejoue une octave plus haut — zéro recopie.'],
+        ["const bass = …", "la basse est définie une fois, sous le nom « bass »."],
+        ["$: bass", "on la joue telle quelle."],
+        ["$: bass.add(note(12))", "on la rejoue une octave plus haut, sans recopier."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['const', 'une « boîte » nommée qui contient un motif.'],
-          ['réutiliser', 'rejouer le même motif sans le réécrire.'],
-          ['(TDA-friendly)', 'moins de répétition = moins de charge mentale, moins de bugs.'],
+          ["const", "un nom donné à un motif, pour s’en resservir."],
+          ["réutiliser", "rejouer le même motif, transformé ou non, sans le réécrire."],
+          ["moins de répétition", "moins de code à relire, moins d’erreurs."],
         ],
       },
-      exercise:
-        'Crée const lead = n("0 2 4 7").scale("C:minor").s("triangle"), ' +
-        'puis joue-le deux fois : $: lead et $: lead.off(1/8, x=>x.add(note(12))).',
+      exercise: "Crée `const lead = n(\"0 2 4 7\").scale(\"C:minor\").s(\"triangle\")`, puis joue-le deux fois : `$: lead` et `$: lead.off(1/8, x=>x.add(note(12)))`.",
+      rich: true,
     },
 
     {
-      id: '6.7',
-      kicker: 'Une idée, des variations',
-      title: 'Transformer un motif réutilisé',
-      concept:
-        "Le vrai pouvoir du const : un seul motif source, plein de versions. Tu définis " +
-        "un riff, puis tu en joues l'original ET des variations transformées (M5) en " +
-        "parallèle. Beaucoup de musique à partir de très peu d'écriture.",
-      code:
-        'const riff = n("0 2 3 5").scale("C:minor")\n' +
-        '$: riff.s("sawtooth").gain(.5)\n' +
-        '$: riff.rev().s("triangle").gain(.4).off(1/8, x=>x.add(note(12)))',
+      id: "6.7",
+      kicker: "Une idée, des variations",
+      title: "Transformer un motif réutilisé",
+      concept: "Le vrai pouvoir de `const` : un seul motif source, plusieurs versions. Tu définis un riff, puis tu joues l’original ET des variations transformées, en parallèle. Beaucoup de musique à partir de très peu d’écriture.",
+      code: "const riff = n(\"0 2 3 5\").scale(\"C:minor\")\n$: riff.s(\"sawtooth\").gain(.5)\n$: riff.rev().s(\"triangle\").gain(.4).off(1/8, x=>x.add(note(12)))",
       decode: [
-        ['const riff = …', 'le motif source, défini une fois (degrés de gamme, M2).'],
-        ['riff.rev()', 'la même idée, à l’envers (M5) : une 2e voix gratuite.'],
-        ['.off(1/8, …)', 'un écho décalé et transposé (M5) — ça s’épaissit tout seul.'],
+        ["const riff = …", "le motif source, en degrés de do mineur."],
+        ["riff.rev()", "la même idée, à l’envers : une 2ᵉ voix."],
+        [".off(1/8, …)", "une copie décalée d’un huitième de cycle et montée d’une octave (voir [off](fn.off))."],
       ],
-      exercise:
-        'Ajoute une 3e voix : $: riff.slow(2).add(note(7)).s("square").gain(.3). ' +
-        'Un motif, trois rôles. C’est ça, composer avec des règles.',
+      exercise: "Ajoute une 3ᵉ voix : `$: riff.slow(2).add(note(7)).s(\"square\").gain(.3)`. Un motif, trois rôles.",
+      rich: true,
     },
 
     {
-      id: '6.8',
-      kicker: 'Ta chaîne maison',
-      title: 'register : créer ta propre fonction',
-      concept:
-        "Tu réutilises souvent la même chaîne d'effets ? Emballe-la dans UN nom avec " +
-        "register. Tu crées ta propre fonction chaînée, exactement comme .lpf ou .room, " +
-        "mais à toi. Ta signature sonore en un seul mot.",
-      code:
-        'register(\'keymaker\', p => p.s(\'sawtooth\').lpf(900).room(.3))\n' +
-        'note("c3 eb3 g3 c4").keymaker()',
+      id: "6.8",
+      kicker: "Ta chaîne maison",
+      title: "register : créer ta propre fonction",
+      concept: "Tu réutilises souvent la même chaîne de réglages ? `register` l’emballe sous un nom : tu crées ta propre fonction, qui s’enchaîne comme `.lpf` ou `.room`. Ta signature sonore en un mot.",
+      code: "register('keymaker', p => p.s('sawtooth').lpf(900).room(.3))\nnote(\"c3 eb3 g3 c4\").keymaker()",
       decode: [
-        ['register(\'keymaker\', p => …)', 'on emballe une chaîne d’effets dans un nom.'],
-        ['.keymaker()', 'on l’applique comme n’importe quelle fonction Strudel.'],
-        ['p => p.s(…).lpf(…)', 'p est le motif entrant ; on lui colle la chaîne.'],
+        ["register('keymaker', p => …)", "déclare une fonction nommée « keymaker »."],
+        ["p => p.s(…).lpf(…)", "`p` est le motif reçu ; la fonction lui ajoute la chaîne de réglages (voir [la flèche](js.fleche))."],
+        [".keymaker()", "on l’applique comme n’importe quelle fonction de Strudel."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['register', 'déclare une nouvelle fonction chaînée réutilisable.'],
-          ['p => …', 'une « fonction flèche » : entrée p, sortie le motif traité.'],
-          ['composer', 'tes fonctions s’enchaînent avec les fonctions natives.'],
+          ["register", "déclare une nouvelle fonction réutilisable."],
+          ["p => …", "une fonction fléchée : entrée `p`, sortie le motif traité."],
+          ["nom", "entre guillemets SIMPLES : c’est un texte, pas un motif (voir [guillemets](js.guillemets))."],
         ],
       },
-      exercise:
-        'Crée ta signature : register(\'moi\', p => p.room(.5).gain(.6).clip(2)), ' +
-        'puis colle-la sur une basse : note("c2 g2").s("gm_acoustic_bass").moi().',
+      exercise: "Crée ta signature : `register('moi', p => p.room(.5).gain(.6).clip(2))`, puis applique-la à une basse : `note(\"c2 g2\").s(\"gm_acoustic_bass\").moi()`.",
+      rich: true,
     },
 
     {
-      id: '6.9',
-      kicker: 'Se repérer d’un coup d’œil',
-      title: 'color() : organiser visuellement',
-      concept:
-        "Avec 5 ou 6 pistes qui tournent, savoir laquelle sonne devient dur. .color() " +
-        "teinte le surlignage d'une piste. Ça ne change pas le son : ça organise TON regard. " +
-        "Un petit luxe d'ergonomie qui sauve les gros patchs.",
-      code:
-        '$: s("bd*4, ~ cp").bank("RolandTR909").color("tomato")\n' +
-        '$: note("c2 g2 eb2 g2").s("sawtooth").color("cyan")',
+      id: "6.9",
+      kicker: "Se repérer d’un coup d’œil",
+      title: "color() : organiser visuellement",
+      concept: "`.color(\"…\")` attache une couleur à une piste. Elle ne change rien au son : elle sert aux visualisations de Strudel (le pianoroll, la spirale…), où chaque piste prend sa couleur. Un repère visuel quand plusieurs pistes tournent.",
+      code: "$: s(\"bd*4, ~ cp\").bank(\"RolandTR909\").color(\"tomato\")\n$: note(\"c2 g2 eb2 g2\").s(\"sawtooth\").color(\"cyan\")",
       decode: [
-        ['.color("tomato")', 'colore le surlignage des événements de cette piste.'],
-        ['repérage', 'd’un coup d’œil, tu sais quelle piste joue quoi.'],
-        ['zéro impact sonore', 'c’est purement visuel — pour t’organiser.'],
+        [".color(\"tomato\")", "une couleur attachée aux événements de la piste."],
+        ["repérage", "dans une visualisation, chaque piste se distingue par sa couleur."],
+        ["aucun effet sonore", "purement visuel."],
       ],
-      exercise:
-        'Donne une couleur à chaque piste de ton patch (color("gold"), color("orchid")…). ' +
-        'Quand ça surligne, tu lis ton morceau comme une partition.',
+      exercise: "Donne une couleur à chaque piste (`color(\"gold\")`, `color(\"orchid\")`…). Elles ne changent pas le son : c’est une habitude d’organisation, utile si tu ajoutes une visualisation.",
+      rich: true,
     },
 
     {
-      id: '6.10',
-      kicker: 'Tout assembler',
-      title: 'Un mini-projet en const',
-      concept:
-        "Réunissons le chapitre : on définit chaque couche en const, on les monte en stack " +
-        "nommé. Le morceau devient une PARTITION lisible — une ligne par voix, des noms " +
-        "clairs. C'est le squelette de tous tes projets à venir.",
-      code:
-        'setcpm(110/4)\n' +
-        'const drums = s("bd*4, ~ cp, hh*8").bank("RolandTR909")\n' +
-        'const bass  = note("c2 ~ g2 ~").s("gm_acoustic_bass").gain(.7)\n' +
-        'const keys  = chord("<Cm7 Ab^7>").voicing().s("triangle").gain(.4).room(.3)\n' +
-        'drums$: drums\n' +
-        'bass$: bass\n' +
-        'keys$: keys',
+      id: "6.10",
+      kicker: "Tout assembler",
+      title: "Un mini-projet en const",
+      concept: "On réunit le chapitre : chaque couche définie avec `const`, puis montée dans des pistes nommées. Le morceau devient une partition lisible, une ligne par voix. C’est le squelette de tes futurs projets.",
+      code: "setcpm(110/4)\nconst drums = s(\"bd*4, ~ cp, hh*8\").bank(\"RolandTR909\")\nconst bass  = note(\"c2 ~ g2 ~\").s(\"gm_acoustic_bass\").gain(.7)\nconst keys  = chord(\"<Cm7 Ab^7>\").voicing().s(\"triangle\").gain(.4).room(.3)\ndrums$: drums\nbass$: bass\nkeys$: keys",
       decode: [
-        ['3 const en haut', 'chaque voix définie une fois (M1 batterie, M3 basse, M2 accords).'],
-        ['…$: drums / bass / keys', 'le stack nommé : une partition claire.'],
-        ['facile à faire évoluer', 'change une const, le morceau suit.'],
+        ["3 const en haut", "chaque voix définie une fois : batterie, basse, accords."],
+        ["drums$: drums …", "les pistes nommées jouent ces voix."],
+        ["faire évoluer", "change une `const`, le morceau suit."],
       ],
       recap: {
-        title: 'Récap chapitre 2 — Réutiliser',
-        columns: ['Outil', 'Code', 'Sert à'],
+        title: "Récap chapitre 2 — Réutiliser",
+        columns: ["Outil", "Code", "Sert à"],
         rows: [
-          ['Variable', 'const x = …', 'définir un motif une fois'],
-          ['Rejouer', '$: x', 'le jouer tel quel'],
-          ['Varier', 'x.rev() / x.add(7)', 'des versions transformées (M5)'],
-          ['Fonction', 'register(\'n\', p=>…)', 'ta chaîne d’effets maison'],
-          ['Couleur', '.color("…")', 's’organiser visuellement'],
+          ["variable", "`const basse = …`", "définir un motif une fois"],
+          ["rejouer", "`$: basse`", "le jouer tel quel"],
+          ["varier", "`basse.rev()` · `basse.add(note(7))`", "des versions transformées (voir [add](fn.add))"],
+          ["fonction", "`register('moi', p => p.room(.5))`", "ta chaîne d’effets maison, appelée ensuite `.moi()`"],
+          ["couleur", "`.color(\"cyan\")`", "colore la piste dans les visualisations"],
         ],
       },
-      exercise:
-        'Ajoute une 4e voix lead en const et monte-la dans le stack. ' +
-        'Tu tiens là le gabarit de tes futurs morceaux.',
-      free:
-        'Définir une fois, rejouer partout : ton code devient une partition au lieu d’un copier-coller. Moins d’écriture, moins d’erreurs — plus de place pour la musique.',
+      exercise: "Ajoute une 4ᵉ voix `lead` avec `const` et monte-la dans une piste. Tu tiens le gabarit de tes morceaux.",
+      free: "Définir une fois, rejouer partout : ton code devient une partition au lieu d’un copier-coller. Changer la `const` change toutes les pistes qui l’utilisent, d’un coup.",
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -4182,147 +3754,107 @@ export const m6chapitre3 = {
   subtitle: 'De la boucle à la structure : intro, couplet, refrain',
   flashs: [
     {
-      id: '6.11',
-      kicker: 'La timeline',
-      title: 'arrange : des sections à la suite',
-      concept:
-        "Une boucle tourne en rond ; un morceau AVANCE. arrange pose une timeline : " +
-        "« joue A pendant N cycles, puis B pendant M ». C'est l'outil qui transforme " +
-        "tes boucles en couplet → refrain → pont. Strudel n'est pas un DAW : on arrange par règles.",
-      code:
-        'arrange(\n' +
-        '  [4, s("bd*4, ~ cp")],\n' +
-        '  [4, s("bd*4, ~ cp, hh*8")]\n' +
-        ').bank("RolandTR909")',
+      id: "6.11",
+      kicker: "La timeline",
+      title: "arrange : des sections à la suite",
+      concept: "Une boucle tourne en rond ; un morceau AVANCE. [arrange](fn.arrange) pose une ligne de temps : « joue A pendant 4 cycles, puis B pendant 4 », puis recommence. C’est l’outil qui transforme des boucles en couplet, refrain, pont.",
+      code: "arrange(\n  [4, s(\"bd*4, ~ cp\")],\n  [4, s(\"bd*4, ~ cp, hh*8\")]\n).bank(\"RolandTR909\")",
       decode: [
-        ['arrange([4, A], [4, B])', 'A pendant 4 cycles, puis B pendant 4, en boucle.'],
-        ['[nombre, motif]', 'chaque paire = une durée (en cycles) et la section à jouer.'],
-        ['couplet → refrain', 'la structure d’un morceau, écrite en clair.'],
+        ["arrange([4, A], [4, B])", "A pendant 4 cycles, puis B pendant 4, en boucle."],
+        ["[nombre, motif]", "chaque section : sa durée en cycles, puis le motif à jouer."],
+        [".bank(…) après", "un réglage écrit après `arrange(…)` s’applique à toutes les sections."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['arrange', 'enchaîne des sections sur une ligne de temps.'],
-          ['section', 'un bloc musical (intro, couplet, refrain, pont…).'],
-          ['plus court que N', 'si le motif est plus court, il se répète pour remplir.'],
+          ["arrange", "enchaîne des sections, chacune avec sa durée."],
+          ["section", "un bloc musical : intro, couplet, refrain, pont…"],
+          ["boucle", "à la fin de la dernière section, tout recommence."],
         ],
       },
-      exercise:
-        'Ajoute une 3e section calme : [2, s("bd ~ ~ ~")]. ' +
-        'Trois blocs, une vraie petite forme.',
+      exercise: "Ajoute une 3ᵉ section calme : `[2, s(\"bd ~ ~ ~\")]`. Trois blocs : une vraie petite forme.",
+      rich: true,
     },
 
     {
-      id: '6.12',
-      kicker: 'Faire durer',
-      title: 'Tenir une section : <> @ !',
-      concept:
-        "Pour qu'une section RESPIRE, il faut la tenir plusieurs cycles. En mini-notation, " +
-        "<a b> change à chaque cycle ; avec !4 tu répètes, donc <c2!4 g2!4> garde c2 quatre " +
-        "cycles puis g2 quatre cycles. La même idée que @ (allonger) vue en M2.",
-      code:
-        'note("<c2!4 g2!4>").s("gm_acoustic_bass")\n' +
-        '$: chord("<Cm!4 G!4>").voicing().s("triangle").gain(.4)',
+      id: "6.12",
+      kicker: "Faire durer",
+      title: "Tenir une section : <> @ !",
+      concept: "Pour qu’une section respire, il faut la tenir plusieurs cycles. Dans des chevrons, `!4` recopie un élément 4 fois : `<c2!4 g2!4>` garde do2 pendant quatre cycles, puis sol2 pendant quatre (voir [!](mini.exclamation)).",
+      code: "$: note(\"<c2!4 g2!4>\").s(\"gm_acoustic_bass\")\n$: chord(\"<Cm!4 G!4>\").voicing().s(\"triangle\").gain(.4)",
       decode: [
-        ['<c2!4 g2!4>', 'c2 tenu 4 cycles, puis g2 tenu 4 cycles (un par cycle).'],
-        ['!n', 'répète l’élément n fois (M1) — ici pour étirer une section.'],
-        ['accords accordés', 'la basse et la grille changent ensemble, tous les 4 cycles.'],
+        ["<c2!4 g2!4>", "do2 quatre cycles, puis sol2 quatre cycles."],
+        ["!n", "recopie l’élément n fois."],
+        ["même rythme partout", "la basse et la grille d’accords changent ensemble, tous les 4 cycles."],
       ],
-      exercise:
-        'Fais un cycle harmonique long : <Cm!2 Ab!2 Fm!2 G!2> sur la grille et la basse. ' +
-        'Huit cycles de structure, sans rien recopier.',
+      exercise: "Fais un cycle harmonique long : `<Cm!2 Ab!2 Fm!2 G!2>` pour la grille, et les fondamentales correspondantes pour la basse. Huit cycles de structure, sans rien recopier.",
+      rich: true,
     },
 
     {
-      id: '6.13',
-      kicker: 'Faire entrer les couches',
-      title: 'mask : activer une piste par sections',
-      concept:
-        "Une intro réussie, c'est des couches qui ENTRENT une à une. mask te laisse dire " +
-        "« cette piste joue ici, se tait là » avec un motif de 0 et de 1. Pose le MÊME " +
-        "compteur de cycles sur chaque piste, et tu décides qui sonne, quand.",
-      code:
-        '$: s("bd*4").bank("RolandTR909")\n' +
-        '$: s("hh*8").mask("<0 0 1 1>").gain(.6)\n' +
-        '$: note("c2 g2 eb2 g2").s("sawtooth").mask("<0 1 1 1>")',
+      id: "6.13",
+      kicker: "Faire entrer les couches",
+      title: "mask : activer une piste par sections",
+      concept: "Une intro réussie, ce sont des couches qui ENTRENT une à une. [mask](fn.mask) dit « cette piste joue ici, se tait là » avec un motif de 0 et de 1. Avec le même nombre de cases sur chaque piste, tu décides qui sonne, et quand.",
+      code: "$: s(\"bd*4\").bank(\"RolandTR909\")\n$: s(\"hh*8\").mask(\"<0 0 1 1>\").gain(.6)\n$: note(\"c2 g2 eb2 g2\").s(\"sawtooth\").mask(\"<0 1 1 1>\")",
       decode: [
-        ['mask("<0 0 1 1>")', '0 = muet, 1 = joue : les hats arrivent au 3e cycle.'],
-        ['intro qui monte', 'la basse entre au 2e cycle, les hats au 3e.'],
-        ['même nombre de cases', 'garde 4 cases partout pour que tout reste aligné.'],
+        ["mask(\"<0 0 1 1>\")", "0 = muet, 1 = joue : un état par cycle ; les charlestons arrivent au 3ᵉ cycle."],
+        ["mask(\"<0 1 1 1>\")", "la basse entre au 2ᵉ cycle."],
+        ["même nombre de cases", "4 cases partout : tout reste aligné."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['mask', 'un « pochoir » de 0/1 qui laisse passer ou bloque le son.'],
-          ['<0 0 1 1>', 'un état par cycle (M5 : un élément par cycle).'],
-          ['arranger sans DAW', 'plein de masques alignés = une structure complète.'],
+          ["mask", "un pochoir de 0 et de 1 qui laisse passer ou bloque le son."],
+          ["<0 0 1 1>", "un état par cycle, grâce aux chevrons."],
+          ["arranger", "des masques alignés sur toutes les pistes = une structure complète."],
         ],
       },
-      exercise:
-        'Inverse un masque (<1 1 0 0>) pour faire SORTIR une couche au lieu de l’entrer. ' +
-        'Entrer/sortir des couches, c’est 80 % de l’arrangement électronique.',
+      exercise: "Inverse un masque (`<1 1 0 0>`) pour faire SORTIR une couche au lieu de la faire entrer.",
+      rich: true,
     },
 
     {
-      id: '6.14',
-      kicker: 'Séquencer des blocs',
-      title: 'pick : choisir la section à jouer',
-      concept:
-        "Autre façon d'arranger : range tes sections dans une liste, puis un motif d'index " +
-        "choisit laquelle joue. pick([couplet, refrain]) avec « <0@2 1@2> » = couplet 2 " +
-        "cycles, refrain 2 cycles. Lisible, et le surlignage suit mieux qu'avec arrange.",
-      code:
-        'const couplet = note("c2 eb2 g2 c3").s("sawtooth").gain(.5)\n' +
-        'const refrain = note("ab2 g2 f2 eb2").s("sawtooth").gain(.6)\n' +
-        '"<0@2 1@2>".pick([couplet, refrain])',
+      id: "6.14",
+      kicker: "Séquencer des blocs",
+      title: "pick : choisir la section à jouer",
+      concept: "Autre façon d’arranger : range tes sections dans une liste, puis un motif de numéros choisit laquelle joue. `\"<0@2 1@2>\".pick([couplet, refrain])` = couplet pendant 2 cycles, refrain pendant 2.",
+      code: "const couplet = note(\"c2 eb2 g2 c3\").s(\"sawtooth\").gain(.5)\nconst refrain = note(\"ab2 g2 f2 eb2\").s(\"sawtooth\").gain(.6)\n\"<0@2 1@2>\".pick([couplet, refrain])",
       decode: [
-        ['pick([couplet, refrain])', 'un index (0 ou 1) choisit la section à jouer.'],
-        ['"<0@2 1@2>"', 'section 0 pendant 2 cycles, puis section 1 pendant 2 (@ = tenir).'],
-        ['pickRestart', 'variante qui RELANCE la section à chaque changement (départ net).'],
+        ["pick([couplet, refrain])", "le numéro 0 joue le couplet, le numéro 1 le refrain."],
+        ["\"<0@2 1@2>\"", "un numéro par cycle ; `@2` le fait durer deux cycles."],
+        ["pickRestart", "variante qui fait repartir la section de son début à chaque changement."],
       ],
-      exercise:
-        'Ajoute un pont (const pont = …) en 3e élément, puis joue "<0 1 0 2>".pick([…]). ' +
-        'Couplet, refrain, couplet, pont : une chanson.',
+      exercise: "Ajoute un pont (`const pont = …`) en 3ᵉ élément, puis joue `\"<0 1 0 2>\".pick([couplet, refrain, pont])`. Couplet, refrain, couplet, pont : une chanson.",
+      rich: true,
     },
 
     {
-      id: '6.15',
-      kicker: 'La forme complète',
-      title: 'Intro → couplet → refrain → outro',
-      concept:
-        "Assemblons : des const pour les sections, arrange pour la timeline, stack pour " +
-        "superposer batterie et harmonie dans les parties pleines. Une vraie petite forme, " +
-        "du silence du début au calme de la fin. Tu ne joues pas une boucle : tu racontes.",
-      code:
-        'setcpm(120/4)\n' +
-        'const groove = s("bd*4, ~ cp, hh*8").bank("RolandTR909")\n' +
-        'const harmo  = note("<c2 ab1 f1 g1>").s("gm_acoustic_bass").gain(.7)\n' +
-        'arrange(\n' +
-        '  [2, groove],\n' +
-        '  [4, stack(groove, harmo)],\n' +
-        '  [2, harmo]\n' +
-        ')',
+      id: "6.15",
+      kicker: "La forme complète",
+      title: "Intro → couplet → refrain → outro",
+      concept: "Assemblons : des `const` pour les sections, `arrange` pour la ligne de temps, `stack` pour superposer batterie et basse dans les parties pleines. Une petite forme complète, du début à la fin.",
+      code: "setcpm(120/4)\nconst groove = s(\"bd*4, ~ cp, hh*8\").bank(\"RolandTR909\")\nconst harmo  = note(\"<c2 ab1 f1 g1>\").s(\"gm_acoustic_bass\").gain(.7)\narrange(\n  [2, groove],\n  [4, stack(groove, harmo)],\n  [2, harmo]\n)",
       decode: [
-        ['[2, groove]', 'intro : batterie seule, 2 cycles.'],
-        ['[4, stack(groove, harmo)]', 'le cœur : batterie + basse ensemble, 4 cycles.'],
-        ['[2, harmo]', 'outro : la basse seule s’éteint, 2 cycles.'],
+        ["[2, groove]", "intro : la batterie seule, 2 cycles."],
+        ["[4, stack(groove, harmo)]", "le cœur : batterie et basse ensemble, 4 cycles."],
+        ["[2, harmo]", "fin : la basse seule, 2 cycles."],
       ],
       recap: {
-        title: 'Récap chapitre 3 — Arranger',
-        columns: ['Outil', 'Code', 'Sert à'],
+        title: "Récap chapitre 3 — Arranger",
+        columns: ["Outil", "Code", "Sert à"],
         rows: [
-          ['Timeline', 'arrange([n, pat] …)', 'des sections à la suite'],
-          ['Tenir', '<a!4 b!4>', 'garder une section N cycles'],
-          ['Voiler', 'mask("<0 1 1>")', 'entrer/sortir une couche'],
-          ['Choisir', 'pick([a, b])', 'séquencer des sections nommées'],
-          ['Empiler', 'stack(a, b)', 'superposer dans une partie pleine'],
+          ["sections à la suite", "`arrange([4, a], [8, b])`", "`a` pendant 4 cycles, puis `b` pendant 8, en boucle"],
+          ["tenir", "`\"<a!4 b!4>\"`", "chaque valeur pendant 4 cycles"],
+          ["voiler", "`mask(\"<0 1 1>\")`", "la couche se tait quand le masque vaut 0"],
+          ["choisir", "`\"<0 1>\".pick([a, b])`", "jouer la section dont le numéro est donné"],
+          ["empiler", "`stack(a, b)`", "superposer, pour une partie pleine"],
         ],
       },
-      exercise:
-        'Allonge la forme : ajoute un refrain (stack des 3 voix) et un pont (harmo.add(5)). ' +
-        'Tu tiens une structure de morceau complète.',
-      free:
-        'Tes boucles savent maintenant raconter : entrer, monter, retomber. C’est toute la différence entre une boucle qui tourne et un morceau qui avance.',
+      exercise: "Allonge la forme : ajoute un refrain (un `stack` de trois voix) et un pont (`harmo.add(note(5))`, la basse montée d’une quarte).",
+      free: "Tes boucles savent maintenant raconter : entrer, monter, retomber. C’est toute la différence entre une boucle qui tourne et un morceau qui avance.",
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -4334,131 +3866,99 @@ export const m6chapitre4 = {
   subtitle: 'Charger, hacher, réordonner, épaissir le son',
   flashs: [
     {
-      id: '6.16',
-      kicker: 'Apporter tes sons',
-      title: 'samples() : charger un kit',
-      concept:
-        "Jusqu'ici tu jouais les sons intégrés. Pour un vrai projet, tu apportes TES sons : " +
-        "samples() charge une banque depuis le net (ou ton dossier). Une fois chargée, tu " +
-        "joues ses noms comme d'habitude. Attention : 1er jeu = téléchargement, possible silence.",
-      code:
-        'samples(\'github:tidalcycles/dirt-samples\')\n' +
-        's("jazz:0 jazz:1 jazz:2 jazz:3").gain(.8)',
+      id: "6.16",
+      kicker: "Apporter tes sons",
+      title: "samples() : charger un kit",
+      concept: "Pour un projet, tu peux apporter d’autres sons : `samples()` charge une banque d’échantillons depuis Internet. Une fois chargée, tu joues ses noms comme d’habitude. Le premier chargement demande du réseau ; tant qu’il n’est pas fini, le son peut rester muet.",
+      code: "samples('github:tidalcycles/dirt-samples')\ns(\"jazz:0 jazz:1 jazz:2 jazz:3\").gain(.8)",
       decode: [
-        ['samples(\'github:…\')', 'charge une banque de sons (ici la collection « dirt »).'],
-        ['s("jazz:0 …")', 'on joue ses samples, « : » choisit le numéro (M2).'],
-        ['(rappel §8)', 'muet au tout premier jeu possible — rejoue une fois.'],
+        ["samples('github:…')", "charge une banque de sons hébergée sur GitHub (ici, la collection « Dirt-Samples » de TidalCycles)."],
+        ["s(\"jazz:0 …\")", "on joue ses sons ; `:n` choisit la variante."],
+        ["premier jeu", "possiblement muet le temps du téléchargement : relance."],
       ],
       theory: {
-        title: 'Charger tes propres sons',
+        title: "Charger des sons",
         items: [
-          ['depuis le net', 'samples(\'github:utilisateur/dépôt\').'],
-          ['depuis ton disque', 'bouton « import sounds folder » du REPL.'],
-          ['une URL', 'héberge ta banque en ligne et charge-la par lien.'],
+          ["github:utilisateur/dépôt", "raccourci vers une banque hébergée sur GitHub."],
+          ["une adresse web", "`samples({ nom: 'https://…/fichier.wav' })` charge un seul fichier sous un nom."],
+          ["guillemets simples", "une adresse est un texte, pas un motif."],
         ],
       },
-      exercise:
-        'Charge une autre banque (samples(\'github:tidalcycles/dirt-samples\')) et explore : ' +
-        'tape un nom dans l’onglet « sounds » du REPL pour voir tout ce qui est dispo.',
+      exercise: "Joue d’autres variantes de la même banque : `s(\"jazz:4 jazz:5 jazz:6 jazz:7\")`.",
+      rich: true,
     },
 
     {
-      id: '6.17',
-      kicker: 'Découper une boucle',
-      title: 'chop : trancher un break',
-      concept:
-        "Le geste fondateur de la musique électronique : prendre une boucle de batterie et " +
-        "la HACHER. chop(n) coupe le sample en n tranches jouées dans l'ordre. Ça ne s'entend " +
-        "pas encore — mais chaque tranche devient manipulable séparément.",
-      code:
-        "samples({ amen: 'https://raw.githubusercontent.com/yaxu/clean-breaks/main/sounds/The_Winstons_-_Amen_Brother%20%5B2019-03-04%20124550%5D.wav' })\n" +
-        's("amen/4").fit().chop(16).cut(1)',
+      id: "6.17",
+      kicker: "Découper une boucle",
+      title: "chop : trancher un break",
+      concept: "Un geste fondateur de la musique électronique : prendre une boucle de batterie et la HACHER (voir [chop](fx.chop)). `chop(16)` découpe chaque coup en 16 tranches, jouées dans l’ordre : on n’entend pas encore de différence, mais chaque tranche devient un événement qu’on peut manipuler.",
+      code: "samples({ amen: 'https://raw.githubusercontent.com/yaxu/clean-breaks/main/sounds/The_Winstons_-_Amen_Brother%20%5B2019-03-04%20124550%5D.wav' })\ns(\"amen/4\").fit().chop(16).cut(1)",
       decode: [
-        ['s("amen/4")', 'le célèbre « Amen break », étalé sur 4 cycles.'],
-        ['.fit()', 'cale le sample sur la durée des cycles.'],
-        ['.chop(16).cut(1)', 'le coupe en 16 tranches ; cut(1) évite qu’elles se chevauchent.'],
+        ["s(\"amen/4\")", "l’« Amen break » (voir [amen break](voc.culture.amen-break)), joué une fois tous les 4 cycles."],
+        [".fit()", "règle la vitesse de lecture pour que l’échantillon remplisse exactement la durée de son événement, ici 4 cycles."],
+        [".chop(16).cut(1)", "16 tranches ; `cut(1)` coupe chaque tranche quand la suivante démarre (voir [cut](fx.cut))."],
       ],
-      exercise:
-        'Manipule les tranches : ajoute .rev() (le break à l’envers) ou ' +
-        '.sometimesBy(.3, ply("2")) (M5) pour des doublements aléatoires.',
+      exercise: "Manipule les tranches : ajoute `.rev()` (le break à l’envers), ou `.sometimesBy(.3, x => x.speed(2))` pour des tranches accélérées au hasard.",
+      rich: true,
     },
 
     {
-      id: '6.18',
-      kicker: 'Remixer',
-      title: 'slice / splice : réordonner les tranches',
-      concept:
-        "chop joue les tranches dans l'ordre. slice te laisse CHOISIR l'ordre : tu remixes " +
-        "le break toi-même. splice fait pareil, mais cale la vitesse de chaque tranche sur sa " +
-        "durée (pratique quand tu changes le tempo). C'est le sampling créatif en deux lignes.",
-      code:
-        "samples({ amen: 'https://raw.githubusercontent.com/yaxu/clean-breaks/main/sounds/The_Winstons_-_Amen_Brother%20%5B2019-03-04%20124550%5D.wav' })\n" +
-        's("amen/4").fit().slice(8, "<0 2 1 3 4 6 5 7>").cut(1)',
+      id: "6.18",
+      kicker: "Remixer",
+      title: "slice / splice : réordonner les tranches",
+      concept: "`chop` joue les tranches dans l’ordre. `slice` te laisse CHOISIR l’ordre : tu remixes le break. `splice` fait pareil, mais adapte la vitesse de chaque tranche pour qu’elle remplisse exactement son pas.",
+      code: "samples({ amen: 'https://raw.githubusercontent.com/yaxu/clean-breaks/main/sounds/The_Winstons_-_Amen_Brother%20%5B2019-03-04%20124550%5D.wav' })\ns(\"amen/4\").fit().slice(8, \"<0 2 1 3 4 6 5 7>\").cut(1)",
       decode: [
-        ['.slice(8, "<…>")', 'découpe en 8, et TOI tu donnes l’ordre des tranches.'],
-        ['"<0 2 1 3 …>"', 'un nouvel agencement : le break est remixé.'],
-        ['splice', 'comme slice, mais la vitesse s’adapte à la durée (suit le tempo).'],
+        [".slice(8, \"<…>\")", "découpe en 8 et joue, à chaque pas, la tranche dont tu donnes le numéro."],
+        ["\"<0 2 1 3 4 6 5 7>\"", "un nouvel ordre, une tranche par cycle : le break est réarrangé."],
+        ["splice", "comme `slice`, mais chaque tranche est accélérée ou ralentie pour remplir son pas."],
       ],
-      exercise:
-        'Invente ton ordre : "<0 0 4 4 2 6 [5 7]>". Chaque suite donne un autre groove. ' +
-        'Tu viens de devenir beatmaker.',
+      exercise: "Invente ton ordre : `\"<0 0 4 4 2 6 [5 7]>\"`. Chaque suite donne un autre groove.",
+      rich: true,
     },
 
     {
-      id: '6.19',
-      kicker: 'Donner du corps',
-      title: 'layer : épaissir un son',
-      concept:
-        "Un son seul peut sonner maigre. Pour l'épaissir, on superpose des VOIX d'un même " +
-        "motif. layer(x=>…, x=>…) joue plusieurs versions transformées ensemble. Plus court " +
-        "encore : empile des sons d'un coup avec une virgule dans le s().",
-      code:
-        'note("<c2 ab1 f1 g1>").layer(\n' +
-        '  x => x.s("sawtooth"),\n' +
-        '  x => x.s("square").add(note(12)).gain(.5)\n' +
-        ')',
+      id: "6.19",
+      kicker: "Donner du corps",
+      title: "layer : épaissir un son",
+      concept: "Un son seul peut sonner maigre. Pour l’épaissir, on superpose plusieurs versions du même motif : `layer(f, g)` joue les résultats de f et de g ensemble, sans l’original (voir [layer](fn.superimpose)). Plus court : `s(\"sawtooth, square\")` joue deux sons à la fois sur chaque note.",
+      code: "note(\"<c2 ab1 f1 g1>\").layer(\n  x => x.s(\"sawtooth\"),\n  x => x.s(\"square\").add(note(12)).gain(.5)\n)",
       decode: [
-        ['layer(x=>…, x=>…)', 'deux voix du même motif : une sciée, une carrée à l’octave.'],
-        ['s("sawtooth, square")', 'plus court : empiler deux sons en une virgule.'],
-        ['"square:0:.5"', 'syntaxe nom:sample:gain pour doser chaque voix.'],
+        ["layer(x=>…, x=>…)", "deux voix du même motif : une en dent de scie, une en onde carrée une octave plus haut."],
+        ["s(\"sawtooth, square\")", "la virgule superpose deux sons sur chaque note."],
+        ["\"square:0:.5\"", "nom, variante, volume : `s(\"square:0:.5\")` donne `gain(.5)` à ce son (vérifié dans le moteur)."],
       ],
-      exercise:
-        'Ajoute une 3e voix dans layer : x => x.add(note(7)).gain(.3) (une quinte, M2). ' +
-        'Trois voix légèrement différentes = un son riche et vivant.',
+      exercise: "Ajoute une 3ᵉ voix dans `layer` : `x => x.add(note(7)).s(\"triangle\").gain(.3)`, une quinte au-dessus.",
+      rich: true,
     },
 
     {
-      id: '6.20',
-      kicker: 'Sculpter le temps de chaque son',
-      title: 'Durées & transitions',
-      concept:
-        "La durée des sons fait le caractère : court et sec, ou long et tenu. clip étire/" +
-        "raccourcit chaque note (M3 palm mute) ; release ajoute un fondu de sortie ; end coupe " +
-        "un sample. Patterné, ça crée des respirations et des transitions vivantes.",
-      code:
-        'note("c eb g c4").clip("<.3 .6 1 2>")\n' +
-        '.s("gm_electric_guitar_clean").room(.3)',
+      id: "6.20",
+      kicker: "Sculpter le temps de chaque son",
+      title: "Durées & transitions",
+      concept: "La durée des sons fait le caractère : court et sec, ou long et tenu. [clip](fx.clip) multiplie la durée de chaque note ; [release](fx.release) ajoute une extinction après la fin de la note ; `end` coupe un échantillon avant sa fin.",
+      code: "note(\"c eb g c4\").clip(\"<.3 .6 1 2>\")\n.s(\"gm_electric_guitar_clean\").room(.3)",
       decode: [
-        ['.clip("<.3 .6 1 2>")', 'la durée change à chaque cycle : staccato → tenu (M3).'],
-        ['.release(.2)', 'un fondu de sortie qui adoucit chaque note.'],
-        ['.end(.5) (samples)', 'ne garder que la 1re moitié du sample (coupe sèche).'],
+        [".clip(\"<.3 .6 1 2>\")", "la durée change à chaque cycle : 30 % du pas (piqué) jusqu’à 2 pas (lié)."],
+        [".release(.2)", "chaque note s’éteint en 0,2 s après sa fin."],
+        [".end(.5)", "pour un échantillon : ne jouer que sa première moitié."],
       ],
       recap: {
-        title: 'Récap chapitre 4 — La matière',
-        columns: ['Geste', 'Code', 'Effet'],
+        title: "Récap chapitre 4 — La matière",
+        columns: ["Geste", "Code", "Effet"],
         rows: [
-          ['Charger', "samples('…')", 'une banque de sons à toi'],
-          ['Hacher', 'chop(n)', 'tranches jouées dans l’ordre'],
-          ['Réordonner', 'slice / splice', 'remixer un break'],
-          ['Épaissir', 'layer / "a, b"', 'plusieurs voix d’un motif'],
-          ['Durée', 'clip / release / end', 'sculpter attaque & queue'],
+          ["charger", "`samples('…')`", "une banque de sons à toi, depuis une adresse web"],
+          ["hacher", "`chop(n)`", "chaque son coupé en n tranches, jouées dans l’ordre"],
+          ["réordonner", "`slice(n, \"…\")` · `splice`", "jouer les tranches dans un autre ordre ; `splice` ajuste aussi la vitesse à la durée du pas"],
+          ["épaissir", "`layer(…)` · `\"a, b\"`", "plusieurs voix d’un même motif"],
+          ["durée", "`clip` · `release` · `end`", "raccourcir la note ou ne lire qu’une partie de l’échantillon"],
         ],
       },
-      exercise:
-        'Reprends ton break du flash 6.18 et donne-lui un .release("<0 .3>") par cycle. ' +
-        'Un cycle net, un cycle qui traîne : déjà une intention.',
-      free:
-        'Charger, hacher, réordonner, épaissir, sculpter : tu travailles le son comme une matière. C’est le métier de producteur, tenu en quelques fonctions.',
+      exercise: "Ajoute `.release(\"<0 .3>\")` à la guitare : un cycle sur deux, chaque note s’arrête net à la fin de sa durée ; l’autre, elle s’éteint en 0,3 s (voir [release](fx.release)).",
+      free: "Charger, hacher, réordonner, épaissir, raccourcir : tu travailles le son comme une matière. C’est le métier de producteur, tenu en quelques fonctions.",
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -4470,173 +3970,120 @@ export const m6chapitre5 = {
   subtitle: 'Mixer, performer en live, exporter — et le projet final',
   flashs: [
     {
-      id: '6.21',
-      kicker: 'Équilibrer les couches',
-      title: 'Mixer : gain, pan, orbit',
-      concept:
-        "Toutes tes pistes sonnent — mais ensemble, c'est la bouillie ? Le mix les met en " +
-        "place : gain règle le volume de chacune, pan les place à gauche/droite, orbit donne " +
-        "à une piste sa PROPRE réverb pour qu'elle ne pollue pas les autres (rappel M4/§8).",
-      code:
-        '$: s("bd*4").gain(.9)\n' +
-        '$: s("hh*8").gain(.5).pan(sine.range(.3,.7))\n' +
-        '$: note("c2 g2").s("sawtooth").gain(.7).orbit(2).room(.4)',
+      id: "6.21",
+      kicker: "Équilibrer les couches",
+      title: "Mixer : gain, pan, orbit",
+      concept: "Toutes les pistes sonnent, mais ensemble c’est confus ? Le mixage les met en place : [gain](fx.gain) règle le volume de chacune, [pan](fx.pan) les place à gauche ou à droite, [orbit](fx.orbit) donne à une piste sa propre réverbération et son propre écho.",
+      code: "$: s(\"bd*4\").gain(.9)\n$: s(\"hh*8\").gain(.5).pan(sine.range(.3,.7))\n$: note(\"c2 g2\").s(\"sawtooth\").gain(.7).orbit(2).room(.4)",
       decode: [
-        ['gain par piste', 'doser chaque couche : la base du mixage.'],
-        ['.pan(sine.range(…))', 'un placement stéréo qui bouge doucement (M5 signal).'],
-        ['.orbit(2)', 'un bus de réverb séparé : la basse ne « bave » pas sur la batterie.'],
+        ["gain par piste", "doser chaque couche : la base du mixage."],
+        [".pan(sine.range(.3,.7))", "une position stéréo qui bouge doucement, de 0,3 à 0,7."],
+        [".orbit(2)", "une réverbération à part pour la basse. La batterie, qui n’a pas de `room`, resterait sèche de toute façon : l’orbit sert à avoir des réglages de pièce DIFFÉRENTS."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['mixer', 'équilibrer volumes, espace et stéréo des pistes.'],
-          ['orbit', 'un canal d’effets globaux indépendant (réverb/délai).'],
-          ['(rappel §8)', 'réverb/délai sont partagés par orbit : sépare pour contrôler.'],
+          ["mixer", "équilibrer volumes, espace et stéréo des pistes."],
+          ["orbit", "un groupe d’effets partagés : une réverbération et un écho."],
+          ["partagé", "le niveau envoyé est propre à chaque son ; la taille de la pièce et l’intervalle de l’écho valent pour toute l’orbit."],
         ],
       },
-      exercise:
-        'Pose un orbit par famille : batterie en orbit 1, mélodies en orbit 2. ' +
-        'Des espaces distincts = un mix qui respire.',
+      exercise: "Donne une réverbération courte à la batterie (`.room(.2).size(1)`) et garde la grande salle sur la basse, en orbit 2. Deux espaces distincts dans le même mix.",
+      rich: true,
     },
 
     {
-      id: '6.22',
-      kicker: 'Le live set',
-      title: 'Jouer en direct',
-      concept:
-        "Le live coding, c'est JOUER devant l'écran. Le secret : prépare un patch avec des " +
-        "pistes déjà mutées (_), puis enlève les _ une à une pour monter le morceau. Chaque " +
-        "Ctrl+Enter applique tes changements à chaud, sans couper le son. Tes deux mains : _ et all().",
-      code:
-        'setcpm(120/4)\n' +
-        'drums$: s("bd*4, ~ cp").bank("RolandTR909")\n' +
-        '_bass$: note("c2 ~ g2 ~").s("gm_acoustic_bass")\n' +
-        '_lead$: n("0 2 4 7").scale("C:minor").s("sawtooth").gain(.4)',
+      id: "6.22",
+      kicker: "Le live set",
+      title: "Jouer en direct",
+      concept: "Le live coding, c’est JOUER devant l’écran. Le secret : prépare un code avec des pistes déjà coupées (`_`), puis enlève les `_` un à un pour monter le morceau. Chaque relance applique tes changements sans couper le son.",
+      code: "setcpm(120/4)\ndrums$: s(\"bd*4, ~ cp\").bank(\"RolandTR909\")\n_bass$: note(\"c2 ~ g2 ~\").s(\"gm_acoustic_bass\")\n_lead$: n(\"0 2 4 7\").scale(\"C:minor\").s(\"sawtooth\").gain(.4)",
       decode: [
-        ['des pistes en _ au départ', 'le set est « armé » : tout est prêt, muet.'],
-        ['enlève _bass$:, puis _lead$:', 'tu fais entrer les couches en direct.'],
-        ['Ctrl+Enter', 'applique chaque modif à chaud, sans interrompre le groove.'],
+        ["des pistes en _ au départ", "tout est prêt, mais muet."],
+        ["enlève _bass$:, puis _lead$:", "tu fais entrer les couches en direct."],
+        ["▶ ou Ctrl + Entrée", "applique chaque modification sans interrompre le groove."],
       ],
       theory: {
-        title: 'Tes gestes de live',
+        title: "Tes gestes de live",
         items: [
-          ['_piste$:', 'l’interrupteur : entrer/sortir une couche.'],
-          ['all(f)', 'une transition globale (filtre, volume) d’un geste.'],
-          ['Ctrl + . (panic)', 'le filet de sécurité : tout arrêter net.'],
+          ["_piste$:", "l’interrupteur : faire entrer ou sortir une couche."],
+          ["all(f)", "une transition globale (filtre, volume) en un geste."],
+          ["■ ou Ctrl + .", "tout arrêter net."],
         ],
       },
-      exercise:
-        'Joue ton set : lance, attends 4 cycles, enlève _bass$:, attends, enlève _lead$:, ' +
-        'puis all(x=>x.lpf(400)) pour un break. Tu performes.',
+      exercise: "Joue ton set : lance, attends 4 cycles, enlève `_bass$:`, attends, enlève `_lead$:`, puis ajoute `all(x=>x.lpf(400))` pour un break.",
+      rich: true,
     },
 
     {
-      id: '6.23',
-      kicker: 'Garder & diffuser',
-      title: 'Exporter & partager ton morceau',
-      concept:
-        "Tu tiens un morceau qui te plaît ? Garde-le. L'onglet « export » du REPL le rend en " +
-        "fichier audio téléchargeable. Tu peux aussi capturer le son dans un DAW, ou router le " +
-        "tout en MIDI (M5). Et l'URL du REPL encode TOUT ton patch : un simple lien le partage.",
-      code:
-        '// @title Mon premier morceau\n' +
-        '// @by Felix\n' +
-        'setcpm(120/4)\n' +
-        '$: s("bd*4, ~ cp").bank("RolandTR909")\n' +
-        '$: note("c2 eb2 g2 c3").s("sawtooth").gain(.6).room(.3)',
+      id: "6.23",
+      kicker: "Garder & diffuser",
+      title: "Exporter & partager ton morceau",
+      concept: "Tu tiens un morceau qui te plaît ? Garde-le. Dans le Studio de l’app, « Garder » le range dans tes codes ; « Sortir le code de l’app » le télécharge en fichier, ou l’ouvre sur strudel.cc par un lien qui contient tout le code. Pour un fichier audio, il faut enregistrer la sortie son de l’appareil avec un autre logiciel.",
+      code: "// @title Mon premier morceau\n// @by Felix\nsetcpm(120/4)\n$: s(\"bd*4, ~ cp\").bank(\"RolandTR909\")\n$: note(\"c2 eb2 g2 c3\").s(\"sawtooth\").gain(.6).room(.3)",
       decode: [
-        ['onglet « export »', 'rend ton morceau en fichier audio à télécharger.'],
-        ['// @title / // @by', 'des métadonnées : ta signature, dans le code.'],
-        ['l’URL du REPL', 'elle contient tout le patch — copie-la pour partager.'],
+        ["// …", "les lignes qui commencent par `//` sont des commentaires : idéal pour titrer et signer ton morceau (voir [commentaire](js.commentaire))."],
+        ["Studio › Garder", "range le code dans « Mes codes gardés »."],
+        ["Studio › Sortir le code", "fichier `keymaker.js`, ou lien vers strudel.cc."],
       ],
       theory: {
-        title: 'Sortir le son de Strudel',
+        title: "Sortir ton morceau",
         items: [
-          ['export', 'onglet du REPL → fichier audio (le plus simple).'],
-          ['OBS / DAW', 'capturer l’audio (et la vidéo de l’écran) en externe.'],
-          ['MIDI / OSC (M5)', 'router vers un DAW ou un synthé matériel.'],
+          ["le code", "un simple texte : il contient tout le morceau."],
+          ["un lien", "le lien strudel.cc ouvert depuis le Studio contient le code lui-même : l’envoyer, c’est partager le morceau."],
+          ["l’audio", "à enregistrer avec un autre logiciel (enregistreur, logiciel de musique) pendant que le morceau joue."],
         ],
       },
-      exercise:
-        'Mets ton nom dans // @by, donne un // @title, puis copie l’URL du REPL : ' +
-        'voilà ton morceau, signé et partageable.',
+      exercise: "Ajoute un titre et ton nom en commentaires, garde le morceau dans le Studio, puis ouvre-le sur strudel.cc pour vérifier qu’il joue pareil.",
+      rich: true,
     },
 
     {
-      id: '6.24',
-      kicker: 'Sans réseau',
-      title: 'Jouer hors-ligne : la PWA',
-      concept:
-        "Live coder ne doit pas dépendre du wifi de la salle. Strudel est une PWA : tu peux " +
-        "l'INSTALLER comme une appli, et il tourne hors-ligne. Les sons déjà chargés restent " +
-        "en cache. Keymaker aussi est une PWA — installe-la, elle marche sans réseau.",
-      code:
-        'setcpm(110/4)\n' +
-        '$: s("bd*4, ~ cp").bank("RolandTR808")\n' +
-        '$: note("c2 g2 eb2 g2").s("sawtooth").lpf(800).gain(.6)',
+      id: "6.24",
+      kicker: "Sans réseau",
+      title: "Jouer hors-ligne : la PWA",
+      concept: "Jouer ne doit pas dépendre du réseau. Keymaker est une application web installable (une *PWA*) : une fois installée, elle fonctionne hors ligne, avec ses sons embarqués. Seule l’assistante Sati demande une connexion.",
+      code: "setcpm(110/4)\n$: s(\"bd*4, ~ cp\").bank(\"RolandTR808\")\n$: note(\"c2 g2 eb2 g2\").s(\"sawtooth\").lpf(800).gain(.6)",
       decode: [
-        ['PWA', 'une appli web installable, qui marche hors connexion.'],
-        ['sons en cache', 'une fois chargés, tes samples restent dispo (rappel §8).'],
-        ['Keymaker = PWA', 'cette app aussi : installe-la, joue partout.'],
+        ["PWA", "une application web qu’on installe, et qui fonctionne sans connexion."],
+        ["sons embarqués", "les sons utilisés par les leçons de l’app sont disponibles hors ligne."],
+        ["Réglages", "l’écran des réglages indique si tu es en ligne, et comment installer l’app."],
       ],
-      exercise:
-        'Charge tes sons une fois en ligne, coupe le réseau, relance : ça joue toujours. ' +
-        'Ton studio tient dans un onglet, même sans wifi.',
+      exercise: "Installe l’app depuis les Réglages, coupe le réseau, relance ce morceau : il joue toujours.",
+      rich: true,
     },
 
     {
-      id: '6.25',
-      kicker: 'Le projet final',
-      title: 'Tout Keymaker, un morceau complet',
-      concept:
-        "Le bout du parcours. Un morceau STRUCTURÉ qui réunit les six modules : voix définies " +
-        "en const (M6), montées en stack nommé, une mutée pour le live, et all() qui ferme le " +
-        "filtre en transition. Batterie M1, gamme + accords M2, basse M3, filtre/réverb M4, " +
-        "écho génératif M5. Tu n'apprends plus : tu composes.",
-      code:
-        'setcpm(120/4)\n' +
-        'const drums = s("bd*4, [~ cp]*2, hh*8?").bank("RolandTR909").degradeBy(.08)\n' +
-        'const bass  = note("<c2 ab1 f1 g1>(3,8)").s("gm_acoustic_bass").gain(.7)\n' +
-        'const keys  = chord("<Cm7 Ab^7 Fm7 G7>").voicing().s("triangle").gain(.4).room(.4)\n' +
-        'const lead  = n("0 2 3 5 7").scale("C:minor").s("sawtooth")\n' +
-        '  .off(1/8, x=>x.add(12)).lpf(sine.range(600,2200).slow(8)).gain(.4)\n' +
-        'drums$: drums\n' +
-        'bass$:  bass\n' +
-        'keys$:  keys\n' +
-        '_lead$: lead\n' +
-        'all(x => x.when("<0!7 1>", y=>y.lpf(500)))',
+      id: "6.25",
+      kicker: "Le projet final",
+      title: "Tout Keymaker, un morceau complet",
+      concept: "Le bout du parcours : un morceau STRUCTURÉ qui réunit tout. Des voix définies avec `const`, montées dans des pistes nommées, une piste coupée pour le live, et `all()` qui ferme le filtre en transition, un cycle sur huit.",
+      code: "setcpm(120/4)\nconst drums = s(\"bd*4, [~ cp]*2, hh*8?\").bank(\"RolandTR909\").degradeBy(.08)\nconst bass  = note(\"<c2 ab1 f1 g1>(3,8)\").s(\"gm_acoustic_bass\").gain(.7)\nconst keys  = chord(\"<Cm7 Ab^7 Fm7 G7>\").voicing().s(\"triangle\").gain(.4).room(.4)\nconst lead  = n(\"0 2 3 5 7\").scale(\"C:minor\").s(\"sawtooth\")\n  .off(1/8, x=>x.add(note(12))).lpf(sine.range(600,2200).slow(8)).gain(.4)\ndrums$: drums\nbass$:  bass\nkeys$:  keys\n_lead$: lead\nall(x => x.when(\"<0!7 1>\", y=>y.lpf(500)))",
       decode: [
-        ['4 const + stack nommé', 'M6 : chaque voix définie une fois, le morceau lisible.'],
-        ['(3,8)', 'le rythme euclidien (M5 5.9b) : 3 coups de basse répartis sur 8 pas — le tresillo.'],
-        ['_lead$: + all(when…)', 'M6 : le lead est armé (mute), et all ferme le filtre 1 cycle sur 8.'],
-        ['tout Keymaker', 'batterie M1, gamme+accords M2, basse M3, filtre/réverb M4, off M5.'],
+        ["4 const + pistes nommées", "chaque voix définie une fois : le morceau se lit comme une partition."],
+        ["(3,8)", "le rythme euclidien : 3 coups de basse répartis sur 8 pas, le tresillo."],
+        ["_lead$: + all(…when…)", "le lead est prêt mais coupé ; `when(\"<0!7 1>\", …)` ferme le filtre de toutes les pistes au 8ᵉ cycle."],
       ],
       recap: {
-        title: 'Récap chapitre 5 — Finir & jouer',
-        columns: ['Étape', 'Code', 'Sert à'],
+        title: "Récap chapitre 5 — Finir et jouer",
+        columns: ["Étape", "Code ou bouton", "Sert à"],
         rows: [
-          ['Mixer', 'gain / pan / orbit', 'équilibrer les couches'],
-          ['Jouer', '_$: / all(f)', 'monter le morceau en live'],
-          ['Exporter', 'onglet « export »', 'un fichier audio'],
-          ['Partager', 'URL / // @by', 'diffuser ton morceau'],
-          ['Hors-ligne', 'PWA', 'jouer sans réseau'],
+          ["mixer", "`gain` · `pan` · `orbit`", "équilibrer les couches, leur donner un espace"],
+          ["jouer", "`_$:` · `all(f)`", "monter le morceau en direct"],
+          ["garder", "« Garder », dans le Studio", "ranger le code dans tes codes, dans l’app"],
+          ["partager", "« Sortir le code de l’app »", "un fichier, ou un lien strudel.cc qui contient tout le code"],
+          ["hors ligne", "l’app installée", "jouer sans réseau, sons compris"],
         ],
       },
-      exercise:
-        'Approprie-toi le final : enlève le _ du lead, change la grille (<Cm7 Fm7 …>), ' +
-        'la gamme (C:dorian), ajoute une section avec arrange. Ce morceau est à toi.',
-      free:
-        "Tu tiens les six modules cœur de Keymaker : du premier « bd » au morceau complet, tu sais " +
-        "empiler, nommer, réutiliser, arranger, sculpter, mixer, jouer en live et partager. " +
-        "Et maintenant, le terrain de jeu : le Module 7 « Genres & Styles » t'attend pour pousser " +
-        "chaque genre électro à fond — house, techno, drum & bass, trance, ambient — un vrai morceau par genre. " +
-        "Reviens piocher quand tu veux, et appelle Sati si tu bloques. Bravo, Felix.",
+      exercise: "Approprie-toi le final : enlève le `_` du lead, change la grille, la gamme (`C:dorian`), ajoute une section avec `arrange`. Ce morceau est à toi.",
+      free: "Tu as fait le tour des parcours principaux : du premier `bd` au morceau complet, tu sais empiler, nommer, réutiliser, arranger, sculpter, mixer, jouer en direct et partager. Le parcours « Autres genres » t’attend pour aller au bout de trois genres, house, drum & bass et ambient, avec un vrai morceau chacun. Reviens piocher quand tu veux, et appelle Sati si tu bloques. Bravo, Felix.",
       culture: {
-        artist: 'Mr. Fingers',
-        track: 'Can You Feel It',
-        why:
-          "Chicago 1986 : quatre couches, une grille d'accords, zéro superflu — la preuve qu'une structure simple, bien arrangée, suffit à faire un classique.",
+        artist: "Mr. Fingers",
+        track: "Can You Feel It",
+        why: "Chicago, 1986 : Larry Heard l’a fait avec deux machines seulement, un synthétiseur Roland Juno-60 et une boîte à rythmes TR-909. Une grille d’accords, une basse, une batterie : une structure simple, bien arrangée, suffit à faire un classique.",
       },
+      rich: true,
+      richRecap: true,
     },
   ],
 };

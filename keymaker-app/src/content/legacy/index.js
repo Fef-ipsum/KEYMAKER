@@ -1,6 +1,7 @@
 // Les anciens modules, présentés comme APPROFONDISSEMENTS optionnels.
 //
-// Leur texte est conservé tel quel (lessons.js, module7.js, module8.js). Cet
+// Leur texte vient de l'ancienne app (lessons.js, module7.js, module8.js) ; les leçons
+// marquées `rich: true` ont été réécrites (texte précis, liens vers le wiki). Cet
 // adaptateur les met à la forme des étapes de Keymaker 2 et leur donne des
 // identifiants sans collision : « L4.4.6 » = module 4, leçon 4.6.
 // (Dans l'ancienne app, « 4.1 » existait à la fois au module 1 et au module 4.)
@@ -9,6 +10,7 @@
 // remplace. Ils restent dans `allLegacy` pour reporter la progression (migration).
 
 import { modules } from './lessons.js';
+import { legacyChecks } from './checks.js';
 
 const lid = (m, flashId) => 'L' + m + '.' + flashId;
 
@@ -26,6 +28,14 @@ function adapt(m, chapterIndex, flashInChapter, f) {
     free: f.free || '',
     recap: f.recap || null,
     culture: f.culture || null,
+    // Leçon réécrite (lot de réécriture 2026) : son texte utilise le mini-format de Rich.
+    rich: !!f.rich,
+    // Tableau récapitulatif, « Pour aller plus loin » et « À écouter » réécrits au format Rich.
+    richRecap: !!f.richRecap,
+    // Validation automatique de l'exercice, si elle existe (checks.js) ; sinon « C'est fait ».
+    check: legacyChecks[lid(m, f.id)]?.check || null,
+    solution: legacyChecks[lid(m, f.id)]?.solution || '',
+    ok: legacyChecks[lid(m, f.id)]?.ok || '',
     // Clé des notes par leçon de l'ancienne app (IndexedDB, magasin « notes »).
     noteKey: m - 1 + ':' + chapterIndex + ':' + flashInChapter,
   };

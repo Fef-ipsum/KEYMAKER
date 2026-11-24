@@ -23,8 +23,8 @@ export default {
       },
       deep: {
         why:
-          'En solfège, le cycle correspond à une **mesure**. Avec 4 pas, chaque pas est un **temps** (une *noire*). ' +
-          'Avec 8 pas, chaque pas est un demi-temps (une *croche*). Avec 16, un quart de temps (une *double-croche*).',
+          'En solfège, le cycle correspond ici à une **mesure** (voir [cycle](sol.cycle)). Avec 4 pas, chaque pas est un **temps** (une *noire*). Avec 8 pas, un demi-temps (une *croche*). Avec 16, un quart de temps (une *double-croche*). ' +
+          'Au tempo par défaut de l’app, un cycle dure 2 secondes : 4 pas de 0,5 s, 8 pas de 0,25 s, 16 pas de 0,125 s.',
         decode: [
           ['"bd hh sd hh"', '4 pas = 4 temps.', 'sol.temps'],
           ['8 pas', 'chaque pas vaut une croche.', 'sol.croche'],
@@ -37,7 +37,7 @@ export default {
           q: 'Tu passes de 4 sons à 8 sons dans la même séquence. Que se passe-t-il ?',
           choices: ['Chaque son dure deux fois moins longtemps', 'Le cycle dure deux fois plus longtemps', 'Seuls les 4 premiers sons sont joués'],
           answer: 0,
-          explain: 'La durée du cycle est fixe. Plus il contient de pas, plus chaque pas est court.',
+          explain: 'La durée du cycle est fixe : c’est le tempo qui la règle, pas le nombre de sons. Plus il contient de pas, plus chaque pas est court. À 120 BPM, un cycle dure 2 s : 4 pas durent 0,5 s chacun, 8 pas 0,25 s.',
         },
       ],
       legacy: ['1:2.2', '1:3.1'],
@@ -62,8 +62,8 @@ export default {
       },
       deep: {
         why:
-          'En solfège, un silence a une durée, exactement comme une note. On peut aussi écrire le silence avec un tiret `-` : ' +
-          '`sound("bd - sd -")` est identique à `sound("bd ~ sd ~")`.',
+          'En solfège, un silence a une durée, exactement comme une note : il prend sa part du cycle sans rien jouer (voir [silence](mini.silence)). C’est ce qui permet de placer un son à un endroit précis. ' +
+          'On peut aussi écrire le silence avec un tiret `-` : `sound("bd - sd -")` est identique à `sound("bd ~ sd ~")`.',
         decode: [
           ['~', 'un pas silencieux.', 'mini.silence'],
           ['-', 'autre écriture du même silence.', 'mini.silence'],
@@ -100,8 +100,8 @@ export default {
       },
       deep: {
         why:
-          'L’étoile s’applique à ce qui est juste à sa gauche. `"bd*2 sd"` : deux grosses caisses dans la première moitié, puis une caisse claire. ' +
-          'Son inverse est la barre oblique `/` : `"[bd sd]/2"` étale la séquence sur deux cycles.',
+          'L’étoile s’applique à ce qui est juste à sa gauche : `x*n` revient à écrire `[x x … x]`, n copies serrées dans le même pas. `"bd*2 sd"` : deux grosses caisses dans la première moitié, puis une caisse claire. ' +
+          'Son inverse est la [barre oblique](mini.slash) `/` : `"[bd sd]/2"` étale la séquence sur deux cycles.',
         decode: [
           ['*4', 'répète 4 fois dans le même pas (donc 4 fois plus vite).', 'mini.etoile'],
           ['/2', 'ralentit : étale sur 2 cycles.', 'mini.slash'],
@@ -140,7 +140,7 @@ export default {
       },
       deep: {
         why:
-          'On peut mettre autant de sons qu’on veut dans des crochets : `[hh hh hh]` donne trois sons dans un temps (un *triolet*). ' +
+          'Les [crochets](mini.crochets) redécoupent un pas en parts égales. On peut y mettre autant de sons qu’on veut : `[hh hh hh]` donne trois sons dans un temps (un *triolet*). ' +
           'On peut aussi imbriquer : `[bd [hh hh]]`. Et combiner avec l’étoile : `[~ cp]*2` répète deux fois « silence puis clap ».',
         decode: [
           ['[hh hh]', 'deux sons qui se partagent un pas.', 'mini.crochets'],
@@ -178,8 +178,8 @@ export default {
       },
       deep: {
         why:
-          'C’est le moyen le plus simple d’éviter qu’une boucle lasse : la même phrase, avec une fin différente une fois sur deux. ' +
-          'Avec trois éléments, `<a b c>`, le motif met trois cycles à revenir. `<a b>*2` alterne deux fois plus vite (les deux dans le même cycle).',
+          'C’est le moyen le plus simple d’éviter qu’une boucle lasse : la même phrase, avec une fin différente une fois sur deux. `<a b c>` équivaut à `[a b c]/3` : la séquence est étalée sur trois cycles et livre un élément par cycle, d’où trois cycles avant de revenir (voir [chevrons](mini.chevrons)). ' +
+          '`<a b>*2` alterne deux fois plus vite (les deux dans le même cycle).',
         decode: [
           ['<hh oh>', 'un élément par cycle, à tour de rôle.', 'mini.chevrons'],
           ['oh', 'charleston ouvert (*open hat*).', 'son.batterie'],
@@ -215,7 +215,7 @@ export default {
       },
       deep: {
         why:
-          'C’est la version courte de plusieurs pistes `$:`. On s’en sert pour un petit groupe de sons qui partagent les mêmes réglages. ' +
+          'C’est la version courte de plusieurs pistes `$:`. Chaque séquence séparée par une virgule garde sa propre subdivision : `"bd*4, hh*8"` superpose 4 parts et 8 parts dans le même cycle (voir [virgule](mini.virgule)). ' +
           'Dans des crochets, la virgule empile aussi : `[bd,hh]` joue les deux sons exactement ensemble sur un pas. On la retrouvera pour les accords.',
         decode: [
           [',', 'sépare des séquences jouées ensemble.', 'mini.virgule'],
@@ -253,8 +253,8 @@ export default {
       },
       deep: {
         why:
-          'Le point d’exclamation `!` fait l’inverse de ce qu’on croit : il **recopie** le pas sans l’accélérer. `"hh!3 sd"` vaut `"hh hh hh sd"` (4 pas), ' +
-          'alors que `"hh*3 sd"` met trois charlestons dans un seul pas (2 pas). Enfin le souligné `_` prolonge le pas précédent : `"bd _ _ sd"` vaut `"bd@3 sd"`.',
+          '`@` donne un poids au pas : le cycle est partagé en proportion des poids (voir [arobase](mini.arobase)). Le point d’exclamation `!` fait autre chose qu’on ne croit : il **recopie** le pas sans l’accélérer. ' +
+          '`"hh!3 sd"` vaut `"hh hh hh sd"` (4 pas), alors que `"hh*3 sd"` met trois charlestons dans un seul pas (2 pas). Enfin le souligné `_` prolonge le pas précédent : `"bd _ _ sd"` vaut `"bd@3 sd"`.',
         decode: [
           ['bd@3', 'ce pas pèse 3 : il dure trois fois plus que les autres.', 'mini.arobase'],
           ['hh!3', 'recopie le pas 3 fois, à vitesse normale.', 'mini.exclamation'],
@@ -289,8 +289,8 @@ export default {
       },
       deep: {
         why:
-          'Le premier nombre est le nombre de coups, le deuxième le nombre de pas. Un troisième nombre, facultatif, décale le point de départ : `bd(3,8,2)`. ' +
-          'Superposer deux répartitions différentes donne vite quelque chose de riche : `"bd(3,8), hh(5,8)"`.',
+          'Le premier nombre est le nombre de coups, le deuxième le nombre de pas : les coups sont répartis le plus régulièrement possible (voir [euclid](fn.euclid)). `bd(3,8)` frappe aux pas 1, 4 et 7 : le *tresillo*. ' +
+          'Un troisième nombre, facultatif, décale le motif vers la droite : `bd(3,8,2)` frappe aux pas 1, 3 et 6. Superposer deux répartitions donne vite quelque chose de riche : `"bd(3,8), hh(5,8)"`.',
         decode: [
           ['(3,8)', '3 coups répartis sur 8 pas.', 'mini.euclide'],
           ['(3,8,2)', 'le même, décalé de 2 pas.', 'mini.euclide'],
@@ -304,7 +304,7 @@ export default {
           code: 'sound("bd(3,8), hh*8").gain(.9)',
           choices: ['3', '4', '8'],
           answer: 0,
-          explain: 'C’est `bd(3,8)` : trois coups, espacés de façon irrégulière (long, long, court).',
+          explain: 'C’est `bd(3,8)` : trois coups répartis le plus régulièrement possible sur 8 pas, aux pas 1, 4 et 7. Les écarts font 3, 3 puis 2 pas : long, long, court (voir [euclid](fn.euclid)).',
         },
       ],
       legacy: ['5:5.9b'],
@@ -327,8 +327,8 @@ export default {
       },
       deep: {
         why:
-          'On peut doser : `hh*8?0.2` retire environ 20 % des sons, `?0.8` en retire 80 %. Ce hasard est *reproductible* : ' +
-          'Strudel rejoue les mêmes tirages si tu relances depuis le début.',
+          'On peut doser : `hh*8?0.2` retire environ 20 % des sons, `?0.8` en retire 80 %. Le nombre est la probabilité de RETIRER le son (voir [degradeBy](fn.degradeBy)). ' +
+          'Ce hasard est *reproductible* : il est calculé à partir du temps, si bien que Strudel rejoue les mêmes tirages quand tu relances depuis le début (voir [déterministe](voc.aleatoire.deterministe)).',
         decode: [
           ['?', 'chaque son a 50 % de chances d’être retiré.', 'mini.interrogation'],
           ['?0.2', '20 % de chances d’être retiré.', 'mini.interrogation'],
@@ -369,8 +369,8 @@ $: sound("hh*8").bank("RolandTR909").gain(.5)`,
       },
       deep: {
         why:
-          'Quelques idées : `<hh*8 hh*16>` pour un charleston qui s’emballe une mesure sur deux ; `oh(3,8)` pour un charleston ouvert qui balance ; ' +
-          '`[~ cp]*2` remplacé par `~ cp ~ <cp [cp cp]>` pour une fin de phrase.',
+          'Quelques idées : `<hh*8 hh*16>` pour un charleston qui s’emballe une mesure sur deux ; `oh(3,8)` pour un charleston ouvert qui balance ; `[~ cp]*2` remplacé par `~ cp ~ <cp [cp cp]>` pour une fin de phrase. ' +
+          'Règle d’écoute : un groove tient sur une base très régulière (le kick) et quelques éléments qui varient. Si tout change, l’oreille ne trouve plus la pulsation.',
         decode: [],
         wiki: ['mini.chevrons', 'mini.euclide', 'mini.interrogation', 'mini.crochets'],
       },

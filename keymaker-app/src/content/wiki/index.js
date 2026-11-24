@@ -13,6 +13,7 @@ import fonctions from './fonctions.js';
 import effets from './effets.js';
 import solfege from './solfege.js';
 import genresW from './genres.js';
+import vocabulaire from './vocabulaire.js';
 import reference from './reference.json' with { type: 'json' };
 import { CATEGORIES, termKey } from '../legacy/glossaryData.js';
 
@@ -65,6 +66,14 @@ for (const cat of CATEGORIES) {
       origin: [],
     });
   }
+}
+// Compléments rédigés (vocabulaire.js) : même identifiant, même clé d'annotation ;
+// la définition d'origine reste affichée sous « Ce que disait l'ancien glossaire ».
+for (const e of vocab) {
+  const more = vocabulaire[e.id];
+  if (!more) continue;
+  e.origin = [{ term: e.t, def: e.ess }];
+  Object.assign(e, more);
 }
 
 /* --- 3. Référence officielle ------------------------------------------------- */

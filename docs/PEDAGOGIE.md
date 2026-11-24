@@ -34,9 +34,9 @@ Sati (l'assistante en ligne) et les réglages sont deux icônes discrètes ; ils
 Toutes les étapes ont la même forme, dans le même ordre. On n'a qu'un seul modèle à apprendre.
 
 1. **Écoute** — le code est déjà dans l'éditeur. On appuie sur ▶.
-2. **Ce que tu entends** — deux phrases au plus. Le nom arrive ici.
+2. **Ce que tu entends** — court (deux ou trois phrases), mais précis : le nom arrive ici, avec ce qu'il désigne réellement (unité, sens, ordre de grandeur). Le mécanisme va dans « Creuser ».
 3. **À toi** — une consigne, un seul changement. Quand on relance, l'app regarde ce que le code *produit* (les événements sonores du premier cycle) et répond : « C'est ça » ou un indice. Jamais « faux ».
-4. **Creuser** (replié) — le code décortiqué morceau par morceau, chaque morceau menant à son entrée du wiki ; le pourquoi ; le lien avec le solfège.
+4. **Creuser** (replié) — le code décortiqué morceau par morceau, chaque morceau menant à son entrée du wiki ; le pourquoi (le mécanisme réel, pas une image) ; le lien avec le solfège. Les termes techniques renvoient au wiki par des liens dans le texte.
 5. **Suivant.**
 
 ### Les schémas vivants
@@ -123,14 +123,25 @@ Pas de minuteur qui presse : une indication discrète du temps écoulé, et on s
 
 ### Le problème à résoudre
 
-« Tout savoir sur chaque fonction » et « ne pas être confus » tirent en sens opposé. La réponse est une **forme fixe à quatre niveaux**, identique pour toutes les entrées. On ne lit jamais plus que ce qu'on a demandé.
+« Tout savoir sur chaque fonction » et « ne pas être confus » tirent en sens opposé. La réponse : **l'essentiel en tête, toujours visible, puis le détail complet dans des replis**, dans un ordre fixe. Le détail doit exister ; la lisibilité sur téléphone aussi. Un repli n'apparaît que si l'entrée a de quoi le remplir.
 
-| Niveau | Toujours visible ? | Contenu |
-|---|---|---|
-| **L'essentiel** | oui | Une ou deux phrases : ce que c'est, à quoi ça sert. Un exemple jouable. |
-| **Comment s'en servir** | replié | Plusieurs usages, chacun avec son code jouable. Les arguments, avec leurs valeurs utiles. |
-| **Pièges** | replié | Les erreurs courantes et comment les reconnaître. |
-| **Évolutions** | replié | Autres noms (alias), anciens noms, changements de comportement, syntaxes qu'on peut croiser ailleurs. |
+| Niveau | Toujours visible ? | Champ | Contenu |
+|---|---|---|---|
+| **L'essentiel** | oui | `ess`, `code` | Deux à quatre phrases : le phénomène réel (sonore ou musical), dit précisément. Un exemple jouable et commenté. |
+| **Les réglages** | replié | `args` | Pour chaque paramètre : unité, sens (plus / moins), valeur par défaut, plage utile, ce qu'on entend en montant et en descendant. |
+| **Dans le temps** | replié | `time` | Quand ça agit : début de note, durée, retour à l'état normal. |
+| **Pourquoi ça marche** | replié | `why` | Le mécanisme physique, acoustique ou de calcul. |
+| **Comment s'en servir** | replié | `recipe`, `vary`, `use` | Une recette complète (valeurs justifiées), des variations (« si on change telle valeur… »), d'autres exemples. |
+| **Pièges et confusions** | replié | `traps` | Les erreurs fréquentes, et les notions voisines avec lesquelles on la confond. |
+| **Évolutions et autres noms** | replié | `evo` | Alias, anciens noms, syntaxes qu'on peut croiser ailleurs. |
+
+Ces sept points s'appliquent **en entier** aux sons et aux effets. Ailleurs (mini-notation, fonctions, solfège, écriture du code), on ne garde que ceux qui ont un sens : « Dans le temps » ou « mécanisme physique » n'ont rien à dire sur le signe `~`.
+
+**Règles d'écriture** (valables pour tout le texte explicatif de l'app : wiki, étapes, genres, approfondissements) :
+
+- **Précis avant tout.** Jamais de formule vague (« fait glisser », « donne de la couleur ») sans dire quoi, dans quel sens et de combien. Chaque comportement est vérifié dans le moteur embarqué ou la documentation officielle ; un doute se signale, il ne s'écrit pas comme un fait.
+- **Ni condescendant ni jargon gratuit.** Registre adulte, tutoiement. Un terme technique est permis s'il est défini à sa première apparition **ou** relié à son entrée du wiki par un lien `[texte](id.entree)`.
+- **Les exemples jouent et sont commentés** (`// …` sur sa propre ligne, court, pour rester lisible sur téléphone). Ils sont tous exécutés par `npm run check:content`.
 
 Sous chaque entrée : *Voir aussi* (entrées liées) et *Ma note* (ton annotation personnelle).
 
@@ -154,6 +165,9 @@ Sous chaque entrée : *Voir aussi* (entrées liées) et *Ma note* (ton annotatio
 - Chaque nom de fonction cité dans le wiki est vérifié automatiquement : il doit exister dans le moteur embarqué (Strudel 1.3.0). Les alias affichés sont extraits du moteur.
 - Chaque exemple de code du wiki, des leçons et des genres est exécuté dans un navigateur sans interface avant livraison.
 - Les affirmations historiques (« autrefois appelé… ») ne sont écrites que si elles sont vérifiables dans le moteur (l'ancien nom existe encore comme alias) ou dans la documentation officielle. Sinon, elles sont absentes.
+- Ce que le contenu affirme sur le moteur est vérifié par `npm run check:claims` (`scripts/claims.js`) : un code et ce qu’il doit produire cycle par cycle, ou un extrait du code source du moteur sur lequel un texte s’appuie (valeur par défaut, plafond, ordre de la chaîne). Chaque affirmation cite les entrées qui en dépendent : après une mise à jour du moteur, l’échec dit quels textes relire. Toute nouvelle affirmation chiffrée dans un texte s’accompagne d’une entrée dans `claims.js`.
+- `npm run check:noop` cherche, dans tous les exemples, les transformations qui ne changent rien (comme `swing(8)` sur `hh*8`, ou deux hasards qui tirent le même nombre). Il avertit ; les cas voulus se déclarent dans sa liste `ALLOWED`, avec leur raison.
+- Piège à connaître en écrivant un exemple : deux hasards dans la même chaîne (`degradeBy`, `sometimes`, `irand`, `rand`, `choose`, `?`) lisent le même nombre au même instant. `.seed(1)` placé entre les deux les sépare.
 
 ---
 
@@ -202,9 +216,11 @@ Un genre est un fichier de données unique (ses huit traits, son assemblage). L'
 
 ## 9. Les approfondissements
 
-Les modules d'origine qui vont au-delà des fondations restent disponibles après le parcours, sous des noms clairs : *Sculpter le son*, *Le code comme instrument*, *Composer un morceau*, *Autres genres* (house, drum & bass, ambient), *Guitare*, *PO-33*. Même forme d'étape, même éditeur. Leur exercice se valide par auto-évaluation (« c'est fait »), Sati pouvant donner un avis quand elle est joignable.
+Les modules d'origine qui vont au-delà des fondations restent disponibles après le parcours, sous des noms clairs : *Sculpter le son*, *Le code comme instrument*, *Composer un morceau*, *Autres genres* (house, drum & bass, ambient), *Guitare*, *PO-33*. Même forme d'étape, même éditeur. 98 de leurs 117 exercices se valident tout seuls, comme ceux des fondations : après chaque ▶, une fonction regarde ce que le code produit et répond par la réussite ou par un indice précis (`src/content/legacy/checks.js`, avec une solution de référence par exercice ; « Voir une solution » apparaît après deux essais). Les 19 autres sont ouverts (écouter, comparer, s’approprier un morceau) et gardent « C’est fait ». Sur un exercice vérifié, « Je l’ai fait autrement » reste possible : la vérification ne doit jamais bloquer. Les tests exigent que chaque solution valide, que le code de départ échoue, et qu’un indice accompagne l’échec.
 
 Ils sont volontairement en retrait : le parcours principal ne les exige pas.
+
+Réécriture (novembre 2026) : les cinq parcours suivent les règles d’écriture du §7 (texte précis, valeurs vérifiées dans le moteur, liens vers le wiki). Les leçons réécrites portent `rich: true` dans `lessons.js` / `module7.js`, ce qui active le mini-format (code, gras, liens) dans leur concept, décodage, théorie et exercice. `richRecap: true` fait de même pour le tableau récapitulatif, « Pour aller plus loin » et « À écouter » : sans ce drapeau, ces blocs restent en texte brut (un `hh*8` y deviendrait de l’italique). Les renvois aux anciens modules (« M1 », « Module 6 ») sont remplacés par les noms des parcours ou par des liens du wiki.
 
 ---
 

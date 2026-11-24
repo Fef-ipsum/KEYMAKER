@@ -67,6 +67,12 @@ export function allSteps() {
       });
     }
   }
+  // Approfondissements : seulement les exercices validés automatiquement (legacy/checks.js).
+  for (const ch of legacyChapters) {
+    for (const st of ch.steps) {
+      if (st.check) out.push({ group: 'legacy', id: st.id, code: st.code, check: st.check, solution: st.solution });
+    }
+  }
   return out;
 }
 
@@ -102,6 +108,8 @@ export function allExamples() {
       continue;
     }
     add('wiki', 'wiki ' + e.id + ' (exemple)', e.code);
+    if (e.recipe) add('wiki', 'wiki ' + e.id + ' (recette)', e.recipe.code);
+    (e.vary || []).forEach((v, i) => add('wiki', 'wiki ' + e.id + ' (variation ' + (i + 1) + ')', v[1]));
     (e.use || []).forEach((u, i) => add('wiki', 'wiki ' + e.id + ' (usage ' + (i + 1) + ')', u[1]));
   }
   for (const ch of legacyChapters) for (const st of ch.steps) add('legacy', st.id + ' ' + st.title, st.code);
@@ -130,5 +138,18 @@ export function allWikiLinks() {
   }
   for (const g of genres) for (const t of g.traits) for (const id of t.wiki || []) out.push({ from: 'genre ' + g.id + '/' + t.aspect, id });
   for (const e of wikiEntries) for (const id of e.see || []) out.push({ from: 'wiki ' + e.id, id });
+  // Liens dans le texte : [texte](fx.lpf), partout où le contenu est rédigé.
+  const scan = (from, x, depth = 0) => {
+    if (depth > 8 || x == null) return;
+    if (typeof x === 'string') {
+      for (const m of x.matchAll(/\[([^\]]+)\]\(([a-z]+\.[\w.-]+)\)/g)) out.push({ from: from + ' (lien « ' + m[1] + ' »)', id: m[2] });
+    } else if (Array.isArray(x)) x.forEach((y) => scan(from, y, depth + 1));
+    else if (typeof x === 'object') for (const v of Object.values(x)) scan(from, v, depth + 1);
+  };
+  for (const ch of fondations) for (const st of ch.steps) scan(st.id, { ...st, code: null });
+  for (const ch of fondations) for (const q of ch.ear || []) scan(q.id, q);
+  for (const g of genres) scan('genre ' + g.id, g);
+  for (const e of wikiEntries) if (e.kind !== 'ref') scan('wiki ' + e.id, { ...e, code: null, official: null });
+  for (const ch of legacyChapters) for (const st of ch.steps) scan(st.id, { ...st, code: null });
   return out;
 }

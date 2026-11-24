@@ -26,8 +26,9 @@ export default {
       },
       deep: {
         why:
-          'L’intérêt : tant que tu écris des nombres, tu restes dans la gamme. Aucune fausse note possible. ' +
-          'La marche 7 est le do suivant (une octave plus haut), 8 le ré suivant… Les nombres négatifs descendent : `-1` est le si juste en dessous du premier do.',
+          'L’intérêt : tant que tu écris des nombres, tu restes dans la [gamme](sol.gamme). Aucune fausse note possible. ' +
+          'La marche 7 est le do suivant (une octave plus haut), 8 le ré suivant… Les nombres négatifs descendent : `-1` est le si juste en dessous du premier do. ' +
+          'Le moteur fait le calcul lui-même : il prend la liste des notes de la gamme et y lit le numéro (voir [scale](fn.scale)).',
         decode: [
           ['n("0 1 2 …")', 'des numéros de marche dans la gamme (on commence à 0).', 'fn.n'],
           ['.scale("C:major")', 'la gamme : tonique `C` (do), type `major` (majeur).', 'fn.scale'],
@@ -66,8 +67,9 @@ export default {
       },
       deep: {
         why:
-          'Ce qui a changé : la marche 2. En majeur c’est mi (`e`) ; en mineur c’est mi bémol (`eb`), un demi-ton plus bas. ' +
-          'Les marches 5 et 6 baissent aussi d’un demi-ton en mineur (la → la bémol, si → si bémol). Presque toute la techno et la trance sont en mineur.',
+          'Ce qui a changé : la marche 2. En majeur, c’est mi (`e`) ; en mineur, mi bémol (`eb`), un demi-ton plus bas. Les marches 5 et 6 baissent aussi d’un demi-ton en mineur (la → la bémol, si → si bémol). ' +
+          'Les deux gammes se définissent par leur suite d’écarts. [Majeure](sol.majeur) : ton, ton, demi-ton, ton, ton, ton, demi-ton. [Mineure](sol.mineur) : ton, demi-ton, ton, ton, demi-ton, ton, ton. ' +
+          'Presque toute la techno et la trance sont en mineur.',
         decode: [
           ['C:major', 'do majeur : do ré mi fa sol la si.', 'sol.majeur'],
           ['C:minor', 'do mineur : do ré mi♭ fa sol la♭ si♭.', 'sol.mineur'],
@@ -114,8 +116,9 @@ export default {
       },
       deep: {
         why:
-          'Dire qu’un morceau est « en ré mineur », c’est donner sa **tonalité** : sa tonique (ré) et son type de gamme (mineur). ' +
-          'On peut aussi préciser l’octave de départ : `D2:minor` pour une basse, `D4:minor` pour une mélodie aiguë. Sans chiffre, c’est l’octave 3.',
+          'Dire qu’un morceau est « en ré mineur », c’est donner sa [tonalité](sol.tonalite) : sa tonique (ré) et son type de gamme (mineur). ' +
+          'On peut préciser l’octave de départ : `D2:minor` pour une basse, `D4:minor` pour une mélodie aiguë. Sans chiffre, c’est l’octave 3. ' +
+          'Une mélodie qui finit sur la tonique sonne conclue ; qui finit ailleurs, elle laisse en suspens.',
         decode: [
           ['D:minor', 'tonique ré, gamme mineure.', 'sol.tonique'],
           ['D2:minor', 'la même gamme, en partant du ré grave (octave 2).', 'fn.scale'],
@@ -154,8 +157,8 @@ export default {
       },
       deep: {
         why:
-          'La pentatonique mineure est la gamme du blues, du rock et de beaucoup de mélodies électroniques. ' +
-          'Comme elle n’a que 5 marches, la marche 5 est déjà la tonique une octave plus haut.',
+          'La [pentatonique](sol.pentatonique) mineure de la contient la, do, ré, mi, sol. Elle retire les deux notes qui formaient des demi-tons avec leurs voisines (si et fa) : sans demi-ton, aucune paire de notes ne frotte. ' +
+          'C’est la gamme du blues, du rock et de beaucoup de mélodies électroniques. Comme elle n’a que 5 marches, la marche 5 est déjà la tonique une octave plus haut.',
         decode: [
           ['A:minor:pentatonic', 'tonique la, gamme mineure pentatonique.', 'sol.pentatonique'],
         ],
@@ -196,8 +199,8 @@ $: n("<0 -2 -4 -3>").scale("D2:minor").sound("sawtooth").lpf(500)`,
       },
       deep: {
         why:
-          'La mélodie ne change pas, mais elle ne sonne pas pareil selon la note de basse en dessous : c’est le début de l’**harmonie**. ' +
-          'Le chapitre suivant explique pourquoi, avec les intervalles et les accords.',
+          'La mélodie ne change pas, mais elle ne sonne pas pareil selon la note de basse en dessous : chaque note de la mélodie forme un intervalle différent avec la basse, plus ou moins stable. C’est le début de l’**harmonie**. ' +
+          'Le chapitre suivant explique pourquoi, avec les [intervalles](sol.intervalle) et les accords.',
         decode: [
           ['scale("D4:minor")', 'ré mineur, à partir de l’octave 4 : la mélodie.', 'fn.scale'],
           ['scale("D2:minor")', 'ré mineur, à partir de l’octave 2 : la basse.', 'fn.scale'],

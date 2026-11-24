@@ -22,6 +22,10 @@ sound("bd*4, [~ oh]*4").bank("RolandTR909")`,
     ess: 'Une grosse caisse sur chaque temps, lourde et saturée. Trois qualités : une attaque nette, un grave court, du grain.',
     code: `setcpm(135/4)
 sound("bd*4").bank("RolandTR909").distort(1.5).gain(.9)`,
+    why: [
+      'Attaque nette : un clic aigu de quelques millisecondes, souvent obtenu par une chute de hauteur très rapide (voir [penv](fx.penv)). Grave court : une fondamentale entre 40 et 100 Hz environ, qui s’éteint avant le coup suivant. Grain : une [saturation](fx.distort) qui ajoute des harmoniques et rend le kick audible même sur un petit haut-parleur.',
+      'Placé sur chaque temps, il sert de métronome au danseur : tout le reste du morceau se cale sur lui.',
+    ],
     use: [
       ['Fabriqué à partir d’une onde', 'setcpm(135/4)\nnote("c1*4").sound("sine").penv(36).pdecay(.05).decay(.3).sustain(0).distort(1)'],
       ['Version trance : net, sans saturation', 'setcpm(138/4)\nsound("bd*4").bank("RolandTR909")'],
@@ -42,6 +46,10 @@ note("c2 c2 c3 c2 ~ c2 eb2 c3 c2 ~ c2 c3 bb1 c2 ~ c2").sound("sawtooth")
       ['lpq', 'résonance forte (12 à 18) : le caractère nasal.'],
       ['lpenv + lpd', 'l’ouverture du filtre à chaque note, et sa durée.'],
     ],
+    why: [
+      'Le son vient de la Roland TB-303 (1981), vendue comme accompagnement de basse pour guitaristes, puis détournée à Chicago au milieu des années 1980. Le principe : une dent de scie riche en harmoniques, un filtre passe-bas très résonant presque fermé, et une [enveloppe de filtre](fx.lpenv) qui l’ouvre brièvement à chaque note.',
+      'La [résonance](fx.lpq) amplifie la zone de la coupure : quand la coupure monte et redescend, cette bosse balaie les harmoniques une à une et produit la voyelle « ouah ».',
+    ],
     traps: [
       'Sans enveloppe de filtre (`lpenv`), on obtient une basse résonante, mais pas le « ouah » de l’acid.',
       'La vraie TB-303 a aussi des glissés entre notes et des accents ; ici les accents sont imités avec un motif de `gain`.',
@@ -54,6 +62,9 @@ note("c2 c2 c3 c2 ~ c2 eb2 c3 c2 ~ c2 c3 bb1 c2 ~ c2").sound("sawtooth")
     ess: 'Un charleston ouvert placé exactement entre deux kicks : « boum-tss-boum-tss ». Le moteur de la house, de la techno et de la trance.',
     code: `setcpm(130/4)
 sound("bd*4, [~ oh]*4").bank("RolandTR909")`,
+    why: [
+      'Le kick marque le temps, le charleston ouvert le rebond entre deux temps : l’oreille entend une alternance « boum-tss » qui donne l’élan. Le charleston ouvert sonne longtemps ; s’il est coupé par un fermé (voir [cut](fx.cut)), le motif devient plus sec et plus précis.',
+    ],
     use: [['Avec des doubles-croches accentuées', 'setcpm(130/4)\n$: sound("bd*4, [~ oh]*4").bank("RolandTR909")\n$: sound("hh*16").bank("RolandTR909").gain("[.25 .15 .35 .15]*4")']],
     see: ['sol.contretemps', 'mini.silence', 'son.batterie'],
   },
@@ -63,6 +74,9 @@ sound("bd*4, [~ oh]*4").bank("RolandTR909")`,
     code: `setcpm(138/4)
 $: sound("bd*4").bank("RolandTR909").duck(2).duckattack(.2).duckdepth(1)
 $: note("[a2,c3,e3]").sound("supersaw").lpf(2000).gain(.6).orbit(2)`,
+    why: [
+      'Dans Strudel, `duck` (voir [duck](fx.duck)) fait plonger le volume de toute une [orbit](fx.orbit) à chaque coup du déclencheur, puis le fait remonter en `duckattack` secondes. Plus la remontée est longue (jusqu’à l’intervalle entre deux kicks), plus le pompage s’entend.',
+    ],
     traps: ['Le mot vient du studio : un compresseur placé sur la basse est commandé par le kick, via son entrée latérale (*side chain*).'],
     see: ['fx.duck', 'fx.orbit', 'genre.kick-techno'],
   },
@@ -71,6 +85,9 @@ $: note("[a2,c3,e3]").sound("supersaw").lpf(2000).gain(.6).orbit(2)`,
     ess: 'Des accords joués par plusieurs dents de scie désaccordées : large, brillant, émouvant. Presque toujours filtrés et réverbérés.',
     code: `setcpm(138/4)
 chord("<Am F C G>").voicing().sound("supersaw").lpf(2500).room(.5).gain(.5)`,
+    why: [
+      'Plusieurs dents de scie à des fréquences très légèrement différentes battent entre elles : le son ondule et s’élargit, comme un pupitre de cordes. Avec trois notes d’accord et sept voix chacune, on obtient 21 dents de scie : un son très plein qu’il faut filtrer (voir [supersaw](son.supersaw)).',
+    ],
     see: ['son.supersaw', 'fn.chord', 'sol.progression'],
   },
   {
