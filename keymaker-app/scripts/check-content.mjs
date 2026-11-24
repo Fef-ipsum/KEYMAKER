@@ -25,14 +25,24 @@ const brief = (code) => code.replace(/\n/g, ' ⏎ ').slice(0, 160);
 
 // Par défaut (sans --only), la référence officielle est vérifiée aussi.
 const examples = allExamples().filter((e) => !only || e.group === only);
+// Un son non chargé faute de réseau (« Failed to fetch ») n'est pas une erreur du contenu :
+// on réessaie une fois, puis on le signale à part, sans faire échouer le contrôle.
+const isNet = (r) => /Failed to fetch|NetworkError|ERR_INTERNET/i.test([r.error || '', ...(r.logs || [])].join(' '));
+let net = 0;
 for (const ex of examples) {
   n++;
-  const r = await eng.evalCode(ex.code, { playMs: quick ? 250 : 900 });
+  let r = await eng.evalCode(ex.code, { playMs: quick ? 250 : 900 });
+  if (isNet(r)) r = await eng.evalCode(ex.code, { playMs: quick ? 250 : 900 });
+  if (isNet(r)) {
+    net++;
+    console.log('⚠ ' + ex.where + ' : réseau indisponible, exemple non vérifié');
+    continue;
+  }
   if (r.error) fail(ex, 'ERREUR : ' + r.error + '\n    code : ' + brief(ex.code));
   else if (r.logs.length) fail(ex, 'JOURNAL : ' + r.logs.join(' | ').slice(0, 300));
   else if (!r.haps.length && !r.app.haps4.length) fail(ex, 'AUCUN SON sur 4 cycles\n    code : ' + brief(ex.code));
 }
-console.log(`exemples : ${n} exécutés, ${bad} en échec`);
+console.log(`exemples : ${n} exécutés, ${bad} en échec` + (net ? `, ${net} non vérifiés faute de réseau` : ''));
 
 if (process.argv.includes('--write-skip') && only === 'reference') {
   const skipUrl = new URL('../src/content/wiki/reference-skip.json', import.meta.url);

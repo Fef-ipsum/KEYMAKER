@@ -4,6 +4,7 @@
 //               sameAs?: { code, offset? }, differsFrom?: { code }, log?, cites: [ids] }
 //             Sans `fields`, chaque événement s'écrit par sa note (ou n, ou s). Avec
 //             `fields`, par ces champs séparés par « / » (`b` = instant dans le cycle).
+//             cps : tempo attendu (cycles/s) ; countBetween : [min, max] événements au total.
 //             never / some : { champ: true | [valeurs], … } — aucun / au moins un événement
 //             (sur tous les cycles) ne remplit TOUTES ces conditions à la fois.
 // empreinte : { id, kind: 'empreinte', has?: [extraits], order?: [extraits], cites }
@@ -135,15 +136,27 @@ export const claims = [
   { id: 'q-acid-basse', kind: 'motif', code: 'setcpm(126/4)\nnote("c2 c2 c3 c2 ~ c2 eb2 c3").sound("sawtooth").lpf("<400 400>").lpq("<0 15>").lpenv("<0 4>").lpd(.12).decay(.15).sustain(0)', cycles: 2, fields: ['resonance', 'lpenv'], expect: [Array(7).fill('0/0').join(' '), Array(7).fill('15/4').join(' ')], cites: ['g.acid.basse'] },
   { id: 'q-trance-arpege', kind: 'motif', code: 'setcpm(138/4)\nchord("<Am F>").voicing().arp("[0 2 1 3 2 3 1 2]*2").sound("sawtooth").lpf(2500).decay(.12).sustain(0)', fields: ['b'], expect: [grid(16, (i, b) => b)], cites: ['g.trance.timbres'] },
 
+  /* ---------------- Fondations : textes « Pourquoi ça marche » ---------------- */
+  { id: 'tempo-par-defaut', kind: 'motif', code: 's("bd")', cps: 0.5, expect: ['bd'], cites: ['f.tempo', 'f.cycle'] },
+  { id: 'setcpm-divise', kind: 'motif', code: 'setcpm(110/4)\ns("bd")', cps: 110 / 240, expect: ['bd'], cites: ['f.tempo'] },
+  { id: 'espace-parts-egales', kind: 'motif', code: 's("bd hh sd hh")', fields: ['b'], expect: ['0 0.25 0.5 0.75'], cites: ['f.sequence'] },
+  { id: 'virgule-crochets-ensemble', kind: 'motif', code: 's("[bd,hh] sd")', fields: ['s', 'b'], expect: ['bd/0 hh/0 sd/0.5'], cites: ['f.virgule'] },
+  { id: 'interrogation-50', kind: 'motif', code: 's("hh*8?")', cycles: 64, countBetween: [226, 286], cites: ['f.hasard', 'mini.interrogation'] },
+  { id: 'interrogation-dosee', kind: 'motif', code: 's("hh*8?0.2")', cycles: 64, countBetween: [380, 440], cites: ['f.hasard'] },
+  { id: 'diese-egal-bemol', kind: 'motif', code: 'note("d# eb b bb").add(note(0))', expect: ['51 51 59 58'], cites: ['f.demi-ton'] },
+  { id: 'scale-octave-3', kind: 'motif', code: 'n("0").scale("D:minor")', expect: ['D3'], cites: ['f.tonique'] },
+  { id: 'pentatonique-mineure-la', kind: 'motif', code: 'n("0 1 2 3 4 5").scale("A:minor:pentatonic")', expect: ['A3 C4 D4 E4 G4 A4'], cites: ['f.pentatonique'] },
+  { id: 'accords-de-la-gamme', kind: 'motif', code: 'n("<[0,2,4] [1,3,5] [6,8,10]>").scale("C:major")', cycles: 3, expect: ['C3 E3 G3', 'A3 D3 F3', 'B3 D4 F4'], cites: ['f.accords-gamme'] },
+
   /* ---------------- Empreintes du code source du moteur ---------------- */
-  { id: 'adsr-defauts-synthes', kind: 'empreinte', has: ['getADSRValues([l.attack,l.decay,l.sustain,l.release],"linear",[.001,.05,.6,.01])'], cites: ['fx.attack', 'fx.decay', 'fx.sustain', 'sol.enveloppe'] },
+  { id: 'adsr-defauts-synthes', kind: 'empreinte', has: ['getADSRValues([l.attack,l.decay,l.sustain,l.release],"linear",[.001,.05,.6,.01])'], cites: ['fx.attack', 'fx.decay', 'fx.sustain', 'sol.enveloppe', 'f.pluck'] },
   { id: 'adsr-un-seul-reglage', kind: 'empreinte', has: ['const le=z??(R!=null&&I==null||R==null&&I==null?1:.001)'], cites: ['fx.attack', 'fx.decay', 'fx.release', 'sol.enveloppe'] },
   { id: 'penv-defauts', kind: 'empreinte', has: ['getADSRValues([e.pattack,e.pdecay,e.psustain,e.prelease],R,[.2,.001,1,.001])', 'const b=nanFallback(e.penv,1,!0)'], cites: ['fx.penv'] },
   { id: 'filtre-env-octaves', kind: 'empreinte', has: ['getADSRValues(kn,"exponential",[.005,.14,0,.1])', 'rs=clamp(2**(qn-ns)*R,0,2e4)'], cites: ['fx.lpenv', 'genre.basse-acid'] },
   { id: 'filtre-sans-coupure', kind: 'empreinte', has: ['if(Jn.cutoff!==void 0)', 'if(Jn.hcutoff!==void 0)', 'if(Jn.bandf!==void 0)'], cites: ['fx.lpenv', 'fx.lpq', 'fx.hpf'] },
   { id: 'echantillon-coupe-par-release', kind: 'empreinte', has: ['se==null&&z==null&&e.release==null&&(sn=Mn)'], cites: ['fx.release', 'son.piano', 'fx.clip'] },
   { id: 'gain-lineaire', kind: 'empreinte', has: ['gainCurveFunc=o=>o'], cites: ['fx.gain', 'L4.4.23'] },
-  { id: 'echo-plafond', kind: 'empreinte', has: ['l=clamp(l,0,.98)'], cites: ['fx.delayfeedback', 'L4.4.17'] },
+  { id: 'echo-plafond', kind: 'empreinte', has: ['l=clamp(l,0,.98)'], cites: ['fx.delayfeedback', 'L4.4.17', 'f.espace'] },
   { id: 'echo-max-1s', kind: 'empreinte', has: ['class o extends DelayNode{constructor(l,d,p,b){return super(l)'], cites: ['fx.delaytime'] },
   { id: 'reverb-rt60', kind: 'empreinte', has: ['se=Math.pow(1/1e3,1/R)'], cites: ['fx.size', 'fx.room'] },
   { id: 'duck-plancher', kind: 'empreinte', has: ['tn=clamp(1-Math.sqrt(p),.01,se)'], cites: ['fx.duck'] },
@@ -153,6 +166,11 @@ export const claims = [
   { id: 'cut-10ms', kind: 'empreinte', has: ['qn.node.gain.linearRampToValueAtTime(0,kn+.01)'], cites: ['fx.cut'] },
   { id: 'signal-debut-intervalle', kind: 'empreinte', has: ['signal$1=o=>{const e=l=>[new Hap(void 0,l.span,o(l.span.begin'], cites: ['fn.signaux', 'f.signal'] },
   { id: 'supersaw-defauts', kind: 'empreinte', has: ['unison:R=5,spread:I=.6,detune:z', 'z=z??b??.18'], cites: ['son.supersaw'] },
+  { id: 'parfois-pourcentages', kind: 'empreinte', has: ['often=register("often",function(o,e){return e.sometimesBy(.75,o)})', 'rarely=register("rarely",function(o,e){return e.sometimesBy(.25,o)})', 'almostNever=register("almostNever",function(o,e){return e.sometimesBy(.1,o)})', 'almostAlways=register("almostAlways",function(o,e){return e.sometimesBy(.9,o)})'], cites: ['f.parfois', 'fn.sometimes'] },
+  { id: 'filtre-12db-resonance-1', kind: 'empreinte', has: ['const e=["12db","ladder","24db"]', 'q:tn=1,drive:sn=.69'], cites: ['f.filtre', 'f.resonance', 'fx.lpq'] },
+  { id: 'defauts-gain-echo', kind: 'empreinte', has: ['s:"triangle",gain:.8,postgain:1', 'delayfeedback:.5,delaysync:3/16'], cites: ['f.mix', 'f.espace', 'fx.gain'] },
+  { id: 'reverb-2s-par-defaut', kind: 'empreinte', has: ['I.generate=(z=2,se=.1,le=15e3,tn=1e3'], cites: ['f.espace', 'fx.size'] },
+  { id: 'cycle-par-defaut-2s', kind: 'empreinte', has: ['this.started=!1,this.cps=.5'], cites: ['f.tempo', 'f.cycle'] },
   {
     id: 'ordre-des-effets',
     kind: 'empreinte',

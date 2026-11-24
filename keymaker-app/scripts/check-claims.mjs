@@ -69,7 +69,7 @@ if (motifs.length) {
     const res = await eng.evalCode(code, { cycles, playMs: 0 });
     if (res.error) return { error: res.error, logs: res.logs };
     if (offset) res.haps = res.haps.filter((h) => h.b >= offset - 1e-9).map((h) => ({ ...h, b: h.b - offset }));
-    return { rows: render(res, c), logs: res.logs, haps: res.haps };
+    return { rows: render(res, c), logs: res.logs, haps: res.haps, cps: res.cps };
   };
   for (const c of motifs) {
     const a = await run(c.code, c);
@@ -87,6 +87,12 @@ if (motifs.length) {
       if (n) fail(c, `${n} événement(s) avec ${desc(c.never)}, attendu aucun`);
     }
     if (c.some && !a.haps.some((h) => fits(h, c.some))) fail(c, `aucun événement avec ${desc(c.some)}`);
+    // cps : tempo produit (cycles par seconde) ; countBetween : [min, max] événements sur tous les cycles.
+    if (c.cps != null && Math.abs((a.cps ?? -1) - c.cps) > 1e-9) fail(c, `tempo : attendu ${c.cps} cycle/s, obtenu ${a.cps}`);
+    if (c.countBetween) {
+      const k = a.haps.filter((h) => Math.floor(h.b + 1e-9) < (c.cycles || 1)).length;
+      if (k < c.countBetween[0] || k > c.countBetween[1]) fail(c, `${k} événements, attendu entre ${c.countBetween[0]} et ${c.countBetween[1]}`);
+    }
     if (c.expect) {
       const want = c.expect.map(String);
       want.forEach((w, i) => {
