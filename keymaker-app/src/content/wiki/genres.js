@@ -5,7 +5,7 @@
 export default [
   {
     id: 'genre.tempo', t: 'tempo des genres', sub: 'repères en BPM', kind: 'genre', genre: ['techno', 'tempo'],
-    ess: 'Chaque genre a sa zone de tempo. Repères : synth-pop 100–125 · progressive 120–128 · acid 120–145 · techno 125–150 · trance 130–142.',
+    ess: 'Chaque genre a sa zone de tempo. Repères : synth-pop 100–125 · house 118–128 · progressive 120–128 · acid 120–145 · techno 125–150 · trance 130–142 · drum & bass 160–180. L’ambient n’en a pas : souvent, on n’y entend aucune pulsation.',
     code: `setcpm(135/4)
 sound("bd*4, [~ oh]*4").bank("RolandTR909")`,
     use: [
@@ -13,6 +13,8 @@ sound("bd*4, [~ oh]*4").bank("RolandTR909")`,
       ['Progressive : 124', 'setcpm(124/4)\nsound("bd*4, [~ hh]*4").bank("RolandTR909")'],
       ['Techno : 135', 'setcpm(135/4)\nsound("bd*4, [~ oh]*4").bank("RolandTR909")'],
       ['Trance : 138', 'setcpm(138/4)\nsound("bd*4, [~ oh]*4").bank("RolandTR909")'],
+      ['House : 124', 'setcpm(124/4)\nsound("bd*4, ~ cp ~ cp, [~ hh]*4").bank("RolandTR909")'],
+      ['Drum & bass : 174', 'setcpm(174/4)\nsound("bd ~ ~ ~ ~ bd ~ ~, ~ ~ sd ~ ~ ~ sd ~, hh*16").bank("RolandTR808")'],
     ],
     traps: ['Les zones se recouvrent : le tempo seul ne suffit jamais à nommer un genre.'],
     see: ['sol.tempo', 'fn.setcpm'],

@@ -74,7 +74,9 @@ export const tracks = [
   track('code', 'Le code comme instrument', 'Transformer le temps, doser le hasard, accumuler des couches.', 5),
   track('composer', 'Composer un morceau', 'Pistes, variables, arrangement, mixage, jeu en direct.', 6),
   // Les chapitres Techno et Trance de l'ancien module 7 sont remplacés par la section Genres.
-  track('autres-genres', 'Autres genres', 'House, drum & bass, ambient : un morceau complet par style.', 7, [0, 2, 4]),
+  // House, drum & bass et ambient ont aussi leur page dans Genres (traits) ; ces chapitres
+  // gardent les morceaux complets.
+  track('autres-genres', 'Autres genres', 'House, drum & bass, ambient : un morceau complet par style. Leurs traits sont aussi dans Genres.', 7, [0, 2, 4]),
   track('guitare', 'Guitare', 'Relier le manche de la guitare aux notes et aux accords.', 3),
   // Le module 8 (PO-33) n’est plus proposé : ses leçons demandaient de déposer des fichiers
   // à côté de l’app et reposaient sur un outil de synchronisation retiré. Son texte reste dans module8.js.

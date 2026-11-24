@@ -5,6 +5,7 @@ import { fondations } from './fondations/index.js';
 import { solutions } from './fondations/solutions.js';
 import { genres, traitId } from './genres/index.js';
 import { entries as wikiEntries } from './wiki/index.js';
+import { defis } from './defis.js';
 import { tracks, legacyChapters } from './legacy/index.js';
 
 export { fondations, solutions, genres, tracks };
@@ -84,6 +85,8 @@ export function allSteps() {
       if (st.check) out.push({ group: 'legacy', id: st.id, code: st.code, check: st.check, solution: st.solution });
     }
   }
+  // Défis vérifiés : toutes les instances de tous les modèles.
+  for (const d of defis) out.push({ group: 'defis', id: 'defi:' + d.key, code: d.code, check: d.check, solution: d.solution });
   return out;
 }
 

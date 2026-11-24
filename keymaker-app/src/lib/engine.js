@@ -285,6 +285,27 @@ export async function mountEditor(host, initialCode) {
   } catch {
     /* cosmétique */
   }
+  // Visualisations dans le code (_pianoroll, _punchcard, _scope…) : Strudel les dessine
+  // sur 500 px de large, ce qui élargit l'éditeur sur un téléphone. On cale leur largeur
+  // sur celle de l'éditeur (styles : .cm-content > canvas) et on redimensionne l'image
+  // en pixels pour qu'elle reste nette. Elles relisent cette largeur à chaque image.
+  let fitQueued = false;
+  const fit = () => {
+    if (fitQueued) return;
+    fitQueued = true;
+    requestAnimationFrame(() => {
+      fitQueued = false;
+      fitWidgets();
+    });
+  };
+  try {
+    // L'éditeur de code n'est pas forcément DANS <strudel-editor> : on observe sa vue.
+    const root = (ed.editor && ed.editor.dom) || el;
+    new MutationObserver(fit).observe(root, { childList: true, subtree: true });
+    new ResizeObserver(fit).observe(root);
+  } catch {
+    /* navigateur ancien : largeur d'origine */
+  }
   // Un écran a demandé son code avant que l'éditeur soit prêt : on le charge maintenant.
   if (pendingCode != null) {
     try {
@@ -296,6 +317,21 @@ export async function mountEditor(host, initialCode) {
   }
   set({ ready: true });
   return ed;
+}
+
+// Les widgets larges (pianoroll, punchcard, scope, spectre) prennent toute la largeur ;
+// les ronds (spirale, roue des hauteurs) gardent leur taille, réduite si besoin (CSS).
+const WIDE = /^_widget__(pianoroll|punchcard|scope|fscope|spectrum)_/;
+export function fitWidgets() {
+  const root = ed && ed.editor && ed.editor.dom;
+  if (!root) return;
+  const dpr = window.devicePixelRatio || 1;
+  for (const c of root.querySelectorAll('canvas[id^="_widget_"]')) {
+    if (!WIDE.test(c.id)) continue;
+    c.classList.add('km-wide');
+    const w = Math.round(c.clientWidth * dpr);
+    if (w > 0 && c.width !== w) c.width = w;
+  }
 }
 
 export function applyEditorLook({ dark, fontSize }) {

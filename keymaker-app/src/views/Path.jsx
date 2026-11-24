@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { go, stepRoute, useProgress, levelOf, nextFondation } from '../lib/app.js';
 import { fondations, genres, tracks } from '../content/registry.js';
-import { traitId, ASPECTS } from '../content/genres/index.js';
+import { traitId, ASPECTS, bpmText } from '../content/genres/index.js';
 import { Icon, ProgressDial, LevelDot, PageHead } from '../ui.jsx';
 
 function Chapter({ ch, state, srs, open, onToggle, current }) {
@@ -72,7 +72,7 @@ export default function Path() {
             <li key={g.id}>
               <button type="button" className="genrecard" onClick={() => go('#/genre/' + g.id)}>
                 <span className="genrecard-name">{g.name}</span>
-                <span className="genrecard-bpm">{g.bpm[0]}–{g.bpm[1]} BPM</span>
+                <span className="genrecard-bpm">{bpmText(g)}</span>
                 <span className="genrecard-count">{n}/{ASPECTS.length} traits</span>
               </button>
             </li>

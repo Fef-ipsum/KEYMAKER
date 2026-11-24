@@ -21,9 +21,15 @@
 | **Aujourd'hui** | « Qu'est-ce que je fais maintenant ? » | Un seul gros bouton : *Continuer* (l'étape exacte où tu t'es arrêté). En dessous : « J'ai 10 / 20 / 40 minutes ». |
 | **Parcours** | « Où j'en suis ? Qu'est-ce qui vient après ? » | Les fondations (8 chapitres), puis les genres, puis les approfondissements. |
 | **Wiki** | « C'est quoi, ça ? » | Tout : fonctions, caractères, arguments, solfège, traits de genres. Recherche instantanée hors ligne. |
-| **Studio** | « Je veux juste faire du son. » | Éditeur libre, points de départ, tes snippets. |
+| **Studio** | « Je veux juste faire du son. » | Éditeur libre, points de départ, tes snippets, l'enregistrement du son, les défis. |
 
 Sati (l'assistante en ligne) et les réglages sont deux icônes discrètes ; ils ne sont pas des destinations.
+
+**Enregistrer le son (Studio).** Le bouton « Enregistrer » capte la sortie de Strudel (le dernier gain avant les haut-parleurs) : le fichier contient ce que tu entends, à son volume. L'enregistrement commence au début d'un cycle et dure 4, 8, 16 ou 32 cycles ; si le code contient un seul `arrange` lisible, « Le morceau entier » le rejoue depuis le cycle 0 et s'arrête après la dernière section. WAV : chaque échantillon est recopié avec son numéro (AudioWorklet), et le fichier est coupé à l'échantillon près sur l'heure de début de cycle que calcule le planificateur : il boucle sans couture. WebM (M4A sous Safari) : compressé par MediaRecorder, démarré et arrêté par minuterie, à quelques centièmes de seconde près. Arrêter la lecture ou « Annuler » abandonne l'enregistrement. Contrôle : `scripts/check-record.mjs` (longueur, attaques à moins de 4 ms en WAV, morceau depuis le cycle 0, arrêt, annulation).
+
+**Défis vérifiés.** Sept modèles de consigne (une couche qui entre au Nᵉ cycle, une basse dans une tonalité, un accord parfait, un rythme euclidien, un accent, un filtre qui s'ouvre, une fin de phrase) donnent 46 défis tirés au hasard (`src/content/defis.js`, `#/defi`). Chacun a sa vérification sur ce que le code produit, une solution générée et l'indice gradué du §3. `check-content` vérifie toutes les instances (départ refusé, solution acceptée) ; des variantes écrites autrement sont acceptées (`<~ ~ hh*8 hh*8>` au lieu de `mask`, `chord("Dm").voicing()`, toute rotation d'un rythme euclidien).
+
+**Visualisations.** `_pianoroll()`, `_punchcard()` et `_scope()` dessinent sous leur ligne ; l'app cale leur largeur sur celle de l'éditeur (Strudel les dessine sur 500 px, ce qui débordait sur téléphone). Ce que le wiki en dit (`fn.visu`, `fn.color`) est mesuré par `scripts/check-visu.mjs`.
 
 **Reprendre en un geste** : l'app mémorise la dernière étape ouverte et son code en cours. Le bouton *Continuer* y ramène, où qu'elle soit (fondations, genre, approfondissement).
 
@@ -198,6 +204,7 @@ Parce que tous les genres ont les mêmes huit traits, on peut les mettre côte �
 - **Techno** et **Acid**
 - **Trance** et **Progressive**
 - **Synth-pop / électropop**, autour du cas Agar Agar
+- **House**, **Drum & bass** et **Ambient**, repris des leçons vérifiées du parcours « Autres genres » (qui garde ses morceaux complets). L'ambient n'a pas de zone de tempo : `bpmLabel` remplace l'affichage « min–max BPM ».
 
 ### Le cas Agar Agar : pourquoi les genres sont flous
 
@@ -221,7 +228,7 @@ Les modules d'origine qui vont au-delà des fondations restent disponibles aprè
 
 **Révision des exercices.** Un exercice validé par le moteur (pas « Je l'ai fait autrement ») crée une carte `ex:<leçon>` : il revient trois jours plus tard, puis sept, en mode « de mémoire » (`#/etape/<leçon>?revision=1`) : le code repart de son point de départ, le décodage est replié, les mêmes indices gradués s'appliquent. Le refaire juste marque la leçon « acquise » ; dire « Je ne m'en souviens pas » ou regarder la solution le fait revenir le lendemain. L'accueil signale les exercices prêts ; « J'ai X minutes » en place un ou deux.
 
-**Questions.** 54 questions (`src/content/legacy/quizzes.js`), deux ou trois par chapitre, nourrissent un point d'étape à la fin de chaque chapitre et la révision espacée, comme dans les fondations. Chacune est protégée par une affirmation `qa-…` de `scripts/claims.js` qui cite sa leçon : le code ou le fait sur lequel repose la bonne réponse est vérifié dans le moteur, et `check-links` refuse une question sans affirmation. Les chapitres House, Drum & Bass et Ambient n'en ont pas : ils rejoignent la section Genres.
+**Questions.** 54 questions (`src/content/legacy/quizzes.js`), deux ou trois par chapitre, nourrissent un point d'étape à la fin de chaque chapitre et la révision espacée, comme dans les fondations. Chacune est protégée par une affirmation `qa-…` de `scripts/claims.js` qui cite sa leçon : le code ou le fait sur lequel repose la bonne réponse est vérifié dans le moteur, et `check-links` refuse une question sans affirmation. Les chapitres House, Drum & Bass et Ambient n'en ont pas : leurs questions sont dans la section Genres, avec les traits (deux par genre, chacune protégée par une affirmation).
 
 Ils sont volontairement en retrait : le parcours principal ne les exige pas.
 

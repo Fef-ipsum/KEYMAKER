@@ -504,3 +504,18 @@ textarea { resize: vertical; line-height: 1.45; }
 .beat-out { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .task-note { color: var(--ink-2); font-size: .92em; margin: 0 0 6px; }
 .task-alt { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 6px 0 0; }
+
+/* Studio : enregistrer le son */
+.rec-row { display: grid; gap: 6px; }
+.rec-label { font-size: .85em; color: var(--ink-2); font-weight: 600; }
+.rec-sec { font-weight: 400; opacity: .8; }
+.rec-busy { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-variant-numeric: tabular-nums; }
+.rec-dot { width: 12px; height: 12px; border-radius: 50%; background: #e5484d; animation: rec-blink 1s steps(2, start) infinite; }
+@keyframes rec-blink { to { visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) { .rec-dot { animation: none; } }
+.rec-done { display: grid; gap: 10px; }
+.rec-audio { width: 100%; }
+
+/* Visualisations dans le code (_pianoroll, _scope…) : à la largeur de l'éditeur. */
+.cm-content > canvas[id^="_widget_"] { max-width: 100%; height: auto; }
+.cm-content > canvas.km-wide { display: block; width: 100% !important; height: 60px !important; }

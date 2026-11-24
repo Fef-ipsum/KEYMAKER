@@ -18,6 +18,8 @@
     "smoke": "node scripts/smoke.mjs",
     "samples": "node scripts/build-sample-pack.mjs",
     "reference": "node scripts/build-reference.mjs",
+    "check:visu": "node scripts/check-visu.mjs",
+    "check:record": "node scripts/check-record.mjs",
     "check:schemas": "node scripts/check-schemas.mjs",
     "fuzz:schemas": "node scripts/fuzz-schemas.mjs",
     "check:offline": "node scripts/check-offline-reference.mjs"

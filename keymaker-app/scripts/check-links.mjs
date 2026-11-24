@@ -45,6 +45,10 @@ for (const e of entries) {
     if (SOUNDS.has(t)) continue;
     if (!known.has(t)) fail('« ' + t + ' » (entrée ' + e.id + ') n’existe pas dans le moteur');
   }
+  // Les « autres noms » affichés doivent aussi exister (la doc officielle en cite qui n'existent pas).
+  for (const a of e.aliases || []) {
+    if (/^[A-Za-z]\w*$/.test(a) && !known.has(a)) fail('« ' + a + ' », autre nom affiché pour ' + e.id + ', n’existe pas dans le moteur (à mettre dans notAliases)');
+  }
 }
 for (const g of genres) {
   if (g.traits.length !== 8) fail('genre ' + g.id + ' : ' + g.traits.length + ' traits au lieu de 8');

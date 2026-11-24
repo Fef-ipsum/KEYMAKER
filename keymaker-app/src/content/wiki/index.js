@@ -105,7 +105,8 @@ for (const e of written) {
     engineAliases(n).forEach((a) => al.add(a));
   }
   for (const n of [...names, ...al]) covered.add(n);
-  e.aliases = [...al].filter((a) => !names.has(a) || a !== e.doc).sort();
+  // notAliases : synonymes de la documentation officielle absents du moteur (vérifié par check-links).
+  e.aliases = [...al].filter((a) => (!names.has(a) || a !== e.doc) && !(e.notAliases || []).includes(a)).sort();
   e.official = e.doc && refByName[e.doc] ? refByName[e.doc] : null;
   e.deprecated = [...names, ...al].filter((n) => refByName[n] && refByName[n].dep);
 }

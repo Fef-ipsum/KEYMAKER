@@ -8,7 +8,7 @@ import * as engine from '../lib/engine.js';
 import { markSeen, markDone, setResume, isDone } from '../lib/progress.js';
 import { markPracticed, recordQuizResult } from '../lib/srs.js';
 import { go, useProgress, shuffled, refreshProgress } from '../lib/app.js';
-import { genres, genreById, ASPECTS, traitId, traitOf, families } from '../content/genres/index.js';
+import { genres, genreById, ASPECTS, traitId, traitOf, families, bpmText } from '../content/genres/index.js';
 import { createPortal } from 'react-dom';
 import { Icon, Rich, WikiChip, PlayMini, PageHead, Fold, chime, useDockSlot } from '../ui.jsx';
 
@@ -37,7 +37,7 @@ export function GenreList() {
                       <span className="genrerow-name">{g.name}</span>
                       <span className="genrerow-pitch">{g.pitch}</span>
                     </span>
-                    <span className="genrerow-meta">{g.bpm[0]}–{g.bpm[1]} BPM<br />{n}/{ASPECTS.length} traits</span>
+                    <span className="genrerow-meta">{bpmText(g)}<br />{n}/{ASPECTS.length} traits</span>
                     <Icon name="next" size={20} />
                   </button>
                 </li>
@@ -65,7 +65,7 @@ export function GenreOverview({ id }) {
     <section className="v-body">
       <div className="crumbs"><button type="button" className="linkbtn" onClick={() => go('#/genres')}>Genres</button><span>·</span><span>{g.family}</span></div>
       <PageHead title={g.name} lead={g.pitch}>
-        <p className="bpm">{g.bpm[0]}–{g.bpm[1]} BPM</p>
+        <p className="bpm">{bpmText(g)}</p>
       </PageHead>
       <Rich as="p" text={g.intro} className="prose" />
       <button type="button" className="btn btn-primary" onClick={() => go('#/genre/' + g.id + '/' + firstTodo.aspect)}>

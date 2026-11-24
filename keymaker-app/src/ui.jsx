@@ -30,6 +30,7 @@ const PATHS = {
   compare: (<><path d="M12 4v16" /><path d="M5 8h4M5 12h4M5 16h4M15 8h4M15 12h4M15 16h4" /></>),
   send: <path d="M4 12 20 5l-5 15-3-6z" />,
   open: (<><path d="M14 5h5v5" /><path d="M19 5l-8 8" /><path d="M18 14v5H5V6h5" /></>),
+  record: <circle cx="12" cy="12" r="6" fill="currentColor" stroke="none" />,
   download: (<><path d="M12 4v11" /><path d="M7 11l5 5 5-5" /><path d="M5 20h14" /></>),
   trash: (<><path d="M5 7h14" /><path d="M9 7V4.5h6V7" /><path d="M7 7l1 12.5h8L17 7" /></>),
   dial: (<><circle cx="12" cy="12" r="8.5" /><path d="M12 12l4-4" /><circle cx="12" cy="12" r="1" fill="currentColor" /></>),

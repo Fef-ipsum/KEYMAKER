@@ -35,7 +35,7 @@ export const claims = [
   { id: 'euclid-3-8', kind: 'motif', code: 's("bd").euclid(3,8)', fields: ['b'], expect: ['0 0.375 0.75'], cites: ['fn.euclid', 'mini.euclide', 'f.euclide'] },
   { id: 'euclidRot-droite', kind: 'motif', code: 's("bd").euclidRot(3,8,1)', fields: ['b'], expect: ['0.125 0.5 0.875'], cites: ['fn.euclid'] },
   { id: 'euclide-rotation-mini', kind: 'motif', code: 's("bd(3,8,2)")', fields: ['b'], expect: ['0 0.25 0.625'], cites: ['f.euclide', 'L5.5.9b'] },
-  { id: 'swing-4-ternaire', kind: 'motif', code: 's("hh*8").swing(4)', fields: ['b'], expect: ['0 0.167 0.25 0.417 0.5 0.667 0.75 0.917'], cites: ['voc.structure.swing', 'L7.7.2'] },
+  { id: 'swing-4-ternaire', kind: 'motif', code: 's("hh*8").swing(4)', fields: ['b'], expect: ['0 0.167 0.25 0.417 0.5 0.667 0.75 0.917'], cites: ['voc.structure.swing', 'L7.7.2', 'g.house.hats'] },
   { id: 'swing-8-sans-effet', kind: 'motif', code: 's("hh*8").swing(8)', fields: ['b'], expect: ['0 0.125 0.25 0.375 0.5 0.625 0.75 0.875'], cites: ['L7.7.2'] },
   { id: 'struct-valeurs', kind: 'motif', code: 'note("c3 e3 g3 b3").struct("x ~ x x")', expect: ['c3 g3 b3'], cites: ['fn.struct'] },
   { id: 'seq-compresse', kind: 'motif', code: 'seq(note("c3 e3"), note("g3"))', fields: ['note', 'b'], expect: ['c3/0 e3/0.25 g3/0.5'], cites: ['fn.cat'] },
@@ -135,6 +135,15 @@ export const claims = [
   { id: 'q-techno-kick', kind: 'motif', code: 'setcpm(135/4)\nsound("bd*4, [~ oh]*4").bank("RolandTR909")', fields: ['s', 'b'], expect: [grid(8, (i, b) => (i % 2 ? 'oh/' : 'bd/') + b)], cites: ['g.techno.kick'] },
   { id: 'q-acid-basse', kind: 'motif', code: 'setcpm(126/4)\nnote("c2 c2 c3 c2 ~ c2 eb2 c3").sound("sawtooth").lpf("<400 400>").lpq("<0 15>").lpenv("<0 4>").lpd(.12).decay(.15).sustain(0)', cycles: 2, fields: ['resonance', 'lpenv'], expect: [Array(7).fill('0/0').join(' '), Array(7).fill('15/4').join(' ')], cites: ['g.acid.basse'] },
   { id: 'q-trance-arpege', kind: 'motif', code: 'setcpm(138/4)\nchord("<Am F>").voicing().arp("[0 2 1 3 2 3 1 2]*2").sound("sawtooth").lpf(2500).decay(.12).sustain(0)', fields: ['b'], expect: [grid(16, (i, b) => b)], cites: ['g.trance.timbres'] },
+  // House, drum & bass, ambient (vue Genres)
+  { id: 'q-house-clap', kind: 'motif', code: 'setcpm(124/4)\nsound("bd*4, ~ cp ~ cp").bank("RolandTR909")', fields: ['s', 'b'], expect: ['bd/0 bd/0.25 cp/0.25 bd/0.5 bd/0.75 cp/0.75'], cites: ['g.house.kick'] },
+  { id: 'house-332', kind: 'motif', code: 'note("<c2 c2 ab1 bb1>").struct("x ~ ~ x ~ ~ x ~")', cycles: 4, fields: ['note', 'b'], expect: ['c2/0 c2/0.375 c2/0.75', 'c2/0 c2/0.375 c2/0.75', 'ab1/0 ab1/0.375 ab1/0.75', 'bb1/0 bb1/0.375 bb1/0.75'], cites: ['g.house.basse', 'g.house.harmonie'] },
+  { id: 'house-septiemes', kind: 'motif', code: 'chord("<Cm7 Ab^7 Bb^7>").voicing()', cycles: 3, expect: ['Bb3 Bb4 C5 Eb4 G4', 'Ab3 C4 C5 Eb3 G4', 'A4 Bb2 D4 F4'], cites: ['g.house.harmonie'] },
+  { id: 'q-dnb-half-time', kind: 'motif', code: 'setcpm(174/4)\nsound("bd ~ ~ ~ ~ ~ ~ ~, ~ ~ ~ ~ sd ~ ~ ~").bank("RolandTR808")', fields: ['s', 'b'], expect: ['bd/0 sd/0.5'], cites: ['g.dnb.tempo'] },
+  { id: 'q-dnb-two-step', kind: 'motif', code: 'setcpm(174/4)\nsound("bd ~ ~ ~ ~ bd ~ ~, ~ ~ sd ~ ~ ~ sd ~").bank("RolandTR808")', fields: ['s', 'b'], expect: ['bd/0 sd/0.25 bd/0.625 sd/0.75'], cites: ['g.dnb.kick'] },
+  { id: 'dnb-fantomes', kind: 'motif', code: 'sound("~ sd ~ ~ ~ ~ ~ sd").gain(.2)', fields: ['s', 'b', 'gain'], expect: ['sd/0.125/0.2 sd/0.875/0.2'], cites: ['g.dnb.hats'] },
+  { id: 'q-ambient-cycle-10s', kind: 'motif', code: 'setcpm(24/4)\nnote("c2")', cps: 0.1, cites: ['g.ambient.tempo'] },
+  { id: 'q-ambient-boucles-3-5', kind: 'motif', code: 'stack(n("0").slow(3), n("1").slow(5))', cycles: 16, expect: ['0 1', '', '', '0', '', '1', '0', '', '', '0', '1', '', '0', '', '', '0 1'], cites: ['g.ambient.structure'] },
 
   /* ---------------- Fondations : textes « Pourquoi ça marche » ---------------- */
   { id: 'tempo-par-defaut', kind: 'motif', code: 's("bd")', cps: 0.5, expect: ['bd'], cites: ['f.tempo', 'f.cycle'] },

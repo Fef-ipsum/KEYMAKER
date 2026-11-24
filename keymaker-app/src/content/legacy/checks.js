@@ -479,8 +479,8 @@ export const legacyChecks = {
       if (V(c, 'color').length < c.haps4.length) return 'Donne une couleur à chaque piste : `.color("gold")`, `.color("orchid")`…';
       return col.has('tomato') || col.has('cyan') ? 'Choisis d’autres couleurs que `tomato` et `cyan` : `gold`, `orchid`…' : true;
     },
-    solution: '$: s("bd*4, ~ cp").bank("RolandTR909").color("gold")\n$: note("c2 g2 eb2 g2").s("sawtooth").color("orchid")',
-    ok: 'Les couleurs ne changent rien au son : elles servent à reconnaître les pistes dans une visualisation.',
+    solution: '$: s("bd*4, ~ cp").bank("RolandTR909").color("gold")._punchcard()\n$: note("c2 g2 eb2 g2").s("sawtooth").color("orchid")._pianoroll()',
+    ok: 'Chaque piste se reconnaît à sa couleur, dans le dessin comme dans le code. Le son n’a pas changé.',
   },
   'L6.6.10': {
     check: (c) => {

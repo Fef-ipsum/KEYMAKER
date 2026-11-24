@@ -827,6 +827,48 @@ n(irand(8).segment(8)).scale("A3:minor")
     legacy: [['aleatoire', 'rand / irand'], ['aleatoire', 'segment']],
   },
 
+  /* --------------------------- voir le motif --------------------------- */
+  {
+    id: 'fn.visu', t: '_pianoroll · _punchcard · _scope', sub: 'voir le motif sous le code', kind: 'fn', tokens: ['_pianoroll', '_punchcard', '_scope', 'pianoroll', 'punchcard', 'scope', 'tscope'], doc: 'pianoroll',
+    ess:
+      'Écrite au bout d’une piste, `._pianoroll()` dessine ce motif juste sous sa ligne pendant qu’il joue : chaque note a sa rangée, les aiguës en haut, et le temps défile de droite à gauche. ' +
+      '`._scope()` y dessine la forme d’onde du son de cette piste. Ces dessins ne changent rien au son.',
+    code: `// le motif sous la première ligne, la forme d’onde sous la deuxième
+$: note("c3 e3 g3 <b3 d4>").sound("piano")._pianoroll()
+$: note("c2").sound("sawtooth").lpf(400)._scope()`,
+    args: [
+      ['_pianoroll()', 'une rangée par hauteur ([note](fn.note) ou `n`) ; un son de batterie sans note a sa propre rangée, au-dessus des notes. Seules les hauteurs jouées ont une rangée. La barre verticale, au milieu, marque l’instant qui sonne : à gauche les 2 cycles passés, à droite les 2 cycles à venir.'],
+      ['_punchcard()', 'le même dessin, mais fait à partir du motif complet : il tient compte des transformations écrites APRÈS lui sur la ligne (voir les pièges).'],
+      ['_scope()', 'un oscilloscope : la forme d’onde du son que produit cette piste, et elle seule. Une [dent de scie](son.ondes) y apparaît en dents, une sinusoïde en vagues ; un filtre arrondit les angles.'],
+      ['le souligné « _ »', 'place le dessin sous la ligne. Sans lui (`.pianoroll()`), Strudel dessine en fond d’écran, derrière toute la page : dans Keymaker, ce n’est pas lisible.'],
+    ],
+    why: [
+      'Dans le pianoroll, chaque événement est un rectangle : sa position horizontale est son instant, sa longueur sa durée, son opacité son volume (`gain` × `velocity` : un son plus faible est plus pâle). Celui qui sonne en ce moment, sur la barre verticale, n’est dessiné qu’en contour.',
+      'La couleur des dessins est celle du thème, ou celle donnée par [color](fn.color).',
+    ],
+    use: [
+      ['Batterie : une rangée par son', 's("bd*4, ~ cp, hh*8").bank("RolandTR909")._punchcard()'],
+      ['Chaque piste sa couleur', '$: s("bd*4, ~ cp").bank("RolandTR909").color("gold")._punchcard()\n$: note("c2 g2 eb2 g2").s("sawtooth").color("orchid")._pianoroll()'],
+    ],
+    traps: [
+      '`_pianoroll()` dessine le motif tel qu’il est à l’endroit où il est écrit : dans `note("c3 e3")._pianoroll().fast(2)`, on entend 4 notes par cycle mais le dessin en montre 2. `_punchcard()` montre les 4. Pour voir ce qu’on entend, écris la visualisation en dernier, ou choisis `_punchcard()`.',
+      'La documentation officielle range `punchcard` comme un autre nom de `pianoroll` : c’est le même dessin, mais la différence ci-dessus a été mesurée dans ce moteur.',
+      '`_scope()` ne montre que sa piste : pour voir une autre piste, ajoute-lui son propre `_scope()`.',
+    ],
+    see: ['fn.color', 'fn.dollar', 'son.ondes'],
+  },
+  {
+    id: 'fn.color', t: 'color', sub: 'colorer une piste', kind: 'fn', tokens: ['color'], doc: 'color', notAliases: ['colour'],
+    ess:
+      '`.color("tomato")` attache une couleur aux événements d’une piste. Le son ne change pas. Les [visualisations](fn.visu) dessinent la piste de cette couleur, et les cadres qui surlignent le code pendant la lecture la prennent aussi.',
+    code: `// deux pistes, deux couleurs
+$: s("bd*4, ~ cp").bank("RolandTR909").color("tomato")._punchcard()
+$: note("c2 g2 eb2 g2").s("sawtooth").color("cyan")._pianoroll()`,
+    args: [['couleur', 'un nom de couleur du web, en anglais (`tomato`, `gold`, `cyan`, `orchid`…) ou un code hexadécimal (`"#ff6347"`), entre guillemets.']],
+    use: [['Une couleur par cycle', 'note("c3 e3 g3 b3").s("piano").color("<tomato cyan>")._pianoroll()']],
+    traps: ['Sans visualisation, seule la couleur des cadres dans le code change : `color` sert à se repérer, pas à modifier le son.'],
+    see: ['fn.visu'],
+  },
   /* ------------------------------ JS ------------------------------ */
   {
     id: 'js.point', t: '.', sub: 'enchaîner', kind: 'js', tokens: [],

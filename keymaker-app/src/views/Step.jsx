@@ -63,7 +63,7 @@ function NavRow({ stepId, done, chapter }) {
 /* --- Indice gradué ----------------------------------------------------------------------
    1er essai raté : l'indice de l'exercice. 2e : où chercher dans le code de départ
    (lib/hint.js). 3e : la solution proposée, à charger dans l'éditeur. */
-function HintLadder({ start, solution, tries, onSolution }) {
+export function HintLadder({ start, solution, tries, onSolution }) {
   const where = useMemo(() => whereToChange(start, solution), [start, solution]);
   if (tries < 2) return null;
   return (

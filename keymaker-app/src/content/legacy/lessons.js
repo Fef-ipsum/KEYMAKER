@@ -3705,15 +3705,16 @@ export const m6chapitre2 = {
     {
       id: "6.9",
       kicker: "Se repérer d’un coup d’œil",
-      title: "color() : organiser visuellement",
-      concept: "`.color(\"…\")` attache une couleur à une piste. Elle ne change rien au son : elle sert aux visualisations de Strudel (le pianoroll, la spirale…), où chaque piste prend sa couleur. Un repère visuel quand plusieurs pistes tournent.",
-      code: "$: s(\"bd*4, ~ cp\").bank(\"RolandTR909\").color(\"tomato\")\n$: note(\"c2 g2 eb2 g2\").s(\"sawtooth\").color(\"cyan\")",
+      title: "color() et les visualisations",
+      concept: "`._punchcard()` et `._pianoroll()`, écrits au bout d’une piste, dessinent son motif juste sous la ligne pendant qu’il joue (voir [les visualisations](fn.visu)). `.color(\"…\")` donne une couleur aux événements d’une piste : le dessin la reprend, comme les cadres qui surlignent le code. Le son, lui, ne change pas.",
+      code: "$: s(\"bd*4, ~ cp\").bank(\"RolandTR909\").color(\"tomato\")._punchcard()\n$: note(\"c2 g2 eb2 g2\").s(\"sawtooth\").color(\"cyan\")._pianoroll()",
       decode: [
-        [".color(\"tomato\")", "une couleur attachée aux événements de la piste."],
-        ["repérage", "dans une visualisation, chaque piste se distingue par sa couleur."],
-        ["aucun effet sonore", "purement visuel."],
+        [".color(\"tomato\")", "une couleur attachée aux événements de la piste : nom de couleur du web en anglais, ou code `#ff6347`."],
+        ["._punchcard()", "le motif dessiné sous la ligne : une rangée par son (ici `bd` et `cp`), le temps défile de droite à gauche, la barre verticale marque l’instant qui sonne."],
+        ["._pianoroll()", "le même dessin pour des notes : une rangée par hauteur, les aiguës en haut."],
+        ["aucun effet sonore", "ni la couleur ni le dessin ne changent ce qu’on entend."],
       ],
-      exercise: "Donne une couleur à chaque piste (`color(\"gold\")`, `color(\"orchid\")`…). Elles ne changent pas le son : c’est une habitude d’organisation, utile si tu ajoutes une visualisation.",
+      exercise: "Change les deux couleurs (`color(\"gold\")`, `color(\"orchid\")`…) et regarde le dessin et les cadres du code changer avec elles.",
       rich: true,
     },
 
