@@ -25,6 +25,9 @@ const def = {
   code: (st) => [{ t: 'setcpm(' }, { t: String(st.p.bpm), k: 'bpm' }, { t: '/' + st.o.temps + ')\nsound("' + def.motif(st) + '")' }],
   expect: (st) => ({ cps: st.p.bpm / st.o.temps / 60, perCycle: { bd: st.o.temps, hh: st.o.temps * 2 } }),
   warn: () => null,
+  // « Retrouve le réglage à l'oreille » : 6 BPM d'écart acceptés.
+  tolerance: { bpm: { abs: 6 } },
+  earHint: (st, target) => (Math.abs(st.p.bpm - target.p.bpm) > 6 ? [st.p.bpm > target.p.bpm ? 'ton tempo est plus rapide que celui du son mystère' : 'le son mystère est plus rapide que ton tempo'] : []),
   summary: (st) => `tempo — setcpm(${st.p.bpm}/${st.o.temps}) : ${frNum(def.cpm(st), 2)} cycles par minute, ${st.o.temps} temps par cycle, ${st.p.bpm} BPM`,
   describe: 'tempo — setcpm, cycles par minute, temps par cycle, BPM. reglages : {bpm 40 à 200} ; temps : 3 | 4. missions possibles : lent, rapide, trois.',
   missions: [

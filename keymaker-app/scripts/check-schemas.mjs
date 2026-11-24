@@ -317,6 +317,20 @@ for (const spec of codeCases) {
 }
 check(!codeBad, `${codeCases.length} lignes de code évaluées par Strudel, valeurs conformes`);
 
+section('[B3b] questions « à l’oreille » : le son mystère porte la cible');
+{
+  let n = 0;
+  for (const x of all.filter((y) => y.ear)) {
+    const q = x.ear;
+    const spec = { ...q.schema, reglages: { ...(q.schema.reglages || {}), ...q.cible } };
+    const fn = spec.type === 'effet' ? 'effetVsCode' : spec.type === 'tempo' ? 'tempoVsCode' : 'codeProduces';
+    const r = await bench(fn, spec);
+    n++;
+    check(r.ok, `${q.id}${q.variant != null ? ' (variante ' + (q.variant + 1) + ')' : ''} : ${String(r.code).replace(/\n/g, ' ⏎ ')}`, r.why || r.bad || '');
+  }
+  check(n >= 16, n + ' sons mystères évalués par Strudel');
+}
+
 section('[B4] rythme : événements, tempo, métronome, missions');
 {
   const motifs = [...new Set([...all.filter((x) => x.spec.type === 'cycle').map((x) => x.spec.motif), 'bd [hh hh] sd <hh oh>', 'bd*2 [~ sd] hh*2 sd', 'bd(5,8,2), hh*4?', 'bd . hh hh . sd', '<bd sd>*2 hh', 'bd sd:2 [hh oh]!2', 'bd _ sd@2 ~'])];

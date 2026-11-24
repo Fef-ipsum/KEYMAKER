@@ -57,6 +57,22 @@ for (const ch of fondations) {
     if (!s.task || !s.task.ok) fail(s.id + ' : exercice incomplet');
   }
 }
+// Approfondissements : 2 ou 3 questions par chapitre (sauf ceux qui rejoignent les genres),
+// bien formées, et chacune protégée par une affirmation de claims.js qui cite sa leçon.
+{
+  const { legacyChapters } = await import('../src/content/legacy/index.js');
+  const { claims } = await import('./claims.js');
+  const cited = new Set(claims.filter((c) => c.id.startsWith('qa-')).flatMap((c) => c.cites || []));
+  for (const ch of legacyChapters) {
+    if (ch.track === 'autres-genres') continue;
+    const qs = ch.steps.filter((s) => s.quiz && s.quiz.length);
+    if (qs.length < 2 || qs.length > 3) fail(ch.id + ' : ' + qs.length + ' question(s) au lieu de 2 ou 3');
+    for (const s of qs) {
+      for (const q of s.quiz) if (!q.explain || q.choices.length < 2 || q.answer !== 0 || !q.q || (q.type === 'ecoute' && !q.code)) fail(s.id + ' : question mal formée');
+      if (!cited.has(s.id)) fail(s.id + ' : question sans affirmation « qa-… » (claims.js) qui cite la leçon');
+    }
+  }
+}
 const ex = explainCode('$: note("<c2 eb2>*2").sound("sawtooth").lpf(600).sometimes(x => x.add(note(12)))')
   .map((e) => e.id)
   .join(' ');

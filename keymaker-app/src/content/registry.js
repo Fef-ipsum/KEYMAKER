@@ -32,10 +32,21 @@ export const quizIndex = (() => {
       if (st.quiz && st.quiz.length) m.set(st.id, { questions: st.quiz, title: st.title, route: '#/etape/' + st.id });
     }
   }
+  // Approfondissements : questions de legacy/quizzes.js, rattachées à leur leçon.
+  for (const ch of legacyChapters) {
+    for (const st of ch.steps) {
+      if (st.quiz && st.quiz.length) m.set(st.id, { questions: st.quiz, title: st.title, route: '#/etape/' + st.id });
+    }
+  }
   // Questions « retrouve le réglage à l'oreille » : une carte de révision chacune,
   // avec un identifiant stable (oreille.…), rattachée à l'étape où vit son schéma.
   for (const ch of fondations) {
     for (const q of ch.ear || []) {
+      // Une famille (ear.js) = une carte ; ses variantes sont tirées au hasard à chaque passage.
+      if (m.has(q.id)) {
+        m.get(q.id).questions.push(q);
+        continue;
+      }
       const st = ch.steps.find((x) => x.id === q.step);
       m.set(q.id, { questions: [q], title: 'À l’oreille · ' + (st ? st.title : ch.title), route: '#/etape/' + (st ? st.id : ch.steps[0].id), ear: true, chapter: ch.id });
     }
@@ -112,7 +123,12 @@ export function allExamples() {
     (e.vary || []).forEach((v, i) => add('wiki', 'wiki ' + e.id + ' (variation ' + (i + 1) + ')', v[1]));
     (e.use || []).forEach((u, i) => add('wiki', 'wiki ' + e.id + ' (usage ' + (i + 1) + ')', u[1]));
   }
-  for (const ch of legacyChapters) for (const st of ch.steps) add('legacy', st.id + ' ' + st.title, st.code);
+  for (const ch of legacyChapters) {
+    for (const st of ch.steps) {
+      add('legacy', st.id + ' ' + st.title, st.code);
+      (st.quiz || []).forEach((q, i) => add('legacy', st.id + ' (quiz ' + (i + 1) + ')', q.code));
+    }
+  }
   return out;
 }
 

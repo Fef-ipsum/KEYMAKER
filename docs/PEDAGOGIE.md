@@ -35,7 +35,7 @@ Toutes les étapes ont la même forme, dans le même ordre. On n'a qu'un seul mo
 
 1. **Écoute** — le code est déjà dans l'éditeur. On appuie sur ▶.
 2. **Ce que tu entends** — court (deux ou trois phrases), mais précis : le nom arrive ici, avec ce qu'il désigne réellement (unité, sens, ordre de grandeur). Le mécanisme va dans « Creuser ».
-3. **À toi** — une consigne, un seul changement. Quand on relance, l'app regarde ce que le code *produit* (les événements sonores du premier cycle) et répond : « C'est ça » ou un indice. Jamais « faux ».
+3. **À toi** — une consigne, un seul changement. Quand on relance, l'app regarde ce que le code *produit* (les événements sonores du premier cycle) et répond : « C'est ça » ou un indice. Jamais « faux ». L'aide monte par paliers : au premier essai raté, l'indice de l'exercice ; au deuxième, **où chercher** dans le code de départ (`src/lib/hint.js` compare, mot par mot, le code de départ et la solution proposée, et nomme le passage à changer ou l'endroit où ajouter, sans dire par quoi) ; au troisième, « Voir une solution ». `scripts/check-hints.mjs` vérifie que chaque passage nommé existe dans le code de départ, tient debout (parenthèses équilibrées) et ne dévoile aucun mot propre à la solution.
 4. **Creuser** (replié) — le code décortiqué morceau par morceau, chaque morceau menant à son entrée du wiki ; le pourquoi (le mécanisme réel, pas une image) ; le lien avec le solfège. Les termes techniques renvoient au wiki par des liens dans le texte.
 5. **Suivant.**
 
@@ -101,7 +101,7 @@ Exemple de la démarche pour les intervalles (chapitre 5) :
 ## 5. Points d'étape et révision espacée
 
 - **Fin de chapitre : un point d'étape.** Quatre à six questions écrites à la main, tirées des étapes du chapitre. Trois formes : question à choix, **question d'écoute** (« lequel des deux est une tierce mineure ? » — l'app joue, on choisit), et lecture de code (« que joue ce motif ? »).
-- **Une quatrième forme : « retrouve le réglage à l'oreille ».** L'app joue un son mystère ; on règle un schéma jusqu'à l'entendre pareil ; l'app compare les valeurs avec une tolérance. Elle entraîne l'oreille, pas seulement l'œil. Un point d'étape en contient au plus deux, en plus des questions des étapes (le chapitre 6 en a donc huit). Chacune a un identifiant stable (`oreille.…`) et devient une carte de révision comme les autres.
+- **Une quatrième forme : « retrouve le réglage à l'oreille ».** L'app joue un son mystère ; on règle un schéma jusqu'à l'entendre pareil ; l'app compare les valeurs avec une tolérance. Elle entraîne l'oreille, pas seulement l'œil. Les questions sont **générées** à partir des schémas (`src/content/fondations/ear.js`) : une famille par réglage (coupure, résonance, attack, enveloppe pincée, taille de la réverbération, temps entre les échos, tempo), avec plusieurs valeurs cibles. Une famille a un identifiant stable (`oreille.…`) et fait UNE carte de révision ; chaque passage tire une cible au hasard, pour qu'on retienne l'oreille et pas la réponse. Un point d'étape en tire deux familles au hasard, en plus des questions des étapes. `check-schemas` vérifie chaque variante : le réglage de départ est refusé, la cible est acceptée et atteignable au curseur, et le code du son mystère, évalué par Strudel, porte bien la valeur cible.
 - **Révision espacée.** Chaque question réussie revient après 3 jours, puis 7 ; une question ratée revient le lendemain. Cinq cartes au plus par session. C'est l'algorithme de l'app précédente, conservé.
 - **Tout est local.** Aucune question n'est générée à la volée. Un quiz faux est pire que pas de quiz.
 
@@ -112,8 +112,9 @@ Exemple de la démarche pour les intervalles (chapitre 5) :
 Trois durées : 10, 20, 40 minutes. L'app compose la session :
 
 1. les révisions prêtes (3 à 5 cartes) ;
-2. une à trois étapes nouvelles, à la suite de là où on en est ;
-3. si le temps le permet, un défi libre dans le Studio (tiré d'une banque locale ; si Sati est joignable, elle peut en proposer un sur mesure).
+2. un ou deux exercices d'approfondissement à refaire de mémoire, s'il y en a de prêts (voir §9) ;
+3. une à trois étapes nouvelles, à la suite de là où on en est : les fondations d'abord ; dès 20 minutes, une place va à la leçon suivante de l'approfondissement ouvert le plus récemment ; les fondations finies, toutes y vont ;
+4. si le temps le permet, un défi libre dans le Studio (tiré d'une banque locale ; si Sati est joignable, elle peut en proposer un sur mesure).
 
 Pas de minuteur qui presse : une indication discrète du temps écoulé, et on s'arrête quand on veut. Ce qui est fait reste fait.
 
@@ -217,6 +218,10 @@ Un genre est un fichier de données unique (ses huit traits, son assemblage). L'
 ## 9. Les approfondissements
 
 Les modules d'origine qui vont au-delà des fondations restent disponibles après le parcours, sous des noms clairs : *Sculpter le son*, *Le code comme instrument*, *Composer un morceau*, *Autres genres* (house, drum & bass, ambient), *Guitare*, *PO-33*. Même forme d'étape, même éditeur. 98 de leurs 117 exercices se valident tout seuls, comme ceux des fondations : après chaque ▶, une fonction regarde ce que le code produit et répond par la réussite ou par un indice précis (`src/content/legacy/checks.js`, avec une solution de référence par exercice ; « Voir une solution » apparaît après deux essais). Les 19 autres sont ouverts (écouter, comparer, s’approprier un morceau) et gardent « C’est fait ». Sur un exercice vérifié, « Je l’ai fait autrement » reste possible : la vérification ne doit jamais bloquer. Les tests exigent que chaque solution valide, que le code de départ échoue, et qu’un indice accompagne l’échec.
+
+**Révision des exercices.** Un exercice validé par le moteur (pas « Je l'ai fait autrement ») crée une carte `ex:<leçon>` : il revient trois jours plus tard, puis sept, en mode « de mémoire » (`#/etape/<leçon>?revision=1`) : le code repart de son point de départ, le décodage est replié, les mêmes indices gradués s'appliquent. Le refaire juste marque la leçon « acquise » ; dire « Je ne m'en souviens pas » ou regarder la solution le fait revenir le lendemain. L'accueil signale les exercices prêts ; « J'ai X minutes » en place un ou deux.
+
+**Questions.** 54 questions (`src/content/legacy/quizzes.js`), deux ou trois par chapitre, nourrissent un point d'étape à la fin de chaque chapitre et la révision espacée, comme dans les fondations. Chacune est protégée par une affirmation `qa-…` de `scripts/claims.js` qui cite sa leçon : le code ou le fait sur lequel repose la bonne réponse est vérifié dans le moteur, et `check-links` refuse une question sans affirmation. Les chapitres House, Drum & Bass et Ambient n'en ont pas : ils rejoignent la section Genres.
 
 Ils sont volontairement en retrait : le parcours principal ne les exige pas.
 

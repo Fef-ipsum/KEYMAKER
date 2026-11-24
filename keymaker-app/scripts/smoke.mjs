@@ -251,7 +251,10 @@ if (!onlyOffline) {
     check(await playing('.ear-controls .sch-play.is-on'), `${label} · le son mystère joue`);
     await page.click('.ear-controls .btn-primary');
     await page.waitForSelector('.ear + .explain, .ear .explain', { timeout: 5000 });
-    check((await page.locator('.ear .sch-curve-target').count()) === 1, `${label} · après la réponse, la courbe du son mystère apparaît`);
+    // Filtre et enveloppe : courbe en pointillé ; effets et tempo : le code du son mystère.
+    const earType = await page.locator('.ear [data-schema]').first().getAttribute('data-schema');
+    if (earType === 'filtre' || earType === 'adsr') check((await page.locator('.ear .sch-curve-target').count()) === 1, `${label} · après la réponse, la courbe du son mystère apparaît (${earType})`);
+    else check((await page.locator('.ear :text("Le son mystère.")').count()) >= 1, `${label} · après la réponse, le code du son mystère apparaît (${earType})`);
     await page.screenshot({ path: join(SHOTS, `schemas-${label}-${scheme}-oreille.png`) });
     // Sati voit le schéma, et montre en réglant (bloc ```schema) ; un bloc invalide reste du texte.
     let sent = null;

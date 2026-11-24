@@ -123,9 +123,9 @@ export function EarQuestion({ question, onAnswer, context = 'oreille' }) {
       {result ? (
         <div className={'explain' + (result.ok ? ' is-right' : '')} role="status">
           <strong>{result.ok ? 'C’est ça.' : 'Pas tout à fait.'}</strong>{' '}
-          {!result.ok && result.hints.length ? <span>{result.hints.join(' ; ')}. </span> : null}
+          {!result.ok && result.hints.length ? <span>{(() => { const t = result.hints.join(' ; '); return t.charAt(0).toUpperCase() + t.slice(1); })()}. </span> : null}
           {question.explain ? <Rich text={question.explain} /> : null}
-          <p className="explain-more">La courbe en pointillé est celle du son mystère. Tu peux continuer à comparer les deux.</p>
+          <p className="explain-more">{question.schema.type === 'filtre' || question.schema.type === 'adsr' ? 'La courbe en pointillé est celle du son mystère.' : 'Le code du son mystère s’affiche sous le tien.'} Tu peux continuer à comparer les deux.</p>
         </div>
       ) : null}
     </div>

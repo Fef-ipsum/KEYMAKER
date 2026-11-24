@@ -9,8 +9,8 @@ import { useSchema } from './useSchema.js';
 import { useWidth, Slider, CodeLine, HoldButton, PlayButton, Missions, Deep, Warn } from './parts.jsx';
 import { frNum } from '../core/format.js';
 
-export default function EffetSchema({ spec, context = 'lecon' }) {
-  const s = useSchema(def, spec, { context });
+export default function EffetSchema({ spec, ear = null, context = 'lecon' }) {
+  const s = useSchema(def, spec, { ear, context });
   const { st } = s;
   const mode = st.o.effet;
   const start = useRef(JSON.stringify(st.p));
@@ -22,7 +22,9 @@ export default function EffetSchema({ spec, context = 'lecon' }) {
   const R = 12;
   const T = 14;
   const B = 24;
-  const pat = useMemo(() => effetPattern(st, s.bypass), [JSON.stringify(st.p), mode, s.bypass]);
+  // Question « à l'oreille » : pendant l'écoute du son mystère, c'est son réglage qui joue.
+  const playSt = ear && s.mystery ? ear.target : st;
+  const pat = useMemo(() => effetPattern(playSt, s.bypass), [JSON.stringify(playSt.p), mode, s.bypass]);
   const patRef = useRef(pat);
   patRef.current = pat;
 
@@ -151,19 +153,25 @@ export default function EffetSchema({ spec, context = 'lecon' }) {
   return (
     <div className={'schema schema-effet' + (s.bypass ? ' is-bypass' : '')} data-schema="effet" data-schema-id={s.id}>
       <div className="sch-figure sch-effet-fig" ref={boxRef}>{drawing}</div>
-      <div className="sch-controls">
-        <PlayButton playing={s.playing} onToggle={toggle} />
-        <HoldButton onDown={bypassDown} onUp={bypassUp} label="Maintiens pour entendre sans l’effet">
-          <span>Maintiens : sans l’effet</span>
-        </HoldButton>
-      </div>
+      {ear ? null : (
+        <div className="sch-controls">
+          <PlayButton playing={s.playing} onToggle={toggle} />
+          <HoldButton onDown={bypassDown} onUp={bypassUp} label="Maintiens pour entendre sans l’effet">
+            <span>Maintiens : sans l’effet</span>
+          </HoldButton>
+        </div>
+      )}
+      {ear ? ear.controls(s, toggle) : null}
       <div className="sch-sliders">
         {def.keys(st).map((k) => <Slider key={k} def={def} k={k} value={st.p[k]} codeName={def.paramCode(st, k)} onChange={s.setParam} disabled={!s.can(k)} />)}
       </div>
       <Warn text={def.warn(st)} />
-      <CodeLine parts={[{ t: s.bypass ? def.bypassText(st) : def.codeText(st), k: 'all' }]} glow={{ k: s.glow.n ? 'all' : null, n: s.glow.n }} note={s.bypass ? (mode === 'sidechain' ? 'Pendant que tu maintiens : le même kick et la même nappe, sans le sidechain.' : 'Pendant que tu maintiens : la même note, sans l’effet.') : null} />
+      {!ear || ear.revealed ? (
+        <CodeLine parts={[{ t: s.bypass ? def.bypassText(st) : def.codeText(st), k: 'all' }]} glow={{ k: s.glow.n ? 'all' : null, n: s.glow.n }} note={s.bypass ? (mode === 'sidechain' ? 'Pendant que tu maintiens : le même kick et la même nappe, sans le sidechain.' : 'Pendant que tu maintiens : la même note, sans l’effet.') : null} />
+      ) : null}
+      {ear && ear.revealed ? <CodeLine parts={[{ t: def.codeText(ear.target), k: 'all' }]} glow={{ k: null, n: 0 }} note="Le son mystère." /> : null}
       <Missions missions={s.missions} done={s.done} fresh={s.fresh} />
-      <Deep facts={def.facts.filter((f) => f.modes.includes(mode))} />
+      {ear ? null : <Deep facts={def.facts.filter((f) => f.modes.includes(mode))} />}
     </div>
   );
 }

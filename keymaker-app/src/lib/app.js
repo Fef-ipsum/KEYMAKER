@@ -4,8 +4,8 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import * as engine from './engine.js';
 import { onProgress, readState, firstNotDone } from './progress.js';
-import { readSrs, todaysReview } from './srs.js';
-import { fondationIds, quizIndex, stepIndex, chapterById } from '../content/registry.js';
+import { readSrs, dueAll, isExerciseCard, REVIEW_LIMIT } from './srs.js';
+import { fondationIds, quizIndex, stepIndex, chapterById, tracks } from '../content/registry.js';
 
 /* --- Routage -------------------------------------------------------------------
    Les adresses sont des ancres : « #/etape/f.play ». Aucun serveur n'a besoin de
@@ -114,15 +114,19 @@ export function chapterQuestions(chapterId) {
   }
   // Puis les questions « à l'oreille » du chapitre (deux au plus) : elles entraînent
   // l'oreille avec les schémas, pas seulement l'œil.
-  const ear = (ch.ear || []).slice(0, 2).map((q) => ({ cardId: q.id, title: quizIndex.get(q.id).title, route: quizIndex.get(q.id).route, question: q }));
+  // Deux familles tirées au hasard, et dans chacune une variante au hasard.
+  const fams = [...new Set((ch.ear || []).map((q) => q.id))].map((id) => [Math.random(), id]).sort((a, b) => a[0] - b[0]).slice(0, 2).map((x) => x[1]);
+  const ear = fams.map((id) => {
+    const e = quizIndex.get(id);
+    return { cardId: id, title: e.title, route: e.route, question: e.questions[Math.floor(Math.random() * e.questions.length)] };
+  });
   return [...out.slice(0, 6), ...ear];
 }
 
 // Révisions prêtes aujourd'hui (cinq au plus), limitées aux cartes qui ont une question écrite.
-export function dueQuestions(limit = 5) {
-  const { due } = todaysReview();
+export function dueQuestions(limit = REVIEW_LIMIT) {
   const out = [];
-  for (const c of due) {
+  for (const c of dueAll()) {
     const q = quizIndex.get(c.flashId);
     if (!q) continue;
     const pick = q.questions[Math.floor(Math.random() * q.questions.length)];
@@ -133,8 +137,50 @@ export function dueQuestions(limit = 5) {
 }
 
 export function dueCount() {
-  const { due } = todaysReview();
-  return due.filter((c) => quizIndex.has(c.flashId)).length;
+  return Math.min(REVIEW_LIMIT, dueAll().filter((c) => quizIndex.has(c.flashId)).length);
+}
+
+// Exercices des approfondissements à refaire de mémoire (cartes « ex:… »), cinq au plus.
+export function revisionRoute(stepId) {
+  return stepRoute(stepId) + '?revision=1';
+}
+export function dueExercises(limit = REVIEW_LIMIT) {
+  const out = [];
+  for (const c of dueAll()) {
+    if (!isExerciseCard(c.flashId)) continue;
+    const id = c.flashId.slice(3);
+    const e = stepIndex.get(id);
+    if (!e || !e.step.check) continue;
+    out.push({ id, title: e.step.title, route: revisionRoute(id) });
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
+// La prochaine leçon de l'approfondissement le plus récemment ouvert : dans son parcours,
+// les leçons pas encore faites, dans l'ordre (à partir de son chapitre). Rien si aucun
+// approfondissement n'a été ouvert.
+export function nextDeepSteps(state = readState(), n = 1) {
+  let last = null;
+  for (const [id, st] of Object.entries(state.steps || {})) {
+    const e = stepIndex.get(id);
+    if (!e || !e.step.isLegacy || !st.seen) continue;
+    const t = Math.max(st.seen || 0, st.done || 0);
+    if (!last || t > last.t) last = { t, e };
+  }
+  if (!last) return [];
+  const track = tracks.find((t) => t.id === last.e.chapter.track);
+  if (!track) return [];
+  const from = track.chapters.findIndex((c) => c.id === last.e.chapter.id);
+  const out = [];
+  for (const ch of track.chapters.slice(Math.max(0, from))) {
+    for (const st of ch.steps) {
+      if (state.steps[st.id] && state.steps[st.id].done) continue;
+      out.push(st.id);
+      if (out.length >= n) return out;
+    }
+  }
+  return out;
 }
 
 /* --- Session « J'ai X minutes » -------------------------------------------------- */
@@ -146,16 +192,22 @@ export const DURATIONS = [
   { minutes: 40, label: '40 min', sub: '3 étapes + défi' },
 ];
 
-// Plan d'une session : révisions prêtes, puis étapes nouvelles, puis un défi libre.
-export function buildFlow(minutes, { due = dueCount(), state = readState() } = {}) {
+// Plan d'une session : révisions prêtes, exercices à refaire, étapes nouvelles, puis un défi.
+// Les étapes : les fondations d'abord ; dès 20 minutes, une place va à la leçon suivante
+// de l'approfondissement en cours, s'il y en a un. Fondations finies : tout y va.
+export function buildFlow(minutes, { due = dueCount(), exercises = dueExercises(), state = readState() } = {}) {
   const items = [];
   const rev = Math.min(due, minutes >= 20 ? 5 : 3);
   if (rev > 0) items.push({ type: 'revision', label: 'Révision · ' + rev + (rev > 1 ? ' questions' : ' question'), route: '#/revision' });
+  for (const ex of exercises.slice(0, minutes >= 20 ? 2 : 1)) items.push({ type: 'refaire', id: ex.id, label: 'De mémoire · ' + ex.title, route: ex.route });
   const want = minutes >= 40 ? 3 : minutes >= 20 ? 2 : 1;
-  const todo = fondationIds.filter((id) => !(state.steps[id] && state.steps[id].done)).slice(0, want);
+  const fond = fondationIds.filter((id) => !(state.steps[id] && state.steps[id].done));
+  const deep = nextDeepSteps(state, want);
+  const deepSlots = !fond.length ? want : minutes >= 20 ? Math.min(1, deep.length) : 0;
+  const todo = [...fond.slice(0, want - Math.min(deepSlots, deep.length)), ...deep.slice(0, deepSlots)];
   for (const id of todo) {
     const s = stepIndex.get(id);
-    items.push({ type: 'etape', id, label: s.step.title, route: stepRoute(id) });
+    items.push({ type: 'etape', id, label: (s.step.isLegacy ? s.chapter.trackTitle + ' · ' : '') + s.step.title, route: stepRoute(id) });
   }
   if (minutes >= 40 || !items.length) items.push({ type: 'defi', label: 'Défi libre dans le Studio', route: '#/studio?defi=1' });
   return { minutes, items, index: 0, started: Date.now() };

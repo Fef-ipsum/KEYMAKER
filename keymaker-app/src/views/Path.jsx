@@ -33,7 +33,7 @@ function Chapter({ ch, state, srs, open, onToggle, current }) {
               </button>
             </li>
           ))}
-          {ch.kind === 'fondations' ? (
+          {ch.kind === 'fondations' || ch.steps.some((s) => s.quiz && s.quiz.length) ? (
             <li>
               <button type="button" className="steplink steplink-quiz" onClick={() => go('#/point/' + ch.id)}>
                 <Icon name="flag" size={16} />

@@ -2,11 +2,14 @@
 // Toute la mini-notation rythmique, un signe par étape.
 
 import { near } from '../../lib/check.js';
+import { earRythme } from './ear.js';
 
 export default {
   id: 'rythme',
   title: 'Le rythme',
   goal: 'Lire et écrire la mini-notation : le petit langage du rythme, entre les guillemets.',
+  // « Retrouve le tempo à l'oreille » (ear.js ; identifiant stable).
+  ear: earRythme,
   steps: [
     {
       id: 'f.cycle',

@@ -213,3 +213,37 @@ export function questionForFlash(flashId, bank = readBank()) {
   if (!all.length) return null;
   return all[Math.floor(Math.random() * all.length)];
 }
+
+/* ===========================================================================
+   Exercices des approfondissements en révision (Keymaker 2, novembre 2026).
+   Une carte « ex:<étape> » naît quand l'exercice est validé par le moteur ; elle
+   revient comme « refais-le de mémoire », avec les mêmes boîtes que les questions.
+   Le refaire juste marque l'étape « acquise ».
+   =========================================================================== */
+export const exerciseCardId = (stepId) => 'ex:' + stepId;
+export const isExerciseCard = (cardId) => String(cardId).startsWith('ex:');
+
+// Premier succès : la carte entre en boîte 2 (revue dans 3 jours). Déjà là : rien ne change.
+export function scheduleExercise(stepId, now = new Date()) {
+  const s = readSrs();
+  const k = exerciseCardId(stepId);
+  if (!stepId || s.cards[k]) return s;
+  const next = { mastery: s.mastery, cards: { ...s.cards, [k]: nextCard(null, true, todayStr(now)) } };
+  writeSrs(next);
+  return next;
+}
+
+// Résultat d'une révision d'exercice : boîte suivante ou retour en boîte 1.
+export function recordExerciseResult(stepId, correct, now = new Date()) {
+  const s = readSrs();
+  const k = exerciseCardId(stepId);
+  const cards = { ...s.cards, [k]: nextCard(s.cards[k], !!correct, todayStr(now)) };
+  const mastery = correct ? { ...s.mastery, [stepId]: 'mastered' } : s.mastery;
+  writeSrs({ mastery, cards });
+  return { mastery, cards };
+}
+
+// Toutes les cartes dues aujourd'hui, sans plafond (le tri vient de dueList).
+export function dueAll(now = new Date()) {
+  return dueList(readSrs(), todayStr(now), 0);
+}

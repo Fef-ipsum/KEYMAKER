@@ -7,12 +7,15 @@ import { motifEvents, motifPattern, createPatternSound } from './pattern.js';
 import { useSchema } from './useSchema.js';
 import { useWidth, Slider, CodeLine, HoldButton, PlayButton, Choice, Missions, Deep } from './parts.jsx';
 import { frNum } from '../core/format.js';
+import { codeText } from '../catalog.js';
 
 const SPAN = 4; // secondes dessinées
 
-export default function TempoSchema({ spec, context = 'lecon' }) {
-  const s = useSchema(def, spec, { context });
+export default function TempoSchema({ spec, ear = null, context = 'lecon' }) {
+  const s = useSchema(def, spec, { ear, context });
   const { st } = s;
+  // Question « à l'oreille » : pendant l'écoute du son mystère, c'est son tempo qui joue.
+  const playCps = def.cpm(ear && s.mystery ? ear.target : s.bypass ? { ...st, p: { ...st.p, bpm: 30 * st.o.temps } } : st) / 60;
   const view = s.bypass ? { ...st, p: { ...st.p, bpm: 30 * st.o.temps } } : st;
   const cpm = def.cpm(view);
   const cps = cpm / 60;
@@ -46,8 +49,8 @@ export default function TempoSchema({ spec, context = 'lecon' }) {
   }, [s.playing, cps]);
 
   const patRef = useRef(null);
-  const cpsRef = useRef(cps);
-  cpsRef.current = cps;
+  const cpsRef = useRef(playCps);
+  cpsRef.current = playCps;
   useEffect(() => {
     patRef.current = motifPattern(motif);
   }, [motif]);
@@ -141,19 +144,23 @@ export default function TempoSchema({ spec, context = 'lecon' }) {
         <code>setcpm({view.p.bpm}/{st.o.temps})</code> = <strong>{frNum(cpm, 2)}</strong> cycles par minute · 1 cycle = <strong>{frNum(cycleDur, 2)} s</strong> · {st.o.temps} temps par cycle → <strong>{view.p.bpm} temps par minute</strong> (BPM)
       </p>
 
-      <div className="sch-controls">
-        <PlayButton playing={s.playing} onToggle={toggle} />
-        <HoldButton onDown={bypassDown} onUp={bypassUp} label="Maintiens pour entendre le tempo par défaut">
-          <span>Maintiens : sans setcpm</span>
-        </HoldButton>
-        <Choice label={def.options.temps.label} values={def.options.temps.values} labels={def.options.temps.labels} value={st.o.temps} onChange={(v) => s.setOption('temps', v, true)} />
-      </div>
+      {ear ? null : (
+        <div className="sch-controls">
+          <PlayButton playing={s.playing} onToggle={toggle} />
+          <HoldButton onDown={bypassDown} onUp={bypassUp} label="Maintiens pour entendre le tempo par défaut">
+            <span>Maintiens : sans setcpm</span>
+          </HoldButton>
+          <Choice label={def.options.temps.label} values={def.options.temps.values} labels={def.options.temps.labels} value={st.o.temps} onChange={(v) => s.setOption('temps', v, true)} />
+        </div>
+      )}
+      {ear ? ear.controls(s, toggle) : null}
       <div className="sch-sliders">
         <Slider def={def} k="bpm" value={st.p.bpm} codeName="setcpm" onChange={s.setParam} />
       </div>
-      <CodeLine parts={def.code(st)} glow={s.glow} note={s.bypass ? 'Sans setcpm : 30 cycles par minute, le tempo par défaut de Keymaker.' : null} />
+      {!ear || ear.revealed ? <CodeLine parts={def.code(st)} glow={s.glow} note={s.bypass ? 'Sans setcpm : 30 cycles par minute, le tempo par défaut de Keymaker.' : null} /> : null}
+      {ear && ear.revealed ? <CodeLine parts={[{ t: codeText(def, ear.target) }]} glow={{ k: null, n: 0 }} note="Le son mystère." /> : null}
       <Missions missions={s.missions} done={s.done} fresh={s.fresh} />
-      <Deep facts={def.facts} />
+      {ear ? null : <Deep facts={def.facts} />}
     </div>
   );
 }

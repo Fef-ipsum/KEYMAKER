@@ -121,6 +121,40 @@ const def = {
     if (st.o.effet === 'sidechain') return { duckorbit: DUCK_ORBIT, duckdepth: st.p.duckdepth, duckattack: st.p.duckattack };
     return { distort: st.p.distort };
   },
+  // « Retrouve le réglage à l'oreille » : écart accepté pour chaque réglage. Les durées se
+  // comparent en rapport (l'oreille juge un écho deux fois plus rapide, pas 0,1 s de plus).
+  tolerance: {
+    delay: { abs: 0.2 },
+    delaytime: { ratio: 1.25 },
+    delayfeedback: { abs: 0.15 },
+    room: { abs: 0.2 },
+    size: { ratio: 1.5 },
+    distort: { abs: 1 },
+    duckdepth: { abs: 0.2 },
+    duckattack: { ratio: 2, abs: 0.05 },
+  },
+  earHint(st, target) {
+    const out = [];
+    const far = (k) => {
+      const t = def.tolerance[k];
+      const a = st.p[k];
+      const b = target.p[k];
+      if (t.ratio) return Math.abs(a - b) > (t.abs || 0) && Math.max(a, b) / Math.max(Math.min(a, b), 1e-3) > t.ratio;
+      return Math.abs(a - b) > t.abs;
+    };
+    const say = (k, more, less) => {
+      if (KEYS[st.o.effet].includes(k) && far(k)) out.push(st.p[k] > target.p[k] ? more : less);
+    };
+    say('delaytime', 'tes échos sont plus espacés que ceux du son mystère', 'les échos du son mystère sont plus espacés que les tiens');
+    say('delayfeedback', 'tes échos durent plus longtemps', 'les échos du son mystère durent plus longtemps');
+    say('delay', 'tes échos sont plus forts', 'les échos du son mystère sont plus forts');
+    say('size', 'ta traîne est plus longue : ta pièce est plus grande', 'la traîne du son mystère est plus longue : sa pièce est plus grande');
+    say('room', 'ta réverbération est plus présente', 'la réverbération du son mystère est plus présente');
+    say('distort', 'ton son est plus saturé', 'le son mystère est plus saturé');
+    say('duckdepth', 'ton creux est plus profond', 'le creux du son mystère est plus profond');
+    say('duckattack', 'ta nappe remonte plus lentement', 'la nappe du son mystère remonte plus lentement');
+    return out;
+  },
   // Les événements qui portent ces valeurs (sidechain : le kick seulement, pas la nappe).
   expectOn: (st, v) => (st.o.effet === 'sidechain' ? v.s === 'bd' : true),
   warn: (st) => (st.o.effet === 'distort' && st.p.distort >= 4 ? 'Distorsion forte : le son devient presque carré, et plus fort. Baisse le volume de l’appareil.' : null),

@@ -6,7 +6,16 @@ import { useEffect, useMemo, useState } from 'react';
 import * as engine from '../lib/engine.js';
 import { recordQuizResult } from '../lib/srs.js';
 import { go, chapterQuestions, dueQuestions, shuffled, readFlow, advanceFlow, refreshProgress } from '../lib/app.js';
-import { chapterById, fondations } from '../content/registry.js';
+import { chapterById, fondations, tracks } from '../content/registry.js';
+
+// Le chapitre qui suit (même parcours), son nom, et le nom du chapitre en cours.
+function nextChapterOf(chapter) {
+  if (!chapter) return null;
+  if (chapter.kind === 'fondations') return fondations[fondations.findIndex((c) => c.id === chapter.id) + 1] || null;
+  const t = tracks.find((x) => x.id === chapter.track);
+  return t ? t.chapters[t.chapters.findIndex((c) => c.id === chapter.id) + 1] || null : null;
+}
+const chapterName = (c) => (c.kind === 'fondations' ? 'Chapitre ' + c.roman + ' — ' + c.title : (c.trackTitle || '') + ' — ' + c.title);
 import { Icon, Rich, PlayMini, PageHead } from '../ui.jsx';
 import { EarQuestion } from '../schemas/ui/Schema.jsx';
 
@@ -116,9 +125,9 @@ export default function Quiz({ mode, chapterId }) {
     refreshProgress();
     if (inFlow) return go(advanceFlow());
     if (chapter) {
-      const idx = fondations.findIndex((c) => c.id === chapter.id);
-      const nextCh = fondations[idx + 1];
-      return go(nextCh ? '#/etape/' + encodeURIComponent(nextCh.steps[0].id) : '#/genres');
+      const nextCh = nextChapterOf(chapter);
+      if (nextCh) return go('#/etape/' + encodeURIComponent(nextCh.steps[0].id));
+      return go(chapter.kind === 'fondations' ? '#/genres' : '#/parcours');
     }
     go('#/');
   };
@@ -134,16 +143,16 @@ export default function Quiz({ mode, chapterId }) {
 
   const end = i >= items.length;
   if (end) {
-    const nextCh = chapter ? fondations[fondations.findIndex((c) => c.id === chapter.id) + 1] : null;
+    const nextCh = nextChapterOf(chapter);
     return (
       <section className="v-body narrow">
         <PageHead
-          kicker={chapter ? 'Chapitre ' + chapter.roman + ' — ' + chapter.title : 'Révision'}
+          kicker={chapter ? chapterName(chapter) : 'Révision'}
           title={chapter ? 'Chapitre terminé' : 'Révision terminée'}
           lead={`${score} bonne${score > 1 ? 's' : ''} réponse${score > 1 ? 's' : ''} sur ${items.length}. Les questions réussies reviendront dans quelques jours, les autres dès demain.`}
         />
         <button type="button" className="btn btn-primary" onClick={finish}>
-          {inFlow ? 'Suite de la session' : nextCh ? 'Chapitre ' + nextCh.roman + ' — ' + nextCh.title : chapter ? 'Découvrir les genres' : 'Terminé'} <Icon name="next" size={18} />
+          {inFlow ? 'Suite de la session' : nextCh ? (nextCh.kind === 'fondations' ? 'Chapitre ' + nextCh.roman + ' — ' + nextCh.title : nextCh.title) : chapter ? (chapter.kind === 'fondations' ? 'Découvrir les genres' : 'Retour au parcours') : 'Terminé'} <Icon name="next" size={18} />
         </button>
       </section>
     );
@@ -153,7 +162,7 @@ export default function Quiz({ mode, chapterId }) {
   return (
     <section className="v-body narrow">
       <div className="crumbs">
-        <span>{chapter ? 'Point d’étape — chapitre ' + chapter.roman : 'Révision'}</span>
+        <span>{chapter ? 'Point d’étape — ' + (chapter.kind === 'fondations' ? 'chapitre ' + chapter.roman : chapter.title) : 'Révision'}</span>
         <span className="crumbs-n">{i + 1} / {items.length}</span>
       </div>
       <Question

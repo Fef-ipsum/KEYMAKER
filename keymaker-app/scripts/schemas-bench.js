@@ -1126,7 +1126,10 @@ export const FACTS = {
     const c = compare(a, b);
     const sa = slopeDb(a, 0.25, 1.85);
     const sb = slopeDb(b, 0.25, 1.85);
-    return { ok: c.maxAbs > 1e-3 && Math.abs(sa / sb - 1) < 0.2, detail: `deux rendus du même code : échantillons différents (écart max ${c.maxAbs.toFixed(3)}) ; même vitesse d’extinction (${sa.toFixed(1)} et ${sb.toFixed(1)} dB/s)` };
+    // Le bruit change à chaque rendu : la pente mesurée varie de ±20 % environ. Chacune est
+    // comparée à la pente théorique (−60 dB en `size` = 3 s), avec la tolérance de reverb.duree ;
+    // comparer les deux rendus entre eux échouait au hasard (novembre 2026 : −18,0 et −23,6).
+    return { ok: c.maxAbs > 1e-3 && Math.abs(sa / -20 - 1) < 0.35 && Math.abs(sb / -20 - 1) < 0.35, detail: `deux rendus du même code : échantillons différents (écart max ${c.maxAbs.toFixed(3)}) ; même vitesse d’extinction, à la précision du bruit près (${sa.toFixed(1)} et ${sb.toFixed(1)} dB/s, théorie −20)` };
   },
   async 'distort.courbe'() {
     const dry = rendered('fx:dry-sine');

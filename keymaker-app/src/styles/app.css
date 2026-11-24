@@ -314,6 +314,9 @@ textarea { resize: vertical; line-height: 1.45; }
 .res-ok p .ic { margin-top: 3px; flex: none; }
 .res-hint { background: var(--hint-soft); border-left: 3px solid var(--hint); }
 .res-wait { color: var(--ink-3); padding: 2px 0; }
+/* Indice gradué, 2e palier : où chercher dans le code de départ. */
+.res-where { background: var(--hint-soft); border-left: 3px dashed var(--hint); }
+.task-alt .res-where { flex-basis: 100%; }
 .keepform { display: grid; gap: 4px; padding: 0 4px; }
 .keeprow { display: flex; gap: 8px; }
 .keeprow input { flex: 1; min-width: 0; }
@@ -499,4 +502,5 @@ textarea { resize: vertical; line-height: 1.45; }
 .beat-conv label { display: flex; align-items: center; gap: 8px; font-size: .88rem; font-weight: 600; color: var(--ink-2); }
 .beat-conv input { width: 5.5em; min-height: 40px; padding: 4px 8px; border-radius: 10px; font-family: var(--mono); }
 .beat-out { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.task-note { color: var(--ink-2); font-size: .92em; margin: 0 0 6px; }
 .task-alt { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 6px 0 0; }

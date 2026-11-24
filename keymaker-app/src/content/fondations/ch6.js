@@ -1,36 +1,17 @@
 // Fondations — Chapitre VI : Le timbre.
 // Fabriquer un son de synthétiseur et le sculpter : onde, filtre, enveloppe, espace.
 
+import { earTimbre } from './ear.js';
+
 const num = (v) => (typeof v === 'number' ? v : parseFloat(v));
 
 export default {
   id: 'timbre',
   title: 'Le timbre',
   goal: 'Fabriquer un son de synthé et le sculpter : onde, filtre, enveloppe, espace.',
-  // Points d'étape et révisions : « retrouve le réglage à l'oreille ». Identifiants stables
-  // (cartes de révision) : ne jamais les renommer.
-  ear: [
-    {
-      type: 'oreille',
-      id: 'oreille.filtre-coupure',
-      step: 'f.filtre',
-      q: 'Retrouve la coupure : le son mystère est la même basse, avec un filtre plus fermé.',
-      schema: { type: 'filtre', reglages: { lpf: 3000, lpq: 0 }, source: 'basse' },
-      cible: { lpf: 400 },
-      regler: ['lpf'],
-      explain: 'Le son mystère était à `lpf(400)` : seules les premières harmoniques passent, d’où ce son rond et étouffé.',
-    },
-    {
-      type: 'oreille',
-      id: 'oreille.adsr-pince',
-      step: 'f.pluck',
-      q: 'Retrouve l’enveloppe : le son mystère est une note pincée.',
-      schema: { type: 'adsr', reglages: { attack: 0.005, decay: 0.15, sustain: 1, release: 0.1 }, notes: 4 },
-      cible: { sustain: 0 },
-      regler: ['sustain'],
-      explain: 'Le son mystère avait `sustain(0)` : après le decay de 0,15 s, le volume tombe à zéro au lieu de rester au niveau sustain jusqu’à la fin de la note.',
-    },
-  ],
+  // Points d'étape et révisions : « retrouve le réglage à l'oreille » (familles générées
+  // dans ear.js ; identifiants stables, ne jamais les renommer).
+  ear: earTimbre,
   steps: [
     {
       id: 'f.ondes',

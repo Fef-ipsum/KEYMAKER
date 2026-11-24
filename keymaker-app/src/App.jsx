@@ -30,7 +30,7 @@ function resolve(route, ctx) {
   const [a, b] = route.parts;
   switch (route.name) {
     case 'parcours': return { tab: 'parcours', where: 'le parcours', view: <Path /> };
-    case 'etape': return { tab: 'parcours', dock: true, where: 'l’étape « ' + a + ' »', view: <Step id={a} settings={ctx.settings} reduceMotion={ctx.reduceMotion} /> };
+    case 'etape': return { tab: 'parcours', dock: true, where: 'l’étape « ' + a + ' »', view: <Step id={a} settings={ctx.settings} reduceMotion={ctx.reduceMotion} revision={route.params.revision === '1'} /> };
     case 'point': return { tab: 'parcours', where: 'un point d’étape (quiz)', view: <Quiz mode="point" chapterId={a} /> };
     case 'revision': return { tab: 'aujourdhui', where: 'une révision (quiz)', view: <Quiz mode="revision" /> };
     case 'genres': return { tab: 'genres', where: 'la liste des genres', view: <GenreList /> };

@@ -11,6 +11,7 @@
 
 import { modules } from './lessons.js';
 import { legacyChecks } from './checks.js';
+import { legacyQuizzes } from './quizzes.js';
 
 const lid = (m, flashId) => 'L' + m + '.' + flashId;
 
@@ -36,6 +37,8 @@ function adapt(m, chapterIndex, flashInChapter, f) {
     check: legacyChecks[lid(m, f.id)]?.check || null,
     solution: legacyChecks[lid(m, f.id)]?.solution || '',
     ok: legacyChecks[lid(m, f.id)]?.ok || '',
+    // Questions du point d'étape et de la révision (quizzes.js).
+    quiz: legacyQuizzes[lid(m, f.id)] || null,
     // Clé des notes par leçon de l'ancienne app (IndexedDB, magasin « notes »).
     noteKey: m - 1 + ':' + chapterIndex + ':' + flashInChapter,
   };
