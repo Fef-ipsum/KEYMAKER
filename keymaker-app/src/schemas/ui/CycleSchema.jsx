@@ -5,7 +5,7 @@
 // calculés par le moteur Strudel (pattern.js) ; le son passe par superdough lui-même.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import def from '../types/cycle.js';
-import { motifEvents, motifPattern, createPatternSound } from './pattern.js';
+import { motifEvents, motifPattern, createPatternSound, silenceMotif } from './pattern.js';
 import { useSchema } from './useSchema.js';
 import { useWidth, CodeLine, HoldButton, PlayButton, Missions, Deep } from './parts.jsx';
 import { Icon } from '../../ui.jsx';
@@ -81,19 +81,23 @@ export default function CycleSchema({ spec, context = 'lecon' }) {
   }, [motif, parsed.ok]);
   const onType = (v) => {
     setDraft(v);
+    setTapMsg('');
     const r = motifEvents(v, 0, 1);
     if (r.ok && v.trim() && !/["'`\\]/.test(v) && v.length <= 120) s.setOption('motif', v, true);
   };
   useEffect(() => setDraft(st.o.motif), [st.o.motif]);
 
-  // Toucher un bloc : ce pas devient un silence.
+  // Toucher un bloc : ce bloc devient un silence (les autres blocs du même pas restent).
+  const [tapMsg, setTapMsg] = useState('');
   const silence = (e) => {
     if (!e.loc || s.bypass) return;
-    const [a, b] = e.loc;
-    const m = st.o.motif;
-    if (a < 0 || b > m.length || !/^[A-Za-z0-9_:.]+$/.test(m.slice(a, b))) return;
-    const next = m.slice(0, a) + '~' + m.slice(b);
-    if (motifEvents(next, 0, 1).ok) s.setOption('motif', next, true);
+    const next = silenceMotif(st.o.motif, e, ev);
+    if (next && motifEvents(next, 0, 1).ok) {
+      setTapMsg('');
+      s.setOption('motif', next, true);
+    } else {
+      setTapMsg('Ce bloc vient d’une répétition que le dessin ne sait pas défaire : écris le `~` toi-même dans le motif.');
+    }
   };
 
   const toggle = () => {
@@ -157,6 +161,7 @@ export default function CycleSchema({ spec, context = 'lecon' }) {
         <span className="sch-slider-name">Le motif, entre les guillemets de <code>sound("…")</code></span>
         <input type="text" value={draft} spellCheck={false} autoCapitalize="off" autoCorrect="off" onChange={(e) => onType(e.target.value)} aria-invalid={!!draftErr} />
       </label>
+      {tapMsg ? <p className="sch-warn" role="status">{tapMsg}</p> : null}
       {draftErr ? <p className="sch-warn" role="status">Pas encore lisible : {draftErr.slice(0, 140)}. Le dessin garde le dernier motif lisible.</p> : null}
 
       <div className="sch-controls">

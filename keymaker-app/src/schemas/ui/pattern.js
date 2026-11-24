@@ -31,6 +31,45 @@ export function motifEvents(motif, from = 0, to = 4) {
   }
 }
 
+// Motif obtenu en rendant muet le bloc touché `e` (parmi les événements `ev` du motif),
+// ou null si on ne sait pas le faire sans toucher aux autres blocs.
+// Le texte `hh` de `hh*8?` ou de `hh!4` produit PLUSIEURS blocs : on ne peut pas le
+// remplacer par `~` (tous les blocs disparaîtraient). On déroule alors la répétition
+// (`hh*8?` → `[hh? hh? ~ hh? …]`, `hh!4` → `hh ~ hh hh`) pour ne taire que celui-là.
+export function silenceMotif(motif, e, ev, max = 120) {
+  if (!e || !e.loc) return null;
+  const [a, b] = e.loc;
+  if (a < 0 || b > motif.length || !/^[A-Za-z0-9_:.]+$/.test(motif.slice(a, b))) return null;
+  const word = motif.slice(a, b);
+  const rest = motif.slice(b);
+  const same = ev.filter((x) => x.c === e.c && x.loc && x.loc[0] === a && x.loc[1] === b);
+  const m = /^(?:\*(\d+)(\?[\d.]*)?|!(\d+))/.exec(rest);
+  let out = null;
+  if (m) {
+    // Ce qui suit doit être la fin du pas : sinon (`hh*8@2`, `hh*8:3`…) on ne devine pas.
+    if (!/^(?:$|[\s\]>,|)])/.test(rest.slice(m[0].length))) return null;
+    const n = Number(m[1] || m[3]);
+    if (!(n >= 1 && n <= 64)) return null;
+    let k = -1;
+    if (m[1]) {
+      // `*n` : n parts égales de la place du pas ; la part touchée se lit sur sa durée.
+      const d = e.e - e.b;
+      const len = d * n;
+      const r = (e.b - Math.floor(e.b / len + 1e-9) * len) / d;
+      if (d > 0 && Math.abs(r - Math.round(r)) < 1e-6 && Math.round(r) < n) k = Math.round(r);
+    } else if (same.length === n) {
+      k = same.indexOf(e);
+    }
+    if (k < 0) return null;
+    const items = Array.from({ length: n }, (_, i) => (i === k ? '~' : word + (m[2] || '')));
+    out = motif.slice(0, a) + (m[1] ? '[' + items.join(' ') + ']' : items.join(' ')) + rest.slice(m[0].length);
+  } else {
+    if (same.length > 1) return null; // répétition qu'on ne sait pas dérouler (`hh(3,8)`…)
+    out = motif.slice(0, a) + '~' + rest;
+  }
+  return out.length <= max ? out : null;
+}
+
 // Instant (en secondes) de chaque événement, au tempo cps, depuis le début du cycle 0.
 export const onsetSeconds = (ev, cps) => ev.map((x) => x.b / cps);
 
