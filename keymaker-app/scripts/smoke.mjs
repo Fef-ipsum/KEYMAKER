@@ -56,9 +56,11 @@ for (const [size, viewport] of Object.entries(SIZES)) {
       // Pas de débordement horizontal.
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       if (overflow > 2) fail(`${name} : débordement horizontal de ${overflow}px`);
-      // Cibles tactiles : au moins 44 px de haut (boutons visibles).
+      // Cibles tactiles : au moins 44 px de haut (boutons visibles). Exception : les liens du wiki
+      // insérés dans une phrase (.wikilink) suivent la hauteur de ligne, comme le permet WCAG 2.5.8
+      // (« inline »).
       const small = await page.evaluate(() => [...document.querySelectorAll('button, a, select, input, textarea')]
-        .filter((el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && !el.closest('.cm-editor') && !el.closest('[hidden]') && r.height < 43.5; })
+        .filter((el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && !el.closest('.cm-editor') && !el.closest('[hidden]') && !el.classList.contains('wikilink') && r.height < 43.5; })
         .map((el) => (el.className || el.tagName) + ':' + Math.round(el.getBoundingClientRect().height)).slice(0, 5));
       if (small.length) fail(`${name} : cibles trop petites → ${small.join(', ')}`);
       await page.screenshot({ path: join(SHOTS, `${size}-${scheme}-${name}.png`) });
