@@ -9,6 +9,8 @@
 // Chaque affirmation cite les entrées du contenu qui en dépendent : en cas d'échec, on
 // sait quels textes relire.
 //
+// play: ms → laisse jouer (les messages du moteur pendant la lecture) ; noLog: aucun message.
+//
 // Usage : node scripts/check-claims.mjs [--only motif|empreinte] [--id <id>]
 import { readFileSync } from 'node:fs';
 import { claims } from './claims.js';
@@ -66,7 +68,7 @@ if (motifs.length) {
   };
   const run = async (code, c, offset = 0) => {
     const cycles = (c.cycles || 1) + offset;
-    const res = await eng.evalCode(code, { cycles, playMs: 0 });
+    const res = await eng.evalCode(code, { cycles, playMs: c.play || 0 });
     if (res.error) return { error: res.error, logs: res.logs };
     if (offset) res.haps = res.haps.filter((h) => h.b >= offset - 1e-9).map((h) => ({ ...h, b: h.b - offset }));
     return { rows: render(res, c), logs: res.logs, haps: res.haps, cps: res.cps };
@@ -78,6 +80,7 @@ if (motifs.length) {
       continue;
     }
     if (c.log && !a.logs.some((l) => l.includes(c.log))) fail(c, 'message attendu absent : « ' + c.log + ' »');
+    if (c.noLog && a.logs.length) fail(c, 'message inattendu du moteur : ' + a.logs.join(' | '));
     // never / some : { champ: true (présent) | [valeurs], … }. Toutes les conditions portent
     // sur le MÊME événement : « aucun / au moins un événement ne remplit tout cela ».
     const desc = (cond) => Object.entries(cond).map(([f, w]) => f + (w === true ? ' présent' : ' = ' + w.join('|'))).join(' et ');

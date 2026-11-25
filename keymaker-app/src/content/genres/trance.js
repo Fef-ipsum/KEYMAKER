@@ -34,15 +34,15 @@ sound("bd*4, [~ oh]*4").bank("RolandTR909")`,
       title: 'Un kick net, qui fait pomper tout le reste',
       short: 'Sur chaque temps, net et peu saturé ; à chaque coup, les autres pistes s’effacent un instant (le « pompage »)',
       hear: `${BPM}
-$: sound("bd*4").bank("RolandTR909").duck(2).duckattack(.2).duckdepth(1)
-$: note("[a2,c3,e3]").sound("supersaw").lpf(2000).gain(.6).orbit(2)`,
+$: note("[a2,c3,e3]").sound("supersaw").lpf(2000).gain(.6).orbit(2)
+$: sound("bd*4").bank("RolandTR909").duck(2).duckattack(.2).duckdepth(1)`,
       what:
         'Toujours quatre coups par mesure, mais le kick trance est propre : une attaque nette, un grave court, presque pas de saturation. Sa signature est ailleurs : à chaque coup, le volume des accords et de la basse **plonge** puis remonte. On appelle ça le *sidechain*, ou « pompage ». Écoute l’accord tenu : il respire au rythme du kick.' +
         ' Les réglages du pompage : `duckdepth(1)` fait tomber l’accord à 1 % de son volume à chaque coup ; `duckattack(.2)` le fait remonter en 0,2 s, bien avant le coup suivant (0,43 s plus tard à 138 BPM). Voir [duck](fx.duck) et [orbit](fx.orbit).',
       build: [
         ['1. Le kick seul', `${BPM}\nsound("bd*4").bank("RolandTR909")`],
-        ['2. Un accord tenu par-dessus : tout se mélange', `${BPM}\n$: sound("bd*4").bank("RolandTR909")\n$: note("[a2,c3,e3]").sound("supersaw").lpf(2000).gain(.6)`],
-        ['3. Le sidechain : l’accord s’écarte à chaque coup', `${BPM}\n$: sound("bd*4").bank("RolandTR909").duck(2).duckattack(.2).duckdepth(1)\n$: note("[a2,c3,e3]").sound("supersaw").lpf(2000).gain(.6).orbit(2)`],
+        ['2. Un accord tenu par-dessus : tout se mélange', `${BPM}\n$: note("[a2,c3,e3]").sound("supersaw").lpf(2000).gain(.6)\n$: sound("bd*4").bank("RolandTR909")`],
+        ['3. Le sidechain : l’accord s’écarte à chaque coup', `${BPM}\n$: note("[a2,c3,e3]").sound("supersaw").lpf(2000).gain(.6).orbit(2)\n$: sound("bd*4").bank("RolandTR909").duck(2).duckattack(.2).duckdepth(1)`],
       ],
       wiki: ['genre.sidechain', 'fx.duck', 'fx.orbit'],
     },

@@ -10,12 +10,16 @@
 //     2. le son correspond à Strudel : rendu superdough vs rendu du schéma, hors temps réel ;
 //     3. la ligne de code s'exécute et produit les valeurs attendues ;
 //     5. chaque fait du « Creuser » est mesuré.
-// Usage : node scripts/check-schemas.mjs [--quick]
+// Usage : node scripts/check-schemas.mjs [--quick] [--pages N]
+//   --pages N : les rendus superdough de B2 (l'essentiel de la durée) sont répartis sur N pages
+//               Chromium (par défaut 4, ou moins si la machine a moins de cœurs) ; mêmes
+//               rendus et même sortie qu'avec --pages 1.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { launchBrowser } from './browser.mjs';
 import { serve } from './static-server.mjs';
+import { pageCount } from './harness.mjs';
 import { TYPES, validateSpec, stateFromSpec, codeText, earCompare, describeCatalog, parseSchemaBlock, fromPos } from '../src/schemas/catalog.js';
 import { createMissionRunner, pickMissions, missionsFor } from '../src/schemas/core/missions.js';
 import { allSchemas } from '../src/content/registry.js';
@@ -188,33 +192,40 @@ for (const id of factIds) check(doc.includes('`' + id + '`'), 'fait ' + id + ' :
 /* ================= B. Dans le navigateur ================= */
 const srv = await serve(ROOT);
 const browser = await launchBrowser();
-const page = await browser.newPage();
 const PAGE = `<!doctype html><html><head><meta charset="utf-8">
 <script src="/public/vendor/strudel-repl/index.js" defer></script></head><body><div id="host"></div></body></html>`;
-await page.route('**/__schemas.html', (route) => route.fulfill({ body: PAGE, contentType: 'text/html' }));
 const pageErrors = [];
-page.on('pageerror', (e) => pageErrors.push(String(e)));
-await page.goto(srv.url + '__schemas.html');
-await page.waitForFunction(() => customElements.get('strudel-editor'));
-await page.evaluate(async () => {
-  const el = document.createElement('strudel-editor');
-  el.setAttribute('code', 'silence');
-  document.getElementById('host').appendChild(el);
-  await new Promise((r) => {
-    const t = setInterval(() => {
-      if (el.editor) {
-        clearInterval(t);
-        r();
-      }
-    }, 50);
+// Une page d'essai : le moteur, puis le banc. La page principale fait tout ; les autres
+// (--pages) ne servent qu'à rendre une part des sons de B2 et à les comparer.
+async function openBench() {
+  const page = await browser.newPage();
+  await page.route('**/__schemas.html', (route) => route.fulfill({ body: PAGE, contentType: 'text/html' }));
+  page.on('pageerror', (e) => pageErrors.push(String(e)));
+  await page.goto(srv.url + '__schemas.html');
+  await page.waitForFunction(() => customElements.get('strudel-editor'));
+  await page.evaluate(async () => {
+    const el = document.createElement('strudel-editor');
+    el.setAttribute('code', 'silence');
+    document.getElementById('host').appendChild(el);
+    await new Promise((r) => {
+      const t = setInterval(() => {
+        if (el.editor) {
+          clearInterval(t);
+          r();
+        }
+      }, 50);
+    });
+    window.__ed = el.editor;
+    await window.__ed.evaluate();
+    await new Promise((r) => setTimeout(r, 1500));
+    window.__ed.stop();
+    window.__bench = await import('/scripts/schemas-bench.js');
   });
-  window.__ed = el.editor;
-  await window.__ed.evaluate();
-  await new Promise((r) => setTimeout(r, 1500));
-  window.__ed.stop();
-  window.__bench = await import('/scripts/schemas-bench.js');
-});
-const bench = (fn, ...args) => page.evaluate(({ fn, args }) => window.__bench[fn](...args), { fn, args });
+  return page;
+}
+const [page, ...helpers] = await Promise.all(Array.from({ length: pageCount() }, openBench));
+const benchOn = (p, fn, ...args) => p.evaluate(({ fn, args }) => window.__bench[fn](...args), { fn, args });
+const bench = (fn, ...args) => benchOn(page, fn, ...args);
 
 // Quelques états au hasard (graine fixe), arrondis comme dans l'app.
 let seed = 7;
@@ -286,10 +297,40 @@ for (const t of Object.keys(TYPES).filter((x) => !RHYTHM.has(x))) for (let i = 0
 // (écho à 0,98) sonne encore des dizaines de secondes et déborderait sur lui.
 const items = await page.evaluate((specs) => [...specs.map((sp) => window.__bench.strudelItem(sp)), { ...window.__bench.strudelItem({ type: 'filtre', reglages: { lpf: 138, lpq: 27 }, source: 'repetee' }), key: 'self:resonance' }, ...window.__bench.FACT_RENDERS], soundCases.map((c) => c.spec));
 const uniq = [...new Map(items.map((it) => [it.key, it])).values()];
-const nRendered = await bench('renderStrudelAll', uniq);
+// Répartition : la page principale garde ce que d'autres mesures relisent (le contrôle
+// « superdough contre lui-même » et le rendu qu'il compare, les faits, le sidechain : ils
+// partagent des orbites, réverbérations et échos) ; les autres rendus des schémas sont
+// distribués aux pages d'appoint, qui font aussi leurs comparaisons. Chaque rendu garde son
+// décalage du rendu unique (`at`, à un multiple de 128 échantillons près).
+const GAP = await page.evaluate(() => window.__bench.GAP);
+// Rendus de schémas relus par la page principale : le contrôle « contre lui-même » et le
+// fait adsr.defauts (soundVsStrudel dans FACTS).
+const MAIN_KEYS = new Set(await page.evaluate(() => [{ type: 'filtre', reglages: { lpf: 138, lpq: 27 }, source: 'repetee' }, { type: 'adsr', reglages: {}, notes: 4 }].map((sp) => window.__bench.strudelItem(sp).key)));
+{
+  let at = 0;
+  for (const it of uniq) {
+    it.at = at;
+    at += it.seconds + GAP;
+  }
+}
+const pages = [page, ...helpers];
+const pageOf = new Map();
+let rr = 0;
+for (const it of uniq) pageOf.set(it.key, !helpers.length || !it.key.startsWith('spec:') || MAIN_KEYS.has(it.key) ? page : helpers[rr++ % helpers.length]);
+const counts = await Promise.all(pages.map((p) => benchOn(p, 'renderStrudelAll', uniq.filter((it) => pageOf.get(it.key) === p))));
+const nRendered = counts.reduce((a, b) => a + b, 0);
 ok(nRendered + ' rendus superdough hors temps réel');
-for (const c of soundCases) {
-  const r = await bench('soundVsStrudel', c.spec);
+// Comparaisons dans la page qui a le rendu, toutes les pages en même temps ; verdicts dans l'ordre.
+const soundRes = new Array(soundCases.length);
+await Promise.all(pages.map(async (p) => {
+  for (let i = 0; i < soundCases.length; i++) {
+    if (pageOf.get(items[i].key) === p) // items[i] : le rendu de soundCases[i]
+      soundRes[i] = await benchOn(p, 'soundVsStrudel', soundCases[i].spec);
+  }
+}));
+for (let i = 0; i < soundCases.length; i++) {
+  const c = soundCases[i];
+  const r = soundRes[i];
   check(r.maxAbs < 1e-4 && r.envDiff < 0.005 && r.specDiff < 0.5, `même son que Strudel : ${c.where}`, `${r.code} · écart échantillon max ${r.maxAbs.toExponential(1)} (crête ${r.peak.toFixed(3)}), enveloppe ${(r.envDiff * 100).toFixed(3)} %, spectre ${r.specDiff.toFixed(3)} dB · juste après la fin des notes (rangement asynchrone) : ${r.zoneAbs.toExponential(1)}`);
 }
 

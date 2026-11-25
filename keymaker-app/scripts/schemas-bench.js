@@ -156,7 +156,7 @@ export async function evalPattern(code) {
 // deuxième contexte hors temps réel recevrait des nœuds du premier et planterait. On fait
 // donc TOUS les rendus superdough d'une vérification dans un seul contexte, chacun à son
 // propre décalage dans le temps, séparés par assez de silence pour que rien ne déborde.
-const GAP = 5.5; // plus longue note tenue (2 s) + plus longue extinction (3 s) + marge
+export const GAP = 5.5; // plus longue note tenue (2 s) + plus longue extinction (3 s) + marge
 window.__renders = window.__renders || {};
 // Sidechain : superdough calcule la baisse dans l'événement `ended` d'une source arrêtée
 // 10 ms avant le coup (webAudioTimeout → Orbit.duck), et lit alors l'heure du contexte.
@@ -200,8 +200,18 @@ export async function renderStrudelAll(items) {
   const cps = 0.5;
   const plans = [];
   let offset = 0;
+  // Rendu réparti sur plusieurs pages (check-schemas.mjs) : chaque page ne rend qu'une partie
+  // des codes, mais chacun garde, à un nombre entier de blocs de 128 échantillons près, le
+  // décalage `at` qu'il aurait dans le rendu unique. Les blocs tombent donc aux mêmes endroits
+  // du son : rendu identique à celui d'un seul contexte.
+  // Pas de son dans les premiers blocs d'un contexte, sauf à 0 pile comme dans le rendu unique :
+  // un son posé quelques millisecondes après le début ne rend pas tout à fait pareil (mesuré :
+  // lpf 138, lpq 27 à 75 échantillons du début → 3,6e-4 d'écart avec le schéma, 0 à 0 s ou à 7,8 s).
+  const Q = 128 / SR;
+  if (items.length && items[0].at != null) offset = Math.min(items[0].at, GAP);
   for (const it of items) {
     const pat = await evalPattern(it.code);
+    if (it.at != null) offset = it.at - Math.floor((it.at - offset) / Q + 1e-9) * Q;
     plans.push({ ...it, pat, offset });
     offset += it.seconds + GAP;
   }

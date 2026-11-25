@@ -5,10 +5,10 @@
 // elle, l'exemple montre une transformation sans effet : c'est soit une erreur (comme
 // `swing(8)` sur `hh*8`), soit un cas voulu (à déclarer dans ALLOWED avec sa raison).
 //
-// Usage : node scripts/check-noop.mjs [--only wiki|fondations|genres|legacy]
+// Usage : node scripts/check-noop.mjs [--only wiki|fondations|genres|legacy] [--pages N]
 // Sortie : un avertissement par cas suspect ; code de sortie 1 s'il y en a.
 import { allExamples } from '../src/content/registry.js';
-import { openEngine } from './harness.mjs';
+import { openEngines } from './harness.mjs';
 
 const only = process.argv.includes('--only') ? process.argv[process.argv.indexOf('--only') + 1] : null;
 
@@ -69,26 +69,31 @@ const sig = (res) =>
     .sort()
     .join('|');
 
-const eng = await openEngine();
+const pool = await openEngines();
 const examples = allExamples().filter((e) => e.group !== 'reference' && (!only || e.group === only));
 let warned = 0;
 let tested = 0;
 const seen = new Set();
+const todo = [];
 for (const ex of examples) {
   const code = String(ex.code);
   if (seen.has(code)) continue;
   seen.add(code);
   if (ALLOWED_EXAMPLES.some(([needle]) => code.includes(needle))) continue;
-  const found = calls(code);
-  if (!found.length) continue;
+  if (calls(code).length) todo.push(ex);
+}
+// Chaque page traite un exemple entier ; ses avertissements sont affichés dans l'ordre des exemples.
+await pool.map(todo, async (eng, ex) => {
+  const code = String(ex.code);
+  const out = { tested: 0, lines: [] };
   const base = await eng.evalCode(code, { cycles: 4, playMs: 0 });
-  if (base.error || !base.haps.length) continue;
+  if (base.error || !base.haps.length) return out;
   const ref = sig(base);
-  for (const c of found) {
+  for (const c of calls(code)) {
     const without = removeCall(code, c.i, c.name);
     if (!without) continue;
     const res = await eng.evalCode(without, { cycles: 4, playMs: 0 });
-    tested++;
+    out.tested++;
     if (res.error || !res.haps.length) continue;
     if (sig(res) !== ref) continue;
     // Confirmation sur 64 cycles : un masque, un « lastOf(8) », un signal lent ou une section
@@ -98,10 +103,14 @@ for (const ex of examples) {
     const call = code.slice(c.i, code.length - without.length + c.i);
     const ok = ALLOWED.find(([needle]) => code.includes(needle) && call.includes(needle.replace(/^.*?(\.\w+\()/, '$1')));
     if (ok) continue;
-    warned++;
-    console.log(`⚠ ${ex.where} : « ${call} » ne change rien\n    ${code.replace(/\n/g, ' ⏎ ').slice(0, 160)}`);
+    out.lines.push(`⚠ ${ex.where} : « ${call} » ne change rien\n    ${code.replace(/\n/g, ' ⏎ ').slice(0, 160)}`);
   }
-}
-await eng.close?.();
+  return out;
+}, (out) => {
+  tested += out.tested;
+  warned += out.lines.length;
+  for (const line of out.lines) console.log(line);
+});
+await pool.close();
 console.log(`transformations testées : ${tested} · sans effet : ${warned}`);
 process.exit(warned ? 1 : 0);

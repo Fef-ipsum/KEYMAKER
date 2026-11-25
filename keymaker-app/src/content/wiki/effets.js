@@ -1140,11 +1140,12 @@ $: note("<[c3,eb3,g3] [ab2,c3,eb3]>")
       'Posé sur un son déclencheur (en général le kick), fait plonger brièvement le volume de toute une autre [orbit](fx.orbit) à chaque coup, puis le fait remonter. ' +
       'La basse ou la nappe s’écarte pour laisser passer le kick et semble respirer au rythme : c’est le *pompage*, imitation du *sidechain* des studios.',
     code: `setcpm(124/4)
+// l’accord joue dans l’orbit 2
+$: note("[c3,eb3,g3]").sound("sawtooth")
+  .lpf(1500).orbit(2)
 // le kick fait plonger l’orbit 2
 $: sound("bd*4").bank("RolandTR909")
-  .duck(2).duckattack(.2).duckdepth(1)
-$: note("[c3,eb3,g3]").sound("sawtooth")
-  .lpf(1500).orbit(2)`,
+  .duck(2).duckattack(.2).duckdepth(1)`,
     args: [
       ['duck', 'le numéro de l’orbit à faire plonger ; plusieurs : `duck("2:3")`. Nom complet : `duckorbit`.'],
       ['duckdepth', 'profondeur, de 0 à 1. Défaut : 1. Le volume tombe à 1 − √duckdepth, jamais sous 1 % : `1` = 1 % (−40 dB), presque le silence · `.75` = 13 % · `.5` = 29 % (−11 dB) · `.25` = 50 % (−6 dB).'],
@@ -1165,21 +1166,21 @@ $: note("[c3,eb3,g3]").sound("sawtooth")
         'Le kick, sur l’orbit 1, fait plonger l’orbit 2, où joue la nappe. `duckdepth(.9)` : creux profond (le volume tombe à 5 %). ' +
         '`duckattack(.3)` : remontée en 0,3 s, un peu plus de la moitié de l’intervalle entre deux kicks : on entend nettement la nappe respirer.',
       code: `setcpm(124/4)
-$: sound("bd*4").bank("RolandTR909")
-  // fait plonger l’orbit 2 à chaque coup
-  .duck(2).duckdepth(.9).duckattack(.3)
 $: note("<[c3,eb3,g3] [ab2,c3,eb3]>")
   .sound("supersaw").lpf(2000).gain(.5)
   // la nappe vit dans l’orbit 2
-  .orbit(2)`,
+  .orbit(2)
+$: sound("bd*4").bank("RolandTR909")
+  // fait plonger l’orbit 2 à chaque coup
+  .duck(2).duckdepth(.9).duckattack(.3)`,
     },
     vary: [
-      ['`duckdepth(.3)` : pompage discret ; le kick ressort sans effet audible', 'setcpm(124/4)\n$: sound("bd*4").bank("RolandTR909")\n  .duck(2).duckdepth(.3).duckattack(.3)\n$: note("<[c3,eb3,g3] [ab2,c3,eb3]>")\n  .sound("supersaw").lpf(2000).gain(.5).orbit(2)'],
-      ['Kick muet : la nappe pompe sans qu’on entende de kick', 'setcpm(124/4)\n// déclencheur inaudible\n$: sound("bd*4").gain(0)\n  .duck(2).duckdepth(.9).duckattack(.3)\n$: note("<[c3,eb3,g3] [ab2,c3,eb3]>")\n  .sound("supersaw").lpf(2000).gain(.5).orbit(2)'],
+      ['`duckdepth(.3)` : pompage discret ; le kick ressort sans effet audible', 'setcpm(124/4)\n$: note("<[c3,eb3,g3] [ab2,c3,eb3]>")\n  .sound("supersaw").lpf(2000).gain(.5).orbit(2)\n$: sound("bd*4").bank("RolandTR909")\n  .duck(2).duckdepth(.3).duckattack(.3)'],
+      ['Kick muet : la nappe pompe sans qu’on entende de kick', 'setcpm(124/4)\n$: note("<[c3,eb3,g3] [ab2,c3,eb3]>")\n  .sound("supersaw").lpf(2000).gain(.5).orbit(2)\n// déclencheur inaudible\n$: sound("bd*4").gain(0)\n  .duck(2).duckdepth(.9).duckattack(.3)'],
     ],
     traps: [
       '`duck` se place sur le son qui DÉCLENCHE (le kick), pas sur celui qui plonge.',
-      'L’orbit visée doit exister : il faut une piste avec `.orbit(2)`, sinon le moteur signale une erreur.',
+      'L’orbit visée doit exister au moment du coup : il faut une piste avec `.orbit(2)`, écrite AVANT celle du kick. Écrite après, elle n’existe pas encore au premier coup du premier ▶ : ce coup ne fait rien plonger, et le moteur note « duck target orbit 2 does not exist » dans la console du navigateur.',
       'Tout ce qui joue dans l’orbit visée plonge, réverbération et écho compris. Ne mets pas le kick dans l’orbit qu’il fait plonger.',
       '`duckattack` règle la remontée, pas la descente : la descente, c’est `duckonset`.',
     ],

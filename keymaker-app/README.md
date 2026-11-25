@@ -50,7 +50,7 @@ scripts/                   vérifications et fabrication (voir ci-dessous)
 | `npm run dev` | Développement (rechargement à chaud ; pas de service worker). |
 | `npm run build` | Build local (`dist/`, servi par `start.bat`). |
 | `npm run build:pi` | Build pour le Pi (`dist-pi/`, adresse de base `/keymaker/app/`). |
-| `npm run check` | Vérifie les liens, puis **exécute chaque exemple de code** dans le moteur réel et vérifie chaque exercice (le code de départ ne valide pas, la solution valide). |
+| `npm run check` | Vérifie les liens, puis **exécute chaque exemple de code** dans le moteur réel et vérifie chaque exercice (le code de départ ne valide pas, la solution valide). `check-content`, `check-noop` et `check-schemas` se répartissent sur 4 pages Chromium (moins si la machine a moins de cœurs) ; `--pages 1` ou `KM_PAGES=1` les refait en série, avec les mêmes verdicts dans le même ordre. Chaque exemple part d'un moteur audio neuf, comme au premier ▶ dans l'app. |
 | `npm run smoke` | Parcourt le build du Pi dans un navigateur : 3 tailles d'écran × 2 thèmes, parcours d'un débutant, reprise des anciennes données, hors ligne. |
 | `npm run samples` | Reconstruit le pack de sons hors ligne (`public/samples/`) en jouant chaque exemple du contenu (réseau requis). À relancer quand un contenu utilise un nouveau son. |
 | `npm run reference` | Ré-extrait la documentation officielle du moteur embarqué. |

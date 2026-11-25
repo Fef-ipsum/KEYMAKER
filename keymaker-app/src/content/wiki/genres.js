@@ -74,8 +74,8 @@ sound("bd*4, [~ oh]*4").bank("RolandTR909")`,
     id: 'genre.sidechain', t: 'sidechain', sub: 'le pompage', kind: 'genre', genre: ['trance', 'kick'],
     ess: 'À chaque kick, le volume des autres pistes plonge puis remonte. Le kick reste lisible, et tout le morceau « respire » en rythme.',
     code: `setcpm(138/4)
-$: sound("bd*4").bank("RolandTR909").duck(2).duckattack(.2).duckdepth(1)
-$: note("[a2,c3,e3]").sound("supersaw").lpf(2000).gain(.6).orbit(2)`,
+$: note("[a2,c3,e3]").sound("supersaw").lpf(2000).gain(.6).orbit(2)
+$: sound("bd*4").bank("RolandTR909").duck(2).duckattack(.2).duckdepth(1)`,
     why: [
       'Dans Strudel, `duck` (voir [duck](fx.duck)) fait plonger le volume de toute une [orbit](fx.orbit) à chaque coup du déclencheur, puis le fait remonter en `duckattack` secondes. Plus la remontée est longue (jusqu’à l’intervalle entre deux kicks), plus le pompage s’entend.',
     ],

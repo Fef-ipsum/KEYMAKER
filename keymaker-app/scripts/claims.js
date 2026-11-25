@@ -108,6 +108,10 @@ export const claims = [
   { id: 'phaser-forme-courte', kind: 'motif', code: 'note("c3").phaser("2:.8:1000:2000")', fields: ['phaserrate', 'phaserdepth', 'phasercenter', 'phasersweep'], expect: ['2/0.8/1000/2000'], cites: ['fx.phaser'] },
   { id: 'vib-forme-courte', kind: 'motif', code: 'note("c4").vib("5:.3")', fields: ['vib', 'vibmod'], expect: ['5/0.3'], cites: ['fx.vib'] },
   { id: 'fm-est-fmi', kind: 'motif', code: 'note("c3").fm("4")', fields: ['fmi'], expect: ['4'], cites: ['fx.fm'] },
+  // Au premier ▶ (orbites neuves), duck(2) cherche l'orbit 2 au moment du coup : si la piste
+  // .orbit(2) est écrite APRÈS le kick, le premier coup ne la trouve pas et ne fait rien plonger.
+  { id: 'duck-orbite-avant', kind: 'motif', play: 900, code: 'setcpm(124/4)\n$: sound("bd*4").duck(2)\n$: note("c3").sound("sawtooth").orbit(2)', log: 'duck target orbit 2 does not exist', cites: ['fx.duck'] },
+  { id: 'duck-orbite-ecrite-avant', kind: 'motif', play: 900, code: 'setcpm(124/4)\n$: note("c3").sound("sawtooth").orbit(2)\n$: sound("bd*4").duck(2)', noLog: true, cites: ['fx.duck', 'genre.sidechain', 'g.trance.kick'] },
   { id: 'duck-plusieurs', kind: 'motif', code: 's("bd").duck("2:3")', fields: ['duckorbit'], expect: ['2,3'], cites: ['fx.duck'] },
   { id: 's-nom-variante-gain', kind: 'motif', code: 's("square:0:.5")', fields: ['s', 'n', 'gain'], expect: ['square/0/0.5'], cites: ['L6.6.19'] },
   { id: 'lpf-forme-courte', kind: 'motif', code: 'note("c2").lpf("800:12")', fields: ['cutoff', 'resonance'], expect: ['800/12'], cites: ['fx.lpf', 'fx.lpq'] },
