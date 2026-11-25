@@ -19,9 +19,11 @@ import Path from './views/Path.jsx';
 import Step from './views/Step.jsx';
 import Quiz from './views/Quiz.jsx';
 import Studio from './views/Studio.jsx';
+import Defi from './views/Defi.jsx';
 import { GenreList, GenreOverview, Trait, Assemble, CaseStudy, Compare } from './views/Genres.jsx';
 import { WikiHome, WikiEntryPage, WikiSheet, Annotations } from './views/Wiki.jsx';
 import { Settings, Session } from './views/Settings.jsx';
+import SchemaReview from './views/SchemaReview.jsx';
 import { byId } from './content/wiki/index.js';
 
 // Chaque route : { tab (onglet allumé), dock (utilise l'éditeur), where (pour Sati), view }.
@@ -29,7 +31,7 @@ function resolve(route, ctx) {
   const [a, b] = route.parts;
   switch (route.name) {
     case 'parcours': return { tab: 'parcours', where: 'le parcours', view: <Path /> };
-    case 'etape': return { tab: 'parcours', dock: true, where: 'l’étape « ' + a + ' »', view: <Step id={a} settings={ctx.settings} reduceMotion={ctx.reduceMotion} /> };
+    case 'etape': return { tab: 'parcours', dock: true, where: 'l’étape « ' + a + ' »', view: <Step id={a} settings={ctx.settings} reduceMotion={ctx.reduceMotion} revision={route.params.revision === '1'} /> };
     case 'point': return { tab: 'parcours', where: 'un point d’étape (quiz)', view: <Quiz mode="point" chapterId={a} /> };
     case 'revision': return { tab: 'aujourdhui', where: 'une révision (quiz)', view: <Quiz mode="revision" /> };
     case 'genres': return { tab: 'genres', where: 'la liste des genres', view: <GenreList /> };
@@ -41,8 +43,10 @@ function resolve(route, ctx) {
     case 'comparer': return { tab: 'genres', where: 'le comparateur de genres', view: <Compare a={route.params.a} b={route.params.b} /> };
     case 'wiki': return a ? { tab: 'wiki', where: 'le wiki, entrée ' + a, view: <WikiEntryPage id={a} /> } : { tab: 'wiki', where: 'le wiki', view: <WikiHome q0={route.params.q || ''} /> };
     case 'annotations': return { tab: 'wiki', where: 'ses annotations', view: <Annotations /> };
+    case 'defi': return { tab: 'studio', dock: true, where: 'un défi vérifié' + (a ? ' (« ' + a + ' »)' : ''), view: <Defi id={a} settings={ctx.settings} /> };
     case 'studio': return { tab: 'studio', dock: true, where: 'le Studio (bac à sable libre)', view: <Studio defi={route.params.defi} /> };
     case 'reglages': return { tab: '', where: 'les réglages', view: <Settings settings={ctx.settings} setSettings={ctx.setSettings} /> };
+    case 'schemas': return { tab: '', where: 'la page de revue des schémas vivants', view: <SchemaReview /> };
     case 'session': return { tab: 'aujourdhui', where: 'le récapitulatif de session', view: <Session /> };
     default: return { tab: 'aujourdhui', where: 'l’accueil', view: <Today /> };
   }

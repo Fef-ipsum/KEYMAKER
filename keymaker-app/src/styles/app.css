@@ -72,6 +72,7 @@ h2 { font-size: calc(1.15rem * var(--fs)); font-weight: 650; letter-spacing: -.0
 p + p { margin-top: .7em; }
 code, pre, kbd { font-family: var(--mono); font-size: .92em; }
 :not(pre) > code { background: var(--blue-soft); color: var(--ink); padding: .08em .36em; border-radius: 6px; white-space: nowrap; }
+:not(pre) > code.code-long { white-space: normal; overflow-wrap: anywhere; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 kbd { border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: 6px; padding: 0 .35em; font-size: .8em; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; background: none; border: 0; padding: 0; text-align: inherit; }
@@ -157,6 +158,9 @@ button:disabled { cursor: default; opacity: .5; }
 .chip-t { font-family: var(--mono); font-size: .9em; font-weight: 600; align-self: center; }
 .chip-s { font-size: .8em; color: var(--ink-3); align-self: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chip-strong { border-color: var(--blue); background: var(--blue-soft); }
+.wikilink { display: inline; padding: 0; margin: 0; border: 0; background: none; font: inherit; color: var(--blue); text-decoration: underline; text-decoration-style: dotted; text-decoration-thickness: 1px; text-underline-offset: 3px; cursor: pointer; text-align: inherit; }
+.wikilink:hover { text-decoration-style: solid; }
+.wikilink code { color: inherit; }
 .quietline { min-height: 52px; width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-radius: var(--r-s); border: 1px solid var(--line); background: var(--glass); color: var(--ink-2); font-weight: 550; }
 .quietline > span { flex: 1; }
 .quietline:hover { border-color: var(--line-2); color: var(--ink); }
@@ -310,6 +314,9 @@ textarea { resize: vertical; line-height: 1.45; }
 .res-ok p .ic { margin-top: 3px; flex: none; }
 .res-hint { background: var(--hint-soft); border-left: 3px solid var(--hint); }
 .res-wait { color: var(--ink-3); padding: 2px 0; }
+/* Indice gradué, 2e palier : où chercher dans le code de départ. */
+.res-where { background: var(--hint-soft); border-left: 3px dashed var(--hint); }
+.task-alt .res-where { flex-basis: 100%; }
 .keepform { display: grid; gap: 4px; padding: 0 4px; }
 .keeprow { display: flex; gap: 8px; }
 .keeprow input { flex: 1; min-width: 0; }
@@ -332,6 +339,8 @@ textarea { resize: vertical; line-height: 1.45; }
 /* ---------- Code, exemples ---------- */
 .code { font-family: var(--mono); font-size: .86em; line-height: 1.55; background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; overflow-x: auto; white-space: pre; }
 .code-small { font-size: .8em; margin-top: 8px; }
+/* Exemples (wiki, genres…) : on passe à la ligne plutôt que de cacher la fin des commentaires sur téléphone. */
+.sample .code { white-space: pre-wrap; overflow-wrap: anywhere; }
 .sample { padding: 14px; display: grid; gap: 10px; box-shadow: none; }
 .sample-title { font-weight: 620; }
 .sample-note { color: var(--ink-3); font-size: .9em; }
@@ -377,6 +386,8 @@ textarea { resize: vertical; line-height: 1.45; }
 .badge { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line-2); font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); font-weight: 700; vertical-align: middle; }
 .subsec { display: grid; gap: 8px; padding-top: 12px; border-top: 1px dashed var(--line); }
 .subsec h3 { font-size: .98rem; font-weight: 650; }
+.subsec-first { padding-top: 0; border-top: 0; }
+.paras { display: grid; gap: 10px; }
 .chip-more .chip-t { font-family: var(--font); }
 .searchbox input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
 .cmp { display: grid; gap: 12px; }
@@ -476,3 +487,35 @@ textarea { resize: vertical; line-height: 1.45; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
 :root[data-motion='reduce'] *, :root[data-motion='reduce'] *::before, :root[data-motion='reduce'] *::after { animation: none !important; transition: none !important; }
+
+/* --- Durée d'un temps (barre de l'éditeur) --- */
+.beatpanel { display: grid; gap: 10px; padding: 12px 14px; margin: 0 4px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg-2); }
+.beat-head { font-size: 1rem; }
+.beat-row, .beat-click { display: flex; align-items: center; gap: 10px; font-size: .9rem; font-weight: 600; color: var(--ink-2); }
+.beat-row select { min-height: 40px; padding: 4px 10px; border-radius: 10px; }
+.beat-click input { width: 22px; height: 22px; }
+.beat-table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.beat-table th { text-align: left; font-weight: 500; color: var(--ink-2); padding: 4px 0; }
+.beat-table td { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; padding: 4px 0; }
+.beat-table tr + tr { border-top: 1px dashed var(--line); }
+.beat-conv { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 8px 12px; }
+.beat-conv label { display: flex; align-items: center; gap: 8px; font-size: .88rem; font-weight: 600; color: var(--ink-2); }
+.beat-conv input { width: 5.5em; min-height: 40px; padding: 4px 8px; border-radius: 10px; font-family: var(--mono); }
+.beat-out { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.task-note { color: var(--ink-2); font-size: .92em; margin: 0 0 6px; }
+.task-alt { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 6px 0 0; }
+
+/* Studio : enregistrer le son */
+.rec-row { display: grid; gap: 6px; }
+.rec-label { font-size: .85em; color: var(--ink-2); font-weight: 600; }
+.rec-sec { font-weight: 400; opacity: .8; }
+.rec-busy { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-variant-numeric: tabular-nums; }
+.rec-dot { width: 12px; height: 12px; border-radius: 50%; background: #e5484d; animation: rec-blink 1s steps(2, start) infinite; }
+@keyframes rec-blink { to { visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) { .rec-dot { animation: none; } }
+.rec-done { display: grid; gap: 10px; }
+.rec-audio { width: 100%; }
+
+/* Visualisations dans le code (_pianoroll, _scope…) : à la largeur de l'éditeur. */
+.cm-content > canvas[id^="_widget_"] { max-width: 100%; height: auto; }
+.cm-content > canvas.km-wide { display: block; width: 100% !important; height: 60px !important; }

@@ -108,6 +108,11 @@ export function Settings({ settings, setSettings }) {
         </div>
       </Fold>
 
+      <h2 className="section-title">Schémas vivants</h2>
+      <button type="button" className="quietline" onClick={() => go('#/schemas')}>
+        <Icon name="ear" size={18} /><span>Page de revue : tous les schémas d’un coup</span><Icon name="next" size={18} />
+      </button>
+
       <h2 className="section-title">Mes données</h2>
       <div className="panel">
         <p>Ta progression, tes annotations et tes codes gardés sont enregistrés sur cet appareil, dans ce navigateur. Ils ne sont envoyés nulle part.</p>

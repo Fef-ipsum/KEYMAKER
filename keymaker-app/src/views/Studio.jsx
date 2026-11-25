@@ -1,13 +1,15 @@
 // Studio — « je veux juste faire du son ». Aucun exercice, aucune progression.
 // Le code est conservé d'une session à l'autre (même clé que l'ancienne app).
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as dock from '../lib/dock.js';
 import * as engine from '../lib/engine.js';
 import { readText, writeText } from '../lib/store.js';
 import { loadSnippets, deleteSnippet, addSnippet } from '../lib/notebook.js';
-import { go, pickDefi, readFlow, advanceFlow, DEFIS } from '../lib/app.js';
+import { go, pickDefi, readFlow, advanceFlow, DEFIS, useEngine } from '../lib/app.js';
 import { Icon, Rich, PageHead, Fold } from '../ui.jsx';
+import { record, recordingSupported, webmType, cpsOfCode, arrangeCycles, RecordError } from '../lib/record.js';
+import { frNum } from '../schemas/core/format.js';
 
 const STUDIO_KEY = 'keymaker:studio:code';
 
@@ -105,6 +107,11 @@ export default function Studio({ defi }) {
             <Icon name="genres" size={18} /><span>Pas d’idée ? Un défi libre</span><Icon name="next" size={18} />
           </button>
         )}
+        <button type="button" className="quietline" onClick={() => go('#/defi')}>
+          <Icon name="check" size={18} /><span>Un défi vérifié : une consigne précise, l’app contrôle ton code</span><Icon name="next" size={18} />
+        </button>
+
+        <Recorder />
 
         <h2 className="section-title">Mes codes gardés</h2>
         {snips.length ? (
@@ -143,5 +150,106 @@ export default function Studio({ defi }) {
         </Fold>
       </section>
     </>
+  );
+}
+
+/* --- Enregistrer le son ------------------------------------------------------------ */
+const LENGTHS = [4, 8, 16, 32];
+const secs = (x) => frNum(Math.round(x * 10) / 10) + ' s';
+function stamp() {
+  const d = new Date();
+  const p = (n) => String(n).padStart(2, '0');
+  return `keymaker-${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+}
+function Recorder() {
+  const eng = useEngine();
+  const [cycles, setCycles] = useState(8);
+  const [piece, setPiece] = useState(false); // tout le morceau arrange, depuis son début
+  const [format, setFormat] = useState('wav');
+  const [busy, setBusy] = useState(null); // { done, total }
+  const [result, setResult] = useState(null); // { url, name, seconds, cycles, size, peak }
+  const [error, setError] = useState('');
+  const abort = useRef(null);
+  useEffect(() => () => { if (abort.current) abort.current.abort(); }, []);
+  useEffect(() => () => { if (result) URL.revokeObjectURL(result.url); }, [result]);
+  if (!recordingSupported() && eng.ready) return null;
+  const cps = eng.playing ? engine.currentCps() : cpsOfCode(engine.getCode());
+  const compressed = webmType();
+  const pieceLen = arrangeCycles(engine.getCode());
+  const start = async () => {
+    setError('');
+    setResult(null);
+    const ctl = new AbortController();
+    abort.current = ctl;
+    // Le morceau : sa longueur est relue dans le code au moment d'enregistrer.
+    const whole = piece ? arrangeCycles(engine.getCode()) : null;
+    if (piece && !whole) {
+      setPiece(false);
+      setError('Le code n’a plus de morceau `arrange` lisible : choisis un nombre de cycles.');
+      return;
+    }
+    const n = whole || cycles;
+    setBusy({ done: 0, total: cps ? n / cps : 0 });
+    try {
+      const r = await record({ cycles: n, format, fromStart: !!whole, signal: ctl.signal, onProgress: (done, total) => setBusy({ done, total }) });
+      setResult({ url: URL.createObjectURL(r.blob), name: stamp() + '.' + r.ext, seconds: r.seconds, cycles: r.cycles, size: r.blob.size, peak: r.peak });
+    } catch (e) {
+      setError(e instanceof RecordError ? e.message : 'L’enregistrement a échoué : ' + (e && e.message ? e.message : String(e)));
+    } finally {
+      abort.current = null;
+      setBusy(null);
+    }
+  };
+  return (
+    <section className="task rec" aria-label="Enregistrer le son">
+      <div className="moment-label">Enregistrer le son</div>
+      <p className="task-note">L’enregistrement commence au début d’un cycle et dure un nombre entier de cycles : le fichier peut tourner en boucle dans un autre logiciel. Il contient ce que tu entends, au même volume.</p>
+      <div className="rec-row">
+        <span className="rec-label">Longueur</span>
+        <div className="seg">
+          {LENGTHS.map((n) => (
+            <button type="button" key={n} className={'seg-b' + (!piece && cycles === n ? ' is-on' : '')} aria-pressed={!piece && cycles === n} disabled={!!busy} onClick={() => { setCycles(n); setPiece(false); }}>
+              {n} cycles{cps ? <span className="rec-sec"> · {secs(n / cps)}</span> : null}
+            </button>
+          ))}
+          {pieceLen ? (
+            <button type="button" className={'seg-b' + (piece ? ' is-on' : '')} aria-pressed={piece} disabled={!!busy} onClick={() => setPiece(true)}>
+              Le morceau entier · {pieceLen} cycles{cps ? <span className="rec-sec"> · {secs(pieceLen / cps)}</span> : null}
+            </button>
+          ) : null}
+        </div>
+      </div>
+      <div className="rec-row">
+        <span className="rec-label">Format</span>
+        <div className="seg">
+          <button type="button" className={'seg-b' + (format === 'wav' ? ' is-on' : '')} aria-pressed={format === 'wav'} disabled={!!busy} onClick={() => setFormat('wav')}>WAV</button>
+          {compressed ? <button type="button" className={'seg-b' + (format === 'webm' ? ' is-on' : '')} aria-pressed={format === 'webm'} disabled={!!busy} onClick={() => setFormat('webm')}>{/mp4/.test(compressed) ? 'M4A' : 'WebM'}</button> : null}
+        </div>
+      </div>
+      {piece && pieceLen ? <p className="task-note">Ton code enchaîne des sections avec <code>arrange</code> : la lecture repart de son début (le cycle 0) et s’arrête d’enregistrer après la dernière section.</p> : null}
+      <p className="task-note">{format === 'wav'
+        ? 'WAV : sans perte et coupé à l’échantillon près, environ 11 Mo par minute.'
+        : 'Compressé : plus de dix fois plus léger, mais le début et la fin peuvent tomber à quelques centièmes de seconde du cycle.'}</p>
+      {busy ? (
+        <div className="rec-busy" role="status">
+          <span className="rec-dot" aria-hidden="true" />
+          <span>Enregistrement : {secs(busy.done)} sur {secs(busy.total)}</span>
+          <button type="button" className="btn btn-quiet" onClick={() => abort.current && abort.current.abort()}>Annuler</button>
+        </div>
+      ) : (
+        <div className="chips">
+          <button type="button" className="btn btn-primary" disabled={!eng.ready} onClick={start}><Icon name="record" size={18} /> {piece && pieceLen ? 'Rejouer depuis le début et enregistrer' : eng.playing ? 'Enregistrer' : 'Jouer et enregistrer'}</button>
+        </div>
+      )}
+      {busy ? <p className="task-note">Arrêter la lecture annule l’enregistrement. Tu peux modifier le code pendant ce temps : c’est la nouvelle version qui s’enregistre dès que tu la joues.</p> : null}
+      {error ? <p className="dock-error" role="alert">{error}</p> : null}
+      {result ? (
+        <div className="rec-done">
+          <p className="toast" role="status">{result.cycles} cycles enregistrés, {secs(result.seconds)}, {frNum(Math.round(result.size / 1e5) / 10)} Mo.{result.peak > 1 ? ' Le son dépasse le niveau maximal par endroits : il sature, dans le fichier comme dans les haut-parleurs. Baisse .gain() pour l’éviter.' : ''}</p>
+          <audio controls src={result.url} className="rec-audio" />
+          <div className="chips"><a className="btn btn-quiet" href={result.url} download={result.name}><Icon name="download" size={18} /> Télécharger {result.name.split('.').pop().toUpperCase()}</a></div>
+        </div>
+      ) : null}
+    </section>
   );
 }

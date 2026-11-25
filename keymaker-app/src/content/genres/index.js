@@ -10,6 +10,9 @@ import acid from './acid.js';
 import trance from './trance.js';
 import progressive from './progressive.js';
 import synthpop from './synthpop.js';
+import house from './house.js';
+import dnb from './dnb.js';
+import ambient from './ambient.js';
 
 // Les huit traits, toujours dans cet ordre : c'est ce qui rend les genres comparables.
 export const ASPECTS = [
@@ -23,7 +26,10 @@ export const ASPECTS = [
   { id: 'histoire', label: 'Histoire', question: 'D’où ça vient ?' },
 ];
 
-export const genres = [techno, acid, trance, progressive, synthpop];
+export const genres = [techno, acid, trance, progressive, synthpop, house, dnb, ambient];
+
+// Zone de tempo affichée ; bpmLabel la remplace pour un genre sans tempo type (ambient).
+export const bpmText = (g) => g.bpmLabel || g.bpm[0] + '–' + g.bpm[1] + ' BPM';
 
 export const genreById = Object.fromEntries(genres.map((g) => [g.id, g]));
 

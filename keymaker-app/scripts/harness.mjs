@@ -1,22 +1,32 @@
 // Banc d'essai : le moteur Strudel vendorisé dans un Chromium sans interface.
 // openEngine() → { evalCode(code, opts), requests, close() }
+// openEngines(n) → { engines, map(items, fn, onResult), close() } : n pages en parallèle
 //   evalCode renvoie { error, logs, haps, cps } — error = erreur d'évaluation,
 //   logs = messages d'erreur du moteur pendant la lecture (son introuvable…).
-import { chromium } from 'playwright';
+import { launchBrowser } from './browser.mjs';
 import { serve } from './static-server.mjs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { cpus } from 'node:os';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const PAGE = `<!doctype html><html><head><meta charset="utf-8">
 <script src="/vendor/strudel-repl/index.js" defer></script></head><body><div id="host"></div></body></html>`;
 
-export async function openEngine({ offline = false } = {}) {
-  const srv = await serve(join(here, '..', 'public'));
-  const browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
+// Nombre de pages pour les contrôles répartis : --pages N, sinon KM_PAGES, sinon
+// le nombre de cœurs, plafonné à 4. --pages 1 refait tout dans une seule page, en série.
+export function pageCount() {
+  const i = process.argv.indexOf('--pages');
+  const v = Number(i > 0 ? process.argv[i + 1] : process.env.KM_PAGES);
+  if (Number.isInteger(v) && v >= 1) return v;
+  return Math.max(1, Math.min(4, cpus().length));
+}
+
+// Un moteur dans une page à part (contexte de navigation à part : son propre AudioContext,
+// son propre éditeur, son propre journal). Plusieurs moteurs peuvent partager un navigateur.
+async function newEngine(browser, srv, requests, { offline = false } = {}) {
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
-  const requests = new Set();
   page.on('request', (r) => { const u = r.url(); if (!u.startsWith(srv.url)) requests.add(u); });
   await page.route('**/__engine.html', (route) => route.fulfill({ body: PAGE, contentType: 'text/html' }));
   await page.goto(srv.url + '__engine.html');
@@ -40,6 +50,11 @@ export async function openEngine({ offline = false } = {}) {
   async function evalCode(code, { playMs = 1200, cycles = 1 } = {}) {
     return page.evaluate(async ({ code, playMs, cycles }) => {
       const ed = window.__ed;
+      // Chaque code part d'un moteur audio neuf, comme au premier ▶ dans l'app : les orbites
+      // créées par le code précédent sont effacées. Sans cela, le résultat dépendrait de
+      // l'ordre de passage (ex. duck(2) ne trouve l'orbite 2 que si un code joué AVANT l'a
+      // créée), donc de la page qui reçoit l'exemple quand le contrôle est réparti.
+      try { window.resetGlobalEffects(); } catch { /* moteur sans cette fonction */ }
       window.__logs.length = 0;
       ed.setCode(code);
       // Même règle que l'app (src/lib/engine.js) : sans setcpm/setcps, tempo par défaut.
@@ -69,7 +84,49 @@ export async function openEngine({ offline = false } = {}) {
       return { error, logs: [...new Set(window.__logs)], haps, cps, app };
     }, { code, playMs, cycles });
   }
-  return { page, evalCode, requests, close: async () => { await browser.close(); await srv.close(); } };
+  return { page, evalCode, requests };
+}
+
+export async function openEngine({ offline = false } = {}) {
+  const srv = await serve(join(here, '..', 'public'));
+  const browser = await launchBrowser();
+  const requests = new Set();
+  const eng = await newEngine(browser, srv, requests, { offline });
+  return { ...eng, close: async () => { await browser.close(); await srv.close(); } };
+}
+
+// n moteurs, un seul navigateur et un seul serveur.
+// map(items, fn, onResult) : chaque page prend l'élément suivant libre et lance
+// fn(moteur, élément, index) ; onResult(résultat, élément, index) est appelé dans l'ORDRE
+// des éléments, dès que tous les précédents sont terminés : la sortie est la même qu'en série.
+export async function openEngines(n = pageCount(), { offline = false } = {}) {
+  const srv = await serve(join(here, '..', 'public'));
+  const browser = await launchBrowser();
+  const requests = new Set();
+  const engines = await Promise.all(Array.from({ length: n }, () => newEngine(browser, srv, requests, { offline })));
+  async function map(items, fn, onResult) {
+    const out = new Array(items.length);
+    const done = new Array(items.length).fill(false);
+    let next = 0;
+    let flushed = 0;
+    const flush = () => {
+      while (flushed < items.length && done[flushed]) {
+        if (onResult) onResult(out[flushed], items[flushed], flushed);
+        flushed++;
+      }
+    };
+    await Promise.all(engines.map(async (eng) => {
+      for (;;) {
+        const i = next++;
+        if (i >= items.length) return;
+        out[i] = await fn(eng, items[i], i);
+        done[i] = true;
+        flush();
+      }
+    }));
+    return out;
+  }
+  return { engines, size: n, map, requests, close: async () => { await browser.close(); await srv.close(); } };
 }
 
 // Usage direct : node scripts/harness.mjs 'note("c e g")' ['autre code'…]

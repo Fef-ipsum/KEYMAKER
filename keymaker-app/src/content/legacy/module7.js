@@ -17,203 +17,145 @@ export const m7chapitre1 = {
   subtitle: 'Le 4/4 dansant : kick, contretemps, groove et arrangement DJ',
   flashs: [
     {
-      id: '7.1',
-      kicker: 'Le squelette',
+      id: "7.1",
+      kicker: "Le squelette",
       title: "Anatomie d'un track house",
-      concept:
-        "La house, c'est 120–126 BPM et une recette nette : un kick 4/4, un charley sur le " +
-        "CONTRETEMPS, un clap sur 2 et 4, une bassline ronde — et plus tard une voix et un arrangement. " +
-        "On pose d'abord le squelette : tout le reste se construit dessus.",
-      code:
-        'setcpm(124/4)\n' +
-        '$: s("bd*4").bank("RolandTR909").gain(.9)\n' +
-        '$: s("~ cp ~ cp").bank("RolandTR909").gain(.7)\n' +
-        '$: s("[~ hh]*4").bank("RolandTR909").gain(.5)\n' +
-        '$: note("<c2 c2 ab1 bb1>").s("sawtooth").lpf(800).gain(.6)',
+      concept: "La [house](voc.culture.house), c’est 120 à 126 BPM et une recette nette : un kick sur chaque temps, un charleston à [contretemps](sol.contretemps), un clap sur les temps 2 et 4, une basse ronde. On pose d’abord ce squelette : tout le reste se construit dessus.",
+      code: "setcpm(124/4)\n$: s(\"bd*4\").bank(\"RolandTR909\").gain(.9)\n$: s(\"~ cp ~ cp\").bank(\"RolandTR909\").gain(.7)\n$: s(\"[~ hh]*4\").bank(\"RolandTR909\").gain(.5)\n$: note(\"<c2 c2 ab1 bb1>\").s(\"sawtooth\").lpf(800).gain(.6)",
       decode: [
-        ['s("bd*4")', "le kick « four-on-the-floor » : un sur chaque temps. Le cœur de la house."],
-        ['[~ hh]*4', "le charley sur le CONTRETEMPS (le « ts » entre deux kicks) → le balancement house."],
-        ['~ cp ~ cp', "le clap sur les temps 2 et 4 — le backbeat."],
-        ['note("<c2 …>")', "une bassline ronde, une fondamentale par mesure, filtrée au lpf."],
+        ["s(\"bd*4\")", "le kick *four on the floor* : un sur chaque temps."],
+        ["[~ hh]*4", "le charleston entre deux kicks, sur la seconde moitié de chaque temps : le balancement house."],
+        ["~ cp ~ cp", "le clap sur les temps 2 et 4 : le *backbeat*."],
+        ["note(\"<c2 …>\")", "une basse ronde, une note par mesure, filtrée au-dessus de 800 Hz."],
       ],
       theory: {
-        title: "Les 6 organes d'un track house",
+        title: "Les organes d’un morceau house",
         items: [
-          ['kick 4/4', "le pouls, posé, dansant."],
-          ['offbeat hat', "le charley entre les kicks = la signature."],
-          ['backbeat', "clap/snare sur 2 et 4."],
-          ['bassline', "ronde, sur les fondamentales de la grille."],
-          ['vocal chop', "une voix hachée (flash 7.3)."],
-          ['arrangement', "intro / montée / drop / outro (flash 7.4)."],
+          ["kick 4/4", "la pulsation, régulière et dansante."],
+          ["charleston à contretemps", "entre les kicks : la signature."],
+          ["backbeat", "clap ou caisse claire sur 2 et 4."],
+          ["basse", "ronde, sur les fondamentales de la grille d’accords."],
+          ["voix hachée", "un échantillon de voix découpé (leçon 7.3)."],
+          ["arrangement", "intro, montée, plein, fin (leçon 7.4)."],
         ],
       },
-      exercise:
-        "Joue le squelette, puis mute une couche à la fois avec _$: pour entendre le rôle de chacune. " +
-        "Le charley offbeat coupé → tout de suite moins « house ».",
+      exercise: "Joue le squelette, puis coupe une couche à la fois avec `_$:` pour entendre le rôle de chacune. Sans le charleston à contretemps, ça sonne tout de suite moins « house ».",
       culture: {
-        artist: 'Frankie Knuckles',
-        track: 'Your Love',
-        why:
-          "le parrain de la house, Chicago : kick 4/4, bassline hypnotique, émotion — repère le charley offbeat dès l'intro.",
+        artist: "Frankie Knuckles et Jamie Principle",
+        track: "Your Love",
+        why: "Chicago, 1987 : écrit et chanté par Jamie Principle, produit par Frankie Knuckles, qu’on surnomme le « parrain de la house ». Écoute la ligne de synthé qui tourne en boucle sur le kick 4/4 : tout le morceau repose sur elle.",
       },
+      rich: true,
+      richRecap: true,
     },
 
     {
-      id: '7.2',
-      kicker: 'Le balancement',
-      title: 'Le groove house : swing & humanisation',
-      concept:
-        "Une grille parfaitement droite sonne raide, « machine ». Le groove house naît du SWING " +
-        "(on retarde un charley sur deux) et de micro-décalages (late/early) qui « humanisent ». " +
-        "Le même beat, mais il respire.",
-      code:
-        'setcpm(124/4)\n' +
-        '$: s("bd*4, ~ cp ~ cp").bank("RolandTR909")\n' +
-        '$: s("hh*8").bank("RolandTR909").swing(8).gain(.5)\n' +
-        '$: note("c2 ~ c2 ~ ab1 ~ bb1 ~").s("sawtooth").lpf(800).late(.005).gain(.6)',
+      id: "7.2",
+      kicker: "Le balancement",
+      title: "Le groove house : swing & humanisation",
+      concept: "Une grille parfaitement droite sonne raide. Le groove naît du [swing](voc.structure.swing), qui retarde chaque contretemps, et de petits décalages (`late`, `early`) qui imitent un musicien. Le même rythme, mais il respire.",
+      code: "setcpm(124/4)\n$: s(\"bd*4, ~ cp ~ cp\").bank(\"RolandTR909\")\n$: s(\"hh*8\").bank(\"RolandTR909\").swing(4).gain(.5)\n$: note(\"c2 ~ c2 ~ ab1 ~ bb1 ~\").s(\"sawtooth\").lpf(800).late(.005).gain(.6)",
       decode: [
-        ['.swing(8)', "balance les 8 charleys : un sur deux est retardé → le groove ternaire."],
-        ['.late(.005)', "retarde la basse d'un cheveu → elle « pousse » derrière le kick (humanisation)."],
-        ['hh*8', "huit charleys par mesure, support du swing."],
+        [".swing(4)", "découpe le cycle en 4 tranches (une par temps) et retarde la seconde moitié de chacune : le charleston à contretemps passe de la moitié aux deux tiers du temps (vérifié dans le moteur)."],
+        [".late(.005)", "retarde la basse de 0,005 cycle, soit environ 10 ms à 124 BPM : elle « pousse » juste derrière le kick."],
+        ["hh*8", "huit charlestons par mesure : un sur le temps, un à contretemps, à chaque temps."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['swing', "décaler les contretemps → balancement (ni tout droit, ni triolet)."],
-          ['late / early', "micro-retard / micro-avance, en fractions de cycle."],
-          ['humaniser', "casser la perfection machine pour un feel vivant."],
+          ["swing(n)", "retarde les contretemps à l’intérieur de n tranches du cycle ; `n` doit correspondre aux temps (4 en 4/4) pour qu’il y ait des contretemps à décaler."],
+          ["late / early", "retard ou avance, en fraction de cycle."],
+          ["humaniser", "casser la perfection de la machine (voir [humaniser](voc.structure.humaniser))."],
         ],
       },
-      exercise:
-        "Pousse le swing (.swing(16)), puis enlève-le : entends la house redevenir un métronome. " +
-        "Joue aussi avec .late(.02) sur le clap.",
+      exercise: "Compare avec `.swing(8)` : avec 8 tranches, chaque charleston tombe au début de la sienne, il n’y a plus de contretemps à décaler, et le swing disparaît. Joue aussi avec `.late(.02)` sur le clap.",
+      rich: true,
     },
 
     {
-      id: '7.3',
-      kicker: 'La voix-instrument',
-      title: 'Le vocal chop & le sample',
-      concept:
-        "La house adore la voix humaine découpée en bouts (le vocal chop). Pas besoin d'importer : " +
-        "Strudel embarque « numbers » — des chiffres parlés. On les pioche avec n(), et on HACHE un " +
-        "sample en tranches avec chop().",
-      code:
-        'setcpm(124/4)\n' +
-        '$: s("bd*4, ~ cp").bank("RolandTR909")\n' +
-        '$: s("numbers:3").chop(8).gain(.7).room(.2)\n' +
-        '$: n("0 2 4 6").s("numbers").gain(.55)',
+      id: "7.3",
+      kicker: "La voix-instrument",
+      title: "Le vocal chop & le sample",
+      concept: "La house aime la voix humaine découpée en morceaux (le *vocal chop*). Sans rien importer, la banque `numbers` contient des chiffres parlés : on les choisit avec `n()`, et on HACHE un échantillon en tranches avec [chop](fx.chop).",
+      code: "setcpm(124/4)\n$: s(\"bd*4, ~ cp\").bank(\"RolandTR909\")\n$: s(\"numbers:3\").chop(8).gain(.7).room(.2)\n$: n(\"0 2 4 6\").s(\"numbers\").gain(.55)",
       decode: [
-        ['s("numbers:3")', "un échantillon vocal intégré (le chiffre « trois » parlé)."],
-        ['.chop(8)', "découpe le sample en 8 tranches jouées dans l'ordre → l'effet « stutter » vocal."],
-        ['n("0 2 4 6").s("numbers")', "n(...) placé à GAUCHE impose le rythme (4 événements) -> on entend bien zéro, deux, quatre, six."],
-        ['.room(.2)', "un voile de réverbe pour poser la voix dans l'espace."],
+        ["s(\"numbers:3\")", "le fichier n° 3 de la banque « numbers », un chiffre parlé."],
+        [".chop(8)", "le découpe en 8 tranches jouées dans l’ordre, chacune sur un huitième du pas : un effet de bégaiement."],
+        ["n(\"0 2 4 6\").s(\"numbers\")", "ici `n()` est écrit en premier : il crée le rythme (4 événements) et choisit les fichiers 0, 2, 4 et 6."],
+        [".room(.2)", "un peu de réverbération pour placer la voix dans l’espace."],
       ],
       theory: {
-        title: 'Hacher & réordonner un sample',
+        title: "Hacher et réordonner",
         items: [
-          ['chop(n)', "n tranches jouées DANS L'ORDRE (stutter)."],
-          ['slice(n, "<…>")', "rejoue les tranches dans un ORDRE choisi (remix)."],
-          [':n / .n("…")', "choisit quel sample/quelle tranche."],
-          ['tes propres voix', "samples('github:…') charge tes vocaux (réseau, une fois)."],
+          ["chop(n)", "n tranches jouées DANS L’ORDRE."],
+          ["slice(n, \"…\")", "les tranches dans un ordre CHOISI, une par pas."],
+          [":n / .n(\"…\")", "choisit quel fichier de la banque."],
+          ["tes propres voix", "`samples(…)` charge tes enregistrements (réseau, une fois)."],
         ],
       },
-      exercise:
-        "Remplace .chop(8) par .slice(8, \"<0 2 4 6 1 3 5 7>\") : tu réordonnes les tranches → " +
-        "un vrai remix de la voix. Essaie d'autres ordres.",
+      exercise: "Remplace `.chop(8)` par `.slice(8, \"0 2 4 6 1 3 5 7\")` : les 8 tranches jouent toujours dans le cycle, mais dans un autre ordre, et la voix est remixée. Essaie d’autres ordres. Sans chevrons : avec `\"<…>\"`, une seule tranche jouerait par cycle.",
+      rich: true,
     },
 
     {
-      id: '7.4',
-      kicker: 'Les sections',
-      title: 'Arranger en 8 / 16 mesures',
-      concept:
-        "Un morceau n'est pas une boucle infinie : c'est des SECTIONS qui s'enchaînent. arrange() " +
-        "joue chaque pattern pendant un nombre de mesures donné, à la suite. C'est l'histoire en 4 actes : " +
-        "intro → montée → drop → outro.",
-      code:
-        'setcpm(124/4)\n' +
-        'const kick = s("bd*4").bank("RolandTR909")\n' +
-        'const clap = s("~ cp ~ cp").bank("RolandTR909")\n' +
-        'const bass = note("<c2 ab1 bb1 c2>").s("sawtooth").lpf(800).gain(.6)\n' +
-        'arrange(\n' +
-        '  [8,  kick],\n' +
-        '  [8,  stack(kick, clap)],\n' +
-        '  [16, stack(kick, clap, bass)],\n' +
-        '  [8,  kick]\n' +
-        ')',
+      id: "7.4",
+      kicker: "Les sections",
+      title: "Arranger en 8 / 16 mesures",
+      concept: "Un morceau n’est pas une boucle infinie : ce sont des SECTIONS qui s’enchaînent. [arrange](fn.arrange) joue chaque motif pendant un nombre de mesures donné, à la suite. C’est l’histoire en quatre actes : intro, montée, plein (*drop*), fin.",
+      code: "setcpm(124/4)\nconst kick = s(\"bd*4\").bank(\"RolandTR909\")\nconst clap = s(\"~ cp ~ cp\").bank(\"RolandTR909\")\nconst bass = note(\"<c2 ab1 bb1 c2>\").s(\"sawtooth\").lpf(800).gain(.6)\narrange(\n  [8,  kick],\n  [8,  stack(kick, clap)],\n  [16, stack(kick, clap, bass)],\n  [8,  kick]\n)",
       decode: [
-        ['const nom = …', "on définit chaque brique une fois (pont M6), pour la réutiliser."],
-        ['arrange([8, kick])', "joue « kick » pendant 8 mesures, puis passe à la section suivante."],
-        ['[16, stack(…)]', "le DROP : 16 mesures avec toutes les couches empilées."],
-        ['1 cycle = 1 mesure', "8 = 8 mesures ; l'arrangement dure 8+8+16+8 = 40 mesures."],
+        ["const nom = …", "chaque brique définie une fois, pour la réutiliser."],
+        ["arrange([8, kick], …)", "joue « kick » pendant 8 mesures, puis passe à la section suivante."],
+        ["[16, stack(…)]", "le *drop* : 16 mesures avec toutes les couches."],
+        ["1 cycle = 1 mesure", "l’ensemble dure 8 + 8 + 16 + 8 = 40 mesures, soit environ 77 s à 124 BPM."],
       ],
       theory: {
-        title: 'La structure DJ',
+        title: "La structure pour DJ",
         items: [
-          ['intro', "le kick seul — le DJ cale le morceau."],
-          ['montée (build)', "on empile les couches, la tension monte."],
-          ['drop', "tout entre, le plein d'énergie."],
-          ['outro', "on retire les couches — le DJ enchaîne."],
+          ["intro", "le kick seul : le DJ peut caler le morceau sur le précédent."],
+          ["montée", "on empile les couches, la tension monte."],
+          ["drop", "tout entre : le plein d’énergie."],
+          ["outro", "on retire les couches : le DJ enchaîne."],
         ],
       },
-      exercise:
-        "Ajoute une section « break » : [8, stack(clap, bass)] (sans kick) avant le drop. " +
-        "Couper le kick puis le faire revenir = l'effet le plus efficace de toute la house.",
+      exercise: "Ajoute une section « break » : `[8, stack(clap, bass)]` (sans kick) avant le drop. Couper le kick puis le faire revenir est l’un des effets les plus utilisés en house.",
       culture: {
-        artist: 'Derrick May',
-        track: 'Strings of Life',
-        why:
-          "Detroit 1987 : pas de bassline, un piano euphorique, une structure en blocs qui montent — un cours d'arrangement à lui tout seul.",
+        artist: "Derrick May (Rhythim Is Rhythim)",
+        track: "Strings of Life",
+        why: "Detroit, 1987 : un riff de piano (une séquence de son ami Michael James) et des cordes de synthé. C’est de la techno de Detroit plutôt que de la house, mais l’idée vaut pour les deux : un morceau de club peut reposer sur ses accords autant que sur son rythme.",
       },
+      rich: true,
+      richRecap: true,
     },
 
     {
-      id: '7.5',
-      kicker: 'Le projet',
-      title: 'Projet : un track house complet (~2 min)',
-      concept:
-        "On réunit tout : batterie complète, bassline, accords de 7e en pad, un vocal chop, et un " +
-        "arrangement en 6 sections. ~64 mesures à 124 BPM ≈ deux minutes. C'est un vrai morceau, " +
-        "joué par une seule règle.",
-      code:
-        'setcpm(124/4)\n' +
-        'const drums  = s("bd*4, ~ cp ~ cp, [~ hh]*4").bank("RolandTR909")\n' +
-        'const bass   = note("<c2 c2 ab1 bb1>").s("sawtooth").lpf(900).gain(.7)\n' +
-        'const chords = chord("<Cm7 Ab^7 Bb^7 Cm7>").voicing().s("sawtooth").lpf(2000).attack(.1).gain(.4).room(.4)\n' +
-        'const vox    = s("numbers:3").chop(8).gain(.5).room(.3)\n' +
-        'arrange(\n' +
-        '  [8,  bass],\n' +
-        '  [8,  stack(drums, bass)],\n' +
-        '  [16, stack(drums, bass, chords)],\n' +
-        '  [8,  stack(drums, chords, vox)],\n' +
-        '  [16, stack(drums, bass, chords, vox)],\n' +
-        '  [8,  drums]\n' +
-        ')',
+      id: "7.5",
+      kicker: "Le projet",
+      title: "Projet : un track house complet (~2 min)",
+      concept: "On réunit tout : batterie complète, basse, accords de septième en nappe, une voix hachée, et un arrangement en 6 sections. 64 mesures à 124 BPM, environ deux minutes. Un vrai morceau, écrit comme une règle.",
+      code: "setcpm(124/4)\nconst drums  = s(\"bd*4, ~ cp ~ cp, [~ hh]*4\").bank(\"RolandTR909\")\nconst bass   = note(\"<c2 c2 ab1 bb1>\").s(\"sawtooth\").lpf(900).gain(.7)\nconst chords = chord(\"<Cm7 Ab^7 Bb^7 Cm7>\").voicing().s(\"sawtooth\").lpf(2000).attack(.1).gain(.4).room(.4)\nconst vox    = s(\"numbers:3\").chop(8).gain(.5).room(.3)\narrange(\n  [8,  bass],\n  [8,  stack(drums, bass)],\n  [16, stack(drums, bass, chords)],\n  [8,  stack(drums, chords, vox)],\n  [16, stack(drums, bass, chords, vox)],\n  [8,  drums]\n)",
       decode: [
-        ['intro [8, bass]', "la basse seule pose la tonalité (do mineur)."],
-        ['montée + drop', "on empile drums, puis chords : le drop à la section 3 (16 mesures)."],
-        ['break [8, … vox]', "on retire la basse, le vocal chop respire."],
-        ['outro [8, drums]', "il ne reste que la batterie — prêt à enchaîner."],
+        ["intro [8, bass]", "la basse seule pose la tonalité (do mineur)."],
+        ["montée et drop", "on ajoute la batterie, puis les accords : le drop arrive à la 3ᵉ section, pour 16 mesures."],
+        ["break [8, … vox]", "la basse se retire, la voix hachée respire."],
+        ["outro [8, drums]", "il ne reste que la batterie, prête à enchaîner."],
       ],
       recap: {
-        title: 'Récap 7.1 — La house',
-        columns: ['Brique', 'Idée', 'Strudel'],
+        title: "Récap — La house",
+        columns: ["Brique", "Idée", "Strudel"],
         rows: [
-          ['Kick 4/4', 'le cœur', 's("bd*4").bank("RolandTR909")'],
-          ['Offbeat', 'le balancement', 's("[~ hh]*4")'],
-          ['Backbeat', 'clap 2 & 4', 's("~ cp ~ cp")'],
-          ['Groove', 'swing / nudge', '.swing(8) / .late()'],
-          ['Vocal chop', 'voix hachée', 's("numbers:3").chop(8)'],
-          ['Arrangement', 'les sections', 'arrange([8,a],[16,b])'],
+          ["kick 4/4", "le cœur", "`s(\"bd*4\").bank(\"RolandTR909\")`"],
+          ["contretemps", "le balancement", "`s(\"[~ hh]*4\")`"],
+          ["backbeat", "le clap sur 2 et 4", "`s(\"~ cp ~ cp\")`"],
+          ["groove", "swing, léger retard", "`.swing(4)` · `.late(.01)`"],
+          ["voix hachée", "un échantillon de voix découpé", "`s(\"numbers:3\").chop(8)`"],
+          ["arrangement", "les sections", "`arrange([8, a], [16, b])`"],
         ],
       },
-      exercise:
-        "Change la grille (chord(\"<Fm7 Db^7 Eb^7 Fm7>\")), le tempo (122–126), l'ordre des sections. " +
-        "Le squelette tient : tu ne fais que raconter une autre histoire.",
-      free:
-        "Fais TA house : pars du squelette (kick 4/4 + clap + charley offbeat), pose une bassline ronde, " +
-        "ajoute UN vocal chop, puis raconte 4 actes avec arrange (intro → montée → drop → outro). " +
-        "Vise 124 BPM, et juge une seule chose : est-ce que ça donne envie de danser ?",
+      exercise: "Change la grille (`chord(\"<Fm7 Db^7 Eb^7 Fm7>\")`), le tempo (122 à 126), l’ordre des sections. Le squelette tient : tu racontes une autre histoire.",
+      free: "Fais ta house : pars du squelette (kick 4/4, clap sur 2 et 4, charleston à contretemps), pose une basse ronde, ajoute une seule voix hachée, puis raconte quatre parties avec [arrange](fn.arrange) : intro, montée, drop, fin. Vise 124 BPM, et juge une seule chose : est-ce que ça donne envie de danser ?",
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -455,193 +397,142 @@ export const m7chapitre3 = {
   subtitle: '170 BPM, breakbeat haché et basse roulante : le half-time',
   flashs: [
     {
-      id: '7.11',
-      kicker: 'Le grand écart',
+      id: "7.11",
+      kicker: "Le grand écart",
       title: "Anatomie du drum & bass",
-      concept:
-        "Le D&B, c'est ~170–175 BPM, des charleys ultra-rapides… mais un beat qui paraît LENT et lourd " +
-        "(le half-time). Ce grand écart entre vitesse et ressenti, plus une basse sub très grave, c'est " +
-        "toute sa signature.",
-      code:
-        'setcpm(170/4)\n' +
-        '$: s("bd ~ ~ ~ ~ ~ ~ ~").bank("RolandTR808").gain(.9)\n' +
-        '$: s("~ ~ ~ ~ sd ~ ~ ~").bank("RolandTR808").gain(.8)\n' +
-        '$: s("hh*16").bank("RolandTR808").gain(.3)\n' +
-        '$: note("c1*4").s("sine").gain(.8)',
+      concept: "Le [drum & bass](voc.culture.drum-bass-d-b), c’est environ 170 à 175 BPM, des charlestons très rapides… et un rythme qui paraît LENT et lourd, en [half-time](voc.structure.half-time-full-time). Ce grand écart entre vitesse et ressenti, plus une basse très grave, fait sa signature.",
+      code: "setcpm(170/4)\n$: s(\"bd ~ ~ ~ ~ ~ ~ ~\").bank(\"RolandTR808\").gain(.9)\n$: s(\"~ ~ ~ ~ sd ~ ~ ~\").bank(\"RolandTR808\").gain(.8)\n$: s(\"hh*16\").bank(\"RolandTR808\").gain(.3)\n$: note(\"c1*4\").s(\"sine\").gain(.8)",
       decode: [
-        ['setcpm(170/4)', "le tempo réel du D&B : très rapide."],
-        ['snare sur le temps 3', "(5ᵉ pas sur 8) → le « half-time feel » : le beat semble deux fois plus lent."],
-        ['hh*16', "16 charleys → l'énergie rapide qui contraste avec le beat lent."],
-        ['note("c1*4").s("sine")', "un sub bien grave et rond (sine), le moteur basse du genre."],
+        ["setcpm(170/4)", "170 BPM : un temps dure 0,35 s."],
+        ["caisse claire au 5ᵉ pas sur 8", "sur le temps 3 : le *half-time feel*, le rythme semble deux fois plus lent."],
+        ["hh*16", "16 charlestons par mesure : l’énergie rapide, en contraste."],
+        ["note(\"c1*4\").s(\"sine\")", "une [sub-basse](voc.structure.sub-bass) : sinusoïde à 33 Hz."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['breakbeat', "un beat syncopé hérité du funk (pas un 4/4 droit)."],
-          ['sub bass', "la basse grave qu'on ressent plus qu'on entend."],
-          ['half-time feel', "snare sur le 3 → ressenti ≈ 85 BPM, alors que le tempo est 170."],
+          ["breakbeat", "un rythme syncopé hérité du funk, pas un 4/4 régulier (voir [breakbeat](voc.culture.breakbeat))."],
+          ["sub-basse", "la partie la plus grave de la basse, ressentie plus qu’entendue."],
+          ["half-time", "caisse claire sur le 3 : ressenti d’environ 85 BPM, alors que le tempo est 170."],
         ],
       },
-      exercise:
-        "Double la vitesse ressentie : mets le snare sur 2 ET 4 (\"~ ~ sd ~ ~ ~ sd ~\"). " +
-        "Même tempo, mais ça file deux fois plus vite (full-time).",
+      exercise: "Double la vitesse ressentie : mets la caisse claire sur 2 ET 4 (`\"~ ~ sd ~ ~ ~ sd ~\"`). Même tempo, mais ça file deux fois plus vite (*full-time*).",
+      rich: true,
     },
 
     {
-      id: '7.12',
-      kicker: 'Le break',
-      title: 'Le breakbeat : chop, iter, shuffle',
-      concept:
-        "Le cœur du D&B, c'est LE break : l'« amen » (un solo de batterie de 1969) découpé en tranches " +
-        "et réordonné sans fin. On le charge, on le hache, puis iter() le DÉCALE chaque mesure → une " +
-        "boucle qui ne se répète jamais vraiment.",
-      code:
-        "samples({ amen: 'https://raw.githubusercontent.com/yaxu/clean-breaks/main/sounds/The_Winstons_-_Amen_Brother%20%5B2019-03-04%20124550%5D.wav' })\n" +
-        'setcpm(170/4)\n' +
-        '$: s("amen/4").fit().chop(16).iter(4).cut(1).gain(.9)\n' +
-        '$: note("<c1 c1 eb1 c1>").s("sine").gain(.7)',
+      id: "7.12",
+      kicker: "Le break",
+      title: "Le breakbeat : chop, iter, shuffle",
+      concept: "Le cœur du drum & bass, c’est le *break* : l’[amen break](voc.culture.amen-break), découpé en tranches et réordonné sans fin. On le charge, on le hache (`chop`), puis `iter` fait commencer le motif un quart plus loin à chaque mesure : une boucle qui ne se répète qu’au bout de 4 mesures.",
+      code: "samples({ amen: 'https://raw.githubusercontent.com/yaxu/clean-breaks/main/sounds/The_Winstons_-_Amen_Brother%20%5B2019-03-04%20124550%5D.wav' })\nsetcpm(170/4)\n$: s(\"amen/4\").fit().chop(16).iter(4).cut(1).gain(.9)\n$: note(\"<c1 c1 eb1 c1>\").s(\"sine\").gain(.7)",
       decode: [
-        ['samples({ amen: url })', "charge le break depuis son URL sous le nom « amen » (téléchargement réseau, UNE fois puis cache — même geste qu'en M6 6.16)."],
-        ['s("amen/4").fit()', "le break amen étalé sur 4 mesures, calé pile sur les cycles."],
-        ['.chop(16)', "16 tranches jouées dans l'ordre."],
-        ['.iter(4)', "décale le motif d'1/4 à chaque mesure → la variation infinie."],
-        ['.cut(1)', "chaque tranche coupe la précédente → propre, pas de chevauchement."],
+        ["samples({ amen: url })", "charge le break depuis son adresse, sous le nom « amen »."],
+        ["s(\"amen/4\").fit()", "le break joué une fois toutes les 4 mesures, sa vitesse calée pour remplir exactement ces 4 mesures."],
+        [".chop(16)", "16 tranches jouées dans l’ordre."],
+        [".iter(4)", "décale le départ d’un quart à chaque mesure (voir [iter](voc.code.iter-n))."],
+        [".cut(1)", "chaque tranche coupe la précédente : pas de chevauchement."],
       ],
       theory: {
-        title: 'Hacher un break',
+        title: "Hacher un break",
         items: [
-          ['amen', "le break le plus samplé de l'histoire — l'ADN du D&B et de la jungle."],
-          ['chop vs slice', "chop = dans l'ordre ; slice(n,\"<…>\") = ordre choisi (shuffle)."],
-          ['iter(n)', "rotation du motif → variation automatique."],
+          ["amen", "l’un des breaks les plus échantillonnés de l’histoire, à la base de la jungle et du drum & bass."],
+          ["chop ou slice", "`chop` : dans l’ordre ; `slice(n, \"…\")` : dans l’ordre choisi, une tranche par pas."],
+          ["iter(n)", "rotation du motif : une variation automatique."],
         ],
       },
-      exercise:
-        "Remplace .iter(4) par .slice(16, \"<0 1 2 3 8 9 6 7>\") : tu réordonnes les tranches → " +
-        "ton propre découpage du break. C'est ça, faire du D&B.",
+      exercise: "Remplace `.chop(16).iter(4)` par `.slice(16, \"<[0 1 2 3] [8 9 6 7] [4 5 2 3] [12 13 14 15]>\")` : quatre tranches par mesure, dans l’ordre que tu choisis. Garde quatre numéros par groupe : avec `fit()`, une tranche dure un quart de mesure, exactement la place de son pas.",
       culture: {
-        artist: 'The Winstons',
-        track: 'Amen, Brother',
-        why:
-          "le break de batterie le plus samplé de l'histoire (vers 1:26) : six secondes de 1969 devenues l'ADN de la jungle et du D&B.",
+        artist: "The Winstons",
+        track: "Amen, Brother",
+        why: "le break de batterie le plus échantillonné de l’histoire, vers 1:26 du morceau : quelques secondes de 1969, devenues la base de la jungle et du drum & bass.",
       },
+      rich: true,
+      richRecap: true,
     },
 
     {
-      id: '7.13',
-      kicker: 'Le growl',
-      title: 'La basse roulante (reese)',
-      concept:
-        "La basse signature du D&B, c'est la « reese » : deux ondes dent-de-scie LÉGÈREMENT désaccordées " +
-        "qui battent l'une contre l'autre → un grognement mouvant. On l'obtient en empilant deux notes à " +
-        "une fraction de demi-ton d'écart.",
-      code:
-        'setcpm(170/4)\n' +
-        '$: s("bd ~ ~ ~ sd ~ ~ ~").bank("RolandTR808")\n' +
-        '$: note("[24,24.2]*8").s("sawtooth").lpf(sine.range(300,1400).slow(4)).lpq(7).decay(.2).sustain(.6).gain(.55)',
+      id: "7.13",
+      kicker: "Le growl",
+      title: "La basse roulante (reese)",
+      concept: "La basse signature du drum & bass, c’est la [reese](voc.culture.reese-bass), un grognement mouvant. On la recrée avec deux dents de scie LÉGÈREMENT désaccordées qui battent l’une contre l’autre. On l’obtient en empilant deux notes à une fraction de demi-ton d’écart.",
+      code: "setcpm(170/4)\n$: s(\"bd ~ ~ ~ sd ~ ~ ~\").bank(\"RolandTR808\")\n$: note(\"[24,24.2]*8\").s(\"sawtooth\").lpf(sine.range(300,1400).slow(4)).lpq(7).decay(.2).sustain(.6).gain(.55)",
       decode: [
-        ['note("[24,24.2]")', "DEUX saws désaccordés de 0,2 demi-ton (MIDI 24 et 24.2) → le battement « reese »."],
-        ['*8', "la basse roule en croches."],
-        ['lpf(sine.range(300,1400).slow(4))', "le filtre ondule sur 4 mesures → le growl bouge, vivant."],
-        ['les décimales', "rappel M2/référence : note() accepte des numéros MIDI à virgule (micro-tonal)."],
+        ["note(\"[24,24.2]\")", "deux dents de scie : MIDI 24 (do1, 32,7 Hz) et 24,2, soit 0,2 demi-ton plus haut."],
+        ["*8", "la basse roule en croches."],
+        ["lpf(sine.range(300,1400).slow(4))", "le filtre ondule sur 4 mesures : le grognement bouge."],
+        ["les décimales", "`note()` accepte des numéros MIDI à virgule : des écarts plus fins qu’un demi-ton."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['reese bass', "du nom de Kevin Saunderson (1988) — la basse désaccordée roulante."],
-          ['désaccord (detune)', "un minuscule écart de hauteur entre deux oscillateurs → battement."],
-          ['mouvement', "un filtre lent rend la basse organique, jamais statique."],
+          ["battement", "deux fréquences très proches s’additionnent puis s’annulent tour à tour : le volume ondule (voir [supersaw](son.supersaw))."],
+          ["désaccord", "un petit écart de hauteur entre deux oscillateurs. Plus il est grand, plus le battement est rapide et rauque."],
+          ["mouvement", "un filtre lent rend la basse vivante, jamais statique."],
         ],
       },
-      exercise:
-        "Élargis le désaccord : note(\"[24,24.5]*8\") (plus rauque), puis resserre à 24.05 (presque pur). " +
-        "Trouve le grain qui growl juste comme il faut.",
+      exercise: "Élargis le désaccord : `note(\"[24,24.5]*8\")` (plus rauque), puis resserre à `24.05` (presque pur). Trouve le grain qui te plaît.",
       culture: {
-        artist: 'Reese (Kevin Saunderson)',
-        track: 'Just Want Another Chance',
-        why:
-          "Detroit 1988 : la basse détunée qui gronde dans l'intro a donné son NOM à la reese — toute la bass music en descend.",
+        artist: "Reese (Kevin Saunderson)",
+        track: "Just Want Another Chance",
+        why: "Detroit, 1988 : la basse désaccordée qui gronde dans l’intro a donné son nom à la *basse reese* (Reese est un pseudonyme de Kevin Saunderson). Une grande partie du drum & bass en a repris le principe.",
       },
+      rich: true,
+      richRecap: true,
     },
 
     {
-      id: '7.14',
-      kicker: 'Le poids',
-      title: 'Half-time vs full-time',
-      concept:
-        "Une même piste à 170 BPM peut sonner légère et filante (full-time) ou lourde et planante " +
-        "(half-time). Tout tient à la place du snare. Passer de l'un à l'autre, c'est l'effet « drop » " +
-        "le plus jouissif du D&B.",
-      code:
-        'setcpm(170/4)\n' +
-        'const hats = s("hh*16").bank("RolandTR808").gain(.3)\n' +
-        'const subs = note("[24,24.2]*4").s("sawtooth").lpf(700).lpq(6).gain(.55)\n' +
-        'arrange(\n' +
-        '  [8, stack(s("bd*2, ~ ~ sd ~ ~ ~ sd ~").bank("RolandTR808"), hats, subs)],\n' +
-        '  [8, stack(s("bd ~ ~ ~ ~ ~ ~ ~, ~ ~ ~ ~ sd ~ ~ ~").bank("RolandTR808"), hats, subs)]\n' +
-        ')',
+      id: "7.14",
+      kicker: "Le poids",
+      title: "Half-time vs full-time",
+      concept: "Une même piste à 170 BPM peut sonner légère et filante (*full-time*) ou lourde et planante (*half-time*). Tout tient à la place de la caisse claire. Passer de l’un à l’autre est l’un des effets de *drop* les plus forts du drum & bass.",
+      code: "setcpm(170/4)\nconst hats = s(\"hh*16\").bank(\"RolandTR808\").gain(.3)\nconst subs = note(\"[24,24.2]*4\").s(\"sawtooth\").lpf(700).lpq(6).gain(.55)\narrange(\n  [8, stack(s(\"bd*2, ~ ~ sd ~ ~ ~ sd ~\").bank(\"RolandTR808\"), hats, subs)],\n  [8, stack(s(\"bd ~ ~ ~ ~ ~ ~ ~, ~ ~ ~ ~ sd ~ ~ ~\").bank(\"RolandTR808\"), hats, subs)]\n)",
       decode: [
-        ['section 1 (full-time)', "snare sur 2 ET 4 → ça file, léger, rapide."],
-        ['section 2 (half-time)', "snare sur le SEUL temps 3 → ressenti ≈ 85, lourd, planant."],
-        ['même tempo', "170 BPM dans les deux : seule la place du snare change le ressenti."],
-        ['hats / subs constants', "le contraste vient du beat, pas du reste."],
+        ["section 1 (full-time)", "caisse claire sur 2 ET 4 : léger, rapide."],
+        ["section 2 (half-time)", "caisse claire sur le seul temps 3 : ressenti d’environ 85 BPM, lourd."],
+        ["même tempo", "170 BPM dans les deux : seule la place de la caisse claire change le ressenti."],
+        ["charlestons et basse constants", "le contraste vient uniquement du rythme."],
       ],
       theory: {
-        title: 'Deux ressentis, un tempo',
+        title: "Deux ressentis, un tempo",
         items: [
-          ['full-time', "le beat suit le tempo réel → énergie, course."],
-          ['half-time', "le beat paraît moitié moins vite → poids, espace."],
-          ['le drop', "basculer en half-time sur le drop = signature du D&B moderne."],
+          ["full-time", "le rythme suit le tempo réel : énergie, course."],
+          ["half-time", "le rythme paraît deux fois plus lent : poids, espace."],
+          ["le drop", "basculer en half-time au moment du drop."],
         ],
       },
-      exercise:
-        "Inverse l'ordre : commence en half-time, puis bascule en full-time. " +
-        "Sens comment le passage relance toute l'énergie.",
+      exercise: "Inverse l’ordre : commence en half-time, puis bascule en full-time. Sens comment le passage relance l’énergie.",
+      rich: true,
     },
 
     {
-      id: '7.15',
-      kicker: 'Le projet',
-      title: 'Projet : une intro D&B avec break & drop',
-      concept:
-        "On assemble : une intro atmosphérique (pad + sub), une montée, puis le DROP — le break amen " +
-        "entre en plein, avec la reese. C'est la structure d'ouverture classique d'un morceau D&B.",
-      code:
-        "samples({ amen: 'https://raw.githubusercontent.com/yaxu/clean-breaks/main/sounds/The_Winstons_-_Amen_Brother%20%5B2019-03-04%20124550%5D.wav' })\n" +
-        'setcpm(170/4)\n' +
-        'const sub   = note("[24,24.2]*4").s("sawtooth").lpf(700).lpq(6).gain(.55)\n' +
-        'const brk   = s("amen/4").fit().chop(16).iter(4).cut(1).gain(.9)\n' +
-        'const pad   = chord("<Cm7 Ab^7>").voicing().s("sawtooth").lpf(1500).attack(.5).release(.8).room(.6).gain(.3)\n' +
-        'arrange(\n' +
-        '  [8,  stack(pad, sub)],\n' +
-        '  [8,  stack(pad, sub, s("~ ~ sd ~").bank("RolandTR808").gain(.5))],\n' +
-        '  [16, stack(brk, sub, pad)],\n' +
-        '  [8,  stack(pad, sub)]\n' +
-        ')',
+      id: "7.15",
+      kicker: "Le projet",
+      title: "Projet : une intro D&B avec break & drop",
+      concept: "On assemble : une intro planante (nappe + sub-basse), une montée, puis le DROP où le break entre en plein avec la basse désaccordée. C’est la structure d’ouverture classique d’un morceau de drum & bass.",
+      code: "samples({ amen: 'https://raw.githubusercontent.com/yaxu/clean-breaks/main/sounds/The_Winstons_-_Amen_Brother%20%5B2019-03-04%20124550%5D.wav' })\nsetcpm(170/4)\nconst sub   = note(\"[24,24.2]*4\").s(\"sawtooth\").lpf(700).lpq(6).gain(.55)\nconst brk   = s(\"amen/4\").fit().chop(16).iter(4).cut(1).gain(.9)\nconst pad   = chord(\"<Cm7 Ab^7>\").voicing().s(\"sawtooth\").lpf(1500).attack(.5).release(.8).room(.6).gain(.3)\narrange(\n  [8,  stack(pad, sub)],\n  [8,  stack(pad, sub, s(\"~ ~ sd ~\").bank(\"RolandTR808\").gain(.5))],\n  [16, stack(brk, sub, pad)],\n  [8,  stack(pad, sub)]\n)",
       decode: [
-        ['intro [8, pad+sub]', "ambiance planante : un pad et le sub, sans batterie."],
-        ['montée [8, … snare]', "on ajoute des snares épars → la tension monte."],
-        ['drop [16, brk + …]', "le break amen entre en plein → l'explosion D&B."],
-        ['const brk', "on évite « break » (mot réservé en JS) → on nomme la piste « brk »."],
+        ["intro [8, pad + sub]", "une nappe et la basse, sans batterie."],
+        ["montée [8, … caisse claire]", "quelques coups de caisse claire : la tension monte."],
+        ["drop [16, brk + …]", "le break entre en plein."],
+        ["const brk", "`break` est un mot réservé de JavaScript : on nomme la piste « brk »."],
       ],
       recap: {
-        title: 'Récap 7.3 — Le drum & bass',
-        columns: ['Brique', 'Idée', 'Strudel'],
+        title: "Récap — Le drum & bass",
+        columns: ["Brique", "Idée", "Strudel"],
         rows: [
-          ['BPM', 'rapide', 'setcpm(170/4)'],
-          ['Breakbeat', 'amen haché', 's("amen/4").chop(16).iter(4)'],
-          ['Sub', 'grave & rond', 'note("c1").s("sine")'],
-          ['Reese', 'saws désaccordés', 'note("[24,24.2]")'],
-          ['Half-time', 'snare sur le 3', 'feel ≈ 85 à 170 BPM'],
-          ['Structure', 'intro → break', 'arrange([8,a],[16,b])'],
+          ["tempo", "rapide", "`setcpm(170/4)`"],
+          ["breakbeat", "le break amen haché, réordonné", "`s(\"amen/4\").fit().chop(16).iter(4)`"],
+          ["sub", "grave et rond", "`note(\"c1\").s(\"sine\")`"],
+          ["reese", "deux dents de scie à 0,2 demi-ton d’écart", "`note(\"[24,24.2]\").s(\"sawtooth\")`"],
+          ["half-time", "caisse claire sur le 3ᵉ temps", "à 170 BPM, on ressent 85"],
+          ["structure", "intro, puis break", "`arrange([8, a], [16, b])`"],
         ],
       },
-      exercise:
-        "Change la tonalité du pad et du sub (Fm : sub sur note(\"[29,29.2]\"), pad \"<Fm7 Db^7>\"). " +
-        "Puis allonge le drop à 32 mesures.",
-      free:
-        "Fais ton D&B : un sub bien grave (sine ou reese désaccordé), l'amen haché et varié (chop + iter), " +
-        "et joue sur le half-time (snare sur le 3) pour le poids. Construis une intro atmosphérique qui " +
-        "DROP sur le break. Vise 170–174 BPM — et laisse le sub faire trembler les murs.",
+      exercise: "Change la tonalité de la nappe et de la basse (fa mineur : basse `note(\"[29,29.2]\")`, nappe `\"<Fm7 Db^7>\"`). Puis allonge le drop à 32 mesures.",
+      free: "Fais ton drum & bass : une sub-basse bien grave (sinusoïde, ou reese désaccordée), le break amen haché et varié (`chop` et `iter`), et joue sur le [half-time](voc.structure.half-time-full-time) (caisse claire sur le 3ᵉ temps) pour le poids. Construis une intro atmosphérique qui débouche sur le break. Vise 170 à 174 BPM, et écoute la sub au casque.",
+      rich: true,
+      richRecap: true,
     },
   ],
 };
@@ -882,212 +773,159 @@ export const m7chapitre5 = {
   subtitle: "L'espace comme instrument : texture, lenteur, génération",
   flashs: [
     {
-      id: '7.21',
-      kicker: 'Le temps s\'étire',
+      id: "7.21",
+      kicker: "Le temps s'étire",
       title: "Anatomie de l'ambient",
-      concept:
-        "L'ambient renverse tout : (presque) pas de beat, une lenteur extrême, des textures qui évoluent " +
-        "longtemps, et un espace immense. Ici, le temps s'étire — un accord peut durer dix secondes. " +
-        "On baisse radicalement le tempo et on laisse respirer.",
-      code:
-        'setcpm(24/4)\n' +
-        '$: note("c2").s("sine").gain(.35).room(.5)\n' +
-        '$: chord("<Cm7 Ab^7>").voicing().s("sawtooth").lpf(900).attack(2).release(4).room(.85).roomsize(8).gain(.35)',
+      concept: "L’[ambient](voc.culture.ambient) renverse tout : presque pas de rythme, une lenteur extrême, des textures qui évoluent longtemps, et un espace immense. Ici, le temps s’étire : une mesure dure dix secondes.",
+      code: "setcpm(24/4)\n$: note(\"c2\").s(\"sine\").gain(.35).room(.5)\n$: chord(\"<Cm7 Ab^7>\").voicing().s(\"sawtooth\").lpf(900).attack(2).release(4).room(.85).roomsize(8).gain(.35)",
       decode: [
-        ['setcpm(24/4)', "très lent : ~6 cycles/min → une mesure dure ~10 secondes."],
-        ['note("c2").s("sine")', "un DRONE : une note grave tenue, le socle de la pièce."],
-        ['attack(2).release(4)', "le pad entre en 2 s et s'éteint en 4 s → des nappes qui respirent."],
-        ['room(.85).roomsize(8)', "une réverbe immense → l'espace devient l'instrument."],
+        ["setcpm(24/4)", "6 cycles par minute : une mesure dure 10 s."],
+        ["note(\"c2\").s(\"sine\")", "un *drone* : une note grave tenue, le socle de la pièce."],
+        ["attack(2).release(4)", "la nappe monte en 2 s et s’éteint en 4 s après chaque accord (voir [enveloppe](sol.enveloppe))."],
+        ["room(.85).roomsize(8)", "une réverbération dont la traîne dure 8 s : l’espace devient l’instrument."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['ambient', "musique de texture et d'atmosphère (Brian Eno), à écouter ou à habiter."],
-          ['drone', "une note/un accord tenu très longtemps, le socle."],
-          ['lenteur', "le tempo bas laisse chaque son se déployer entièrement."],
+          ["ambient", "une musique de texture et d’atmosphère."],
+          ["drone", "une note ou un accord tenu très longtemps."],
+          ["lenteur", "le tempo bas laisse chaque son se déployer entièrement."],
         ],
       },
-      exercise:
-        "Descends encore : setcpm(16/4). Allonge attack(4).release(6). " +
-        "Sens comment le morceau cesse d'être un « rythme » pour devenir un « lieu ».",
+      exercise: "Descends encore : `setcpm(16/4)`. Allonge `attack(4).release(6)`. Le morceau cesse d’être un rythme pour devenir un lieu.",
       culture: {
-        artist: 'Brian Eno',
-        track: 'Ambient 1: Music for Airports (1/1)',
-        why:
-          "l'album qui a NOMMÉ le genre (1978) : des boucles de durées inégales qui se décalent — « aussi ignorable qu'intéressante », disait Eno.",
+        artist: "Brian Eno",
+        track: "Ambient 1: Music for Airports (1/1)",
+        why: "l'album qui a NOMMÉ le genre (sorti en 1979) : des boucles de durées inégales qui se décalent — « aussi ignorable qu'intéressante », disait Eno.",
       },
+      rich: true,
     },
 
     {
-      id: '7.22',
-      kicker: 'La nappe vivante',
-      title: 'Le drone & le pad génératif',
-      concept:
-        "Une nappe figée s'ennuie vite. En ambient, le pad ÉVOLUE : un filtre qui morphe très lentement, " +
-        "des notes qui sautent parfois d'octave. C'est génératif — ça ne sonne jamais exactement pareil, " +
-        "sans que tu touches à rien.",
-      code:
-        'setcpm(24/4)\n' +
-        '$: note("c2,c3").s("sawtooth").lpf(sine.range(300,1200).slow(12)).lpq(3).room(.7).gain(.35)\n' +
-        '$: n("0 2 4 6").scale("C:minor").s("triangle").slow(2).attack(1).release(3).room(.8).gain(.25).sometimesBy(.4, x=>x.add(note(12)))',
+      id: "7.22",
+      kicker: "La nappe vivante",
+      title: "Le drone & le pad génératif",
+      concept: "Une nappe figée lasse vite. En ambient, elle ÉVOLUE : un filtre qui s’ouvre et se ferme très lentement, des notes qui sautent parfois d’une octave. C’est *génératif* : ça change sans que tu touches à rien.",
+      code: "setcpm(24/4)\n$: note(\"c2,c3\").s(\"sawtooth\").lpf(sine.range(300,1200).slow(12)).lpq(3).room(.7).gain(.35)\n$: n(\"0 2 4 6\").scale(\"C:minor\").s(\"triangle\").slow(2).attack(1).release(3).room(.8).gain(.25).sometimesBy(.4, x=>x.add(note(12)))",
       decode: [
-        ['note("c2,c3")', "le drone, à l'octave (deux notes tenues)."],
-        ['lpf(sine.range(300,1200).slow(12))', "le filtre morphe sur 12 mesures → la nappe respire, vivante."],
-        ['.slow(2)', "le motif s'étire sur 2 mesures → encore plus contemplatif."],
-        ['sometimesBy(.4, x=>x.add(note(12)))', "40% du temps, une note saute d'une octave → la variation génératif."],
+        ["note(\"c2,c3\")", "le drone, à l’octave : deux notes tenues."],
+        ["lpf(sine.range(300,1200).slow(12))", "la coupure suit une vague sur 12 mesures, soit 2 minutes à ce tempo."],
+        [".slow(2)", "le motif s’étale sur 2 mesures."],
+        ["sometimesBy(.4, x=>x.add(note(12)))", "chaque note a 40 % de chances de monter d’une octave."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['morphing', "un paramètre (le filtre) qui change très lentement → l'évolution."],
-          ['génératif', "des règles + du hasard → un résultat toujours un peu différent."],
-          ['pad', "une nappe d'accords tenue, le corps harmonique."],
+          ["évolution lente", "un réglage qui change sur des minutes, pas sur des secondes."],
+          ["génératif", "des règles et du hasard dosé (voir [génératif](voc.aleatoire.generatif))."],
+          ["pad", "une nappe d’accords tenus."],
         ],
       },
-      exercise:
-        "Ralentis le morph (.slow(24)) et élargis-le (sine.range(200,2000)). " +
-        "Laisse tourner deux minutes : écoute la nappe se transformer toute seule.",
+      exercise: "Ralentis la vague (`.slow(24)`) et élargis-la (`sine.range(200,2000)`). Laisse tourner deux minutes.",
+      rich: true,
     },
 
     {
-      id: '7.23',
-      kicker: 'Le hasard en gamme',
-      title: 'Hasard maîtrisé : toujours différent',
-      concept:
-        "L'ambient adore le hasard — mais MAÎTRISÉ. Des notes tirées au sort, contraintes dans une gamme " +
-        "(jamais fausses), et trouées au hasard (degrade). La pièce se compose seule, autrement à chaque " +
-        "boucle, sans jamais sonner faux.",
-      code:
-        'setcpm(24/4)\n' +
-        '$: note("c2").s("sine").gain(.3)\n' +
-        '$: n(irand(8).segment(4)).scale("C:minor").s("triangle").attack(1).release(4).room(.85).gain(.3).degradeBy(.4)\n' +
-        '$: n("0 3 5 7").scale("C:minor").s("sawtooth").lpf(900).slow(3).sometimesBy(.5, x=>x.add(note("<0 7 12>"))).room(.7).gain(.2)',
+      id: "7.23",
+      kicker: "Le hasard en gamme",
+      title: "Hasard maîtrisé : toujours différent",
+      concept: "L’ambient aime le hasard, mais MAÎTRISÉ : des notes tirées au sort dans une gamme (aucune ne peut être fausse) et trouées au hasard. La pièce change à chaque cycle, sans jamais sonner faux.",
+      code: "setcpm(24/4)\n$: note(\"c2\").s(\"sine\").gain(.3)\n$: n(irand(8).segment(4)).seed(1).scale(\"C:minor\").s(\"triangle\").attack(1).release(4).room(.85).gain(.3).degradeBy(.4)\n$: n(\"0 3 5 7\").scale(\"C:minor\").s(\"sawtooth\").lpf(900).slow(3).sometimesBy(.5, x=>x.add(note(\"<0 7 12>\"))).room(.7).gain(.2)",
       decode: [
-        ['irand(8).segment(4)', "4 degrés tirés AU HASARD par cycle (entiers 0–7)."],
-        ['.scale("C:minor")', "le hasard est contraint dans la gamme → jamais une fausse note."],
-        ['.degradeBy(.4)', "on retire 40% des notes au hasard → de l'air, du jamais-pareil."],
-        ['déterministe', "même code = même suite (rappel M5) ; ribbon(graine, n) fige un fragment qui plaît."],
+        ["irand(8).segment(4)", "4 degrés tirés au hasard par cycle, de 0 à 7."],
+        [".seed(1)", "donne à `irand` un autre tirage que celui de `degradeBy`. Sans lui, les deux lisent le même nombre : mesuré dans le moteur, les degrés 0, 1 et 2 ne jouaient jamais, car `degradeBy` retirait justement les notes tirées en bas (voir [graine](voc.aleatoire.graine))."],
+        [".scale(\"C:minor\")", "le hasard est contraint dans la gamme."],
+        [".degradeBy(.4)", "chaque note a 40 % de chances d’être retirée : de l’air."],
+        ["déterministe", "même code, même suite ; `ribbon` fige un fragment qui te plaît."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['hasard maîtrisé', "de l'aléatoire encadré par des règles (gamme, probas)."],
-          ['irand / rand', "tire des nombres au hasard ; .scale() les rend justes."],
-          ['degrade', "retire des événements au hasard → respiration."],
+          ["hasard maîtrisé", "de l’aléatoire encadré par des règles (gamme, probabilités)."],
+          ["irand / rand", "des nombres au hasard ; `.scale()` les rend justes."],
+          ["degradeBy", "retire des événements au hasard (voir [degradeBy](fn.degradeBy))."],
         ],
       },
-      exercise:
-        "Change la graine du hasard avec ribbon(3, 4) sur la couche irand : tu PÊCHES une variation, " +
-        "puis tu la figes. Essaie plusieurs graines, garde celle que tu préfères.",
+      exercise: "Ajoute `.ribbon(3, 4)` à la couche `irand` : elle rejoue en boucle les cycles 4 à 7. Essaie d’autres points de départ, garde celui que tu préfères.",
+      rich: true,
     },
 
     {
-      id: '7.23b',
-      kicker: 'Les engrenages',
-      title: 'Le polymètre : { a b, c d e }',
-      concept:
-        "Deux boucles de LONGUEURS différentes qui avancent au même pas : elles se décalent à chaque tour, " +
-        "comme deux engrenages, et ne se réalignent que bien plus tard. C'est le polymètre — l'astuce " +
-        "préférée de l'ambient et de l'IDM pour qu'une boucle ne se répète jamais vraiment.",
-      code:
-        'setcpm(24/4)\n' +
-        '$: note("c2").s("sine").gain(.3).room(.5)\n' +
-        '$: n("{0 4 2, 7 5 3 1}%4").scale("C:minor").s("triangle").attack(.5).release(2).room(.8).gain(.3)',
+      id: "7.23b",
+      kicker: "Les engrenages",
+      title: "Le polymètre : { a b, c d e }",
+      concept: "Deux boucles de LONGUEURS différentes qui avancent au même pas : elles se décalent à chaque tour et ne se réalignent que bien plus tard. C’est le [polymètre](voc.rythme.polymetre), une astuce courante en ambient pour qu’une boucle ne se répète pas à l’identique.",
+      code: "setcpm(24/4)\n$: note(\"c2\").s(\"sine\").gain(.3).room(.5)\n$: n(\"{0 4 2, 7 5 3 1}%4\").scale(\"C:minor\").s(\"triangle\").attack(.5).release(2).room(.8).gain(.3)",
       decode: [
-        ['{0 4 2, 7 5 3 1}', "deux séquences de longueurs DIFFÉRENTES (3 et 4 notes) dans un même pattern."],
-        ['%4', "la vitesse commune : 4 pas par cycle pour tout le monde."],
-        ['le décalage', "3 contre 4 → elles ne se réalignent que tous les 12 pas : la boucle « tourne » sans se répéter."],
-        ['polymeter(…)', "existe aussi en fonction (M5 : factories), si tu préfères éviter les accolades."],
+        ["{0 4 2, 7 5 3 1}", "deux séquences de 3 et 4 notes, dans un même motif."],
+        ["%4", "la vitesse commune : 4 pas par cycle pour les deux."],
+        ["le décalage", "3 contre 4 : elles ne se réalignent que tous les 12 pas, soit 3 cycles."],
+        ["polymeter(…)", "existe aussi en fonction."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['polymètre (polymeter)', "des cycles de longueurs différentes superposés, même vitesse de pas."],
-          ['vs la virgule', '"a b, c d e" (M1) étire tout sur UN cycle ; {a b, c d e} laisse chacun sa longueur.'],
-          ['l\'héritage', "les tape loops de longueurs inégales de Brian Eno (Music for Airports) : le même principe, en bande magnétique."],
+          ["polymètre", "des séquences de longueurs différentes, au même pas."],
+          ["vs la virgule", "`\"a b, c d e\"` étire chaque séquence sur UN cycle ; `{a b, c d e}` garde le même pas pour toutes."],
+          ["%n", "fixe le nombre de pas par cycle."],
         ],
       },
-      exercise:
-        'Change les longueurs : {0 4 2 5, 7 5 3}%4 (4 contre 3), puis %3 ou %8 pour la densité. ' +
-        'Laisse tourner : note quand la figure se répète vraiment.',
+      exercise: "Change les longueurs : `{0 4 2 5, 7 5 3}%4` (4 contre 3), puis `%3` ou `%8` pour la densité. Note au bout de combien de pas la figure se répète.",
+      rich: true,
     },
 
     {
-      id: '7.24',
-      kicker: 'L\'espace-instrument',
-      title: 'Réverb, delay, granularité',
-      concept:
-        "En ambient, les effets ne décorent pas : ils COMPOSENT. Une réverbe-cathédrale, un delay long et " +
-        "syncopé, et la granularité (hacher un son en grains) transforment une simple texture en nuage " +
-        "sonore. L'espace est l'instrument principal.",
-      code:
-        'setcpm(24/4)\n' +
-        '$: s("space").chop(16).slow(2).delay(.6).delaytime(.375).delayfeedback(.6).room(.9).roomsize(10).orbit(2).gain(.3)\n' +
-        '$: note("c2").s("sine").room(.6).gain(.3)',
+      id: "7.24",
+      kicker: "L'espace-instrument",
+      title: "Réverb, delay, granularité",
+      concept: "En ambient, les effets ne décorent pas : ils COMPOSENT. Une très grande réverbération, un écho long, et la *granularité* (découper un son en grains très courts) transforment une simple texture en nuage sonore.",
+      code: "setcpm(24/4)\n$: s(\"space\").chop(16).slow(2).delay(.6).delaytime(.375).delayfeedback(.6).room(.9).roomsize(10).orbit(2).gain(.3)\n$: note(\"c2\").s(\"sine\").room(.6).gain(.3)",
       decode: [
-        ['s("space").chop(16)', "un son d'ambiance intégré, haché en 16 grains → la granularité."],
-        ['.delay(.6).delayfeedback(.6)', "des échos qui s'empilent et se répondent."],
-        ['.room(.9).roomsize(10)', "une réverbe énorme → le grain devient nuage."],
-        ['.orbit(2)', "un bus de réverbe/délai séparé du drone (rappel §8) → propre."],
+        ["s(\"space\").chop(16)", "un son d’ambiance de la banque, découpé en 16 grains."],
+        [".delay(.6).delayfeedback(.6)", "des échos à 0,6, chacun gardant 60 % du précédent (voir [delay](fx.delay))."],
+        [".room(.9).roomsize(10)", "une réverbération dont la traîne dure 10 s."],
+        [".orbit(2)", "une réverbération et un écho séparés de ceux du drone, avec leurs propres réglages (voir [orbit](fx.orbit))."],
       ],
       theory: {
-        title: 'Le mot juste',
+        title: "Le mot juste",
         items: [
-          ['réverb', "room/roomsize/rlp → la taille et la couleur de l'espace."],
-          ['delay', "delay/delaytime/delayfeedback → des échos rythmiques."],
-          ['granularité', "chop(n) → des micro-grains, une texture vaporeuse."],
+          ["réverbération", "`room`, `roomsize`, `rlp` : la quantité, la durée et la couleur de la traîne."],
+          ["écho", "`delay`, `delaytime`, `delayfeedback` : des répétitions rythmiques."],
+          ["granularité", "`chop(n)` : des grains très courts, une texture vaporeuse."],
         ],
       },
-      exercise:
-        "Pousse chop(32) et delayfeedback(.8) : le grain se dissout en brume infinie. " +
-        "Attention au feedback trop haut — ça s'emballe.",
+      exercise: "Pousse `chop(32)` et `delayfeedback(.8)` : le grain se dissout. Le moteur plafonne le retour à 0,98, mais au-delà de 0,9 les échos s’accumulent vite : baisse le `gain` si besoin.",
+      rich: true,
     },
 
     {
-      id: '7.25',
-      kicker: 'Le tout dernier flash',
-      title: 'Projet final : une pièce ambient générative (~5 min)',
-      concept:
-        "Le bout du chemin. Une pièce qui se compose toute seule, tissant tout Keymaker : un drone (M4), " +
-        "des accords riches (M2), du hasard en gamme (M5), un espace immense (M4), et des couches nommées " +
-        "(M6). Lance-la, et elle vivra ~5 minutes — différente à chaque fois. Tu ne joues plus : tu as " +
-        "écrit un monde, et il respire.",
-      code:
-        'setcpm(20/4)\n' +
-        '$: note("c2").s("sine").gain(.3).room(.5)\n' +
-        '$: chord("<Cm7 Ab^7 Fm7 Gm7>").voicing().superimpose(x=>x.add(note(0.1))).s("sawtooth").lpf(sine.range(400,1600).slow(16)).attack(3).release(5).room(.85).roomsize(9).gain(.26)\n' +
-        '$: n(irand(8).segment(2)).scale("C:minor").s("triangle").attack(1).release(4).delay(.6).delaytime(.5).delayfeedback(.5).room(.9).orbit(2).gain(.2).degradeBy(.5)\n' +
-        '$: s("space").chop(16).slow(3).delay(.5).delayfeedback(.5).room(.9).orbit(3).gain(.16)\n' +
-        '$: n("<0 3 5 7 10 7 5 3>").scale("C:minor").s("sine").slow(4).sometimesBy(.4, x=>x.add(note(12))).room(.8).gain(.16)',
+      id: "7.25",
+      kicker: "Le tout dernier flash",
+      title: "Projet final : une pièce ambient générative (~5 min)",
+      concept: "Une pièce qui se compose toute seule, avec tout le parcours : un drone, des accords riches, du hasard dans une gamme, un espace immense et des couches séparées. Lance-la : elle change à chaque cycle.",
+      code: "setcpm(20/4)\n$: note(\"c2\").s(\"sine\").gain(.3).room(.5)\n$: chord(\"<Cm7 Ab^7 Fm7 Gm7>\").voicing().superimpose(x=>x.add(note(0.1))).s(\"sawtooth\").lpf(sine.range(400,1600).slow(16)).attack(3).release(5).room(.85).roomsize(9).gain(.26)\n$: n(irand(8).segment(2)).seed(1).scale(\"C:minor\").s(\"triangle\").attack(1).release(4).delay(.6).delaytime(.5).delayfeedback(.5).room(.9).orbit(2).gain(.2).degradeBy(.5)\n$: s(\"space\").chop(16).slow(3).delay(.5).delayfeedback(.5).room(.9).orbit(3).gain(.16)\n$: n(\"<0 3 5 7 10 7 5 3>\").scale(\"C:minor\").s(\"sine\").slow(4).sometimesBy(.4, x=>x.add(note(12))).room(.8).gain(.16)",
       decode: [
-        ['le drone (M4)', "la note grave tenue, le socle de tout."],
-        ['le pad supersaw (M2+M4)', "accords de 7e détunés, filtre qui morphe sur 16 mesures."],
-        ['les grains au hasard (M5)', "des notes tirées au sort, en gamme, trouées → jamais deux fois pareil."],
-        ['l\'espace (M4) + le motif (M6)', "réverbe-nuage sur bus séparés, et une mélodie lente qui flotte."],
+        ["le drone", "une note grave tenue, le socle."],
+        ["la nappe", "des accords de septième joués deux fois, la copie 0,1 demi-ton plus haut (`superimpose`) : deux dents de scie qui battent ; le filtre suit une vague sur 16 mesures."],
+        ["les notes au hasard", "tirées dans la gamme et trouées : jamais deux cycles pareils. Le `.seed(1)` sépare le tirage des notes de celui des trous ; sans lui, `degradeBy(.5)` retirerait toutes les notes des degrés 0 à 3, la moitié grave (mesuré dans le moteur)."],
+        ["l’espace et la mélodie", "des réverbérations sur des orbits séparées, et une mélodie lente qui saute parfois d’une octave."],
       ],
       recap: {
-        title: 'Récap 7.5 — L\'ambient',
-        columns: ['Brique', 'Idée', 'Strudel'],
+        title: "Récap — L’ambient",
+        columns: ["Brique", "Idée", "Strudel"],
         rows: [
-          ['Lenteur', 'tempo bas', 'setcpm(20/4)'],
-          ['Drone', 'note tenue', 'note("c2").s("sine")'],
-          ['Pad génératif', 'morph lent', 'lpf(sine.range().slow(16))'],
-          ['Hasard maîtrisé', 'en gamme', 'n(irand(8)).scale("C:minor")'],
-          ['Espace', 'réverb / delay', 'room(.9) / delay(.6)'],
-          ['Granularité', 'grains', 's("space").chop(16)'],
+          ["lenteur", "tempo bas", "`setcpm(20/4)`"],
+          ["drone", "une note tenue", "`note(\"c2\").s(\"sine\")`"],
+          ["nappe qui évolue", "un filtre qui bouge lentement", "`.lpf(sine.range(400, 1600).slow(16))`"],
+          ["hasard en gamme", "aucune note fausse", "`n(irand(8).segment(2)).seed(1).scale(\"C:minor\")`"],
+          ["espace", "réverbération, écho", "`.room(.9)` · `.delay(.6)`"],
+          ["grains", "un son haché en petits morceaux", "`s(\"space\").chop(16)`"],
         ],
       },
-      exercise:
-        "Approprie-toi la pièce : change la grille (\"<Em9 C^7 …>\"), la gamme (C:dorian, C:aeolian), " +
-        "les graines du hasard. Puis laisse-la tourner, vraiment, cinq minutes — c'est ça, l'ambient.",
-      free:
-        "C'est le tout dernier flash de Keymaker. Regarde le chemin parcouru : du premier « bd » au beat " +
-        "techno, aux frissons de la trance, à ta guitare fondue dans l'industrial, au son acide sculpté " +
-        "main, à la machine qui compose seule, aux morceaux complets — et maintenant à une pièce qui vit " +
-        "sans toi. Tu n'apprends plus Strudel : tu en as toutes les clés (Keymaker !). Le code n'est plus " +
-        "un mur, c'est ton studio. Lance cette pièce, ferme les yeux, laisse-la se dérouler — elle ne sera " +
-        "jamais deux fois la même, comme chaque set que tu joueras. Le plus beau commence maintenant : fais " +
-        "TA musique. Reviens piocher quand tu veux, appelle Sati si tu bloques. Merci pour le voyage, Felix. 🎛️🌌",
+      exercise: "Approprie-toi la pièce : change la grille, la gamme (`C:dorian`), les taux de hasard. Puis laisse-la vraiment tourner cinq minutes.",
+      free: "C’est la toute dernière leçon de Keymaker. Regarde le chemin : du premier `bd` au beat techno, à la trance, à ta guitare dans l’industrial, à la basse acid sculptée à la main, à la machine qui compose seule, aux morceaux complets, et maintenant à une pièce qui vit sans toi. Le code n’est plus un mur, c’est ton studio. Lance cette pièce et laisse-la se dérouler : elle change d’un cycle à l’autre, et pourtant, relancée, elle redonne exactement la même suite. Fais ta musique. Reviens piocher quand tu veux, appelle Sati si tu bloques. Merci pour le voyage, Felix.",
+      rich: true,
+      richRecap: true,
     },
   ],
 };

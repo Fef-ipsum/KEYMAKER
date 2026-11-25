@@ -21,9 +21,15 @@
 | **Aujourd'hui** | « Qu'est-ce que je fais maintenant ? » | Un seul gros bouton : *Continuer* (l'étape exacte où tu t'es arrêté). En dessous : « J'ai 10 / 20 / 40 minutes ». |
 | **Parcours** | « Où j'en suis ? Qu'est-ce qui vient après ? » | Les fondations (8 chapitres), puis les genres, puis les approfondissements. |
 | **Wiki** | « C'est quoi, ça ? » | Tout : fonctions, caractères, arguments, solfège, traits de genres. Recherche instantanée hors ligne. |
-| **Studio** | « Je veux juste faire du son. » | Éditeur libre, points de départ, tes snippets. |
+| **Studio** | « Je veux juste faire du son. » | Éditeur libre, points de départ, tes snippets, l'enregistrement du son, les défis. |
 
 Sati (l'assistante en ligne) et les réglages sont deux icônes discrètes ; ils ne sont pas des destinations.
+
+**Enregistrer le son (Studio).** Le bouton « Enregistrer » capte la sortie de Strudel (le dernier gain avant les haut-parleurs) : le fichier contient ce que tu entends, à son volume. L'enregistrement commence au début d'un cycle et dure 4, 8, 16 ou 32 cycles ; si le code contient un seul `arrange` lisible, « Le morceau entier » le rejoue depuis le cycle 0 et s'arrête après la dernière section. WAV : chaque échantillon est recopié avec son numéro (AudioWorklet), et le fichier est coupé à l'échantillon près sur l'heure de début de cycle que calcule le planificateur : il boucle sans couture. WebM (M4A sous Safari) : compressé par MediaRecorder, démarré et arrêté par minuterie, à quelques centièmes de seconde près. Arrêter la lecture ou « Annuler » abandonne l'enregistrement. Contrôle : `scripts/check-record.mjs` (longueur, attaques à moins de 4 ms en WAV, morceau depuis le cycle 0, arrêt, annulation).
+
+**Défis vérifiés.** Sept modèles de consigne (une couche qui entre au Nᵉ cycle, une basse dans une tonalité, un accord parfait, un rythme euclidien, un accent, un filtre qui s'ouvre, une fin de phrase) donnent 46 défis tirés au hasard (`src/content/defis.js`, `#/defi`). Chacun a sa vérification sur ce que le code produit, une solution générée et l'indice gradué du §3. `check-content` vérifie toutes les instances (départ refusé, solution acceptée) ; des variantes écrites autrement sont acceptées (`<~ ~ hh*8 hh*8>` au lieu de `mask`, `chord("Dm").voicing()`, toute rotation d'un rythme euclidien).
+
+**Visualisations.** `_pianoroll()`, `_punchcard()` et `_scope()` dessinent sous leur ligne ; l'app cale leur largeur sur celle de l'éditeur (Strudel les dessine sur 500 px, ce qui débordait sur téléphone). Ce que le wiki en dit (`fn.visu`, `fn.color`) est mesuré par `scripts/check-visu.mjs`.
 
 **Reprendre en un geste** : l'app mémorise la dernière étape ouverte et son code en cours. Le bouton *Continuer* y ramène, où qu'elle soit (fondations, genre, approfondissement).
 
@@ -34,10 +40,19 @@ Sati (l'assistante en ligne) et les réglages sont deux icônes discrètes ; ils
 Toutes les étapes ont la même forme, dans le même ordre. On n'a qu'un seul modèle à apprendre.
 
 1. **Écoute** — le code est déjà dans l'éditeur. On appuie sur ▶.
-2. **Ce que tu entends** — deux phrases au plus. Le nom arrive ici.
-3. **À toi** — une consigne, un seul changement. Quand on relance, l'app regarde ce que le code *produit* (les événements sonores du premier cycle) et répond : « C'est ça » ou un indice. Jamais « faux ».
-4. **Creuser** (replié) — le code décortiqué morceau par morceau, chaque morceau menant à son entrée du wiki ; le pourquoi ; le lien avec le solfège.
+2. **Ce que tu entends** — court (deux ou trois phrases), mais précis : le nom arrive ici, avec ce qu'il désigne réellement (unité, sens, ordre de grandeur). Le mécanisme va dans « Creuser ».
+3. **À toi** — une consigne, un seul changement. Quand on relance, l'app regarde ce que le code *produit* (les événements sonores du premier cycle) et répond : « C'est ça » ou un indice. Jamais « faux ». L'aide monte par paliers : au premier essai raté, l'indice de l'exercice ; au deuxième, **où chercher** dans le code de départ (`src/lib/hint.js` compare, mot par mot, le code de départ et la solution proposée, et nomme le passage à changer ou l'endroit où ajouter, sans dire par quoi) ; au troisième, « Voir une solution ». `scripts/check-hints.mjs` vérifie que chaque passage nommé existe dans le code de départ, tient debout (parenthèses équilibrées) et ne dévoile aucun mot propre à la solution.
+4. **Creuser** (replié) — le code décortiqué morceau par morceau, chaque morceau menant à son entrée du wiki ; le pourquoi (le mécanisme réel, pas une image) ; le lien avec le solfège. Les termes techniques renvoient au wiki par des liens dans le texte.
 5. **Suivant.**
+
+### Les schémas vivants
+
+Certaines étapes déclarent un **schéma vivant** (le filtre, l'enveloppe… voir `docs/SCHEMAS.md`). Il s'affiche dans « Ce que tu entends », **avant** le texte qui nomme la notion : on joue avec le dessin, on entend, puis on lit le mot. C'est le principe 1 appliqué jusqu'au bout : le son, puis le nom.
+
+- Le schéma fait **comprendre** la notion (on voit la bosse grandir en l'entendant siffler) ; le code fait **apprendre** la syntaxe. Aucun bouton du schéma n'écrit dans l'éditeur : l'exercice « À toi » reste à faire.
+- Ses deux ou trois **missions** se valident toutes seules pendant que ça joue, et chaque réussite fait apparaître une phrase de compréhension. Elles ne bloquent rien : l'étape se valide toujours par le code.
+- Un seul son à la fois : toucher ▶ arrête le schéma, et inversement.
+- Une notion que les leçons n'enseignent pas encore (le sidechain, `duck`) n'a son schéma que dans le wiki : on ne glisse pas une notion nouvelle dans une leçon qui parle d'autre chose.
 
 ### Les deux vitesses
 
@@ -92,6 +107,7 @@ Exemple de la démarche pour les intervalles (chapitre 5) :
 ## 5. Points d'étape et révision espacée
 
 - **Fin de chapitre : un point d'étape.** Quatre à six questions écrites à la main, tirées des étapes du chapitre. Trois formes : question à choix, **question d'écoute** (« lequel des deux est une tierce mineure ? » — l'app joue, on choisit), et lecture de code (« que joue ce motif ? »).
+- **Une quatrième forme : « retrouve le réglage à l'oreille ».** L'app joue un son mystère ; on règle un schéma jusqu'à l'entendre pareil ; l'app compare les valeurs avec une tolérance. Elle entraîne l'oreille, pas seulement l'œil. Les questions sont **générées** à partir des schémas (`src/content/fondations/ear.js`) : une famille par réglage (coupure, résonance, attack, enveloppe pincée, taille de la réverbération, temps entre les échos, tempo), avec plusieurs valeurs cibles. Une famille a un identifiant stable (`oreille.…`) et fait UNE carte de révision ; chaque passage tire une cible au hasard, pour qu'on retienne l'oreille et pas la réponse. Un point d'étape en tire deux familles au hasard, en plus des questions des étapes. `check-schemas` vérifie chaque variante : le réglage de départ est refusé, la cible est acceptée et atteignable au curseur, et le code du son mystère, évalué par Strudel, porte bien la valeur cible.
 - **Révision espacée.** Chaque question réussie revient après 3 jours, puis 7 ; une question ratée revient le lendemain. Cinq cartes au plus par session. C'est l'algorithme de l'app précédente, conservé.
 - **Tout est local.** Aucune question n'est générée à la volée. Un quiz faux est pire que pas de quiz.
 
@@ -102,8 +118,9 @@ Exemple de la démarche pour les intervalles (chapitre 5) :
 Trois durées : 10, 20, 40 minutes. L'app compose la session :
 
 1. les révisions prêtes (3 à 5 cartes) ;
-2. une à trois étapes nouvelles, à la suite de là où on en est ;
-3. si le temps le permet, un défi libre dans le Studio (tiré d'une banque locale ; si Sati est joignable, elle peut en proposer un sur mesure).
+2. un ou deux exercices d'approfondissement à refaire de mémoire, s'il y en a de prêts (voir §9) ;
+3. une à trois étapes nouvelles, à la suite de là où on en est : les fondations d'abord ; dès 20 minutes, une place va à la leçon suivante de l'approfondissement ouvert le plus récemment ; les fondations finies, toutes y vont ;
+4. si le temps le permet, un défi libre dans le Studio (tiré d'une banque locale ; si Sati est joignable, elle peut en proposer un sur mesure).
 
 Pas de minuteur qui presse : une indication discrète du temps écoulé, et on s'arrête quand on veut. Ce qui est fait reste fait.
 
@@ -113,14 +130,25 @@ Pas de minuteur qui presse : une indication discrète du temps écoulé, et on s
 
 ### Le problème à résoudre
 
-« Tout savoir sur chaque fonction » et « ne pas être confus » tirent en sens opposé. La réponse est une **forme fixe à quatre niveaux**, identique pour toutes les entrées. On ne lit jamais plus que ce qu'on a demandé.
+« Tout savoir sur chaque fonction » et « ne pas être confus » tirent en sens opposé. La réponse : **l'essentiel en tête, toujours visible, puis le détail complet dans des replis**, dans un ordre fixe. Le détail doit exister ; la lisibilité sur téléphone aussi. Un repli n'apparaît que si l'entrée a de quoi le remplir.
 
-| Niveau | Toujours visible ? | Contenu |
-|---|---|---|
-| **L'essentiel** | oui | Une ou deux phrases : ce que c'est, à quoi ça sert. Un exemple jouable. |
-| **Comment s'en servir** | replié | Plusieurs usages, chacun avec son code jouable. Les arguments, avec leurs valeurs utiles. |
-| **Pièges** | replié | Les erreurs courantes et comment les reconnaître. |
-| **Évolutions** | replié | Autres noms (alias), anciens noms, changements de comportement, syntaxes qu'on peut croiser ailleurs. |
+| Niveau | Toujours visible ? | Champ | Contenu |
+|---|---|---|---|
+| **L'essentiel** | oui | `ess`, `code` | Deux à quatre phrases : le phénomène réel (sonore ou musical), dit précisément. Un exemple jouable et commenté. |
+| **Les réglages** | replié | `args` | Pour chaque paramètre : unité, sens (plus / moins), valeur par défaut, plage utile, ce qu'on entend en montant et en descendant. |
+| **Dans le temps** | replié | `time` | Quand ça agit : début de note, durée, retour à l'état normal. |
+| **Pourquoi ça marche** | replié | `why` | Le mécanisme physique, acoustique ou de calcul. |
+| **Comment s'en servir** | replié | `recipe`, `vary`, `use` | Une recette complète (valeurs justifiées), des variations (« si on change telle valeur… »), d'autres exemples. |
+| **Pièges et confusions** | replié | `traps` | Les erreurs fréquentes, et les notions voisines avec lesquelles on la confond. |
+| **Évolutions et autres noms** | replié | `evo` | Alias, anciens noms, syntaxes qu'on peut croiser ailleurs. |
+
+Ces sept points s'appliquent **en entier** aux sons et aux effets. Ailleurs (mini-notation, fonctions, solfège, écriture du code), on ne garde que ceux qui ont un sens : « Dans le temps » ou « mécanisme physique » n'ont rien à dire sur le signe `~`.
+
+**Règles d'écriture** (valables pour tout le texte explicatif de l'app : wiki, étapes, genres, approfondissements) :
+
+- **Précis avant tout.** Jamais de formule vague (« fait glisser », « donne de la couleur ») sans dire quoi, dans quel sens et de combien. Chaque comportement est vérifié dans le moteur embarqué ou la documentation officielle ; un doute se signale, il ne s'écrit pas comme un fait.
+- **Ni condescendant ni jargon gratuit.** Registre adulte, tutoiement. Un terme technique est permis s'il est défini à sa première apparition **ou** relié à son entrée du wiki par un lien `[texte](id.entree)`.
+- **Les exemples jouent et sont commentés** (`// …` sur sa propre ligne, court, pour rester lisible sur téléphone). Ils sont tous exécutés par `npm run check:content`.
 
 Sous chaque entrée : *Voir aussi* (entrées liées) et *Ma note* (ton annotation personnelle).
 
@@ -144,6 +172,9 @@ Sous chaque entrée : *Voir aussi* (entrées liées) et *Ma note* (ton annotatio
 - Chaque nom de fonction cité dans le wiki est vérifié automatiquement : il doit exister dans le moteur embarqué (Strudel 1.3.0). Les alias affichés sont extraits du moteur.
 - Chaque exemple de code du wiki, des leçons et des genres est exécuté dans un navigateur sans interface avant livraison.
 - Les affirmations historiques (« autrefois appelé… ») ne sont écrites que si elles sont vérifiables dans le moteur (l'ancien nom existe encore comme alias) ou dans la documentation officielle. Sinon, elles sont absentes.
+- Ce que le contenu affirme sur le moteur est vérifié par `npm run check:claims` (`scripts/claims.js`) : un code et ce qu’il doit produire cycle par cycle, ou un extrait du code source du moteur sur lequel un texte s’appuie (valeur par défaut, plafond, ordre de la chaîne). Chaque affirmation cite les entrées qui en dépendent : après une mise à jour du moteur, l’échec dit quels textes relire. Toute nouvelle affirmation chiffrée dans un texte s’accompagne d’une entrée dans `claims.js`.
+- `npm run check:noop` cherche, dans tous les exemples, les transformations qui ne changent rien (comme `swing(8)` sur `hh*8`, ou deux hasards qui tirent le même nombre). Il avertit ; les cas voulus se déclarent dans sa liste `ALLOWED`, avec leur raison.
+- Piège à connaître en écrivant un exemple : deux hasards dans la même chaîne (`degradeBy`, `sometimes`, `irand`, `rand`, `choose`, `?`) lisent le même nombre au même instant. `.seed(1)` placé entre les deux les sépare.
 
 ---
 
@@ -173,6 +204,7 @@ Parce que tous les genres ont les mêmes huit traits, on peut les mettre côte �
 - **Techno** et **Acid**
 - **Trance** et **Progressive**
 - **Synth-pop / électropop**, autour du cas Agar Agar
+- **House**, **Drum & bass** et **Ambient**, repris des leçons vérifiées du parcours « Autres genres » (qui garde ses morceaux complets). L'ambient n'a pas de zone de tempo : `bpmLabel` remplace l'affichage « min–max BPM ».
 
 ### Le cas Agar Agar : pourquoi les genres sont flous
 
@@ -192,9 +224,15 @@ Un genre est un fichier de données unique (ses huit traits, son assemblage). L'
 
 ## 9. Les approfondissements
 
-Les modules d'origine qui vont au-delà des fondations restent disponibles après le parcours, sous des noms clairs : *Sculpter le son*, *Le code comme instrument*, *Composer un morceau*, *Autres genres* (house, drum & bass, ambient), *Guitare*, *PO-33*. Même forme d'étape, même éditeur. Leur exercice se valide par auto-évaluation (« c'est fait »), Sati pouvant donner un avis quand elle est joignable.
+Les modules d'origine qui vont au-delà des fondations restent disponibles après le parcours, sous des noms clairs : *Sculpter le son*, *Le code comme instrument*, *Composer un morceau*, *Autres genres* (house, drum & bass, ambient), *Guitare*, *PO-33*. Même forme d'étape, même éditeur. 98 de leurs 117 exercices se valident tout seuls, comme ceux des fondations : après chaque ▶, une fonction regarde ce que le code produit et répond par la réussite ou par un indice précis (`src/content/legacy/checks.js`, avec une solution de référence par exercice ; « Voir une solution » apparaît après deux essais). Les 19 autres sont ouverts (écouter, comparer, s’approprier un morceau) et gardent « C’est fait ». Sur un exercice vérifié, « Je l’ai fait autrement » reste possible : la vérification ne doit jamais bloquer. Les tests exigent que chaque solution valide, que le code de départ échoue, et qu’un indice accompagne l’échec.
+
+**Révision des exercices.** Un exercice validé par le moteur (pas « Je l'ai fait autrement ») crée une carte `ex:<leçon>` : il revient trois jours plus tard, puis sept, en mode « de mémoire » (`#/etape/<leçon>?revision=1`) : le code repart de son point de départ, le décodage est replié, les mêmes indices gradués s'appliquent. Le refaire juste marque la leçon « acquise » ; dire « Je ne m'en souviens pas » ou regarder la solution le fait revenir le lendemain. L'accueil signale les exercices prêts ; « J'ai X minutes » en place un ou deux.
+
+**Questions.** 54 questions (`src/content/legacy/quizzes.js`), deux ou trois par chapitre, nourrissent un point d'étape à la fin de chaque chapitre et la révision espacée, comme dans les fondations. Chacune est protégée par une affirmation `qa-…` de `scripts/claims.js` qui cite sa leçon : le code ou le fait sur lequel repose la bonne réponse est vérifié dans le moteur, et `check-links` refuse une question sans affirmation. Les chapitres House, Drum & Bass et Ambient n'en ont pas : leurs questions sont dans la section Genres, avec les traits (deux par genre, chacune protégée par une affirmation).
 
 Ils sont volontairement en retrait : le parcours principal ne les exige pas.
+
+Réécriture (novembre 2026) : les cinq parcours suivent les règles d’écriture du §7 (texte précis, valeurs vérifiées dans le moteur, liens vers le wiki). Les leçons réécrites portent `rich: true` dans `lessons.js` / `module7.js`, ce qui active le mini-format (code, gras, liens) dans leur concept, décodage, théorie et exercice. `richRecap: true` fait de même pour le tableau récapitulatif, « Pour aller plus loin » et « À écouter » : sans ce drapeau, ces blocs restent en texte brut (un `hh*8` y deviendrait de l’italique). Les renvois aux anciens modules (« M1 », « Module 6 ») sont remplacés par les noms des parcours ou par des liens du wiki.
 
 ---
 

@@ -21,7 +21,8 @@ export default {
       hear: `${BPM}
 sound("bd*4, [~ oh]*4").bank("RolandTR909")`,
       what:
-        'Un peu plus rapide que la techno classique. Le tempo le plus associé au genre est 138 BPM : assez vif pour porter les mélodies, sans les brusquer.',
+        'Un peu plus rapide que la techno classique. Le tempo le plus associé au genre est 138 BPM : assez vif pour porter les mélodies, sans les brusquer.' +
+        ' À 138 BPM, un temps dure 0,43 s et une mesure 1,74 s. Une double-croche dure alors 0,11 s.',
       build: [
         ['132 BPM : le bas de la fourchette', `setcpm(132/4)\nsound("bd*4, [~ oh]*4").bank("RolandTR909")`],
         ['138 BPM : le tempo emblématique', `setcpm(138/4)\nsound("bd*4, [~ oh]*4").bank("RolandTR909")`],
@@ -33,16 +34,15 @@ sound("bd*4, [~ oh]*4").bank("RolandTR909")`,
       title: 'Un kick net, qui fait pomper tout le reste',
       short: 'Sur chaque temps, net et peu saturé ; à chaque coup, les autres pistes s’effacent un instant (le « pompage »)',
       hear: `${BPM}
-$: sound("bd*4").bank("RolandTR909").duck(2).duckattack(.2).duckdepth(1)
-$: note("[a2,c3,e3]").sound("supersaw").lpf(2000).gain(.6).orbit(2)`,
+$: note("[a2,c3,e3]").sound("supersaw").lpf(2000).gain(.6).orbit(2)
+$: sound("bd*4").bank("RolandTR909").duck(2).duckattack(.2).duckdepth(1)`,
       what:
-        'Toujours quatre coups par mesure, mais le kick trance est propre : une attaque nette, un grave court, presque pas de saturation. ' +
-        'Sa signature est ailleurs : à chaque coup, le volume des accords et de la basse **plonge** puis remonte. On appelle ça le *sidechain*, ou « pompage ». ' +
-        'Écoute l’accord tenu : il respire au rythme du kick.',
+        'Toujours quatre coups par mesure, mais le kick trance est propre : une attaque nette, un grave court, presque pas de saturation. Sa signature est ailleurs : à chaque coup, le volume des accords et de la basse **plonge** puis remonte. On appelle ça le *sidechain*, ou « pompage ». Écoute l’accord tenu : il respire au rythme du kick.' +
+        ' Les réglages du pompage : `duckdepth(1)` fait tomber l’accord à 1 % de son volume à chaque coup ; `duckattack(.2)` le fait remonter en 0,2 s, bien avant le coup suivant (0,43 s plus tard à 138 BPM). Voir [duck](fx.duck) et [orbit](fx.orbit).',
       build: [
         ['1. Le kick seul', `${BPM}\nsound("bd*4").bank("RolandTR909")`],
-        ['2. Un accord tenu par-dessus : tout se mélange', `${BPM}\n$: sound("bd*4").bank("RolandTR909")\n$: note("[a2,c3,e3]").sound("supersaw").lpf(2000).gain(.6)`],
-        ['3. Le sidechain : l’accord s’écarte à chaque coup', `${BPM}\n$: sound("bd*4").bank("RolandTR909").duck(2).duckattack(.2).duckdepth(1)\n$: note("[a2,c3,e3]").sound("supersaw").lpf(2000).gain(.6).orbit(2)`],
+        ['2. Un accord tenu par-dessus : tout se mélange', `${BPM}\n$: note("[a2,c3,e3]").sound("supersaw").lpf(2000).gain(.6)\n$: sound("bd*4").bank("RolandTR909")`],
+        ['3. Le sidechain : l’accord s’écarte à chaque coup', `${BPM}\n$: note("[a2,c3,e3]").sound("supersaw").lpf(2000).gain(.6).orbit(2)\n$: sound("bd*4").bank("RolandTR909").duck(2).duckattack(.2).duckdepth(1)`],
       ],
       wiki: ['genre.sidechain', 'fx.duck', 'fx.orbit'],
     },
@@ -55,8 +55,8 @@ ${GRILLE}
 ${KICK}
 $: grille.rootNotes(1).struct("[~ x]*4").sound("sawtooth").lpf(500).decay(.15).sustain(0)`,
       what:
-        'La basse trance joue **entre** les kicks : « boum-BA-boum-BA ». Kick et basse alternent comme deux mains sur un tambour, ce qui donne un galop régulier. ' +
-        'Contrairement à la techno, elle **change de note avec les accords** : elle joue la fondamentale de chacun.',
+        'La basse trance joue **entre** les kicks : « boum-BA-boum-BA ». Kick et basse alternent comme deux mains sur un tambour, ce qui donne un galop régulier. Contrairement à la techno, elle **change de note avec les accords** : elle joue la fondamentale de chacun.' +
+        ' À 138 BPM, la note à contretemps tombe 0,22 s après chaque kick. `rootNotes(1)` donne la fondamentale de chaque accord à l’octave 1, entre 33 et 62 Hz (voir [rootNotes](fn.rootNotes)).',
       build: [
         ['1. Une note entre chaque kick', `${BPM}\n${KICK}\n$: note("[~ a1]*4").sound("sawtooth").lpf(500).decay(.15).sustain(0)`],
         ['2. Elle suit la grille d’accords', `${BPM}\n${GRILLE}\n${KICK}\n$: grille.rootNotes(1).struct("[~ x]*4").sound("sawtooth").lpf(500).decay(.15).sustain(0)`],
@@ -72,8 +72,8 @@ $: grille.rootNotes(1).struct("[~ x]*4").sound("sawtooth").lpf(500).decay(.15).s
 $: sound("bd*4, [~ oh]*4, ~ cp ~ cp").bank("RolandTR909").gain(.8)
 $: sound("hh*16").bank("RolandTR909").gain("[.3 .15 .25 .15]*4")`,
       what:
-        'La base est celle de la techno et de la house : charleston ouvert entre les temps, clap sur 2 et 4. La particularité trance, c’est le **roulement de caisse claire** : ' +
-        'des coups de plus en plus serrés (4, puis 8, puis 16 par mesure) qui annoncent le retour du kick.',
+        'La base est celle de la techno et de la house : charleston ouvert entre les temps, clap sur 2 et 4. La particularité trance, c’est le **roulement de caisse claire** : des coups de plus en plus serrés (4, puis 8, puis 16 par mesure) qui annoncent le retour du kick.' +
+        ' Le roulement : `sd*<4 8 16 32>` joue 4 caisses claires par mesure, puis 8, 16 et 32 (une par triple-croche, 0,05 s d’écart à 138 BPM), pendant que `gain(saw.range(.3, .8).slow(4))` fait monter le volume sur les 4 mesures (voir [chevrons](mini.chevrons)).',
       build: [
         ['1. Kick, contretemps, clap', `${BPM}\nsound("bd*4, [~ oh]*4, ~ cp ~ cp").bank("RolandTR909").gain(.8)`],
         ['2. Charleston fermé en doubles-croches', `${BPM}\n$: sound("bd*4, [~ oh]*4, ~ cp ~ cp").bank("RolandTR909").gain(.8)\n$: sound("hh*16").bank("RolandTR909").gain("[.3 .15 .25 .15]*4")`],
@@ -88,8 +88,8 @@ $: sound("hh*16").bank("RolandTR909").gain("[.3 .15 .25 .15]*4")`,
       hear: `${BPM}
 chord("<Am F C G>").voicing().sound("supersaw").lpf(2500).room(.5).gain(.5)`,
       what:
-        'C’est ici que la trance s’éloigne le plus de la techno. Elle repose sur une **suite d’accords**, presque toujours en mineur, qui change à chaque mesure ou toutes les deux mesures. ' +
-        'La plus courante part de l’accord mineur de la tonalité et enchaîne trois accords majeurs : ici la mineur, fa, do, sol. Elle donne cette impression d’élan qui ne retombe jamais.',
+        'C’est ici que la trance s’éloigne le plus de la techno. Elle repose sur une **suite d’accords**, presque toujours en mineur, qui change à chaque mesure ou toutes les deux mesures. La plus courante part de l’accord mineur de la tonalité et enchaîne trois accords majeurs : ici la mineur, fa, do, sol. Elle donne cette impression d’élan qui ne retombe jamais.' +
+        ' En degrés de la mineur : la mineur = i, fa = VI, do = III, sol = VII (voir [progression](sol.progression)). Les trois accords majeurs sont bâtis sur les degrés 6, 3 et 7 de la gamme de la mineur : toutes les notes de la grille appartiennent à cette gamme, si bien qu’une mélodie écrite dans la gamme ne sonne faux sur aucun accord.',
       build: [
         ['1. La grille, au piano pour bien l’entendre', `setcpm(138/4)\nchord("<Am F C G>").voicing().sound("piano")`],
         ['2. La même, écrite avec les marches de la gamme', `setcpm(138/4)\nn("<[0,2,4] [-2,0,2] [2,4,6] [-1,1,3]>").scale("A3:minor").sound("piano")`],
@@ -107,9 +107,8 @@ chord("<Am F C G>").voicing().arp("[0 2 1 3 2 3 1 2]*2")
   .sound("sawtooth").lpf(2500).decay(.12).sustain(0)
   .delay(.4).delaysync(3/16).delayfeedback(.5).room(.3)`,
       what:
-        'Trois sons font la trance. Le **supersaw** : plusieurs ondes en dent de scie légèrement désaccordées, pour des accords larges et brillants. ' +
-        'L’**arpège pincé** : les notes de l’accord égrenées très vite, avec un écho calé sur le tempo. ' +
-        'Et le **gate** : un accord tenu, haché par un rythme, comme si on ouvrait et fermait une porte.',
+        'Trois sons font la trance. Le **supersaw** : plusieurs ondes en dent de scie légèrement désaccordées, pour des accords larges et brillants. L’**arpège pincé** : les notes de l’accord égrenées très vite, avec un écho calé sur le tempo. Et le **gate** : un accord tenu, haché par un rythme, comme si on ouvrait et fermait une porte.' +
+        ' L’écho de l’arpège dure 3/16 de cycle, soit trois doubles-croches : chaque note revient trois pas plus tard, en décalage avec la grille de quatre, ce qui crée le balancement typique (voir [delay](fx.delay)). Le gate : `struct` hache l’accord en coups, et `clip(.6)` réduit chaque coup à 60 % de son pas (voir [clip](fx.clip)).',
       build: [
         ['1. Supersaw : un accord large', `${BPM}\nchord("<Am F C G>").voicing().sound("supersaw").lpf(2500).room(.5).gain(.5)`],
         ['2. Arpège : les notes une à une, en doubles-croches', `${BPM}\nchord("<Am F C G>").voicing().arp("[0 2 1 3 2 3 1 2]*2").sound("sawtooth").lpf(2500).decay(.12).sustain(0)`],
@@ -124,7 +123,7 @@ chord("<Am F C G>").voicing().arp("[0 2 1 3 2 3 1 2]*2")
           code: `setcpm(138/4)\nchord("<Am F>").voicing().arp("[0 2 1 3 2 3 1 2]*2").sound("sawtooth").lpf(2500).decay(.12).sustain(0)`,
           choices: ['Une par une : c’est un arpège', 'Ensemble : c’est un accord plaqué'],
           answer: 0,
-          explain: 'Les notes de l’accord sont égrenées très vite : l’arpège pincé, signature de la trance.',
+          explain: 'Les notes de l’accord sont égrenées une par une, 16 par cycle : à 138 BPM, une toutes les 0,11 s. Chacune est pincée (`decay(.12).sustain(0)`) : l’arpège pincé, signature de la trance (voir [arp](fn.arp)).',
         },
       ],
     },
@@ -140,9 +139,8 @@ $: sound("white").lpf(saw.range(300, 9000).slow(4)).gain(.2).mask("<1!4 0!4>")
 $: grille.voicing().sound("supersaw").lpf("<800 1200 1800 2600 3200!4>").room(.5).gain(.45)
 $: grille.rootNotes(1).struct("[~ x]*4").sound("sawtooth").lpf(500).decay(.15).sustain(0).mask("<0!4 1!4>")`,
       what:
-        'Un morceau de trance est bâti autour d’un moment. D’abord le **breakdown** : la batterie se tait, il ne reste que les accords et la mélodie. ' +
-        'Puis la **montée** (*build-up*) : un roulement de caisse claire qui se resserre, un souffle de bruit qui s’élève, un filtre qui s’ouvre. ' +
-        'Enfin le **retour** (*drop*) : le kick et la basse reviennent d’un coup, avec tout le reste. L’exemple compresse cela en 8 mesures : 4 de montée, 4 de retour.',
+        'Un morceau de trance est bâti autour d’un moment. D’abord le **breakdown** : la batterie se tait, il ne reste que les accords et la mélodie. Puis la **montée** (*build-up*) : un roulement de caisse claire qui se resserre, un souffle de bruit qui s’élève, un filtre qui s’ouvre. Enfin le **retour** (*drop*) : le kick et la basse reviennent d’un coup, avec tout le reste. L’exemple compresse cela en 8 mesures : 4 de montée, 4 de retour.' +
+        ' Dans l’exemple final, `mask("<0!4 1!4>")` coupe le kick pendant les 4 mesures de montée et le rétablit pendant les 4 suivantes (voir [mask](fn.mask)) ; pendant la montée, la coupure du filtre des accords passe de 800 à 2 600 Hz, un palier par mesure, puis reste à 3 200 Hz pendant le retour.',
       build: [
         ['1. Le breakdown : accords seuls, filtre fermé', `${BPM}\nchord("<Am F C G>").voicing().sound("supersaw").lpf(800).room(.5).gain(.45)`],
         ['2. La montée : le filtre s’ouvre, le roulement se resserre', `${BPM}\n$: chord("<Am F C G>").voicing().sound("supersaw").lpf("<800 1200 1800 2600>").room(.5).gain(.45)\n$: sound("sd*<4 8 16 32>").bank("RolandTR909").gain(saw.range(.2, .7).slow(4))`],

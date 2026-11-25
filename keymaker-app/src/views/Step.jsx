@@ -6,29 +6,41 @@
 // ordre : la consigne est juste au-dessus du code. Sur grand écran, l'éditeur est à droite.
 // Le résultat de l'exercice s'affiche DANS le bloc de l'éditeur, juste sous ▶ (portail).
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import * as dock from '../lib/dock.js';
 import { runCheck } from '../lib/check.js';
+import { whereToChange } from '../lib/hint.js';
 import { markSeen, markDone, setResume, isDone, readState } from '../lib/progress.js';
-import { markPracticed } from '../lib/srs.js';
-import { go, neighbours, stepRoute, readFlow, advanceFlow, refreshProgress } from '../lib/app.js';
+import { markPracticed, scheduleExercise, recordExerciseResult, exerciseCardId, BOX_DAYS } from '../lib/srs.js';
+import { go, neighbours, stepRoute, readFlow, advanceFlow, refreshProgress, dueExercises } from '../lib/app.js';
 import { stepIndex, solutions } from '../content/registry.js';
 import { loadNote, saveNote } from '../lib/notebook.js';
 import { Icon, Rich, Fold, WikiChip, chime, useDockSlot, revealOnNarrow } from '../ui.jsx';
+import { Schema } from '../schemas/ui/Schema.jsx';
 
 // Où mène « la suite » depuis cette étape (session en cours, étape suivante, point d'étape…).
-function useForward(stepId, chapter) {
+function useForward(stepId, chapter, revision = false) {
   const { prev, next } = neighbours(stepId);
   const flow = readFlow();
-  const inFlow = flow && !flow.done && flow.items[flow.index] && flow.items[flow.index].id === stepId;
+  const cur = flow && !flow.done ? flow.items[flow.index] : null;
+  const inFlow = !!cur && cur.id === stepId && cur.type === (revision ? 'refaire' : 'etape');
+  // Point d'étape : chaque chapitre des fondations, et les approfondissements qui ont des questions.
+  const hasPoint = chapter.kind === 'fondations' || chapter.steps.some((s) => s.quiz && s.quiz.length);
+  if (revision) {
+    // Révision d'un exercice : la session, sinon l'exercice suivant à refaire, sinon l'accueil.
+    const more = dueExercises().filter((x) => x.id !== stepId);
+    if (inFlow) return { prev: null, label: 'Suite de la session', goForward: () => go(advanceFlow()) };
+    if (more.length) return { prev: null, label: 'Exercice suivant à refaire', goForward: () => go(more[0].route) };
+    return { prev: null, label: 'Retour à l’accueil', goForward: () => go('#/') };
+  }
   const goForward = () => {
     if (inFlow) return go(advanceFlow());
     if (next) return go(stepRoute(next.id));
-    if (chapter.kind === 'fondations') return go('#/point/' + chapter.id);
+    if (hasPoint) return go('#/point/' + chapter.id);
     return go('#/parcours');
   };
-  const label = inFlow ? 'Suite de la session' : next ? 'Étape suivante' : chapter.kind === 'fondations' ? 'Point d’étape du chapitre' : 'Retour au parcours';
+  const label = inFlow ? 'Suite de la session' : next ? 'Étape suivante' : hasPoint ? 'Point d’étape du chapitre' : 'Retour au parcours';
   return { prev, label, goForward };
 }
 
@@ -45,6 +57,22 @@ function NavRow({ stepId, done, chapter }) {
         {done ? label : 'Passer'} <Icon name="next" size={18} />
       </button>
     </nav>
+  );
+}
+
+/* --- Indice gradué ----------------------------------------------------------------------
+   1er essai raté : l'indice de l'exercice. 2e : où chercher dans le code de départ
+   (lib/hint.js). 3e : la solution proposée, à charger dans l'éditeur. */
+export function HintLadder({ start, solution, tries, onSolution }) {
+  const where = useMemo(() => whereToChange(start, solution), [start, solution]);
+  if (tries < 2) return null;
+  return (
+    <>
+      {where ? <p className="res res-where"><Rich text={where.text} /></p> : null}
+      {tries >= 3 && solution ? (
+        <button type="button" className="linkbtn" onClick={() => { if (onSolution) onSolution(); dock.loadCode(solution); }}>Voir une solution</button>
+      ) : null}
+    </>
   );
 }
 
@@ -82,9 +110,7 @@ function StepResult({ step, chapter, played, done, res, tries, reduceMotion }) {
   return createPortal(
     <div className="res-wrap" ref={ref}>
       {body}
-      {!done && tries >= 2 && solution ? (
-        <button type="button" className="linkbtn" onClick={() => dock.loadCode(solution)}>Voir une solution</button>
-      ) : null}
+      {!done ? <HintLadder start={step.code} solution={solution} tries={tries} /> : null}
     </div>,
     slot,
   );
@@ -176,6 +202,9 @@ function FondationStep({ entry, settings, reduceMotion }) {
           <>
             <div className="moment moment-name">
               <div className="moment-label">Ce que tu entends</div>
+              {/* Le schéma d'abord (le son, le geste), le nom ensuite. Aucun de ses boutons
+                  n'écrit dans l'éditeur : l'exercice « À toi » reste à faire dans le code. */}
+              {step.schema ? <Schema spec={step.schema} context="lecon" title="Joue avec avant de lire" /> : null}
               <Rich as="p" text={step.name} />
             </div>
             {step.task ? (
@@ -247,32 +276,87 @@ function Note({ noteKey }) {
   );
 }
 
-function LegacyStep({ entry, settings }) {
+function LegacyStep({ entry, settings, revision = false }) {
   const { step, chapter, index } = entry;
-  const [done, setDone] = useState(() => isDone(step.id));
+  // Révision (« refais-le de mémoire ») : l'exercice repart de zéro, même s'il est fait.
+  const [done, setDone] = useState(() => !revision && isDone(step.id));
+  const [gaveUp, setGaveUp] = useState(false);
+  const [againIn, setAgainIn] = useState(null); // jours avant la prochaine révision
+  const recorded = useRef(false);
+  const forward = useForward(step.id, chapter, revision);
+  // Exercice validé automatiquement (legacy/checks.js) : indice après chaque ▶.
+  const [res, setRes] = useState(null); // null | { kind: 'hint' | 'syntax', hint }
+  const [tries, setTries] = useState(0);
+  const chimeOn = useRef(settings.chime);
+  chimeOn.current = settings.chime;
 
-  useEffect(() => {
-    setDone(isDone(step.id, readState()));
-    markSeen(step.id);
-    setResume(stepRoute(step.id), chapter.trackTitle + ' · ' + step.title);
-    dock.claim({ key: 'step:' + step.id, code: step.code, onRan: () => {} });
-    window.scrollTo({ top: 0 });
-    return () => dock.release('step:' + step.id);
-  }, [step.id]);
-
-  const validate = () => {
-    markDone(step.id);
-    markPracticed(step.id);
-    if (settings.chime) chime();
+  // verified : le moteur a validé l'exercice (et pas « Je l'ai fait autrement »).
+  const validate = (verified = false) => {
+    if (revision) {
+      if (!recorded.current) {
+        recorded.current = true;
+        const card = recordExerciseResult(step.id, true).cards[exerciseCardId(step.id)];
+        setAgainIn(BOX_DAYS[card.box]);
+        if (chimeOn.current) chime();
+      }
+    } else {
+      if (!isDone(step.id)) {
+        markDone(step.id);
+        markPracticed(step.id);
+        if (chimeOn.current) chime();
+      }
+      // Réussi pour de vrai : il reviendra en révision dans trois jours.
+      if (verified && step.check) scheduleExercise(step.id);
+    }
     setDone(true);
+    setRes(null);
     refreshProgress();
   };
+  const giveUp = () => {
+    if (!recorded.current) {
+      recorded.current = true;
+      recordExerciseResult(step.id, false);
+      refreshProgress();
+    }
+    setGaveUp(true);
+  };
+
+  useEffect(() => {
+    setDone(!revision && isDone(step.id, readState()));
+    setGaveUp(false);
+    recorded.current = false;
+    setRes(null);
+    setTries(0);
+    markSeen(step.id);
+    if (!revision) setResume(stepRoute(step.id), chapter.trackTitle + ' · ' + step.title);
+    const key = (revision ? 'revision:' : 'step:') + step.id;
+    dock.claim({
+      key,
+      code: step.code,
+      fresh: revision,
+      onRan: (ctx) => {
+        if (!step.check) return;
+        const r = runCheck(step.check, ctx);
+        if (r.ok) return validate(true);
+        if (!ctx.changed) return setRes(null); // le code de départ, juste écouté
+        setRes({ kind: 'hint', hint: r.hint });
+        setTries((t) => t + 1);
+      },
+      onError: () => {
+        if (!step.check) return;
+        setRes({ kind: 'syntax' });
+        setTries((t) => t + 1);
+      },
+    });
+    window.scrollTo({ top: 0 });
+    return () => dock.release(key);
+  }, [step.id, revision]);
 
   return (
     <>
       <section className="v-head">
         <div className="crumbs">
-          <button type="button" className="linkbtn" onClick={() => go('#/parcours')}>Parcours</button>
+          {revision ? <span>Révision · de mémoire</span> : <button type="button" className="linkbtn" onClick={() => go('#/parcours')}>Parcours</button>}
           <span>·</span>
           <span>{chapter.trackTitle} — {chapter.title}</span>
           <span className="crumbs-n">{index + 1} / {chapter.steps.length}</span>
@@ -287,12 +371,43 @@ function LegacyStep({ entry, settings }) {
       <section className="v-mid">
         {step.exercise ? (
           <div className={'task' + (done ? ' is-done' : '')}>
-            <div className="moment-label">À toi</div>
-            <p>{step.exercise}</p>
+            <div className="moment-label">{revision ? 'De mémoire' : 'À toi'}</div>
+            {revision ? <p className="task-note">Tu as réussi cet exercice il y a quelques jours. Le code est revenu à son point de départ : refais-le sans regarder la solution.</p> : null}
+            {step.rich ? <Rich as="p" text={step.exercise} /> : <p>{step.exercise}</p>}
             {done ? (
-              <p className="task-ok" role="status"><Icon name="check" size={18} /> Noté comme fait.</p>
+              <>
+                <p className="task-ok" role="status"><Icon name="check" size={18} /> {step.check && step.ok ? <Rich text={step.ok} /> : 'Noté comme fait.'}</p>
+                {revision && againIn ? <p className="task-note">Il reviendra dans {againIn} jours.</p> : null}
+                {revision && gaveUp ? <p className="task-note">Comme tu as regardé la solution, il reviendra demain.</p> : null}
+              </>
+            ) : revision && gaveUp ? (
+              <>
+                <p className="res res-hint" role="status">Pas grave : il reviendra demain. Regarde la solution, joue-la, puis compare avec ce que tu avais écrit.</p>
+                <div className="task-alt">
+                  <button type="button" className="linkbtn" onClick={() => dock.loadCode(step.solution)}>Voir une solution</button>
+                </div>
+              </>
+            ) : step.check ? (
+              <>
+                {res && res.kind === 'syntax' ? (
+                  <p className="res res-hint" role="status">Ton code a une faute de frappe : le message rouge de l’éditeur dit où. Je vérifie dès qu’elle est corrigée.</p>
+                ) : res ? (
+                  <p className="res res-hint" role="status"><Rich text={res.hint || 'Pas encore. Relis la consigne, change le code, puis relance.'} /></p>
+                ) : (
+                  <p className="res res-wait">Change le code selon la consigne, puis touche ▶ : je vérifie tout seul.</p>
+                )}
+                <div className="task-alt">
+                  {/* En révision, la solution regardée compte comme un oubli : retour demain. */}
+                  <HintLadder start={step.code} solution={step.solution} tries={tries} onSolution={revision ? giveUp : null} />
+                  {revision ? (
+                    <button type="button" className="linkbtn" onClick={giveUp}>Je ne m’en souviens pas</button>
+                  ) : (
+                    <button type="button" className="linkbtn" onClick={() => validate(false)}>Je l’ai fait autrement</button>
+                  )}
+                </div>
+              </>
             ) : (
-              <button type="button" className="btn btn-primary" onClick={validate}><Icon name="check" size={18} /> C’est fait</button>
+              <button type="button" className="btn btn-primary" onClick={() => validate(false)}><Icon name="check" size={18} /> C’est fait</button>
             )}
           </div>
         ) : null}
@@ -300,12 +415,12 @@ function LegacyStep({ entry, settings }) {
 
       <section className="v-body">
         {step.decode.length ? (
-          <Fold title="Ce que fait chaque élément du code" defaultOpen>
+          <Fold title="Ce que fait chaque élément du code" defaultOpen={!revision}>
             <dl className="decode">
               {step.decode.map((d, i) => (
                 <div key={i} className="decode-row">
                   <dt><code>{d[0]}</code></dt>
-                  <dd>{d[1]}</dd>
+                  <dd>{step.rich ? <Rich text={d[1]} /> : d[1]}</dd>
                 </div>
               ))}
             </dl>
@@ -318,7 +433,7 @@ function LegacyStep({ entry, settings }) {
               {step.theory.items.map((d, i) => (
                 <div key={i} className="decode-row">
                   <dt><strong>{d[0]}</strong></dt>
-                  <dd>{d[1]}</dd>
+                  <dd>{step.rich ? <Rich text={d[1]} /> : d[1]}</dd>
                 </div>
               ))}
             </dl>
@@ -330,25 +445,34 @@ function LegacyStep({ entry, settings }) {
             <div className="tablewrap">
               <table className="recap">
                 <thead><tr>{step.recap.columns.map((c, i) => <th key={i}>{c}</th>)}</tr></thead>
-                <tbody>{step.recap.rows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j}>{c}</td>)}</tr>)}</tbody>
+                <tbody>{step.recap.rows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j}>{step.richRecap ? <Rich text={c} /> : c}</td>)}</tr>)}</tbody>
               </table>
             </div>
           </Fold>
         ) : null}
 
-        {step.free ? <p className="free"><strong>Pour aller plus loin.</strong> {step.free}</p> : null}
+        {step.free ? <p className="free"><strong>Pour aller plus loin.</strong> {step.richRecap ? <Rich text={step.free} /> : step.free}</p> : null}
         {step.culture ? (
-          <p className="culture"><strong>À écouter.</strong> {step.culture.artist} — {step.culture.track} : {step.culture.why}</p>
+          <p className="culture"><strong>À écouter.</strong> {step.culture.artist} — {step.culture.track} : {step.richRecap ? <Rich text={step.culture.why} /> : step.culture.why}</p>
         ) : null}
 
         <Note noteKey={step.noteKey} />
-        <NavRow stepId={step.id} done={done || !step.exercise} chapter={chapter} />
+        {revision ? (
+          done || gaveUp ? (
+            <nav className="steprow" aria-label="Suite de la révision">
+              <span />
+              <button type="button" className="btn btn-primary" onClick={forward.goForward}>{forward.label} <Icon name="next" size={18} /></button>
+            </nav>
+          ) : null
+        ) : (
+          <NavRow stepId={step.id} done={done || !step.exercise} chapter={chapter} />
+        )}
       </section>
     </>
   );
 }
 
-export default function Step({ id, settings, reduceMotion }) {
+export default function Step({ id, settings, reduceMotion, revision = false }) {
   const entry = stepIndex.get(id);
   if (!entry) {
     return (
@@ -359,5 +483,5 @@ export default function Step({ id, settings, reduceMotion }) {
       </section>
     );
   }
-  return entry.step.isLegacy ? <LegacyStep entry={entry} settings={settings} /> : <FondationStep entry={entry} settings={settings} reduceMotion={reduceMotion} />;
+  return entry.step.isLegacy ? <LegacyStep entry={entry} settings={settings} revision={revision && !!entry.step.check} /> : <FondationStep entry={entry} settings={settings} reduceMotion={reduceMotion} />;
 }

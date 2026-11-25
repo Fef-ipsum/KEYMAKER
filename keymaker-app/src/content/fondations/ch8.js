@@ -38,7 +38,7 @@ export default {
       deep: {
         why:
           'Jouer en direct avec Strudel, c’est souvent ça : couper et rouvrir des pistes, puis relancer avec ▶ (ou Ctrl+Entrée). ' +
-          'On peut aussi nommer ses pistes pour s’y retrouver : `kick: sound("bd*4")` fonctionne comme `$:`, et `_kick:` la coupe.',
+          'On peut aussi nommer ses pistes pour s’y retrouver : `kick: sound("bd*4")` fonctionne comme `$:`, et `_kick:` la coupe (voir [pistes](fn.dollar)).',
         decode: [
           ['$:', 'une piste active.', 'fn.dollar'],
           ['_$:', 'la même piste, coupée.', 'fn.dollar'],
@@ -82,9 +82,8 @@ $: note("<a1 f1 c2 g1>").struct("x*8").sound("sawtooth").lpf(700).decay(.15).sus
       },
       deep: {
         why:
-          'Les morceaux de danse sont construits par blocs de 4, 8 ou 16 mesures : on ajoute ou on retire un élément à chaque bloc. ' +
-          'Pour des blocs plus longs, on allonge le masque : `.mask("<0!8 1!8>")` = 8 cycles sans, 8 cycles avec. ' +
-          'Autre outil : `arrange([8, intro], [16, couplet])` enchaîne des sections entières.',
+          'Les morceaux de danse sont construits par blocs de 4, 8 ou 16 mesures : on ajoute ou on retire un élément à chaque bloc (voir [structure](genre.structure)). ' +
+          'Le [masque](fn.mask) laisse passer la piste là où il vaut 1. Pour des blocs plus longs : `.mask("<0!8 1!8>")` = 8 cycles sans, 8 cycles avec. Autre outil : [arrange](fn.arrange)`([8, intro], [16, couplet])` enchaîne des sections entières.',
         decode: [
           ['.mask("<0 1 1 1>")', 'un cycle fermé, trois cycles ouverts.', 'fn.mask'],
           ['<0!8 1!8>', '8 cycles fermés puis 8 ouverts.', 'mini.exclamation'],
@@ -131,8 +130,8 @@ $: chord("<Am F C G>").voicing().sound("sawtooth").gain(1)`,
       },
       deep: {
         why:
-          'Trois autres outils de place : `.lpf(…)` sur les accords pour laisser l’aigu au charleston ; `.pan(…)` pour placer une piste à gauche (0) ou à droite (1) ; ' +
-          '`.room(…)` pour reculer un son dans l’espace. Repère : quand tout semble trop faible, ne monte pas tout — baisse ce qui gêne.',
+          'Trois autres outils de place : `.lpf(…)` sur les accords pour laisser l’aigu au charleston ([filtre](fx.lpf)) ; `.pan(…)` pour placer une piste à gauche (0) ou à droite (1) ([pan](fx.pan)) ; `.room(…)` pour reculer un son dans l’espace ([réverbération](fx.room)). ' +
+          'Repère : quand tout semble trop faible, ne monte pas tout — baisse ce qui gêne. Au-delà de 1, la somme des pistes peut saturer la sortie audio.',
         decode: [
           ['.gain(.4)', 'volume de la piste (0.8 sans réglage).', 'fx.gain'],
           ['.pan(.3)', 'position gauche-droite.', 'fx.pan'],
@@ -181,8 +180,8 @@ $: grille.voicing().sound("triangle").room(.5).gain(.5)`,
       },
       deep: {
         why:
-          'Pour aller plus loin à partir d’ici : les **genres** t’apprennent ce qui donne son identité à un style, trait par trait. ' +
-          'Les **approfondissements** creusent le son, le code et la composition. Et le **Studio** est là pour jouer sans consigne.',
+          'Pour aller plus loin à partir d’ici : les **genres** t’apprennent ce qui donne son identité à un style, trait par trait. Les **approfondissements** creusent le son, le code et la composition. Et le **Studio** est là pour jouer sans consigne. ' +
+          'Toutes les notions croisées dans le parcours ont leur fiche dans le Wiki, avec leurs réglages détaillés.',
         decode: [
           ['const grille = …', 'la grille, nommée pour servir à la basse et aux accords.', 'js.const'],
           ['.mask("<0 1 1 1>")', 'l’entrée progressive des pistes.', 'fn.mask'],

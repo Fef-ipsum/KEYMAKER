@@ -23,8 +23,8 @@ export default {
       hear: `${BPM}
 sound("bd*4, [~ hh]*4").bank("RolandTR909").gain(.8)`,
       what:
-        'Nettement plus lent que la trance. Ce tempo laisse de l’air entre les coups : on a le temps d’entendre les échos, les nappes, les détails. ' +
-        'Le morceau peut durer huit ou dix minutes sans lasser, précisément parce qu’il ne court pas.',
+        'Nettement plus lent que la trance. Ce tempo laisse de l’air entre les coups : on a le temps d’entendre les échos, les nappes, les détails. Le morceau peut durer huit ou dix minutes sans lasser, précisément parce qu’il ne court pas.' +
+        ' À 124 BPM, un temps dure 0,48 s, contre 0,43 s à 138 BPM. Un écho calé sur 3/16 de cycle (une croche pointée) dure 0,36 s : il a le temps de s’entendre entre les notes.',
       build: [
         ['124 BPM : le tempo typique', `setcpm(124/4)\nsound("bd*4, [~ hh]*4").bank("RolandTR909").gain(.8)`],
         ['Le même rythme à 138 (tempo trance), pour comparer', `setcpm(138/4)\nsound("bd*4, [~ hh]*4").bank("RolandTR909").gain(.8)`],
@@ -38,8 +38,8 @@ sound("bd*4, [~ hh]*4").bank("RolandTR909").gain(.8)`,
       hear: `${BPM}
 sound("bd*4").bank("RolandTR909").lpf(2500).gain(.9)`,
       what:
-        'Toujours sur chaque temps, mais on l’arrondit : moins de « clic », plus de « boum ». Il doit porter pendant de longues minutes sans fatiguer l’oreille. ' +
-        'Ici, un filtre passe-bas lui retire un peu d’attaque.',
+        'Toujours sur chaque temps, mais on l’arrondit : moins de « clic », plus de « boum ». Il doit porter pendant de longues minutes sans fatiguer l’oreille. Ici, un filtre passe-bas lui retire un peu d’attaque.' +
+        ' Le passe-bas à 2 500 Hz retire surtout le clic aigu de l’attaque (au-dessus de la coupure, environ 12 dB de moins par octave) sans toucher au corps grave, qui est bien en dessous (voir [lpf](fx.lpf)).',
       build: [
         ['1. Le kick brut de la TR-909', `${BPM}\nsound("bd*4").bank("RolandTR909")`],
         ['2. Arrondi par un filtre', `${BPM}\nsound("bd*4").bank("RolandTR909").lpf(2500).gain(.9)`],
@@ -55,8 +55,8 @@ sound("bd*4").bank("RolandTR909").lpf(2500).gain(.9)`,
 ${KICK}
 ${BASSE}`,
       what:
-        'Ni le galop de la trance, ni le roulement de la techno : une basse ronde, avec un rythme **syncopé** (des notes placées juste avant ou après les temps), et des notes un peu tenues. ' +
-        'Elle change de note rarement, parfois une seule fois toutes les deux mesures.',
+        'Ni le galop de la trance, ni le roulement de la techno : une basse ronde, avec un rythme **syncopé** (des notes placées juste avant ou après les temps), et des notes un peu tenues. Elle change de note rarement, parfois une seule fois toutes les deux mesures.' +
+        ' Le rythme `"x ~ ~ x ~ ~ x ~"` place les notes sur les croches 1, 4 et 7 : le motif 3-3-2, ou *tresillo* (voir [euclid](fn.euclid)), qui décale les accents par rapport aux temps.',
       build: [
         ['1. Une note tenue par mesure', `${BPM}\nnote("<a1 a1 f1 g1>").sound("sawtooth").lpf(380).gain(.9)`],
         ['2. Un rythme syncopé', `${BPM}\nnote("<a1 a1 f1 g1>").struct("x ~ ~ x ~ ~ x ~").sound("sawtooth").lpf(380).gain(.9)`],
@@ -74,8 +74,8 @@ $: sound("[~ hh]*4").bank("RolandTR909").gain(.4)
 $: sound("sh*16").gain("[.25 .1 .18 .1]*4")
 $: sound("~ ~ rim ~ ~ rim ~ ~").gain(.3).room(.4)`,
       what:
-        'Le charleston à contretemps est là, mais discret. Autour, des couches légères : un shaker en doubles-croches, un coup sur le cercle de la caisse (*rim*), ' +
-        'chacune très bas dans le mix. On les fait entrer une par une : c’est ainsi que le morceau « progresse » sans qu’on remarque de changement net.',
+        'Le charleston à contretemps est là, mais discret. Autour, des couches légères : un shaker en doubles-croches, un coup sur le cercle de la caisse (*rim*), chacune très bas dans le mix. On les fait entrer une par une : c’est ainsi que le morceau « progresse » sans qu’on remarque de changement net.' +
+        ' Les volumes de l’exemple sont bas : `gain(.4)` multiplie l’amplitude du charleston par 0,4, soit −8 dB ; le shaker varie de .1 à .25, soit −20 à −12 dB (voir [gain](fx.gain)). Ces couches ajoutent du mouvement sans passer devant le kick.',
       build: [
         ['1. Kick et charleston à contretemps', `${BPM}\n${KICK}\n$: sound("[~ hh]*4").bank("RolandTR909").gain(.4)`],
         ['2. Un shaker, tout doux', `${BPM}\n${KICK}\n$: sound("[~ hh]*4").bank("RolandTR909").gain(.4)\n$: sound("sh*16").gain("[.25 .1 .18 .1]*4")`],
@@ -90,8 +90,8 @@ $: sound("~ ~ rim ~ ~ rim ~ ~").gain(.3).room(.4)`,
       hear: `${BPM}
 chord("<Am Am F G>").voicing().sound("sawtooth").lpf(1200).attack(.4).release(1).room(.6).gain(.35)`,
       what:
-        'Là où la trance change d’accord à chaque mesure, le progressive s’attarde : un accord peut durer deux ou quatre mesures. ' +
-        'La mélodie n’est pas un grand thème : c’est un **motif** de quelques notes, répété, qui se transforme par le son (filtre, écho) plus que par les notes.',
+        'Là où la trance change d’accord à chaque mesure, le progressive s’attarde : un accord peut durer deux ou quatre mesures. La mélodie n’est pas un grand thème : c’est un **motif** de quelques notes, répété, qui se transforme par le son (filtre, écho) plus que par les notes.' +
+        ' La grille `<Am Am F G>` tient le premier accord deux mesures : quatre mesures pour trois accords. La nappe a une attaque de 0,4 s et une extinction (*release*) d’1 s (voir [enveloppe](sol.enveloppe)) : chaque accord résonne encore pendant la première seconde du suivant.',
       build: [
         ['1. Une grille qui prend son temps', `${BPM}\nchord("<Am Am F G>").voicing().sound("piano")`],
         ['2. En nappe : attaque et extinction lentes', `${BPM}\nchord("<Am Am F G>").voicing().sound("sawtooth").lpf(1200).attack(.4).release(1).room(.6).gain(.35)`],
@@ -106,8 +106,8 @@ chord("<Am Am F G>").voicing().sound("sawtooth").lpf(1200).attack(.4).release(1)
       hear: `${BPM}
 ${PLUCK}`,
       what:
-        'Les sons sont doux et profonds. Des **nappes** (accords tenus, filtrés) qui remplissent le fond. Des **notes pincées** dont l’écho dure plus longtemps que la note elle-même : ' +
-        'les répétitions se superposent et dessinent un second rythme. Et des **filtres** qui mettent seize mesures à s’ouvrir.',
+        'Les sons sont doux et profonds. Des **nappes** (accords tenus, filtrés) qui remplissent le fond. Des **notes pincées** dont l’écho dure plus longtemps que la note elle-même : les répétitions se superposent et dessinent un second rythme. Et des **filtres** qui mettent seize mesures à s’ouvrir.' +
+        ' L’écho de l’exemple : `delayfeedback(.65)` garde 65 % de chaque répétition dans la suivante ; il en faut environ 16 pour perdre 60 dB, si bien que les échos se superposent aux notes suivantes (voir [delayfeedback](fx.delayfeedback)). La nappe : `lpf(sine.range(500, 1800).slow(16))` ouvre et ferme le filtre sur 16 mesures.',
       build: [
         ['1. Un motif pincé, à sec', `${BPM}\nn("0 ~ 4 ~ 2 ~ 4 7").scale("A4:minor").sound("triangle").decay(.15).sustain(0).gain(.5)`],
         ['2. Avec un écho long, calé sur le tempo', `${BPM}\n${PLUCK}`],
@@ -125,9 +125,8 @@ $: sound("[~ hh]*4").bank("RolandTR909").gain(.4).mask("<0!2 1!6>")
 ${BASSE}.mask("<0!4 1!4>")
 ${PLUCK}.mask("<0!6 1!2>")`,
       what:
-        'C’est le trait qui donne son nom au genre. On part de presque rien, et on ajoute **une seule chose à la fois**, à intervalles réguliers. ' +
-        'Il y a bien un breakdown, mais il est doux : la batterie s’efface, les nappes restent, et le retour se fait sans explosion. ' +
-        'L’exemple ajoute une couche toutes les 2 mesures ; dans un vrai morceau, ce serait toutes les 8 ou 16.',
+        'C’est le trait qui donne son nom au genre. On part de presque rien, et on ajoute **une seule chose à la fois**, à intervalles réguliers. Il y a bien un breakdown, mais il est doux : la batterie s’efface, les nappes restent, et le retour se fait sans explosion. L’exemple ajoute une couche toutes les 2 mesures ; dans un vrai morceau, ce serait toutes les 8 ou 16.' +
+        ' Dans l’exemple, chaque couche a son masque : `mask("<0!2 1!6>")` (entre à la 3ᵉ mesure), puis `<0!4 1!4>` (à la 5ᵉ), puis `<0!6 1!2>` (à la 7ᵉ). Une couche toutes les 2 mesures, sur un cycle de 8 (voir [mask](fn.mask)).',
       build: [
         ['1. Le kick seul', `${BPM}\n${KICK}`],
         ['2. Le charleston entre à la 3ᵉ mesure', `${BPM}\n${KICK}\n$: sound("[~ hh]*4").bank("RolandTR909").gain(.4).mask("<0!2 1!6>")`],

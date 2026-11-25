@@ -14,8 +14,8 @@ export default {
       listen: 'Une basse sur une seule note. Écoute le filtre : il s’ouvre et se referme sans que tu touches à rien.',
       code: 'note("c2*8").sound("sawtooth").lpf(sine.range(300, 2500).slow(4))',
       name:
-        'À la place d’un nombre fixe, on a donné au filtre un **signal** : une valeur qui change en continu. `sine` monte et descend comme une vague ; ' +
-        '`.range(300, 2500)` fixe le bas et le haut ; `.slow(4)` étale la vague sur 4 cycles.',
+        'À la place d’un nombre fixe, on a donné au filtre un **signal** : une valeur qui varie avec le temps. `sine` monte et descend comme une vague, entre 0 et 1 ; ' +
+        '`.range(300, 2500)` convertit cette plage en hertz ; `.slow(4)` étale une vague complète sur 4 cycles.',
       task: {
         text: 'Remplace `sine` par `saw` : le filtre monte lentement puis retombe d’un coup.',
         check: (c) => {
@@ -27,11 +27,12 @@ export default {
       },
       deep: {
         why:
-          'Les signaux disponibles : `sine` (vague), `saw` (rampe qui monte), `tri` (triangle), `square` (deux positions), `rand` (hasard pur), `perlin` (hasard doux). ' +
-          'Ils valent tous entre 0 et 1 ; `.range(bas, haut)` les met à l’échelle voulue. On peut les brancher sur presque tous les réglages : `.gain(…)`, `.pan(…)`, `.lpq(…)`.',
+          'Les signaux de Strudel : `sine` (vague), `cosine` (la même vague, décalée d’un quart), `saw` (rampe qui monte puis retombe d’un coup), `isaw` (rampe qui descend), `tri` (monte puis descend en ligne droite), `square` (0 puis 1), `rand` (hasard), `perlin` (hasard lissé, qui évolue doucement). Ils valent tous entre 0 et 1 ; [range](fn.range) les met à l’échelle voulue. ' +
+          'Point technique : le signal n’est lu qu’**au début de chaque note**. Avec 8 notes par cycle, le filtre prend donc 8 valeurs par cycle, en escalier ; une note tenue garde la même coupure du début à la fin. Plus il y a de notes, plus le mouvement paraît continu (`.segment(16)` force 16 lectures par cycle). ' +
+          'On peut brancher un signal sur presque tous les réglages : `.gain(…)`, `.pan(…)`, `.lpq(…)`. Pour une fréquence de filtre, `rangex` (échelle exponentielle) donne un balayage plus régulier à l’oreille.',
         decode: [
-          ['sine', 'un signal en forme de vague, entre 0 et 1.', 'fn.signaux'],
-          ['.range(300, 2500)', 'le fait varier entre 300 et 2500.', 'fn.range'],
+          ['sine', 'un signal en forme de vague, entre 0 et 1, lu au début de chaque note.', 'fn.signaux'],
+          ['.range(300, 2500)', 'convertit 0–1 en 300–2 500 (ici, des hertz).', 'fn.range'],
           ['.slow(4)', 'une vague complète dure 4 cycles.', 'fn.slow'],
         ],
         wiki: ['fn.signaux', 'fn.range', 'fn.slow', 'fx.lpf'],
@@ -40,9 +41,9 @@ export default {
         {
           type: 'qcm',
           q: 'Que fait `.lpf(sine.range(200, 2000))` ?',
-          choices: ['Le filtre oscille en continu entre 200 et 2000 Hz', 'Le filtre choisit 200 ou 2000 au hasard', 'Le filtre reste à 200, puis saute à 2000 à la fin'],
+          choices: ['Le filtre monte et descend entre 200 et 2000 Hz, en vague', 'Le filtre choisit 200 ou 2000 au hasard', 'Le filtre reste à 200, puis saute à 2000 à la fin'],
           answer: 0,
-          explain: '`sine` est une vague continue ; `.range` en fixe les bornes.',
+          explain: '`sine` est une vague entre 0 et 1, et `.range` en fixe les bornes : la coupure monte et descend entre 200 et 2 000 Hz. Elle est relue au début de chaque note.',
         },
       ],
       legacy: ['4:4.9', '5:5.11'],
@@ -54,8 +55,8 @@ export default {
       listen: 'Quatre notes par cycle.',
       code: 'n("0 2 4 7").scale("A:minor").sound("piano")',
       name:
-        '`.fast(2)` joue le motif **deux fois plus vite** (deux fois par cycle). `.slow(2)` le joue **deux fois plus lentement** (étalé sur deux cycles). ' +
-        'C’est ce que font `*` et `/` dans la mini-notation, mais pour un motif entier.',
+        '`.fast(2)` joue le motif **deux fois plus vite** : il tient deux fois dans un cycle. `.slow(2)` le joue **deux fois plus lentement** : il s’étale sur deux cycles. ' +
+        'Le tempo du morceau ne change pas : seule la place du motif dans le temps change.',
       task: {
         text: 'Ajoute `.slow(2)` à la fin de la ligne.',
         check: (c) => (c.count() === 2 ? true : c.count() > 4 ? 'Là, c’est plus rapide. Essaie `.slow(2)`.' : 'Ajoute `.slow(2)` après `.sound("piano")`.'),
@@ -63,11 +64,12 @@ export default {
       },
       deep: {
         why:
-          'Superposer le même motif à deux vitesses est un classique : la mélodie normale en haut, la même deux fois plus lente à la basse. ' +
-          'Le nombre peut être lui-même un motif : `.fast("<1 2>")` alterne vitesse normale et double.',
+          '`fast` et `slow` compriment ou étirent le temps du motif : les positions des notes, leurs durées et leurs écarts sont tous multipliés ou divisés par le même nombre. C’est ce que font `*` et `/` dans la mini-notation, appliqué à un motif entier. ' +
+          'La hauteur ne change pas, contrairement à [speed](fx.speed), qui accélère la lecture d’un son enregistré. ' +
+          'Superposer le même motif à deux vitesses est un classique : la mélodie normale en haut, la même deux fois plus lente à la basse. Le nombre peut lui-même être un motif : `.fast("<1 2>")` alterne vitesse normale et double.',
         decode: [
-          ['.fast(2)', 'deux fois plus vite.', 'fn.fast'],
-          ['.slow(2)', 'deux fois plus lent.', 'fn.slow'],
+          ['.fast(2)', 'deux fois plus vite : deux passages du motif par cycle.', 'fn.fast'],
+          ['.slow(2)', 'deux fois plus lent : un passage pour deux cycles.', 'fn.slow'],
         ],
         wiki: ['fn.fast', 'fn.slow', 'mini.etoile', 'mini.slash'],
       },
@@ -77,7 +79,7 @@ export default {
           q: 'Un motif de 4 notes reçoit `.slow(2)`. Combien de notes entend-on par cycle ?',
           choices: ['2', '4', '8'],
           answer: 0,
-          explain: 'Étalé sur deux cycles, le motif ne livre que la moitié de ses notes à chaque cycle.',
+          explain: 'Étalé sur deux cycles, le motif de 4 notes n’en livre que 2 par cycle, chacune deux fois plus longue.',
         },
       ],
       legacy: ['5:5.6'],
@@ -89,7 +91,8 @@ export default {
       listen: 'Écoute quatre cycles : la dernière note change, et le filtre s’ouvre un peu plus à chaque tour.',
       code: 'note("c3 eb3 g3 <bb3 c4>").sound("sawtooth").lpf("<500 900 1600 3000>")',
       name:
-        'Les chevrons `< >` fonctionnent partout où l’on peut écrire entre guillemets : sur les notes, mais aussi sur les réglages. Ici `.lpf("<500 900 1600 3000>")` change de valeur à chaque cycle.',
+        'Les chevrons `< >` donnent **une valeur par cycle, à tour de rôle**. Ils fonctionnent partout où l’on écrit entre guillemets : sur les notes, mais aussi sur les réglages. ' +
+        'Ici `.lpf("<500 900 1600 3000>")` change de coupure à chaque cycle et revient à 500 au cinquième.',
       task: {
         text: 'Fais alterner la dernière note entre **trois** notes au lieu de deux : par exemple `<bb3 c4 d4>`.',
         check: (c) => {
@@ -100,11 +103,11 @@ export default {
       },
       deep: {
         why:
-          'C’est une astuce d’arrangement : faire tourner des listes de longueurs différentes. Trois notes contre quatre valeurs de filtre ne retombent ensemble que tous les 12 cycles. ' +
-          'Le motif paraît beaucoup plus long qu’il ne l’est.',
+          'C’est une astuce d’arrangement : faire tourner des listes de longueurs différentes. Une liste de 3 valeurs et une de 4 ne retombent ensemble que tous les 12 cycles (le plus petit multiple commun de 3 et 4) : avec une simple boucle d’un cycle, le motif paraît beaucoup plus long qu’il ne l’est. ' +
+          'Avec 3 et 5 valeurs, il faudrait 15 cycles ; avec 4 et 8, seulement 8. Pour allonger la boucle, choisis des longueurs sans diviseur commun.',
         decode: [
-          ['<bb3 c4>', 'la note change à chaque cycle.', 'mini.chevrons'],
-          ['.lpf("<500 900 1600 3000>")', 'la coupure du filtre aussi.', 'fx.lpf'],
+          ['<bb3 c4>', 'la dernière note change à chaque cycle.', 'mini.chevrons'],
+          ['.lpf("<500 900 1600 3000>")', 'la coupure du filtre aussi, avec quatre valeurs.', 'fx.lpf'],
         ],
         wiki: ['mini.chevrons', 'fx.lpf'],
       },
@@ -114,7 +117,7 @@ export default {
           q: 'Que fait `.gain("<1 .5>")` ?',
           choices: ['Un cycle fort, un cycle moins fort, en alternance', 'Deux volumes mélangés en même temps', 'Le volume baisse progressivement'],
           answer: 0,
-          explain: 'Les chevrons donnent une valeur par cycle, à tour de rôle, même pour un réglage.',
+          explain: 'Les chevrons donnent une valeur par cycle, à tour de rôle, même pour un réglage : volume 1 au premier cycle, 0,5 au deuxième, et ainsi de suite.',
         },
       ],
       legacy: [],
@@ -126,7 +129,8 @@ export default {
       listen: 'Des charlestons. Certains sonnent plus aigu, jamais les mêmes.',
       code: 'sound("hh*8").sometimes(x => x.speed(2))',
       name:
-        '`.sometimes(…)` applique une transformation **une fois sur deux, au hasard**. Entre les parenthèses, `x => x.speed(2)` se lit : « prends le son (`x`) et joue-le deux fois plus vite ».',
+        '`.sometimes(…)` applique une transformation à **chaque son, avec une chance sur deux**. ' +
+        'Entre les parenthèses, `x => x.speed(2)` se lit : « prends le motif (`x`) et lis ses sons deux fois plus vite », donc une octave plus haut.',
       task: {
         text: 'Remplace `sometimes` par `rarely` (rarement), puis par `often` (souvent).',
         check: (c) => (c.has(/\.(rarely|often|almostNever|almostAlways)\s*\(/) ? true : 'Écris `.rarely(` ou `.often(` à la place de `.sometimes(`.'),
@@ -134,13 +138,14 @@ export default {
       },
       deep: {
         why:
-          'La flèche `=>` fabrique une petite fonction : à gauche le nom qu’on donne au motif (`x`, par habitude), à droite ce qu’on lui fait. ' +
-          'La famille complète, du plus rare au plus fréquent : `almostNever`, `rarely`, `sometimes`, `often`, `almostAlways`. Pour un dosage exact : `.sometimesBy(.3, x => …)` (30 %). ' +
-          '`.speed(2)` lit un son enregistré deux fois plus vite, donc une octave plus haut.',
+          'La flèche `=>` fabrique une petite [fonction](js.fleche) : à gauche le nom qu’on donne au motif (`x`, par habitude), à droite ce qu’on lui fait. ' +
+          'La famille complète, avec la probabilité appliquée à chaque son : `almostNever` (10 %), `rarely` (25 %), `sometimes` (50 %), `often` (75 %), `almostAlways` (90 %). Pour un dosage exact : `.sometimesBy(.3, x => …)` (30 %). Pour décider par cycle entier plutôt que son par son : `someCycles`. ' +
+          'Le hasard de Strudel est calculé à partir du temps : chaque cycle diffère du précédent, mais relancer le morceau redonne exactement la même suite. ' +
+          '`.speed(2)` ([speed](fx.speed)) lit un son enregistré deux fois plus vite : une octave plus haut, et deux fois plus court.',
         decode: [
-          ['.sometimes(…)', 'applique ce qui suit une fois sur deux.', 'fn.sometimes'],
+          ['.sometimes(…)', 'applique ce qui suit à chaque son, avec une chance sur deux.', 'fn.sometimes'],
           ['x => x.speed(2)', 'une fonction : « à ce motif, applique speed(2) ».', 'js.fleche'],
-          ['.speed(2)', 'lecture deux fois plus rapide (et plus aiguë).', 'fx.speed'],
+          ['.speed(2)', 'lecture deux fois plus rapide : une octave plus haut.', 'fx.speed'],
         ],
         wiki: ['fn.sometimes', 'js.fleche', 'fx.speed', 'mini.interrogation'],
       },
@@ -162,7 +167,8 @@ export default {
       listen: 'Écoute quatre cycles : au quatrième, la batterie s’emballe.',
       code: 'sound("bd*2 [~ sd] hh*2 sd").lastOf(4, x => x.ply(2))',
       name:
-        '`.lastOf(4, …)` applique une transformation **au dernier cycle de chaque groupe de 4**. Ici `.ply(2)` double chaque coup : c’est un *fill*, le roulement qui annonce la suite.',
+        '`.lastOf(4, …)` applique une transformation **au dernier cycle de chaque groupe de 4** (les cycles 4, 8, 12…). ' +
+        'Ici `.ply(2)` double chaque coup sur place : c’est un *fill*, le roulement qui annonce la suite.',
       task: {
         text: 'Change `4` en `2` : le roulement revient un cycle sur deux.',
         check: (c) => {
@@ -174,11 +180,12 @@ export default {
       },
       deep: {
         why:
-          'Sa jumelle `.firstOf(4, …)` agit au **premier** cycle de chaque groupe. Elle existe aussi sous le nom `.every(4, …)`, hérité de TidalCycles (l’ancêtre de Strudel) : ' +
-          'si tu croises `every` dans un exemple, c’est la même chose.',
+          'Sa jumelle `.firstOf(4, …)` agit au **premier** cycle de chaque groupe (les cycles 1, 5, 9…). Elle existe aussi sous le nom `.every(4, …)`, hérité de TidalCycles (l’ancêtre de Strudel) : si tu croises `every` dans un exemple, c’est la même chose. ' +
+          '`.ply(2)` ([ply](fn.ply)) remplace chaque coup par deux coups deux fois plus courts, au même endroit : le rythme garde sa forme mais devient deux fois plus dense. ' +
+          'Pourquoi 4 ? La musique de danse se construit par phrases de 4, 8 ou 16 mesures ; marquer la dernière mesure d’une phrase prépare l’oreille au changement.',
         decode: [
           ['.lastOf(4, …)', 'au dernier cycle de chaque groupe de 4.', 'fn.lastOf'],
-          ['x => x.ply(2)', 'répète chaque coup deux fois.', 'fn.ply'],
+          ['x => x.ply(2)', 'répète chaque coup deux fois, sur place.', 'fn.ply'],
         ],
         wiki: ['fn.lastOf', 'fn.firstOf', 'fn.ply', 'js.fleche'],
       },
@@ -200,7 +207,8 @@ export default {
       listen: 'Quatre notes sont écrites. Tu en entends huit : chacune a une réponse, plus haute.',
       code: 'note("c3 eb3 g3 bb3").sound("triangle").off(1/8, x => x.add(note(12)))',
       name:
-        '`.off(1/8, …)` superpose au motif **une copie décalée** d’un huitième de cycle. À cette copie on applique `add(note(12))` : on lui ajoute 12 demi-tons, soit une octave.',
+        '`.off(1/8, …)` superpose au motif **une copie décalée** d’un huitième de cycle, et applique une transformation à cette copie seulement. ' +
+        'Ici `add(note(12))` lui ajoute 12 demi-tons : une octave plus haut.',
       task: {
         text: 'Remplace `12` par `7` : la réponse est maintenant une quinte au-dessus.',
         check: (c) => {
@@ -212,13 +220,15 @@ export default {
       },
       deep: {
         why:
-          'Le décalage se compte en fraction de cycle : `1/8` = une croche si le cycle fait 4 temps, `1/16` = une double-croche. ' +
-          'On peut appliquer n’importe quoi à la copie : un autre son, un filtre, une vitesse. Voisin utile : `.jux(rev)` joue l’original à gauche et sa version inversée à droite.',
+          'Le décalage se compte en fraction de cycle : avec un cycle de 4 temps, `1/8` = une croche, `1/16` = une double-croche. La copie de la dernière note, qui dépasse la fin du cycle, retombe au début du cycle suivant : la boucle reste régulière. ' +
+          'On peut appliquer n’importe quoi à la copie : un autre son, un filtre, une vitesse. ' +
+          'Différence avec l’écho ([delay](fx.delay)) : `off` écrit de vraies notes nouvelles dans le motif, qu’on peut transposer ou filtrer ; `delay` répète le son lui-même, identique, en s’affaiblissant. ' +
+          'Voisin utile : `.jux(rev)` joue l’original à gauche et sa version inversée à droite.',
         decode: [
           ['.off(1/8, …)', 'ajoute une copie retardée de 1/8 de cycle.', 'fn.off'],
-          ['x.add(note(12))', 'monte la copie de 12 demi-tons.', 'fn.add'],
+          ['x.add(note(12))', 'monte la copie de 12 demi-tons, une octave.', 'fn.add'],
         ],
-        wiki: ['fn.off', 'fn.add', 'fn.jux', 'sol.intervalle'],
+        wiki: ['fn.off', 'fn.add', 'fn.jux', 'sol.intervalle', 'fx.delay'],
       },
       quiz: [
         {
@@ -226,7 +236,7 @@ export default {
           q: 'Que fait `.add(note(12))` à une note ?',
           choices: ['Il la monte d’une octave', 'Il la joue 12 fois', 'Il la retarde de 12 temps'],
           answer: 0,
-          explain: '12 demi-tons = une octave. `add(note(7))` monterait d’une quinte.',
+          explain: '12 demi-tons = une octave (fréquence doublée). `add(note(7))` monterait d’une quinte.',
         },
       ],
       legacy: ['5:5.17'],

@@ -7,6 +7,7 @@ import './lib/offline.js';
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles/app.css';
+import './styles/schemas.css';
 import App from './App.jsx';
 import { readSettings, applySettings } from './lib/store.js';
 import { runMigration } from './lib/migrate.js';

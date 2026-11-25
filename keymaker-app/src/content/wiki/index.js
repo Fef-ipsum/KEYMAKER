@@ -13,6 +13,7 @@ import fonctions from './fonctions.js';
 import effets from './effets.js';
 import solfege from './solfege.js';
 import genresW from './genres.js';
+import vocabulaire from './vocabulaire.js';
 import reference from './reference.json' with { type: 'json' };
 import { CATEGORIES, termKey } from '../legacy/glossaryData.js';
 
@@ -66,6 +67,14 @@ for (const cat of CATEGORIES) {
     });
   }
 }
+// Compléments rédigés (vocabulaire.js) : même identifiant, même clé d'annotation ;
+// la définition d'origine reste affichée sous « Ce que disait l'ancien glossaire ».
+for (const e of vocab) {
+  const more = vocabulaire[e.id];
+  if (!more) continue;
+  e.origin = [{ term: e.t, def: e.ess }];
+  Object.assign(e, more);
+}
 
 /* --- 3. Référence officielle ------------------------------------------------- */
 const refByName = Object.fromEntries(reference.entries.map((r) => [r.n, r]));
@@ -96,7 +105,8 @@ for (const e of written) {
     engineAliases(n).forEach((a) => al.add(a));
   }
   for (const n of [...names, ...al]) covered.add(n);
-  e.aliases = [...al].filter((a) => !names.has(a) || a !== e.doc).sort();
+  // notAliases : synonymes de la documentation officielle absents du moteur (vérifié par check-links).
+  e.aliases = [...al].filter((a) => (!names.has(a) || a !== e.doc) && !(e.notAliases || []).includes(a)).sort();
   e.official = e.doc && refByName[e.doc] ? refByName[e.doc] : null;
   e.deprecated = [...names, ...al].filter((n) => refByName[n] && refByName[n].dep);
 }

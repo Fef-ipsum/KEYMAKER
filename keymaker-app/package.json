@@ -9,12 +9,20 @@
     "build": "vite build",
     "build:pi": "vite build --base=/keymaker/app/ --outDir dist-pi",
     "preview": "vite preview",
-    "check": "node scripts/check-links.mjs && node scripts/check-content.mjs",
+    "check": "node scripts/check-links.mjs && node scripts/check-hints.mjs && node scripts/check-claims.mjs && node scripts/check-content.mjs && node scripts/check-noop.mjs && node scripts/check-schemas.mjs",
     "check:links": "node scripts/check-links.mjs",
     "check:content": "node scripts/check-content.mjs",
+    "check:claims": "node scripts/check-claims.mjs",
+    "check:hints": "node scripts/check-hints.mjs",
+    "check:noop": "node scripts/check-noop.mjs",
     "smoke": "node scripts/smoke.mjs",
     "samples": "node scripts/build-sample-pack.mjs",
-    "reference": "node scripts/build-reference.mjs"
+    "reference": "node scripts/build-reference.mjs",
+    "check:visu": "node scripts/check-visu.mjs",
+    "check:record": "node scripts/check-record.mjs",
+    "check:schemas": "node scripts/check-schemas.mjs",
+    "fuzz:schemas": "node scripts/fuzz-schemas.mjs",
+    "check:offline": "node scripts/check-offline-reference.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",

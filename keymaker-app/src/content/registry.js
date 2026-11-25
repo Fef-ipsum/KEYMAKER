@@ -5,6 +5,7 @@ import { fondations } from './fondations/index.js';
 import { solutions } from './fondations/solutions.js';
 import { genres, traitId } from './genres/index.js';
 import { entries as wikiEntries } from './wiki/index.js';
+import { defis } from './defis.js';
 import { tracks, legacyChapters } from './legacy/index.js';
 
 export { fondations, solutions, genres, tracks };
@@ -30,6 +31,25 @@ export const quizIndex = (() => {
   for (const ch of fondations) {
     for (const st of ch.steps) {
       if (st.quiz && st.quiz.length) m.set(st.id, { questions: st.quiz, title: st.title, route: '#/etape/' + st.id });
+    }
+  }
+  // Approfondissements : questions de legacy/quizzes.js, rattachées à leur leçon.
+  for (const ch of legacyChapters) {
+    for (const st of ch.steps) {
+      if (st.quiz && st.quiz.length) m.set(st.id, { questions: st.quiz, title: st.title, route: '#/etape/' + st.id });
+    }
+  }
+  // Questions « retrouve le réglage à l'oreille » : une carte de révision chacune,
+  // avec un identifiant stable (oreille.…), rattachée à l'étape où vit son schéma.
+  for (const ch of fondations) {
+    for (const q of ch.ear || []) {
+      // Une famille (ear.js) = une carte ; ses variantes sont tirées au hasard à chaque passage.
+      if (m.has(q.id)) {
+        m.get(q.id).questions.push(q);
+        continue;
+      }
+      const st = ch.steps.find((x) => x.id === q.step);
+      m.set(q.id, { questions: [q], title: 'À l’oreille · ' + (st ? st.title : ch.title), route: '#/etape/' + (st ? st.id : ch.steps[0].id), ear: true, chapter: ch.id });
     }
   }
   for (const g of genres) {
@@ -59,6 +79,14 @@ export function allSteps() {
       });
     }
   }
+  // Approfondissements : seulement les exercices validés automatiquement (legacy/checks.js).
+  for (const ch of legacyChapters) {
+    for (const st of ch.steps) {
+      if (st.check) out.push({ group: 'legacy', id: st.id, code: st.code, check: st.check, solution: st.solution });
+    }
+  }
+  // Défis vérifiés : toutes les instances de tous les modèles.
+  for (const d of defis) out.push({ group: 'defis', id: 'defi:' + d.key, code: d.code, check: d.check, solution: d.solution });
   return out;
 }
 
@@ -94,9 +122,27 @@ export function allExamples() {
       continue;
     }
     add('wiki', 'wiki ' + e.id + ' (exemple)', e.code);
+    if (e.recipe) add('wiki', 'wiki ' + e.id + ' (recette)', e.recipe.code);
+    (e.vary || []).forEach((v, i) => add('wiki', 'wiki ' + e.id + ' (variation ' + (i + 1) + ')', v[1]));
     (e.use || []).forEach((u, i) => add('wiki', 'wiki ' + e.id + ' (usage ' + (i + 1) + ')', u[1]));
   }
-  for (const ch of legacyChapters) for (const st of ch.steps) add('legacy', st.id + ' ' + st.title, st.code);
+  for (const ch of legacyChapters) {
+    for (const st of ch.steps) {
+      add('legacy', st.id + ' ' + st.title, st.code);
+      (st.quiz || []).forEach((q, i) => add('legacy', st.id + ' (quiz ' + (i + 1) + ')', q.code));
+    }
+  }
+  return out;
+}
+
+// Tous les schémas déclarés par le contenu : { where, spec } (leçons, wiki, questions).
+export function allSchemas() {
+  const out = [];
+  for (const ch of fondations) {
+    for (const st of ch.steps) if (st.schema) out.push({ where: st.id, spec: st.schema });
+    for (const q of ch.ear || []) out.push({ where: q.id, spec: q.schema, ear: q });
+  }
+  for (const e of wikiEntries) if (e.schema) out.push({ where: 'wiki ' + e.id, spec: e.schema });
   return out;
 }
 
@@ -111,5 +157,18 @@ export function allWikiLinks() {
   }
   for (const g of genres) for (const t of g.traits) for (const id of t.wiki || []) out.push({ from: 'genre ' + g.id + '/' + t.aspect, id });
   for (const e of wikiEntries) for (const id of e.see || []) out.push({ from: 'wiki ' + e.id, id });
+  // Liens dans le texte : [texte](fx.lpf), partout où le contenu est rédigé.
+  const scan = (from, x, depth = 0) => {
+    if (depth > 8 || x == null) return;
+    if (typeof x === 'string') {
+      for (const m of x.matchAll(/\[([^\]]+)\]\(([a-z]+\.[\w.-]+)\)/g)) out.push({ from: from + ' (lien « ' + m[1] + ' »)', id: m[2] });
+    } else if (Array.isArray(x)) x.forEach((y) => scan(from, y, depth + 1));
+    else if (typeof x === 'object') for (const v of Object.values(x)) scan(from, v, depth + 1);
+  };
+  for (const ch of fondations) for (const st of ch.steps) scan(st.id, { ...st, code: null });
+  for (const ch of fondations) for (const q of ch.ear || []) scan(q.id, q);
+  for (const g of genres) scan('genre ' + g.id, g);
+  for (const e of wikiEntries) if (e.kind !== 'ref') scan('wiki ' + e.id, { ...e, code: null, official: null });
+  for (const ch of legacyChapters) for (const st of ch.steps) scan(st.id, { ...st, code: null });
   return out;
 }

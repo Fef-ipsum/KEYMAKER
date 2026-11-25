@@ -1,6 +1,8 @@
-// Le wiki. Une forme fixe pour toutes les entrées, à quatre niveaux :
-//   L'essentiel (toujours visible) · Comment s'en servir · Pièges · Évolutions
-// On ne lit jamais plus que ce qu'on a demandé.
+// Le wiki. Une forme fixe pour toutes les entrées (voir docs/PEDAGOGIE.md §5) :
+//   L'essentiel (toujours visible), puis des replis facultatifs, dans cet ordre :
+//   Les réglages · Dans le temps · Pourquoi ça marche · Comment s'en servir
+//   (recette, variations, autres exemples) · Pièges et confusions · Évolutions.
+// Un repli n'apparaît que si l'entrée a de quoi le remplir.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as engine from '../lib/engine.js';
@@ -8,6 +10,7 @@ import { go } from '../lib/app.js';
 import { KINDS, byId, search, countByKind, primaryNoteKey, allNoteKeys, entryByNoteKey, engineVersion } from '../content/wiki/index.js';
 import { readNotes, setNote } from '../lib/glossaryNotes.js';
 import { Icon, Rich, Sample, Fold, WikiChip, PageHead, useWiki } from '../ui.jsx';
+import { Schema } from '../schemas/ui/Schema.jsx';
 
 const KIND_LABEL = Object.fromEntries(KINDS.map((k) => [k.id, k.label]));
 
@@ -39,9 +42,17 @@ function Notes({ entry }) {
 }
 
 /* --- Une entrée -------------------------------------------------------------------------- */
+// Un texte ou une liste de paragraphes.
+const paras = (x) => (Array.isArray(x) ? x : x ? [x] : []);
+function Paras({ text }) {
+  const list = paras(text);
+  if (list.length === 1) return <Rich as="p" text={list[0]} />;
+  return <div className="paras">{list.map((t, i) => <Rich as="p" key={i} text={t} />)}</div>;
+}
+
 export function Entry({ entry, compact = false }) {
   const o = entry.official;
-  const hasUse = (entry.use && entry.use.length) || (entry.args && entry.args.length);
+  const nUse = (entry.recipe ? 1 : 0) + (entry.vary || []).length + (entry.use || []).length;
   const hasEvo = (entry.evo && entry.evo.length) || (entry.aliases && entry.aliases.length) || (entry.deprecated && entry.deprecated.length);
   return (
     <article className={'entry' + (compact ? ' entry-compact' : '')}>
@@ -58,6 +69,7 @@ export function Entry({ entry, compact = false }) {
         <div className="moment-label">L’essentiel</div>
         {entry.kind === 'ref' ? <p className="entry-refnote">Cette fonction n’a pas encore de fiche en français. Voici sa documentation officielle (Strudel {engineVersion}), en anglais.</p> : null}
         {entry.kind === 'ref' ? <p lang="en">{entry.ess}</p> : <Rich as="p" text={entry.ess} />}
+        {entry.schema ? <Schema spec={entry.schema} context="wiki" /> : null}
       </div>
       {entry.code ? <Sample code={entry.code} /> : null}
       {entry.genre ? (
@@ -66,14 +78,47 @@ export function Entry({ entry, compact = false }) {
         </button>
       ) : null}
 
-      {hasUse ? (
-        <Fold title="Comment s’en servir" hint={entry.use ? entry.use.length + ' exemple' + (entry.use.length > 1 ? 's' : '') : 'les réglages'}>
-          {entry.args && entry.args.length ? (
-            <dl className="decode">
-              {entry.args.map((a, i) => <div className="decode-row" key={i}><dt><code>{a[0]}</code></dt><dd><Rich text={a[1]} /></dd></div>)}
-            </dl>
+      {entry.args && entry.args.length ? (
+        <Fold title="Les réglages" hint={entry.args.length > 1 ? entry.args.length + ' réglages' : 'valeurs et effet'}>
+          <dl className="decode">
+            {entry.args.map((a, i) => <div className="decode-row" key={i}><dt><code>{a[0]}</code></dt><dd><Paras text={a[1]} /></dd></div>)}
+          </dl>
+        </Fold>
+      ) : null}
+
+      {paras(entry.time).length ? (
+        <Fold title="Dans le temps" hint="quand ça agit">
+          <Paras text={entry.time} />
+        </Fold>
+      ) : null}
+
+      {paras(entry.why).length ? (
+        <Fold title="Pourquoi ça marche" hint="le mécanisme">
+          <Paras text={entry.why} />
+        </Fold>
+      ) : null}
+
+      {nUse ? (
+        <Fold title="Comment s’en servir" hint={entry.recipe ? 'une recette' + (nUse > 1 ? ' et ' + (nUse - 1) + ' exemple' + (nUse > 2 ? 's' : '') : '') : nUse + ' exemple' + (nUse > 1 ? 's' : '')}>
+          {entry.recipe ? (
+            <div className="subsec subsec-first">
+              <h3>Recette : <Rich text={entry.recipe.title} /></h3>
+              <Paras text={entry.recipe.text} />
+              <Sample code={entry.recipe.code} />
+            </div>
           ) : null}
-          {(entry.use || []).map((u, i) => <Sample key={i} title={u[0]} code={u[1]} note={u[2]} />)}
+          {entry.vary && entry.vary.length ? (
+            <div className="subsec">
+              <h3>Variations</h3>
+              {entry.vary.map((v, i) => <Sample key={i} title={v[0]} code={v[1]} note={v[2]} />)}
+            </div>
+          ) : null}
+          {entry.use && entry.use.length ? (
+            <div className={entry.recipe || (entry.vary && entry.vary.length) ? 'subsec' : 'subsec subsec-first'}>
+              {entry.recipe || (entry.vary && entry.vary.length) ? <h3>Autres exemples</h3> : null}
+              {entry.use.map((u, i) => <Sample key={i} title={u[0]} code={u[1]} note={u[2]} />)}
+            </div>
+          ) : null}
         </Fold>
       ) : null}
 
@@ -89,7 +134,7 @@ export function Entry({ entry, compact = false }) {
       ) : null}
 
       {entry.traps && entry.traps.length ? (
-        <Fold title="Pièges" hint={entry.traps.length + ' à connaître'}>
+        <Fold title="Pièges et confusions" hint={entry.traps.length + ' à connaître'}>
           <ul className="bullets">{entry.traps.map((t, i) => <li key={i}><Rich text={t} /></li>)}</ul>
         </Fold>
       ) : null}

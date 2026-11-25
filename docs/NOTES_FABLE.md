@@ -63,3 +63,21 @@
 **Passage depuis l'app d'origine** : l'ancien service worker (Workbox) se mettait à jour seul. Le nouveau fait `skipWaiting` UNE fois, s'il trouve un cache `workbox-precache*`, puis recharge les pages ouvertes (`client.navigate`) : Keymaker 2 apparaît environ 4 secondes après la première ouverture. Ensuite, les mises à jour attendent que l'utilisateur les accepte (bandeau sur l'accueil).
 
 **Ne jamais attendre `client.navigate()` dans le `waitUntil` de l'activation** : la navigation attend la fin de l'activation, qui l'attend elle-même (interblocage constaté). La déclencher après.
+
+## Schémas vivants (23 novembre 2026)
+
+**Tout est dans `docs/SCHEMAS.md` ; lire son §0 pour reprendre.** Pièges rencontrés, à ne pas refaire :
+
+**`cancelScheduledValues` pendant une rampe laisse UN échantillon à l'ancienne valeur dans Chrome** (un clic). Utiliser `freezeAt` (`src/schemas/core/synth.js`, `cancelAndHoldAtTime` quand il existe).
+
+**Un filtre partagé entre les notes ne sonne pas comme Strudel** : avec une forte résonance, il continue de sonner d'une note à l'autre (+26 % mesuré). Superdough donne un filtre à chaque note et le range à fin + extinction.
+
+**Superdough range ses notes sur un événement asynchrone** : juste après la fin d'une note, deux rendus du même code diffèrent. Comparer hors de ces zones (7 τ si un filtre résonne).
+
+**La réserve de nœuds de superdough est commune à tous les contextes audio** : un deuxième `OfflineAudioContext` plante. Un seul contexte hors temps réel par page de test, et évaluer avec `repl.evaluate(code, false)` (sans lecture) pour ne pas y faire fuir des nœuds du contexte de la page.
+
+**Le niveau des ondes intégrées dépend du navigateur** (Chrome : carré et dent de scie ×0,848). Ne jamais affirmer qu'elles ont le même volume.
+
+**Un schéma doit repartir de sa déclaration quand on change d'entrée du wiki** : React réutilise le composant ; `Schema.jsx` lui donne une clé = la déclaration.
+
+**`window.mini`, `window.note`… n'existent qu'une fois le moteur chargé** : les schémas qui en ont besoin attendent (`Schema.jsx`, « Le moteur se prépare… »).

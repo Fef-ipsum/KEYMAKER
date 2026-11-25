@@ -2,7 +2,7 @@
 // Un gros bouton (Continuer), puis « J'ai X minutes ». Rien d'autre ne réclame l'attention.
 
 import { getResume, countDone } from '../lib/progress.js';
-import { go, nextFondation, stepRoute, useProgress, dueCount, DURATIONS, buildFlow, writeFlow, levelOf } from '../lib/app.js';
+import { go, nextFondation, stepRoute, useProgress, dueCount, dueExercises, DURATIONS, buildFlow, writeFlow, levelOf } from '../lib/app.js';
 import { fondationIds, stepIndex } from '../content/registry.js';
 import { Icon, ProgressDial } from '../ui.jsx';
 
@@ -12,6 +12,7 @@ export default function Today() {
   const resume = getResume();
   const started = Object.keys(state.steps).length > 0;
   const due = dueCount();
+  const exercises = dueExercises();
 
   // Où reprendre : la dernière étape ouverte si elle n'est pas terminée, sinon la suivante du parcours.
   let target = next ? { route: stepRoute(next.step.id), title: next.step.title, chapter: next.chapter } : null;
@@ -83,6 +84,14 @@ export default function Today() {
         <button type="button" className="quietline" onClick={() => go('#/revision')}>
           <Icon name="check" size={18} />
           <span>{due === 1 ? 'Une révision est prête' : due + ' révisions sont prêtes'} — deux minutes, quand tu veux.</span>
+          <Icon name="next" size={18} />
+        </button>
+      ) : null}
+
+      {exercises.length ? (
+        <button type="button" className="quietline" onClick={() => go(exercises[0].route)}>
+          <Icon name="studio" size={18} />
+          <span>{exercises.length === 1 ? 'Un exercice à refaire de mémoire : « ' + exercises[0].title + ' ».' : exercises.length + ' exercices à refaire de mémoire, en commençant par « ' + exercises[0].title + ' ».'}</span>
           <Icon name="next" size={18} />
         </button>
       ) : null}

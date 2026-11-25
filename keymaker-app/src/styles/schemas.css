@@ -1,0 +1,199 @@
+/* Keymaker 2 — schémas vivants.
+   Un schéma est un petit instrument : on attrape le dessin. Une seule chose importante
+   à la fois : le dessin en haut, ce qui le règle en dessous, le reste replié.         */
+
+:root { --gold: #9a7414; --gold-soft: rgba(181, 138, 38, .16); --raw: rgba(18, 21, 26, .2); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) { --gold: #e2bd5c; --gold-soft: rgba(226, 189, 92, .16); --raw: rgba(255, 255, 255, .22); } }
+:root[data-theme='dark'] { --gold: #e2bd5c; --gold-soft: rgba(226, 189, 92, .16); --raw: rgba(255, 255, 255, .22); }
+
+.schema-wrap { margin: 4px 0 14px; display: grid; gap: 8px; min-width: 0; }
+.schema-cap { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: .82em; font-weight: 650; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-3); }
+.schema-cap-type { text-transform: none; letter-spacing: 0; font-weight: 550; color: var(--ink-2); }
+.schema-cap-type::before { content: '·'; margin-right: 8px; color: var(--ink-3); }
+.schema { display: grid; gap: 12px; padding: 12px; border-radius: var(--r); border: 1px solid var(--line); background: var(--glass); box-shadow: var(--shadow); min-width: 0; }
+.sch-failed { color: var(--ink-3); font-size: .93em; }
+
+/* Le dessin, à l'échelle 1 (textes nets) */
+.sch-figure { width: 100%; min-width: 0; overflow: hidden; border-radius: var(--r-s); background: var(--bg-2); border: 1px solid var(--line); }
+.sch-svg { display: block; touch-action: none; user-select: none; -webkit-user-select: none; cursor: crosshair; }
+.sch-grid line { stroke: var(--line); stroke-width: 1; }
+.sch-grid text, .sch-axis-t, .sch-zero-t { fill: var(--ink-3); font: 500 11px var(--font); }
+.sch-zero { stroke: var(--line-2); stroke-width: 1.2; }
+.sch-zero-t { font-weight: 650; }
+.sch-curve { fill: none; stroke: var(--blue); stroke-width: 2.6; stroke-linejoin: round; }
+.sch-fill { fill: var(--blue-soft); stroke: none; }
+.sch-curve-off, .sch-curve-default { stroke-dasharray: 6 5; stroke: var(--ink-3); }
+.sch-curve-ideal { stroke: var(--ink-3); stroke-width: 1.4; stroke-dasharray: 3 4; }
+.sch-curve-target { stroke: var(--brass); stroke-width: 2; stroke-dasharray: 7 5; }
+.sch-h-raw { stroke: var(--raw); stroke-width: 3; }
+.sch-h-out { stroke: var(--gold); stroke-width: 1.6; }
+.sch-handle { cursor: grab; outline: none; }
+.sch-handle-hit { fill: transparent; }
+.sch-handle-dot { fill: var(--blue-fill); stroke: var(--bg-hi); stroke-width: 3; }
+.sch-handle:focus-visible .sch-handle-dot { stroke: var(--blue); stroke-width: 4; }
+.sch-handle:focus-visible .sch-handle-hit { fill: var(--blue-soft); }
+.sch-handle-t { fill: var(--ink); font: 650 12px var(--font); paint-order: stroke; stroke: var(--bg-2); stroke-width: 4px; stroke-linejoin: round; }
+.sch-notezone { fill: var(--line); }
+.sch-notezone-t { fill: var(--ink-3); font: 550 11px var(--font); }
+.sch-trace path { fill: none; stroke: var(--gold); stroke-width: 2.4; }
+.sch-trace circle { fill: var(--gold); stroke: var(--bg-2); stroke-width: 2; }
+.schema.is-bypass .sch-figure { border-color: var(--line-2); }
+
+/* Ce qui le règle */
+.sch-controls, .ear-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.sch-play, .sch-hold { min-height: 48px; padding: 0 18px 0 14px; border-radius: 999px; display: inline-flex; align-items: center; gap: 8px; font-weight: 650; border: 1px solid var(--line-2); background: var(--glass-2); color: var(--ink); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.sch-play { border-color: var(--blue); color: var(--blue); }
+.sch-play.is-on { background: var(--blue-fill); border-color: var(--blue-fill); color: var(--on-blue); }
+.sch-hold:active, .sch-hold.is-on { background: var(--blue-soft); border-color: var(--blue); }
+.sch-hold-big { min-height: 60px; padding: 0 26px; font-size: 1.05em; border-color: var(--blue); color: var(--blue); }
+.sch-hold-big.is-on { background: var(--blue-fill); color: var(--on-blue); }
+.sch-choice { display: inline-flex; border: 1px solid var(--line-2); border-radius: 999px; padding: 3px; background: var(--glass-2); }
+.sch-choice-b { min-height: 44px; min-width: 44px; padding: 0 14px; border-radius: 999px; font-weight: 600; color: var(--ink-2); }
+.sch-choice-b.is-on { background: var(--blue-soft); color: var(--ink); box-shadow: 0 0 0 1px var(--blue) inset; }
+.sch-presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.sch-presets .chip-t { font-family: var(--font); }
+
+.sch-sliders { display: grid; gap: 4px 20px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.sch-slider { display: grid; gap: 2px; min-height: 64px; align-content: center; }
+.sch-slider.is-off { opacity: .45; }
+.sch-slider-top { display: flex; justify-content: space-between; gap: 10px; font-size: .93em; }
+.sch-slider-name { color: var(--ink-2); font-weight: 600; }
+.sch-slider-hint { font-weight: 500; color: var(--ink-3); }
+.sch-slider-val { font-variant-numeric: tabular-nums; font-weight: 650; white-space: nowrap; }
+.sch-slider input[type='range'] { width: 100%; height: 44px; margin: 0; accent-color: var(--blue-fill); cursor: pointer; }
+
+.sch-phases { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .9em; color: var(--ink-3); }
+.sch-phases li { padding: 2px 8px; border-radius: 8px; }
+.sch-phases strong { font-family: var(--mono); color: var(--ink-2); }
+.sch-phases li.is-on { background: var(--gold-soft); color: var(--ink); }
+.sch-phases li.is-on strong { color: var(--gold); }
+
+/* La ligne de code : la valeur qui change brille un instant */
+.sch-code { display: grid; gap: 6px; min-width: 0; }
+.sch-code pre { white-space: pre-wrap; word-break: break-word; }
+.sch-val { border-radius: 4px; padding: 0 1px; }
+.sch-val.is-glow { animation: sch-glow 1s ease-out; }
+@keyframes sch-glow { 0% { background: var(--gold-soft); box-shadow: 0 0 0 2px var(--gold-soft); color: var(--gold); } 100% { background: transparent; box-shadow: none; } }
+.sch-code .is-off { opacity: .4; text-decoration: line-through; }
+.sch-code-note { font-size: .9em; color: var(--ink-2); }
+.sch-warn { background: var(--hint-soft); color: var(--ink); border-radius: 12px; padding: 10px 14px; font-size: .95em; }
+
+/* Missions : jamais bloquantes, jamais pressantes */
+.sch-missions { display: grid; gap: 8px; }
+.sch-missions ul { display: grid; gap: 8px; }
+.sch-mission { display: grid; grid-template-columns: 26px 1fr; gap: 8px; align-items: start; color: var(--ink-2); }
+.sch-mission-mark { width: 22px; height: 22px; margin-top: 2px; border-radius: 999px; border: 1.5px solid var(--line-2); display: grid; place-items: center; }
+.sch-mission.is-done .sch-mission-mark { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+.sch-mission.is-done { color: var(--ink); }
+.sch-learned { display: block; margin-top: 6px; padding: 8px 12px; border-radius: 10px; background: var(--ok-soft); color: var(--ink); }
+.sch-learned.is-fresh { animation: sch-in .35s ease-out; }
+@keyframes sch-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+
+/* Question « retrouve le réglage » */
+.ear { display: grid; gap: 12px; }
+.question-sub { color: var(--ink-2); margin: 6px 0 10px; }
+
+/* Sati */
+.chat-schema { margin: 8px 0; }
+.chat-schema-t { font-weight: 650; margin-bottom: 6px; }
+.msg .schema { padding: 8px; }
+
+/* Page de revue */
+.review { display: grid; gap: 14px; }
+.review-h { margin-top: 18px; }
+.review-item { display: grid; gap: 6px; }
+.review-where { font-size: .9em; color: var(--ink-3); font-weight: 600; }
+.review-q { font-weight: 600; }
+
+@media (max-width: 520px) {
+  .schema { padding: 8px; border-radius: var(--r-s); }
+  .sch-sliders { grid-template-columns: 1fr; }
+  .sch-controls > * { flex: 1 1 auto; justify-content: center; }
+}
+
+/* Ondes */
+.sch-onde-fig { display: flex; flex-wrap: wrap; gap: 12px; background: transparent; border: 0; }
+.sch-onde-fig .sch-svg { background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-s); cursor: default; touch-action: auto; }
+.sch-bar { fill: var(--gold); }
+.sch-bar.is-empty { fill: none; }
+.sch-grid-t { fill: var(--ink-3); font: 500 10.5px var(--font); }
+.sch-waves { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
+.sch-wavebtn { min-height: 64px; display: grid; justify-items: center; gap: 2px; padding: 6px; border-radius: var(--r-s); border: 1px solid var(--line-2); background: var(--glass-2); font-weight: 600; color: var(--ink-2); }
+.sch-wavebtn .sch-curve { stroke-width: 2; }
+.sch-wavebtn.is-on { border-color: var(--blue); background: var(--blue-soft); color: var(--ink); box-shadow: 0 0 0 1px var(--blue) inset; }
+
+/* Enveloppe de filtre */
+.sch-fenv-resp { border-top: 1px solid var(--line); cursor: default; touch-action: auto; }
+.sch-curve-live { stroke: var(--gold); }
+
+/* Cycle et tempo */
+.sch-cycle-svg { touch-action: manipulation; cursor: default; }
+.sch-row { fill: var(--glass-2); stroke: var(--line); }
+.sch-quarter { stroke: var(--line-2); stroke-dasharray: 2 4; }
+.sch-ev rect { fill: var(--blue-fill); opacity: .85; }
+.sch-ev-1 rect { fill: var(--gold); }
+.sch-ev-2 rect { fill: var(--ok); }
+.sch-ev-3 rect { fill: var(--brass-fill); }
+.sch-ev text { fill: var(--on-blue); font: 650 11px var(--mono); pointer-events: none; }
+.sch-ev-1 text, .sch-ev-3 text { fill: #1b1405; }
+.sch-ev.is-tap { cursor: pointer; }
+.sch-ev.is-tap:hover rect { opacity: 1; }
+.sch-head { stroke: var(--gold); stroke-width: 2.5; }
+.sch-motif { display: grid; gap: 6px; }
+.sch-motif input { min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--bg-hi); font: 600 1.02em var(--mono); color: var(--ink); width: 100%; }
+.sch-motif input[aria-invalid='true'] { border-color: var(--hint); }
+.sch-cycle-line { stroke: var(--blue); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.sch-hit-bd { fill: var(--blue-fill); }
+.sch-hit-hh { fill: var(--gold); }
+.sch-tempo-line { font-size: .95em; color: var(--ink-2); }
+.sch-tempo-line strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* Clavier */
+.sch-keys { touch-action: manipulation; cursor: pointer; }
+.sch-key-w rect { fill: #fbfbfc; stroke: var(--line-2); }
+.sch-key-b rect { fill: #1a1d24; stroke: #0b0c10; }
+.sch-key.is-on.sch-key-w rect { fill: var(--blue-fill); }
+.sch-key.is-on.sch-key-b rect { fill: var(--gold); }
+.sch-key-l { fill: #2a2f3a; font: 700 12px var(--font); pointer-events: none; }
+.sch-key-fr { fill: #5a626e; font: 500 10.5px var(--font); pointer-events: none; }
+.sch-key.is-on .sch-key-l, .sch-key.is-on .sch-key-fr { fill: #fff; }
+.sch-key-n { fill: #fff; font: 750 14px var(--font); pointer-events: none; }
+.sch-key-b.is-on .sch-key-n { fill: #1b1405; }
+.sch-key:focus-visible rect { stroke: var(--blue); stroke-width: 3; }
+.sch-arc path { fill: none; stroke: var(--gold); stroke-width: 2; }
+.sch-arc text { fill: var(--ink); font: 700 12px var(--font); }
+
+/* Un dessin ne pousse jamais la page : il se mesure dans la place qu'on lui donne. */
+.sch-svg { max-width: 100%; height: auto; }
+.review > *, .review-item > *, .schema-wrap > * { min-width: 0; }
+.schema { grid-template-columns: minmax(0, 1fr); }
+.sch-choice { flex-wrap: wrap; max-width: 100%; border-radius: 22px; }
+
+/* Signal */
+.sch-step { stroke: var(--gold); stroke-width: 3; stroke-linecap: round; }
+
+/* Effets */
+.sch-effet-fig { display: flex; flex-wrap: wrap; gap: 12px; }
+.sch-bar-dry { fill: var(--blue-fill); }
+.sch-fill-gold { fill: var(--gold-soft); stroke: var(--gold); stroke-width: 1.5; }
+
+/* Téléphone et tablette : le dessin reste visible pendant qu'on règle les curseurs en dessous. */
+@media (max-width: 999px) {
+  .sch-figure { position: sticky; top: var(--sch-top, 0px); z-index: 3; background: var(--bg-2); box-shadow: 0 10px 18px -14px rgba(0, 0, 0, .45); }
+  .sheet { --sch-top: 58px; }
+  .sch-onde-fig, .sch-effet-fig { background: var(--bg-2); }
+}
+.sch-ideal-t { fill: var(--ink-3); font: 600 11px var(--font); paint-order: stroke; stroke: var(--bg-2); stroke-width: 3px; }
+
+/* Axes nommés, durée de la note, niveau S (retours de Felix, novembre 2026). */
+.sch-axis-title { fill: var(--ink-2); font: 600 11px var(--font); }
+.sch-bracket line { stroke: var(--ink-3); stroke-width: 1.2; }
+.sch-bracket .sch-bracket-end { stroke-dasharray: 3 3; }
+.sch-bracket text { fill: var(--ink-2); font: 600 11px var(--font); }
+.sch-level-t { fill: var(--ink-2); font: 650 11px var(--mono); paint-order: stroke; stroke: var(--bg-2); stroke-width: 3px; }
+.sch-choice-wrap { display: flex; flex-direction: column; gap: 6px; flex-basis: 100%; }
+.sch-choice-label { font-size: .85em; font-weight: 600; color: var(--ink-3); }
+/* Les temps (pulsation) dans le schéma ADSR. */
+.sch-beat line { stroke: var(--blue); stroke-width: 1; stroke-dasharray: 3 4; opacity: .45; }
+.sch-beat text { fill: var(--blue); font: 600 10px var(--font); opacity: .8; }
+.sch-beatnote { font-size: .84rem; color: var(--ink-3); margin: 4px 2px 0; }
